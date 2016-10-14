@@ -3,61 +3,61 @@ package compiler.lexer;
 import com.sun.xml.internal.stream.buffer.stax.StreamReaderBufferProcessor;
 
 import java.io.*;
+import java.util.Scanner
 
 /**
  * Created by paul on 10/14/16.
  */
-public class Scanner {
+public class Tokenizer {
 
     private char currChar;
     private String line;
     private int pos;
 
-    private FileReader reader;
-    private InputStream is;
 
-    private InputStreamReader in;
+    private FileInputStream is;
+    private Scanner scanner;
 
-    private StreamTokenizer tokenizer;
 
-    private StreamReaderBufferProcessor srbp;
+
+
 
 
 
     //TODO: Replace the StreamTokenizer with my own tokenizer class
 
-    public Scanner(String filename)
+    public Tokenizer(String filename)
     {
         try {
             is = new FileInputStream(filename);
+            scanner = new Scanner(is);
         }
         catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+    }
+
+    public TokenNode getNextToken()
+    {
+        TokenNode ret;
+
+        try {
+            
 
 
-        in = new InputStreamReader(is);
-
-        tokenizer = new StreamTokenizer(in);
-
-        tokenizer.wordChars('(', '+');
-        tokenizer.wordChars('-', '/');
-
-        tokenizer.wordChars(';', '>');
-        tokenizer.wordChars('[', '[');
-
-        tokenizer.wordChars(']', ']');
-        tokenizer.wordChars('{', '{');
-        tokenizer.wordChars('}', '}');
-        tokenizer.wordChars(',', ',');
 
 
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        return ret;
     }
 
 
-
-
-
+/*
     public TokenNode getNextToken()
     {
         try {
@@ -79,6 +79,7 @@ public class Scanner {
                     String s = Character.toString(c);
                     return new TokenNode(Token.classifyToken(s), s);
                     */
+/*
                     return new TokenNode(Token.classifyToken(tokenizer.sval), tokenizer.sval);
             }
 
@@ -89,6 +90,6 @@ public class Scanner {
         return new TokenNode( Token.UNKNOWN, tokenizer.sval);
     }
 
-
+*/
 
 }

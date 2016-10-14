@@ -1,6 +1,6 @@
 package compiler;
 
-import compiler.lexer.Scanner;
+import compiler.lexer.Tokenizer;
 import compiler.lexer.Token;
 import compiler.lexer.TokenNode;
 
@@ -12,7 +12,7 @@ public class Main {
 
     public static void main(String[] args)
     {
-        Scanner s = new Scanner("src/compiler/test001.txt");
+        Tokenizer s = new Tokenizer("src/compiler/test001.txt");
 
         TokenNode tn;
 
