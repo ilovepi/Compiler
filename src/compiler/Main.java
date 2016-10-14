@@ -12,7 +12,7 @@ public class Main {
         Token c;
         c = Token.classifyToken("<-");
 
-        System.out.println(Token.printToken(c));
+        System.out.println(Token.toString(c));
 
 
     }

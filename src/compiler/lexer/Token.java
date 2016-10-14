@@ -46,7 +46,7 @@ public enum  Token {
 
     public static Token classifyToken(String str)
     {
-        //
+        // Choose the  correct Token Value
         switch (str)
         {
             case "+":
@@ -149,9 +149,9 @@ public enum  Token {
      * @param t The token to read
      * @return String representation of the token
      */
-    public static String printToken(Token t)
+    public static String toString(Token t)
     {
-        //
+        // choose the correct string based on the Token
         switch (t)
         {
             case PLUS:
@@ -237,6 +237,105 @@ public enum  Token {
                 return "identifier";
             case UNKNOWN:
                 return "unknown";
+            default:
+                return "ERROR";
+        }
+
+    }
+
+    /**
+     * A to String function for printing Token values
+     * @param t The token to read
+     * @return String representation of the token
+     */
+    public static String printToken(Token t)
+    {
+        //
+        switch (t)
+        {
+            case PLUS:
+                return "PLUS";
+            case MINUS:
+                return "MINUS";
+            case TIMES:
+                return "TIMES";
+            case DIVIDE:
+                return "DIVIDE";
+
+            // Relational Operators
+            case EQUAL:
+                return "EQUAL";
+            case NOT_EQUAL:
+                return "NOT_EQUAL";
+            case LESS:
+                return "LESS";
+            case LESS_EQ:
+                return "LESS_EQ";
+            case GREATER:
+                return "GREATER";
+            case GREATER_EQ:
+                return "GREATER_EQ";
+
+            // Misc operators
+            case ASSIGN:
+                return "ASSIGN";
+            case SEMI_COLON:
+                return "SEMI_COLON";
+            case COMMA:
+                return "COMMA";
+
+            // Blocks
+            case OPEN_PAREN:
+                return "OPEN_PAREN";
+            case CLOSE_PAREN:
+                return "CLOSE_PAREN";
+            case OPEN_BRACKET:
+                return "OPEN_BRACKET";
+            case CLOSE_BRACKET:
+                return "CLOSE_BRACKET";
+            case OPEN_CURL:
+                return "OPEN_CURL";
+            case CLOSE_CURL:
+                return "CLOSE_CURL";
+
+            //keywords
+            case LET:
+                return "LET";
+            case CALL:
+                return "CALL";
+
+            case IF:
+                return "IF";
+            case THEN:
+                return "THEN";
+            case ELSE:
+                return "ELSE";
+            case FI:
+                return "FI";
+            case WHILE:
+                return "WHILE";
+            case DO:
+                return "DO";
+            case OD:
+                return "OD";
+
+            case RETURN:
+                return "RETURN";
+
+            case MAIN:
+                return "MAIN";
+            case FUNCTION:
+                return "FUNCTION";
+            case PROCEDURE:
+                return "PROCEDURE";
+            case EOF:
+                return "EOF";
+            case NUMBER:
+                return "NUMBER";
+            case IDENTIFIER:
+               return "IDENTIFIER";
+            case UNKNOWN:
+                return "UNKNOWN";
             default:
                 return "ERROR";
         }
