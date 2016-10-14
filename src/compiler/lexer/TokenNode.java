@@ -22,5 +22,15 @@ public class TokenNode {
         val = (int)new_val;
     }
 
+    public Token getT() {
+        return t;
+    }
 
+    public String getS() {
+        return s;
+    }
+
+    public int getVal() {
+        return val;
+    }
 }

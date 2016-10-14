@@ -124,7 +124,7 @@ public enum  Token {
                 return FUNCTION;
             case "procedure":
                 return PROCEDURE;
-            case "@":
+            case ".":
                 return EOF;
 
             default:
