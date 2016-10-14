@@ -24,6 +24,7 @@ public class Scanner {
 
 
 
+    //TODO: Replace the StreamTokenizer with my own tokenizer class
 
     public Scanner(String filename)
     {
