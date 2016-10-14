@@ -19,6 +19,7 @@ public class TokenNode {
     public TokenNode(Token new_t, double new_val)
     {
         t = new_t;
+        s = null;
         val = (int)new_val;
     }
 

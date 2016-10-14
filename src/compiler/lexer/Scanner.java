@@ -39,6 +39,18 @@ public class Scanner {
 
         tokenizer = new StreamTokenizer(in);
 
+        tokenizer.wordChars('(', '+');
+        tokenizer.wordChars('-', '/');
+
+        tokenizer.wordChars(';', '>');
+        tokenizer.wordChars('[', '[');
+
+        tokenizer.wordChars(']', ']');
+        tokenizer.wordChars('{', '{');
+        tokenizer.wordChars('}', '}');
+        tokenizer.wordChars(',', ',');
+
+
     }
 
 
@@ -53,13 +65,20 @@ public class Scanner {
             switch (tok_val)
             {
                 case StreamTokenizer.TT_EOF:
-                    return new TokenNode(Token.EOF, "");
+                    return new TokenNode(Token.EOF, "~EOF~");
                 case StreamTokenizer.TT_NUMBER:
                     return new TokenNode(Token.NUMBER, tokenizer.nval);
                 case StreamTokenizer.TT_WORD:
-                    return new TokenNode(Token.classifyToken(tokenizer.sval), tokenizer.nval);
+                    return new TokenNode(Token.classifyToken(tokenizer.sval), tokenizer.sval);
+                //case ',':
+                //    return new TokenNode(Token.COMMA, ",");
                 default:
-                    return new TokenNode( Token.UNKNOWN, tokenizer.sval);
+                    /*
+                    char c = (char)tok_val;
+                    String s = Character.toString(c);
+                    return new TokenNode(Token.classifyToken(s), s);
+                    */
+                    return new TokenNode(Token.classifyToken(tokenizer.sval), tokenizer.sval);
             }
 
         } catch (IOException e) {

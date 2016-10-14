@@ -12,7 +12,7 @@ public class Main {
 
     public static void main(String[] args)
     {
-        Scanner s = new Scanner("test001.txt");
+        Scanner s = new Scanner("src/compiler/test001.txt");
 
         TokenNode tn;
 
@@ -31,7 +31,7 @@ public class Main {
                 str = "Error: TokenNode was NULL";
             }
 
-            System.out.println(Token.printToken(tn.getT()) + ": " + tn.getVal() );
+            System.out.println(Token.printToken(tn.getT()) + ": " + str );
         }
         while (tn.getT() != Token.EOF);
 
