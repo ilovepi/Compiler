@@ -33,7 +33,7 @@ public class Main {
 
             System.out.println(Token.printToken(tn.getT()) + ": " + str );
         }
-        while (tn.getT() != Token.EOF);
+        while (tn != null);
 
 
     }

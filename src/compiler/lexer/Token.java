@@ -27,7 +27,7 @@ public enum  Token {
 
     //KEYWORDS
     LET, CALL, IF, THEN, ELSE, FI,WHILE, DO, OD, RETURN,
-    MAIN,
+    MAIN, VAR,
 
     IDENTIFIER, NUMBER, FUNCTION, PROCEDURE,
 
@@ -99,6 +99,8 @@ public enum  Token {
                 return LET;
             case "call":
                 return CALL;
+            case "var":
+                return VAR;
 
             case "if":
                 return IF;
