@@ -103,6 +103,7 @@ public class Tokenizer {
 
            switch (currentChar)
            {
+               /*
                case ' ':
                case '\t':
                case '\n':
@@ -116,6 +117,7 @@ public class Tokenizer {
                case '(':
                case ')':
                    return i;
+                   */
                case '<':
                {
 
@@ -143,15 +145,8 @@ public class Tokenizer {
                    else
                        return i;
                default:
-                   if( (currentChar >= 'a' && currentChar <='z' ) ||
-                           (currentChar >= 'A' && currentChar <='Z' ) ||
-                           (currentChar >= '0' && currentChar <= '9') )
-                   {
-                       continue;
-                   }
-                   else {
+                   if( !Character.isLetterOrDigit(currentChar))
                        return i;
-                   }
            }
         }
 
