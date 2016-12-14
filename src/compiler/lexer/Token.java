@@ -27,7 +27,7 @@ public enum  Token {
 
     //KEYWORDS
     LET, CALL, IF, THEN, ELSE, FI,WHILE, DO, OD, RETURN,
-    MAIN, VAR,
+    MAIN, VAR, ARRAY,
 
     IDENTIFIER, NUMBER, FUNCTION, PROCEDURE,
 
@@ -40,7 +40,7 @@ public enum  Token {
 
     /**
      * Classify Tokens based on the Grammar
-     * TODO: consider using a hash table instead of enum + function... could be easier to maintian ???
+     * TODO: consider using a hash table instead of enum + function... could be easier to maintain ???
      * @param str The token(string) to classify
      * @return The correct token of the string
      */
@@ -102,6 +102,8 @@ public enum  Token {
                 return CALL;
             case "var":
                 return VAR;
+            case "array":
+                return ARRAY;
 
             case "if":
                 return IF;
@@ -210,6 +212,11 @@ public enum  Token {
                 return "let";
             case CALL:
                 return "call";
+            case VAR:
+                return "var";
+            case ARRAY:
+                return "array";
+
 
             case IF:
                 return "if";
@@ -313,6 +320,9 @@ public enum  Token {
                 return "CALL";
             case VAR:
                 return "VAR";
+            case ARRAY:
+                return "ARRAY";
+
 
             case IF:
                 return "IF";

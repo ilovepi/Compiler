@@ -6,6 +6,8 @@ import java.io.*;
 
 /**
  * Created by paul on 10/14/16.
+ *
+ *
  */
 public class Tokenizer {
 
@@ -30,20 +32,22 @@ public class Tokenizer {
 
             pos = 0;
 
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
+    } // end Tokenizer(filename)
 
     public TokenNode getNextToken() {
 
         if(line == null)
             return null;
+
+        if(line.isEmpty())
+            return null;
+
         if(pos >= line.length())
             return null;
+
         //read character
         char c = line.charAt(pos);
         String token;
@@ -58,7 +62,10 @@ public class Tokenizer {
         if (end == line.length())
         {
             try {
-                line = reader.readLine();
+                do {
+                    line = reader.readLine();
+                } while(line != null && line.isEmpty());
+
                 pos = 0;
             } catch (IOException e) {
                 e.printStackTrace();
@@ -68,7 +75,7 @@ public class Tokenizer {
 
     }
 
-    int findEndOfToken(String str, int position)
+    private int findEndOfToken(String str, int position)
     {
         boolean started = false;
         char[] word = str.toCharArray();
