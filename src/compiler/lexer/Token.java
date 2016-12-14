@@ -33,6 +33,7 @@ public enum  Token {
 
     // parsing tokens
     EOF,
+    COMMENT,
 
     UNKNOWN;
 
@@ -134,9 +135,12 @@ public enum  Token {
                 {
                     return NUMBER;
                 }
-                else if (str.matches("[a-z][a-z0-9]*"))
+                else if (str.matches("[A-Za-z][A-Za-z0-9]*"))
                 {
                     return IDENTIFIER;
+                }
+                else if (str.matches("//.*")) {
+                    return COMMENT;
                 }
                 else
                 {
@@ -239,6 +243,8 @@ public enum  Token {
                 return "identifier";
             case UNKNOWN:
                 return "unknown";
+            case COMMENT:
+                return "comment";
             default:
                 return "ERROR";
         }
@@ -305,6 +311,8 @@ public enum  Token {
                 return "LET";
             case CALL:
                 return "CALL";
+            case VAR:
+                return "VAR";
 
             case IF:
                 return "IF";
@@ -338,6 +346,8 @@ public enum  Token {
                return "IDENTIFIER";
             case UNKNOWN:
                 return "UNKNOWN";
+            case COMMENT:
+                return "COMMENT";
             default:
                 return "ERROR";
         }

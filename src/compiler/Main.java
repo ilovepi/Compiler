@@ -12,7 +12,7 @@ public class Main {
 
     public static void main(String[] args)
     {
-        Tokenizer s = new Tokenizer("src/compiler/test001.txt");
+        Tokenizer s = new Tokenizer("src/compiler/test002.txt");
 
         TokenNode tn;
 
@@ -20,6 +20,8 @@ public class Main {
 
         do{
             tn = s.getNextToken();
+            if(tn == null)
+                break;
 
             if(tn.getS() != null)
                 str = tn.getS();

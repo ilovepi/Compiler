@@ -42,11 +42,16 @@ public class Tokenizer {
 
         if(line == null)
             return null;
+        if(pos >= line.length())
+            return null;
         //read character
         char c = line.charAt(pos);
         String token;
 
         int end = findEndOfToken(line, pos);
+        if(end == pos && end < line.length())
+            end++;
+
         token = line.substring(pos, end);
 
         pos = end;
@@ -75,7 +80,7 @@ public class Tokenizer {
             if( i < (str.length()-1 ))
                 nextChar = word[i+1];
             else
-                return str.length();
+                nextChar='\n';
 
 
             //skip leading whitespace
@@ -94,23 +99,22 @@ public class Tokenizer {
                case ' ':
                case '\t':
                case '\n':
-                   return i-1;
                case ';':
                case ',':
-                   return i+1;
-               case '(':
-               case ')':
-               case '{':
-               case '}':
                case '+':
                case '-':
                case '*':
+               case '{':
+               case '}':
+               case '(':
+               case ')':
                    return i;
                case '<':
                {
+
                    if(nextChar == '-' || nextChar == '=')
                    {
-                       return i+1;
+                       return i+2;
                    }
                    return i;
                }
@@ -133,12 +137,13 @@ public class Tokenizer {
                        return i;
                default:
                    if( (currentChar >= 'a' && currentChar <='z' ) ||
+                           (currentChar >= 'A' && currentChar <='Z' ) ||
                            (currentChar >= '0' && currentChar <= '9') )
                    {
                        continue;
                    }
                    else {
-                       return i - 1;
+                       return i;
                    }
            }
         }
@@ -146,6 +151,17 @@ public class Tokenizer {
         return str.length();
 
     }
+
+
+
+
+
+
+
+
+
+
+
 
 /*
     public TokenNode getNextToken()
