@@ -52,7 +52,8 @@ public class ASTNode<T> {
         funcDecl,
         formalParam,
         funcBody,
-        computation
+        computation,
+        none
     }
 
     public ASTNode left;
@@ -60,10 +61,20 @@ public class ASTNode<T> {
 
     public Token m_token;
     public T m_value;
+    public NodeType m_type;
 
-
-    public ASTNode(Token t, T val)
+    public ASTNode()
     {
+        left = null;
+        right = null;
+        m_token = Token.UNKNOWN;
+        m_type = NodeType.none;
+    }
+
+
+    public ASTNode(Token t, T val, NodeType type)
+    {
+        m_type = type;
         m_token = t;
         m_value = val;
         left = null;

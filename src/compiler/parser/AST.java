@@ -7,4 +7,16 @@ package compiler.parser;
  */
 public class AST {
 
+    private ASTNode root;
+
+
+    public AST(){}
+
+    public void createAST(ASTNode new_root)
+    {
+        root = new_root;
+    }
+
+
+
 }
