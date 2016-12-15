@@ -21,7 +21,7 @@ public class Tokenizer {
 
 
 
-    //TODO: Replace the StreamTokenizer with my own tokenizer class
+    //TODO: implement a proper state machine for the tokenizer
 
     public Tokenizer(String filename) {
         try {

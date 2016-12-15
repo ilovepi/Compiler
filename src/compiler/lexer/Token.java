@@ -41,8 +41,8 @@ public enum  Token {
     /**
      * Classify Tokens based on the Grammar
      * TODO: consider using a hash table instead of enum + function... could be easier to maintain ???
-     * @param str The token(string) to classify
-     * @return The correct token of the string
+     * @param str The m_token(string) to classify
+     * @return The correct m_token of the string
      */
 
     public static Token classifyToken(String str)
@@ -154,8 +154,8 @@ public enum  Token {
 
     /**
      * A to String function for printing Token values
-     * @param t The token to read
-     * @return String representation of the token
+     * @param t The m_token to read
+     * @return String representation of the m_token
      */
     public static String toString(Token t)
     {
@@ -260,8 +260,8 @@ public enum  Token {
 
     /**
      * A to String function for printing Token values
-     * @param t The token to read
-     * @return String representation of the token
+     * @param t The m_token to read
+     * @return String representation of the m_token
      */
     public static String printToken(Token t)
     {
