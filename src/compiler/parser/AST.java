@@ -10,7 +10,9 @@ public class AST {
     private ASTNode root;
 
 
-    public AST(){}
+    public AST(){
+        root = new ASTNode(ASTNode.NodeType.program);
+    }
 
     public void createAST(ASTNode new_root)
     {

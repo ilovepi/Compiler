@@ -53,6 +53,7 @@ public class ASTNode<T> {
         formalParam,
         funcBody,
         computation,
+        program,
         none
     }
 
@@ -71,6 +72,11 @@ public class ASTNode<T> {
         m_type = NodeType.none;
     }
 
+
+    public ASTNode( NodeType type)
+    {
+        m_type = type;
+    }
 
     public ASTNode(Token t, T val, NodeType type)
     {
