@@ -158,8 +158,12 @@ public class Parser {
 
     ASTNode createDeclNode(TokenNode tn)
     {
-        return new ASTNode(tn, ASTNode.NodeType.typeDecl);
+        // declaration is either a typeDecl or a funcDecl
+        ASTNode ret = new ASTNode(tn, ASTNode.NodeType.typeDecl);
 
+        if(tn.getT() == FUNCTION)
+            ret.m_type= ASTNode.NodeType.typeDecl.funcDecl;
+        return ret;
     }
 
 
