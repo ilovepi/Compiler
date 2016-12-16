@@ -103,9 +103,10 @@ public class Parser {
 
 
 
-    private boolean varDecl(Token t) {
+    private boolean varDecl(TokenNode tn) {
+        Token t = tn.getT();
         if (t == Token.VAR) {
-            createDeclNode()
+            createDeclNode(tn);
 
         } else if (t == Token.ARRAY) {
 
@@ -124,7 +125,7 @@ public class Parser {
             throw new Exception("Parse error: Expected to find 'main'");
 
 
-        processVarDecl()
+        processVarDecl();
 
 
     }
@@ -155,8 +156,9 @@ public class Parser {
         return next_token;
     }
 
-    ASTNode createDeclNode()
+    ASTNode createDeclNode(TokenNode tn)
     {
+        return new ASTNode(tn, ASTNode.NodeType.typeDecl);
 
     }
 

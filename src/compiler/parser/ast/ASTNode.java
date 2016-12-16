@@ -1,12 +1,13 @@
 package compiler.parser.ast;
 
 import compiler.lexer.Token;
+import compiler.lexer.TokenNode;
 
 /**
  * Created by paul on 12/14/16.
  *
  */
-public class ASTNode<T> {
+public class ASTNode {
 
     /*
         designator = ident{ "[" expression "]" }.
@@ -59,7 +60,7 @@ public class ASTNode<T> {
     public ASTNode right;
 
     public Token m_token;
-    public T m_value;
+    public String m_value;
     public NodeType m_type;
 
     public ASTNode()
@@ -76,17 +77,33 @@ public class ASTNode<T> {
         m_type = type;
     }
 
-    public ASTNode(Token t, T val, NodeType type)
+    public ASTNode(Token t, String val, NodeType type)
     {
+        left = null;
+        right = null;
         m_type = type;
         m_token = t;
         m_value = val;
+    }
+
+    public ASTNode(TokenNode tn)
+    {
         left = null;
         right = null;
+        m_type = null;
+        m_token = tn.getT();
+        m_value = tn.getS();
     }
 
 
-
+    public ASTNode(TokenNode tn, NodeType new_type)
+    {
+        left = null;
+        right = null;
+        m_type = new_type;
+        m_token = tn.getT();
+        m_value = tn.getS();
+    }
 
 
     //public NodeType nodeType;

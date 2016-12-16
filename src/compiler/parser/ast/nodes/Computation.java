@@ -5,5 +5,7 @@ package compiler.parser.ast.nodes;
  */
 public class Computation {
     String name;
-    Declarations
+    Declarations declarations;
+
+
 }

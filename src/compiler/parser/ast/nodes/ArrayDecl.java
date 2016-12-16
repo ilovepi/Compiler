@@ -27,7 +27,7 @@ public class ArrayDecl extends VarDecl{
 
     public void setSize(int size) {
         if( size < 1 )
-                throw new RangeException(BAD_BOUNDARYPOINTS_ERR, "Array size must be greater than zero")
+                throw new RangeException(BAD_BOUNDARYPOINTS_ERR, "Array size must be greater than zero");
         this.size = size;
     }
 
@@ -35,7 +35,7 @@ public class ArrayDecl extends VarDecl{
         return isMultiDimesional;
     }
 
-    public void setMultiDimesional(boolean multiDimesional) {
+    public void setMultiDimensional(boolean multiDimesional) {
         isMultiDimesional = multiDimesional;
     }
 
@@ -49,7 +49,7 @@ public class ArrayDecl extends VarDecl{
     {
         super(name);
        setSize(new_size);
-       setMultiDimesional(isMultiD);
+       setMultiDimensional(isMultiD);
     }
 
 
