@@ -1,4 +1,4 @@
-package compiler.parser.ast;
+package compiler.parser.ast.nodes;
 
 /**
  * Created by paul on 12/16/16.

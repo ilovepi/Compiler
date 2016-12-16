@@ -22,7 +22,7 @@ public class AST {
 
     public void search(ASTNode node,ASTNode.NodeType t)
     {
-        if(node)
+        //if(node)
 
     }
 
