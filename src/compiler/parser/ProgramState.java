@@ -22,6 +22,9 @@ public enum ProgramState {
     factor,
     term,
     expression,
-    relation
+    relation,
+    array,
+    var,
+
 
 }

@@ -1,4 +1,4 @@
-package compiler.parser;
+package compiler.parser.ast;
 
 /**
  * Created by paul on 12/14/16.
@@ -19,6 +19,12 @@ public class AST {
         root = new_root;
     }
 
+
+    public void search(ASTNode node,ASTNode.NodeType t)
+    {
+        if(node)
+
+    }
 
 
 }
