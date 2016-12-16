@@ -8,43 +8,45 @@ import compiler.lexer.*;
  */
 public class AST {
 
-    enum AstType {
-        root,
-        computation,
-        declarations,
-        body,
-        varDecl,
-        typeDecl,
-        variable,
-        array,
-        aryIndex,
-        statement,
-        statSequence,
-        assignment,
-        funcCall,
-        ifStatement,
-        whileStatement,
-        returnStatement,
-        designator,
-        factor,
-        term,
-        expression,
-        relation,
-
-        //terminals
-        terminal
-
-    }
-
-    private AST left;
-    private AST mid;
-    private AST right;
-    TokenNode tn;
-    AstType nodeType;
-
     private static Tokenizer tokenizer;
     private static TokenNode currToken;
     private static TokenNode nextToken;
+    private AST left;
+    private AST mid;
+    private AST right;
+    private TokenNode tn;
+    private AstType nodeType;
+
+    public AST() {
+        this(null, null);
+    }
+
+
+    public AST(Tokenizer tok) throws Exception {
+        AST.tokenizer = tok;
+        AstType nodeType = AstType.root;
+        TokenNode tn = null;
+        left = computation();
+        right = null;
+        mid = null;
+    }
+
+    public AST(AstType new_type, TokenNode tokenNode) {
+        AstType nodeType;
+        TokenNode tn;
+        left = null;
+        right = null;
+        mid = null;
+    }
+
+
+    public AST(AstType new_type) {
+        this.nodeType = new_type;
+        tn = null;
+        left = null;
+        right = null;
+        mid = null;
+    }
 
     private void getNextToken() {
         currToken = nextToken;
@@ -53,10 +55,11 @@ public class AST {
         } while (nextToken.getT() == Token.COMMENT);
     }
 
+    private AST computation() throws Exception {
 
-    AST computation() throws Exception {
-        getNextToken();
-
+        while(currToken == null) {
+            getNextToken();
+        }
         if (currToken.getT() != Token.MAIN)
             throw new Exception("Parse Error: Expected to find declaration of main");
 
@@ -71,41 +74,6 @@ public class AST {
 
         return compNode;
     }
-
-
-    //AST createAST();
-
-    public AST() {
-        this(null, null);
-    }
-
-    public AST(Tokenizer tok) throws Exception {
-        AST.tokenizer = tok;
-        AstType nodeType = AstType.root;
-        TokenNode tn = null;
-        left = computation();
-        right = null;
-        mid = null;
-    }
-
-
-    public AST(AstType new_type, TokenNode tokenNode) {
-        AstType nodeType;
-        TokenNode tn;
-        left = null;
-        right = null;
-        mid = null;
-    }
-
-    public AST(AstType new_type) {
-        this.
-                nodeType = new_type;
-        tn = null;
-        left = null;
-        right = null;
-        mid = null;
-    }
-
 
     public AST body() throws Exception {
         getNextToken();
@@ -131,10 +99,108 @@ public class AST {
 
     }
 
+    public AST declarations() throws Exception {
 
-    public AST declarations() {
+        AST dec = new AST(AstType.declarations);
+
+        dec.left = varDecl(false);
+        dec.right = funcDel();
+
+        if (!dec.hasChildren())
+            dec = null;
+
+        return dec;
+    }
+
+    private AST funcDel() {
+        AST funDec = new AST(AstType.funcDecl);
+
+        getNextToken();
+        if (currToken.getT() != Token.FUNCTION)
+            return null;
+
         return null;
+    }
 
+    private AST varDecl(boolean isStarted) throws Exception {
+        AST vd = new AST(AstType.varDecl);
+
+        if (!isStarted) {
+            vd.left = typeDecl(false);
+        } else {
+            getNextToken();
+            vd.left = new AST(AstType.terminal, currToken);
+        }
+
+        vd.mid = ident();
+
+        if (nextToken.getT() == Token.COMMA) {
+            vd.right = typeDecl(true);
+        } else if (nextToken.getT() == Token.SEMI_COLON) {
+
+            getNextToken();
+            vd.right = new AST(AstType.terminal, currToken);
+        }
+
+        if (vd.hasChildren())
+            vd = null;
+
+
+        return vd;
+    }
+
+    private boolean hasChildren() {
+        return (left != null && mid != null && right != null);
+    }
+
+    private AST aryDecl() throws Exception {
+        AST aryDecl = new AST(AstType.aryDecl);
+        getNextToken();
+
+
+        if (currToken.getT() != Token.OPEN_BRACKET)
+            throw new Exception("Parse Error: Expected to find '[', instead found " + currToken.getT().toString());
+
+        aryDecl.left = new AST(AstType.terminal, currToken);
+        getNextToken();
+
+        aryDecl.mid = number();
+
+        getNextToken();
+
+        if (currToken.getT() != Token.CLOSE_BRACKET)
+            throw new Exception("Parse Error: Expected to find ']', instead found " + currToken.getT().toString());
+        aryDecl.right = new AST(AstType.terminal, currToken);
+
+
+        return aryDecl;
+    }
+
+    private AST typeDecl(boolean startedAry) throws Exception {
+        AST td = new AST(AstType.typeDecl);
+        getNextToken();
+
+        Token t = currToken.getT();
+
+        if (startedAry) {
+            td.left = aryDecl();
+
+            td.right = typeDecl(true);
+
+            return td;
+        }
+
+        if (t == Token.ARRAY) {
+
+            td.left = new AST(AstType.terminal, currToken);
+
+            td.right = typeDecl(true);
+
+        } else if (t == Token.VAR) {
+            td.left = new AST(AstType.terminal, currToken);
+        }
+
+        return null;
     }
 
     public AST statSequence() throws Exception {
@@ -144,14 +210,12 @@ public class AST {
         if (left == null)
             return null;
 
-
         if (nextToken.getT() != Token.SEMI_COLON)
             return stSeq;
 
         getNextToken();
 
         stSeq.right = statSequence();
-
 
         if (stSeq.right == null)
             throw new Exception("Parse Error: Expected to find end of function body '}' ");
@@ -194,14 +258,12 @@ public class AST {
 
         exp.left = term();
 
-        if(nextToken.getT() == Token.PLUS || nextToken.getT() == Token.MINUS)
-        {
+        if (nextToken.getT() == Token.PLUS || nextToken.getT() == Token.MINUS) {
             getNextToken();
             exp.mid = new AST(AstType.terminal, currToken);
             getNextToken();
             exp.right = factor();
         }
-
 
         return null;
     }
@@ -211,15 +273,12 @@ public class AST {
         AST term = new AST(AstType.term);
 
         term.left = factor();
-        if(nextToken.getT() == Token.TIMES || nextToken.getT() == Token.DIVIDE)
-        {
+        if (nextToken.getT() == Token.TIMES || nextToken.getT() == Token.DIVIDE) {
             getNextToken();
             term.mid = new AST(AstType.terminal, currToken);
             getNextToken();
             term.right = factor();
         }
-
-
 
         return term;
     }
@@ -314,8 +373,8 @@ public class AST {
 
         AST exp = expression();
 
-        if (exp != null){
-            if(nextToken.getT() == Token.COMMA) {
+        if (exp != null) {
+            if (nextToken.getT() == Token.COMMA) {
                 getNextToken();
                 exp.right = paramList();
             }
@@ -374,6 +433,48 @@ public class AST {
     private AST assignment() {
 
         return null;
+    }
+
+    void print() {
+        if (tn != null)
+            System.out.println(tn.toString());
+
+        if (left != null)
+            left.print();
+        if (mid != null)
+            mid.print();
+        if (right != null)
+            right.print();
+    }
+
+    enum AstType {
+        root,
+        computation,
+        declarations,
+        body,
+        varDecl,
+        typeDecl,
+        funcDecl,
+        variable,
+        aryDecl,
+        array,
+        aryIndex,
+        statement,
+        statSequence,
+        assignment,
+        funcCall,
+        ifStatement,
+        whileStatement,
+        returnStatement,
+        designator,
+        factor,
+        term,
+        expression,
+        relation,
+
+        //terminals
+        terminal
+
     }
 
 
