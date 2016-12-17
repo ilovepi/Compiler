@@ -4,6 +4,7 @@ import compiler.lexer.*;
 
 
 /**
+ *
  * Created by paul on 12/16/16.
  */
 public class AST {
@@ -73,7 +74,7 @@ public class AST {
         return compNode;
     }
 
-    public AST body() throws Exception {
+    private AST body() throws Exception {
         //getNextToken();
         errorCheck(Token.OPEN_CURL);
 
@@ -93,7 +94,7 @@ public class AST {
 
     }
 
-    public AST declarations() throws Exception {
+    private AST declarations() throws Exception {
 
         AST dec = new AST(AstType.declarations);
 
@@ -106,6 +107,7 @@ public class AST {
         return dec;
     }
 
+    //todo: finish function declarations
     private AST funcDel() {
         AST funDec = new AST(AstType.funcDecl);
 
@@ -113,7 +115,16 @@ public class AST {
         if (currToken.getT() != Token.FUNCTION)
             return null;
 
-        return null;
+        //add parameters
+
+        //add declarations
+
+        //add body
+
+
+
+
+        return funDec;
     }
 
     private AST varDecl(boolean isStarted) throws Exception {
@@ -196,7 +207,7 @@ public class AST {
         return null;
     }
 
-    public AST statSequence() throws Exception {
+    private AST statSequence() throws Exception {
         AST stSeq = new AST(AstType.statSequence);
 
         stSeq.left = statement();
@@ -305,9 +316,7 @@ public class AST {
     private AST ident() throws Exception {
         getNextToken();
         errorCheck(Token.IDENTIFIER);
-        AST id = new AST(AstType.terminal, currToken);
-
-        return id;
+        return new AST(AstType.terminal, currToken);
     }
 
     private AST number() throws Exception {
@@ -404,6 +413,7 @@ public class AST {
         return null;
     }
 
+    //TODO: implement if statements
     private AST ifStmt() {
         return null;
     }
@@ -443,7 +453,7 @@ public class AST {
         return asgn;
     }
 
-    void errorCheck(Token t) throws Exception {
+    private void errorCheck(Token t) throws Exception {
         if (currToken.getT() != t)
             throw new Exception("Parse Error: Expected to find '" + Token.toString(t) + "', instead found " + currToken.getT().toString());
 
