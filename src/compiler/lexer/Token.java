@@ -2,11 +2,8 @@ package compiler.lexer;
 
 /**
  * Created by Paul Kirth on 10/13/16.
+ *
  */
-
-
-
-
 public enum  Token {
 
     //Arithmetic operators
