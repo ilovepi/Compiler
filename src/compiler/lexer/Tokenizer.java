@@ -1,8 +1,8 @@
 package compiler.lexer;
 
-import com.sun.xml.internal.stream.buffer.stax.StreamReaderBufferProcessor;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 
 /**
  * Created by paul on 10/14/16.
@@ -11,12 +11,10 @@ import java.io.*;
  */
 public class Tokenizer {
 
-    private char currChar;
     private String line;
     private int pos;
 
 
-    private FileReader fr;
     private BufferedReader reader;
 
 
@@ -25,7 +23,7 @@ public class Tokenizer {
 
     public Tokenizer(String filename) {
         try {
-            fr = new FileReader(filename);
+            FileReader fr = new FileReader(filename);
             reader = new BufferedReader(fr);
 
             line = reader.readLine();
@@ -37,6 +35,11 @@ public class Tokenizer {
         }
     } // end Tokenizer(filename)
 
+
+    /**
+     * Gets the next token from the input file
+     * @return A TokenNode with the next token
+     */
     public TokenNode getNextToken() {
 
         if(line == null)
@@ -49,7 +52,7 @@ public class Tokenizer {
             return null;
 
         //read character
-        char c = line.charAt(pos);
+        //char c = line.charAt(pos);
         String token;
 
         int end = findEndOfToken(line, pos);
@@ -75,6 +78,11 @@ public class Tokenizer {
 
     }
 
+    /**
+     * @param str The string to split into Tokens
+     * @param position The current position in the string
+     * @return The index of the last char in the Token
+     */
     private int findEndOfToken(String str, int position)
     {
         boolean started = false;
