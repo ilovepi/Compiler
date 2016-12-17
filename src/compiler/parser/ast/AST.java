@@ -353,7 +353,7 @@ public class AST {
 
         //getNextToken();
 
-        mid = paramList();
+        params.mid = paramList();
 
         getNextToken();
 
@@ -371,6 +371,7 @@ public class AST {
         if (exp != null) {
             if (nextToken.getT() == Token.COMMA) {
                 getNextToken();
+                exp.mid = new AST(AstType.terminal, currToken);
                 exp.right = paramList();
             }
         }
