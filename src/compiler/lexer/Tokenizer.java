@@ -6,8 +6,6 @@ import java.io.*;
 
 /**
  * Created by paul on 10/14/16.
- *
- *
  */
 public class Tokenizer {
 
@@ -15,10 +13,8 @@ public class Tokenizer {
     private String line;
     private int pos;
 
-
     private FileReader fr;
     private BufferedReader reader;
-
 
 
     //TODO: implement a proper state machine for the tokenizer
@@ -39,13 +35,13 @@ public class Tokenizer {
 
     public TokenNode getNextToken() {
 
-        if(line == null)
+        if (line == null)
             return null;
 
-        if(line.isEmpty())
+        if (line.isEmpty())
             return null;
 
-        if(pos >= line.length())
+        if (pos >= line.length())
             return null;
 
         //read character
@@ -53,18 +49,17 @@ public class Tokenizer {
         String token;
 
         int end = findEndOfToken(line, pos);
-        if(end == pos && end < line.length())
+        if (end == pos && end < line.length())
             end++;
 
         token = line.substring(pos, end);
 
         pos = end;
-        if (end == line.length())
-        {
+        if (end == line.length()) {
             try {
                 do {
                     line = reader.readLine();
-                } while(line != null && line.isEmpty());
+                } while (line != null && line.isEmpty());
 
                 pos = 0;
             } catch (IOException e) {
@@ -73,87 +68,59 @@ public class Tokenizer {
         }
         return new TokenNode(Token.classifyToken(token), token);
 
-    }
+    }// end getNextToken
 
-    private int findEndOfToken(String str, int position)
-    {
+    private int findEndOfToken(String str, int position) {
         boolean started = false;
         char[] word = str.toCharArray();
 
-        for (int i = position; i < str.length(); ++i)
-        {
+        for (int i = position; i < str.length(); ++i) {
             char currentChar = word[i];
             char nextChar;
-            if( i < (str.length()-1 ))
-                nextChar = word[i+1];
+            if (i < (str.length() - 1))
+                nextChar = word[i + 1];
             else
-                nextChar='\n';
+                nextChar = '\n';
 
 
             //skip leading whitespace
-            if(!started)
-            {
-                if(Character.isWhitespace(currentChar)) {
+            if (!started) {
+                if (Character.isWhitespace(currentChar)) {
                     pos++;
                     continue;
-                }
-                else
-                    started= true;
+                } else
+                    started = true;
             }
 
-           switch (currentChar)
-           {
-               /*
-               case ' ':
-               case '\t':
-               case '\n':
-               case ';':
-               case ',':
-               case '+':
-               case '-':
-               case '*':
-               case '{':
-               case '}':
-               case '(':
-               case ')':
-                   return i;
-                   */
-               case '<':
-               {
+            switch (currentChar) {
+                case '<': {
 
-                   if(nextChar == '-' || nextChar == '=')
-                   {
-                       return i+2;
-                   }
-                   return i;
-               }
+                    if (nextChar == '-' || nextChar == '=') {
+                        return i + 2;
+                    }
+                    return i;
+                }
 
-               case '>':
-               case '=':
-               case '!':
-                   if(nextChar == '=')
-                       return i+1;
-                   else
-                       return i;
+                case '>':
+                case '=':
+                case '!':
+                    if (nextChar == '=')
+                        return i + 1;
+                    else
+                        return i;
 
 
-               case '/':
-                   if(nextChar == '/')
-                   {
-                       return str.length();
-                   }
-                   else
-                       return i;
-               default:
-                   if( !Character.isLetterOrDigit(currentChar))
-                       return i;
-           }
+                case '/':
+                    if (nextChar == '/') {
+                        return str.length();
+                    } else
+                        return i;
+                default:
+                    if (!Character.isLetterOrDigit(currentChar))
+                        return i;
+            }
         }
 
         return str.length();
-
-    }
-
-
-
+    }// end findEndOfToken()
 }

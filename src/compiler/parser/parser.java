@@ -26,7 +26,7 @@ public class parser {
 
     public void print()
     {
-         ast.print();
+         ast.printTree();
     }
 
 }
