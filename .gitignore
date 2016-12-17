@@ -1,4 +1,4 @@
 .idea
 compiler.iml
 out/*
-src/compiler/test
+#src/compiler/test
