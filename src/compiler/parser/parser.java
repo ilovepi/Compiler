@@ -11,6 +11,7 @@ import compiler.parser.ast.AST;
 public class parser {
     AST ast;
 
+
     Tokenizer tokenizer;
 
 
@@ -21,6 +22,11 @@ public class parser {
 
     public void run() throws Exception {
         ast = new AST(tokenizer);
+    }
+
+    public void print()
+    {
+         ast.print();
     }
 
 }

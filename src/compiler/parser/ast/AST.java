@@ -26,14 +26,15 @@ public class AST {
         AST.tokenizer = tok;
         AstType nodeType = AstType.root;
         TokenNode tn = null;
-        left = computation();
         right = null;
         mid = null;
+        left = computation();
+
     }
 
     public AST(AstType new_type, TokenNode tokenNode) {
-        AstType nodeType;
-        TokenNode tn;
+        nodeType = new_type;
+        tn = tokenNode;
         left = null;
         right = null;
         mid = null;
@@ -52,34 +53,29 @@ public class AST {
         currToken = nextToken;
         do {
             nextToken = tokenizer.getNextToken();
-        } while (nextToken.getT() == Token.COMMENT);
+        } while (nextToken != null && nextToken.getT() == Token.COMMENT);
     }
 
     private AST computation() throws Exception {
 
-        while(currToken == null) {
+        while (currToken == null) {
             getNextToken();
         }
-        if (currToken.getT() != Token.MAIN)
-            throw new Exception("Parse Error: Expected to find declaration of main");
+        errorCheck(Token.MAIN);
 
         AST compNode = new AST(AstType.computation, currToken);
         compNode.left = declarations();
         compNode.right = body();
 
         getNextToken();
-
-        if (nextToken.getT() != Token.EOF)
-            throw new Exception("Parse Error: Expected to find EOF Token");
+        errorCheck(Token.EOF);
 
         return compNode;
     }
 
     public AST body() throws Exception {
-        getNextToken();
-
-        if (currToken.getT() != Token.OPEN_CURL)
-            throw new Exception("Parse Error: Expected to find start of function body '{' ");
+        //getNextToken();
+        errorCheck(Token.OPEN_CURL);
 
         AST bodyNode = new AST(AstType.body);
 
@@ -88,9 +84,7 @@ public class AST {
         bodyNode.mid = statSequence();
 
         getNextToken();
-
-        if (currToken.getT() != Token.CLOSE_CURL)
-            throw new Exception("Parse Error: Expected to find end of function body '}' ");
+        errorCheck(Token.CLOSE_CURL);
 
         bodyNode.right = new AST(AstType.terminal, currToken);
 
@@ -135,14 +129,14 @@ public class AST {
         vd.mid = ident();
 
         if (nextToken.getT() == Token.COMMA) {
-            vd.right = typeDecl(true);
+            vd.right = varDecl(true);
         } else if (nextToken.getT() == Token.SEMI_COLON) {
 
             getNextToken();
             vd.right = new AST(AstType.terminal, currToken);
         }
 
-        if (vd.hasChildren())
+        if (!vd.hasChildren())
             vd = null;
 
 
@@ -150,16 +144,14 @@ public class AST {
     }
 
     private boolean hasChildren() {
-        return (left != null && mid != null && right != null);
+        return (left != null || mid != null || right != null);
     }
 
     private AST aryDecl() throws Exception {
         AST aryDecl = new AST(AstType.aryDecl);
         getNextToken();
 
-
-        if (currToken.getT() != Token.OPEN_BRACKET)
-            throw new Exception("Parse Error: Expected to find '[', instead found " + currToken.getT().toString());
+        errorCheck(Token.OPEN_BRACKET);
 
         aryDecl.left = new AST(AstType.terminal, currToken);
         getNextToken();
@@ -167,9 +159,7 @@ public class AST {
         aryDecl.mid = number();
 
         getNextToken();
-
-        if (currToken.getT() != Token.CLOSE_BRACKET)
-            throw new Exception("Parse Error: Expected to find ']', instead found " + currToken.getT().toString());
+        errorCheck(Token.CLOSE_BRACKET);
         aryDecl.right = new AST(AstType.terminal, currToken);
 
 
@@ -200,6 +190,9 @@ public class AST {
             td.left = new AST(AstType.terminal, currToken);
         }
 
+        if (td.hasChildren())
+            return td;
+
         return null;
     }
 
@@ -207,18 +200,19 @@ public class AST {
         AST stSeq = new AST(AstType.statSequence);
 
         stSeq.left = statement();
-        if (left == null)
+        if (stSeq.left == null)
             return null;
 
         if (nextToken.getT() != Token.SEMI_COLON)
             return stSeq;
 
         getNextToken();
+        stSeq.mid = new AST(AstType.terminal, currToken);
 
         stSeq.right = statSequence();
 
-        if (stSeq.right == null)
-            throw new Exception("Parse Error: Expected to find end of function body '}' ");
+        //if (stSeq.right == null)
+        //  throw new Exception("Parse Error: Expected to find end of function body '}' ");
         return stSeq;
     }
 
@@ -243,9 +237,7 @@ public class AST {
 
     private AST returnStmt() throws Exception {
         getNextToken();
-
-        if (currToken.getT() != Token.RETURN)
-            throw new Exception("Parse Error: Expected to find 'return' ");
+        errorCheck(Token.RETURN);
         AST ret = new AST(AstType.returnStatement, currToken);
 
         ret.mid = expression();
@@ -265,6 +257,9 @@ public class AST {
             exp.right = factor();
         }
 
+        if (exp.hasChildren())
+            return exp;
+
         return null;
     }
 
@@ -276,7 +271,7 @@ public class AST {
         if (nextToken.getT() == Token.TIMES || nextToken.getT() == Token.DIVIDE) {
             getNextToken();
             term.mid = new AST(AstType.terminal, currToken);
-            getNextToken();
+            //getNextToken();
             term.right = factor();
         }
 
@@ -309,9 +304,7 @@ public class AST {
 
     private AST ident() throws Exception {
         getNextToken();
-
-        if (currToken.getT() != Token.IDENTIFIER)
-            throw new Exception("Parse Error: Expected to find an identifier, instead found " + currToken.getT().toString());
+        errorCheck(Token.IDENTIFIER);
         AST id = new AST(AstType.terminal, currToken);
 
         return id;
@@ -319,9 +312,7 @@ public class AST {
 
     private AST number() throws Exception {
         getNextToken();
-
-        if (currToken.getT() != Token.NUMBER)
-            throw new Exception("Parse Error: Expected to find a number, instead found " + currToken.getT().toString());
+        errorCheck(Token.NUMBER);
 
         return new AST(AstType.terminal, currToken);
     }
@@ -329,8 +320,7 @@ public class AST {
     private AST funcCall() throws Exception {
         getNextToken();
 
-        if (currToken.getT() != Token.CALL)
-            throw new Exception("Parse Error: Expected to find a 'call', instead found " + currToken.getT().toString());
+        errorCheck(Token.CALL);
 
         AST func = new AST(AstType.funcCall);
         func.left = new AST(AstType.terminal, currToken);
@@ -339,7 +329,7 @@ public class AST {
 
         func.left = params();
 
-        return null;
+        return func;
     }
 
     private AST params() throws Exception {
@@ -352,7 +342,7 @@ public class AST {
 
         params.left = new AST(AstType.terminal, currToken);
 
-        getNextToken();
+        //getNextToken();
 
         mid = paramList();
 
@@ -360,13 +350,9 @@ public class AST {
 
         params.right = new AST(AstType.terminal, currToken);
 
+        errorCheck(Token.CLOSE_PAREN);
 
-// end
-        if (nextToken.getT() != Token.CLOSE_PAREN)
-            throw new Exception("Parse Error: Expected to find a ')', instead found " + currToken.getT().toString());
-
-
-        return null;
+        return params;
     }
 
     private AST paramList() throws Exception {
@@ -389,15 +375,14 @@ public class AST {
             desig.right = aryIndex();
         }
 
-        return null;
+        return desig;
     }
 
     private AST aryIndex() throws Exception {
         getNextToken();
         AST ary = new AST(AstType.aryIndex);
 
-        if (currToken.getT() != Token.OPEN_BRACKET)
-            throw new Exception("Parse Error: Expected to find '[', instead found " + currToken.getT().toString());
+        errorCheck(Token.OPEN_BRACKET);
 
         ary.left = new AST(AstType.terminal, currToken);
         getNextToken();
@@ -407,13 +392,14 @@ public class AST {
 
         getNextToken();
 
-        if (currToken.getT() != Token.CLOSE_BRACKET)
-            throw new Exception("Parse Error: Expected to find ']', instead found " + currToken.getT().toString());
+        errorCheck(Token.CLOSE_BRACKET);
         ary.right = new AST(AstType.terminal, currToken);
 
         return ary;
     }
 
+
+    //todo: complete while and if statements
     private AST whileStmt() {
         return null;
     }
@@ -422,22 +408,51 @@ public class AST {
         return null;
     }
 
-    private AST callStmt() {
-        return null;
+    private AST callStmt() throws Exception {
+        getNextToken();
+        errorCheck(Token.CALL);
+        AST call = new AST(AstType.funcCall);
+        call.left = new AST(AstType.terminal, currToken);
+
+        call.mid = ident();
+//        getNextToken();
+        call.right = params();
+
+        if (!call.hasChildren())
+            return null;
+
+        return call;
     }
 
-    private AST asgnStmt() {
-        return null;
+    private AST asgnStmt() throws Exception {
+        getNextToken();
+        errorCheck(Token.LET);
+        AST asgn = new AST(AstType.assignment);
+        asgn.left = new AST(AstType.terminal, currToken);
+
+        asgn.mid = designator();
+        getNextToken();
+        errorCheck(Token.ASSIGN);
+        asgn.tn = currToken;
+        //getNextToken();
+        asgn.right = expression();
+
+        if (!asgn.hasChildren())
+            return null;
+
+        return asgn;
     }
 
-    private AST assignment() {
+    void errorCheck(Token t) throws Exception {
+        if (currToken.getT() != t)
+            throw new Exception("Parse Error: Expected to find '" + Token.toString(t) + "', instead found " + currToken.getT().toString());
 
-        return null;
     }
 
-    void print() {
+
+    public void print() {
         if (tn != null)
-            System.out.println(tn.toString());
+            System.out.println(Token.printToken(tn.getT()) + ": " + tn.getS());
 
         if (left != null)
             left.print();
