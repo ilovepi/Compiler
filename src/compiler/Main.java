@@ -7,19 +7,17 @@ import compiler.parser.parser;
 
 /**
  * Created by Paul Kirth on 10/13/16.
- *
  */
 public class Main {
 
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         String filename = "src/compiler/test001.txt";
         //Tokenizer s = new Tokenizer(filename);
 
         //TokenNode tn;
 
-        String str;
+        //String str;
 
 //        do{
 //            tn = s.getNextToken();
@@ -50,7 +48,6 @@ public class Main {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
 
 
     }
