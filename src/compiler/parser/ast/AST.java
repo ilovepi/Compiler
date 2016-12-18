@@ -107,7 +107,7 @@ public class AST {
     }
 
     //todo: finish function declarations
-    private AST funcDel() {
+    private AST funcDel() throws Exception {
         AST funDec = new AST(AstType.funcDecl);
 
         getNextToken();
@@ -115,8 +115,10 @@ public class AST {
             return null;
 
         //add function
+        funDec.left = new AST(AstType.funcDecl, currToken);
 
         // add formal param
+        funDec.mid = params();
 
         // add semi-colon
 
