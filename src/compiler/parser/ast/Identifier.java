@@ -6,7 +6,7 @@ import compiler.lexer.TokenNode;
 /**
  * Created by paul on 12/18/16.
  */
-public class Identifier {
+public class Identifier implements ASTNode{
     TokenNode tn;
 
     private Identifier() {
