@@ -467,7 +467,8 @@ public class AST {
 
     private void errorCheck(Token t) throws Exception {
         if (currToken.getT() != t)
-            throw new Exception("Syntax Error at line: " + currToken.getLineNumber() + ": Expected to find '" + Token.toString(t) + "', instead found '" + currToken.getS() + "'.");
+           throw new ParserException(currToken, t);
+            // throw new Exception("Syntax Error at line: " + currToken.getLineNumber() + ": Expected to find '" + Token.toString(t) + "', instead found '" + currToken.getS() + "'.");
 
     }
 
