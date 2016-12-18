@@ -4,7 +4,6 @@ import compiler.lexer.*;
 
 
 /**
- *
  * Created by paul on 12/16/16.
  */
 public class AST {
@@ -115,13 +114,17 @@ public class AST {
         if (currToken.getT() != Token.FUNCTION)
             return null;
 
+        //add function
+
+        // add formal param
+
+        // add semi-colon
+
         //add parameters
 
-        //add declarations
+
 
         //add body
-
-
 
 
         return funDec;
@@ -129,6 +132,9 @@ public class AST {
 
     private AST varDecl(boolean isStarted) throws Exception {
         AST vd = new AST(AstType.varDecl);
+
+        if(nextToken.getT() == Token.FUNCTION)
+            return null;
 
         if (!isStarted) {
             vd.left = typeDecl(false);
@@ -145,11 +151,11 @@ public class AST {
 
             getNextToken();
             vd.right = new AST(AstType.terminal, currToken);
+            vd.right.right = varDecl(false);
         }
 
         if (!vd.hasChildren())
             vd = null;
-
 
         return vd;
     }
@@ -160,12 +166,12 @@ public class AST {
 
     private AST aryDecl() throws Exception {
         AST aryDecl = new AST(AstType.aryDecl);
-        getNextToken();
+        //getNextToken();
 
         errorCheck(Token.OPEN_BRACKET);
 
         aryDecl.left = new AST(AstType.terminal, currToken);
-        getNextToken();
+        //getNextToken();
 
         aryDecl.mid = number();
 
@@ -179,6 +185,9 @@ public class AST {
 
     private AST typeDecl(boolean startedAry) throws Exception {
         AST td = new AST(AstType.typeDecl);
+        if (startedAry && nextToken.getT() == Token.IDENTIFIER)
+            return null;
+
         getNextToken();
 
         Token t = currToken.getT();
@@ -456,7 +465,7 @@ public class AST {
 
     private void errorCheck(Token t) throws Exception {
         if (currToken.getT() != t)
-            throw new Exception("Parse Error: Expected to find '" + Token.toString(t) + "', instead found " + currToken.getT().toString());
+            throw new Exception("Syntax Error at line: " + currToken.getLineNumber() + ": Expected to find '" + Token.toString(t) + "', instead found '" + currToken.getS() + "'.");
 
     }
 

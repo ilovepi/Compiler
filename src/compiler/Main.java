@@ -12,7 +12,7 @@ public class Main {
 
 
     public static void main(String[] args) {
-        String filename = "src/compiler/test001.txt";
+        String filename = "src/compiler/test002.txt";
         //Tokenizer s = new Tokenizer(filename);
 
         //TokenNode tn;
@@ -46,7 +46,8 @@ public class Main {
 
             p.print();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println( e.getMessage());
+            System.exit(1);
         }
 
 
