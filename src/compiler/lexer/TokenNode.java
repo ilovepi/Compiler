@@ -34,4 +34,10 @@ public class TokenNode {
     public int getVal() {
         return val;
     }
+
+
+    public  String toString()
+    {
+        return Token.printToken(getT()) + ": " + getT().toString();
+    }
 }

@@ -1,7 +1,6 @@
 package compiler.parser;
 
 import compiler.lexer.Tokenizer;
-import compiler.parser.ast.AST;
 
 /**
  * Created by paul on 12/16/16.
