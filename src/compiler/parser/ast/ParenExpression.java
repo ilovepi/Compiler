@@ -7,29 +7,28 @@ import compiler.lexer.TokenNode;
 /**
  * Created by paul on 12/18/16.
  */
-public class ArrayOperator extends ASTNode {
-
-    private TokenNode openBrace;
-    private TokenNode closeBrace;
+public class ParenExpression extends ASTNode {
+    private TokenNode openParen;
+    private TokenNode closeParen;
     private Expression expression;
-    private ArrayOperator next;
+    private ParenExpression next;
 
-    private ArrayOperator(TokenNode open, Expression exp, TokenNode close) {
-        openBrace = open;
+    private ParenExpression(TokenNode open, Expression exp, TokenNode close) {
+        openParen = open;
         expression = exp;
-        closeBrace = close;
+        closeParen = close;
     }
 
-    public static ArrayOperator createArrayOperator() throws ParserException {
+    public static ParenExpression createParenExpression() throws ParserException {
 
         // do stuff to make an array operator node
         // read open brace
-        if(nextToken.getT() != Token.OPEN_BRACKET)
+        if (nextToken.getT() != Token.OPEN_PAREN)
             return null;
 
         getNextToken();
 
-        checkError(Token.OPEN_BRACKET);
+        checkError(Token.OPEN_PAREN);
 
         TokenNode open = currToken;
 
@@ -39,22 +38,22 @@ public class ArrayOperator extends ASTNode {
         Expression exp = Expression.createExpression();
 
         //read close brace
-        checkError(Token.CLOSE_BRACKET);
+        checkError(Token.CLOSE_PAREN);
 
         TokenNode close = currToken;
 
         // create an ArrayOperator node
-        ArrayOperator aryOp = new ArrayOperator(open,exp, close);
+        ParenExpression paren = new ParenExpression(open, exp, close);
 
         // link it to other array operator nodes
-        aryOp.next = createArrayOperator();
+        paren.next = createParenExpression();
 
-        return aryOp;
+        return paren;
     }
 
     @Override
     public String toString() {
-        return openBrace + expression.toString() + closeBrace;
+        return openParen + expression.toString() + closeParen;
     }
 
     @Override
@@ -64,11 +63,10 @@ public class ArrayOperator extends ASTNode {
 
     @Override
     public void visit() {
-        //openBrace.;
+        //openParen.;
 
         expression.visit();
-        //closeBrace.
+        //closeParen.
     }
-
 
 }

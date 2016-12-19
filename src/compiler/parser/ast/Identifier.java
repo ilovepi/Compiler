@@ -6,7 +6,7 @@ import compiler.lexer.TokenNode;
 /**
  * Created by paul on 12/18/16.
  */
-public class Identifier implements ASTNode{
+public class Identifier extends ASTNode{
     TokenNode tn;
 
     private Identifier() {
@@ -20,10 +20,18 @@ public class Identifier implements ASTNode{
         return tn.getT().toString() + " : " + tn.getS();
     }
 
-    public Identifier createIdentifier(TokenNode tn) {
+    public static Identifier createIdentifier(TokenNode tn) {
         return tn.getT() != Token.IDENTIFIER ? null : new Identifier(tn);
     }
 
 
+    @Override
+    public void visit() {
 
+    }
+
+    @Override
+    public void print() {
+
+    }
 }

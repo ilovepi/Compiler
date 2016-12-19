@@ -8,11 +8,13 @@ public class TokenNode {
     private Token t;
     private String s;
     private int val;
+    private int lineNumber;
 
-    public TokenNode(Token new_t, String new_s)
+    public TokenNode(Token new_t, String new_s, int line)
     {
         t = new_t;
         s = new_s;
+        lineNumber = line;
     }
 
 
@@ -35,9 +37,7 @@ public class TokenNode {
         return val;
     }
 
-
-    public  String toString()
-    {
-        return Token.printToken(getT()) + ": " + getT().toString();
+    public int getLineNumber() {
+        return lineNumber;
     }
 }

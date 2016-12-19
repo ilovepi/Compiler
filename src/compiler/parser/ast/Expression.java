@@ -18,4 +18,9 @@ public class Expression implements ASTNode {
         return str;
     }
 
+    public static Expression createExpression()
+    {
+        return null;
+    }
+
 }

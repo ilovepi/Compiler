@@ -3,14 +3,10 @@ package compiler.parser.ast;
 /**
  * Created by paul on 12/18/16.
  */
-public class Factor extends ASTNode{
-    Designator designator;
-    Num number;
-    ParenExpression parenExpression;
-    FuncCall funcCall;
+public class FuncCall extends ASTNode{
 
-
-    public static Factor createFactor(){
+    public static FuncCall createFuncCall()
+    {
         return null;
     }
 

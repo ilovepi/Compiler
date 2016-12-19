@@ -1,5 +1,6 @@
 package compiler.parser.ast;
 
+import compiler.lexer.ParserException;
 import compiler.lexer.Token;
 import compiler.lexer.TokenNode;
 import compiler.lexer.Tokenizer;
@@ -11,14 +12,14 @@ import java.text.ParseException;
  */
 abstract class ASTNode {
     public static Tokenizer tokenizer;
-    public TokenNode currToken;
-    public TokenNode nextToken;
+    public static TokenNode currToken;
+    public static TokenNode nextToken;
 
     abstract public void visit();
 
     abstract public void print();
 
-    public void getNextToken()
+    public static void getNextToken()
     {
         currToken = nextToken;
         do {
@@ -26,18 +27,14 @@ abstract class ASTNode {
         }while (nextToken != null && nextToken.getT() != Token.EOF);
     }
 
-    public void getNextToken(Token t)
-    {
+    public static void getNextToken(Token t) throws ParserException {
         getNextToken();
-        if(currToken.getT() != t)
-        {
-            throw new Exception("Syntax Error: expected '" + t.)
-        }
+        checkError(t);
     }
 
-    public void checkError(Token t){
+    public static void checkError(Token t) throws ParserException {
         if(currToken.getT() != t){
-            throw new "")
+            throw new ParserException(currToken, t);
         }
     }
 
