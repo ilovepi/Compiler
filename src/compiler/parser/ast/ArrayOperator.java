@@ -23,6 +23,11 @@ public class ArrayOperator extends ASTNode {
 
         // do stuff to make an array operator node
         // read open brace
+        che
+
+        if(super.currToken.getT() != Token.OPEN_BRACKET)
+
+
         //read expression
 
         //read close brace

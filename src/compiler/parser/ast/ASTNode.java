@@ -4,17 +4,19 @@ import compiler.lexer.Token;
 import compiler.lexer.TokenNode;
 import compiler.lexer.Tokenizer;
 
+import java.text.ParseException;
+
 /**
  * Created by paul on 12/18/16.
  */
-public class ASTNode {
+abstract class ASTNode {
     public static Tokenizer tokenizer;
-    TokenNode currToken;
-    TokenNode nextToken;
+    public TokenNode currToken;
+    public TokenNode nextToken;
 
-    public void visit(){}
+    abstract public void visit();
 
-    public void print(){}
+    abstract public void print();
 
     public void getNextToken()
     {
@@ -30,6 +32,12 @@ public class ASTNode {
         if(currToken.getT() != t)
         {
             throw new Exception("Syntax Error: expected '" + t.)
+        }
+    }
+
+    public void checkError(Token t){
+        if(currToken.getT() != t){
+            throw new "")
         }
     }
 
