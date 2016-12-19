@@ -1,5 +1,8 @@
 package compiler.parser;
 
+import compiler.lexer.Token;
+import compiler.lexer.TokenNode;
+
 /**
  * Created by paul on 12/18/16.
  */
