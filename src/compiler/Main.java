@@ -13,7 +13,7 @@ public class Main {
 
     public static void main(String[] args)
     {
-        String filename = "src/compiler/test002.txt";
+        String filename = args[0];
         Tokenizer s = new Tokenizer(filename);
 
         TokenNode tn;
@@ -43,8 +43,5 @@ public class Main {
 
         Parser p = new Parser();
         p.parse(filename);
-
-
-
     }
 }

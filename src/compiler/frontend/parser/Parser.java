@@ -14,17 +14,12 @@ import java.io.IOException;
  */
 public class Parser {
     FileInputStream is;
-    //char in;
-    int lineno;
-    int pos;
 
     Tokenizer tokenizer;
     TokenNode tn;
 
     public Parser() {
         is = null;
-        lineno = 0;
-        pos = 0;
         tokenizer = null;
         tn = null;
 
@@ -33,18 +28,21 @@ public class Parser {
 
     public void parse(String filename) {
         tokenizer = new Tokenizer(filename);
-
-
+        next();
+        comp();
     }
 
 
     void next() {
 
+        do {
         tn = tokenizer.getNextToken();
-
-        if (tn == null) {
+         if (tn == null) {
             error();
         }
+      }while(tn.getT() == Token.COMMENT);
+
+
     }
 
     void comp() {
@@ -70,7 +68,9 @@ public class Parser {
     void checkToken(Token t) {
         if (t != tn.getT())
             error();
-        next();
+      do {
+          next();
+      }while(tn.getT() == Token.COMMENT);
     }
     /*
     void find_word(String word) {
@@ -84,15 +84,19 @@ public class Parser {
     }
     */
 
-    void error() {
-        System.out.println("Parse error at position " + pos + "of line" + lineno);
+    public void error() {
+        System.out.println("Parse error at position " + tokenizer.getPos()  + " of line " + tokenizer.getLineno());
+        System.exit(-1);
     }
 
     int varDecl() {
         //varDecl = typeDecl indent { “,” ident } “;” .
         int ret = 0;
 
-        typeDecl();
+        ret = typeDecl();
+        if(ret == -1)
+            return ret;
+
         ident();
         while (tn.getT() == Token.COMMA) {
             next();
@@ -100,21 +104,26 @@ public class Parser {
         }
 
         checkToken(Token.SEMI_COLON);
-        return ret;
+        return 0;
     }
 
-    void typeDecl() {
+    int typeDecl() {
         //typeDecl = “var” | “array” “[“ number “]” { “[“ number “]” }
         if (tn.getT() == Token.VAR) {
-            checkToken(Token.VAR);
-        } else {
-            checkToken(Token.ARRAY);
+            next();
+            return 0;
+        } else if(tn.getT() == Token.ARRAY){
+            next();
             do {
                 checkToken(Token.OPEN_BRACKET);
                 number();
                 checkToken(Token.CLOSE_BRACKET);
             } while (tn.getT() == Token.OPEN_BRACKET);
+
+            return 0;
         }
+
+        return -1;
     }
 
     int number() {
@@ -294,10 +303,8 @@ public class Parser {
 
     void assignment() {
         checkToken(Token.LET);
-        next();
         designator();
         checkToken(Token.ASSIGN);
-        next();
         expr();
     }
 

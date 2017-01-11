@@ -11,6 +11,16 @@ public class Tokenizer {
     private String line;
     private int pos;
 
+    public int getPos() {
+        return pos;
+    }
+
+    public int getLineno() {
+        return lineno;
+    }
+
+    private int lineno;
+
 
     private FileReader fr;
     private BufferedReader reader;
@@ -27,6 +37,7 @@ public class Tokenizer {
             line = reader.readLine();
 
             pos = 0;
+            lineno =1;
 
 
         } catch (FileNotFoundException e) {
@@ -58,6 +69,7 @@ public class Tokenizer {
             try {
                 line = reader.readLine();
                 pos = 0;
+                lineno++;
             } catch (IOException e) {
                 e.printStackTrace();
             }
