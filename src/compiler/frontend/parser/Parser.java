@@ -151,7 +151,6 @@ public class Parser {
             error();
         }
 
-
         while (Character.isLowerCase(in) || Character.isDigit(in)) {
             sb.append(in);
             next();
@@ -198,14 +197,19 @@ public class Parser {
         //statement = assignment | funcCall | ifStatement | whileStatement | returnStatement.
         switch (in) {
             case 'l':
+                assignment();
                 break;
             case 'c':
+                funcCall();
                 break;
             case 'i':
+                ifStmt();
                 break;
             case 'w':
+                whileStmt();
                 break;
             case 'r':
+                returnStmt();
                 break;
         }
     }
@@ -253,16 +257,40 @@ public class Parser {
     }
 
     void factor() {
-        switch (in)
-        {
-            case '(':
+
+
+            if(in == '(') {
                 next();
                 expr();
                 find_word(")");
-                break;
+            }
 
-                case
-        }
+            if(Character.isDigit(in))
+            {
+                number();
+
+            }
+
+            if(in == 'c') {
+                next();
+                if (in == 'a'){
+                    next();
+                    if(in == 'l'){
+                        next();
+                        if(in == 'l')
+                        {
+                            next();
+                            if(Character.isWhitespace(in))
+                            {
+                                next();
+
+
+                            }
+                        }
+                    }
+                }
+            }
+
     }
 
     void relation() {
@@ -273,7 +301,9 @@ public class Parser {
 
     void assignment() {
         find_word("let");
-
+        designator();
+        find_word("<-");
+        expr();
     }
 
     void funcCall() {
@@ -317,6 +347,8 @@ public class Parser {
 
     void returnStmt() {
         find_word("return");
+
+        expr();
     }
 
 
