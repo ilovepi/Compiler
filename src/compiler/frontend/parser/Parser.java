@@ -1,5 +1,8 @@
 package compiler.frontend.parser;
 
+import compiler.frontend.lexer.TokenNode;
+import compiler.frontend.lexer.Tokenizer;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -13,31 +16,25 @@ public class Parser {
     int lineno;
     int pos;
 
+    Tokenizer tokenizer;
+    TokenNode tn;
+
     Parser() {
         is = null;
         lineno = 0;
         pos = 0;
+        tokenizer = null;
+        tn = null;
 
     }
 
 
     void parse(String filename) {
-        try {
-            is = new FileInputStream(filename);
-            next();
-            comp();
+        tokenizer = new Tokenizer(filename);
 
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+
+
+
 
 
     }
@@ -45,13 +42,9 @@ public class Parser {
 
     void next() {
 
-        try {
-            int res = is.read();
-            if (res != -1)
-                in = (char) res;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        tn = tokenizer.getNextToken();
+
+       
     }
 
     void comp() {
