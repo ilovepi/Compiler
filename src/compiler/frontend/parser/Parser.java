@@ -21,7 +21,7 @@ public class Parser {
     Tokenizer tokenizer;
     TokenNode tn;
 
-    Parser() {
+    public Parser() {
         is = null;
         lineno = 0;
         pos = 0;
@@ -31,12 +31,8 @@ public class Parser {
     }
 
 
-    void parse(String filename) {
+    public void parse(String filename) {
         tokenizer = new Tokenizer(filename);
-
-
-
-
 
 
     }
@@ -46,10 +42,9 @@ public class Parser {
 
         tn = tokenizer.getNextToken();
 
-       if(tn == null)
-       {
-           error();
-       }
+        if (tn == null) {
+            error();
+        }
     }
 
     void comp() {
@@ -73,8 +68,9 @@ public class Parser {
     }
 
     void checkToken(Token t) {
-        if(t != tn.getT())
+        if (t != tn.getT())
             error();
+        next();
     }
     /*
     void find_word(String word) {
@@ -104,7 +100,6 @@ public class Parser {
         }
 
         checkToken(Token.SEMI_COLON);
-        next();
         return ret;
     }
 
@@ -115,84 +110,84 @@ public class Parser {
         } else {
             checkToken(Token.ARRAY);
             do {
-                checkToken("[");
+                checkToken(Token.OPEN_BRACKET);
                 number();
-                checkToken("]");
-            } while (in == '[');
+                checkToken(Token.CLOSE_BRACKET);
+            } while (tn.getT() == Token.OPEN_BRACKET);
         }
     }
 
     int number() {
-        StringBuilder sb = new StringBuilder();
 
-        if (Character.isDigit(in)) {
-            while (Character.isDigit(in)) {
-                sb.append(in);
-                next();
-            }
-        } else {
-            error();
-        }
-
-        return Integer.parseInt(sb.toString());
-    }
-
-    void letter() {
-        if (Character.isLowerCase(in)) {
-
+        int ret = 0;
+        if (tn.getT() == Token.NUMBER) {
+            ret = tn.getVal();
             next();
+            return ret;
         } else {
             error();
         }
 
+        //unreachable either will return a value or error
+        return ret;
     }
+
 
     String ident() {
-        StringBuilder sb = new StringBuilder();
-        if (Character.isLowerCase(in)) {
-            sb.append(in);
+
+        String ret = "";
+        if (tn.getT() == Token.IDENTIFIER) {
+            ret = tn.getS();
             next();
+            return ret;
         } else {
             error();
         }
 
-        while (Character.isLowerCase(in) || Character.isDigit(in)) {
-            sb.append(in);
-            next();
-        }
-
-        return sb.toString();
+        //unreachable either will return a value or error
+        return ret;
     }
 
 
     int funcDecl() {
         //funcDecl = (“function” | “procedure”) ident [formalParam] “;” funcBody “;” .
 
-        if (in == 'f') {
-            checkToken("function");
-        } else if (in == 'p') {
-            checkToken("procedure");
+        if (tn.getT() == Token.FUNCTION) {
+            next();
+        } else if (tn.getT() == Token.PROCEDURE) {
+            next();
         } else {
             return -1;
         }
 
         ident();
         formalParam();
-        checkToken(";");
+        checkToken(Token.SEMI_COLON);
         funcBody();
-        checkToken(";");
+        checkToken(Token.SEMI_COLON);
 
         return 0;
     }
 
     void funcBody() {
+        //funcBody = { varDecl } “{” [ statSequence ] “}”.
 
+        int ret = 0;
+        do {
+            ret = varDecl();
+        } while (ret != -1);
+
+        checkToken(Token.OPEN_CURL);
+        if (tn.getT() != Token.CLOSE_CURL) {
+            statSequence();
+        }
+        checkToken(Token.CLOSE_CURL);
     }
 
     void statSequence() {
         //statSequence = statement { “;” statement }.
         statement();
-        while (in == ';') {
+        while (tn.getT() == Token.SEMI_COLON) {
             next();
             statement();
         }
@@ -200,35 +195,41 @@ public class Parser {
 
     void statement() {
         //statement = assignment | funcCall | ifStatement | whileStatement | returnStatement.
-        switch (in) {
-            case 'l':
+        Token t = tn.getT();
+        switch (t) {
+            case LET:
                 assignment();
                 break;
-            case 'c':
+            case CALL:
                 funcCall();
                 break;
-            case 'i':
+            case IF:
                 ifStmt();
                 break;
-            case 'w':
+            case WHILE:
                 whileStmt();
                 break;
-            case 'r':
+            case RETURN:
                 returnStmt();
                 break;
+
+            // may nee to remove the error statement
+            default:
+                error();
         }
     }
 
     void relOp() {
-        switch (in) {
-            case '=':
-            case '!':
-            case '<':
-            case '>':
+        Token t = tn.getT();
+        switch (t) {
+            case EQUAL:
+            case NOT_EQUAL:
+            case GREATER:
+            case GREATER_EQ:
+            case LESS:
+            case LESS_EQ:
                 next();
-                if (in == '=')
-                    next();
-                break;
+
 
             default:
                 error();
@@ -237,16 +238,16 @@ public class Parser {
 
     void designator() {
         ident();
-        while (in == '[') {
+        while (tn.getT() == Token.OPEN_BRACKET) {
             next();
             expr();
-            checkToken("]");
+            checkToken(Token.CLOSE_BRACKET);
         }
     }
 
     void expr() {
         term();
-        while (in == '+' || in == '-') {
+        while (tn.getT() == Token.PLUS || tn.getT() == Token.MINUS) {
             next();
             term();
         }
@@ -254,7 +255,7 @@ public class Parser {
 
     void term() {
         factor();
-        while (in == '*' || in == '/') {
+        while (tn.getT() == Token.TIMES || tn.getT() == Token.DIVIDE) {
             next();
             factor();
         }
@@ -263,39 +264,26 @@ public class Parser {
 
     void factor() {
 
-
-            if(in == '(') {
+        Token t = tn.getT();
+        switch (t) {
+            case OPEN_PAREN:
                 next();
                 expr();
-                checkToken(")");
-            }
-
-            if(Character.isDigit(in))
-            {
-                number();
-
-            }
-
-            if(in == 'c') {
+                checkToken(Token.CLOSE_PAREN);
                 next();
-                if (in == 'a'){
-                    next();
-                    if(in == 'l'){
-                        next();
-                        if(in == 'l')
-                        {
-                            next();
-                            if(Character.isWhitespace(in))
-                            {
-                                next();
-
-
-                            }
-                        }
-                    }
-                }
-            }
-
+                break;
+            case NUMBER:
+                next();
+                break;
+            case IDENTIFIER:
+                designator();
+                break;
+            case CALL:
+                funcCall();
+                break;
+            default:
+                error();
+        }
     }
 
     void relation() {
@@ -305,76 +293,74 @@ public class Parser {
     }
 
     void assignment() {
-        checkToken("let");
+        checkToken(Token.LET);
+        next();
         designator();
-        checkToken("<-");
+        checkToken(Token.ASSIGN);
+        next();
         expr();
     }
 
     void funcCall() {
-        checkToken("call");
+        checkToken(Token.CALL);
         ident();
-        if(in == '(')
-        {
+        if (tn.getT() == Token.OPEN_PAREN) {
             next();
-            if(in != ')')
-            {
+            if (tn.getT() != Token.CLOSE_PAREN) {
                 expr();
-                while(in == ',')
-                {
+                while (tn.getT() == Token.COMMA) {
                     expr();
                 }
             }
-            checkToken(")");
+            checkToken(Token.CLOSE_PAREN);
         }
     }
 
     void ifStmt() {
-        checkToken("if");
+        checkToken(Token.IF);
         relation();
-        checkToken("then");
+        checkToken(Token.THEN);
         statSequence();
-        if(in == 'e')
-        {
-            checkToken("else");
+        if (tn.getT() == Token.ELSE) {
+            next();
             statSequence();
         }
-        checkToken("fi");
+        checkToken(Token.FI);
     }
 
     void whileStmt() {
-        checkToken("while");
+        checkToken(Token.WHILE);
         relation();
-        checkToken("do");
+        checkToken(Token.DO);
         statSequence();
-        checkToken("od");
+        checkToken(Token.OD);
     }
 
     void returnStmt() {
-        checkToken("return");
+        checkToken(Token.RETURN);
 
         expr();
     }
 
 
     void formalParam() {
-        if (in == ';')
+        if (tn.getT() == Token.SEMI_COLON)
             return;
-        if (in == '(') {
+        if (tn.getT() == Token.OPEN_PAREN) {
             next();
 
-            if (in == ')') {
+            if (tn.getT() == Token.CLOSE_PAREN) {
                 next();
                 return;
             }
 
             ident();
-            while (in == ',') {
+            while (tn.getT() == Token.COMMA) {
                 next();
                 ident();
             }
 
-            checkToken(")");
+            checkToken(Token.CLOSE_PAREN);
         }
     }
 
