@@ -1,8 +1,8 @@
 package compiler;
 
-import compiler.lexer.Tokenizer;
-import compiler.lexer.Token;
-import compiler.lexer.TokenNode;
+import compiler.frontend.lexer.Tokenizer;
+import compiler.frontend.lexer.Token;
+import compiler.frontend.lexer.TokenNode;
 
 /**
  * Created by Paul Kirth on 10/13/16.

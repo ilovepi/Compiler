@@ -1,6 +1,4 @@
-package compiler.lexer;
-
-import com.sun.xml.internal.stream.buffer.stax.StreamReaderBufferProcessor;
+package compiler.frontend.lexer;
 
 import java.io.*;
 

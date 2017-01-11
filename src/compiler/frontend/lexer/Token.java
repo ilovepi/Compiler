@@ -1,4 +1,4 @@
-package compiler.lexer;
+package compiler.frontend.lexer;
 
 /**
  * Created by Paul Kirth on 10/13/16.
