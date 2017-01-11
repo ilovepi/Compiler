@@ -1,5 +1,7 @@
 package compiler.frontend.parser;
 
+
+import compiler.frontend.lexer.Token;
 import compiler.frontend.lexer.TokenNode;
 import compiler.frontend.lexer.Tokenizer;
 
@@ -12,7 +14,7 @@ import java.io.IOException;
  */
 public class Parser {
     FileInputStream is;
-    char in;
+    //char in;
     int lineno;
     int pos;
 
@@ -44,12 +46,15 @@ public class Parser {
 
         tn = tokenizer.getNextToken();
 
-       
+       if(tn == null)
+       {
+           error();
+       }
     }
 
     void comp() {
         //“main” { varDecl } { funcDecl } “{” statSequence “}” “.” .
-        find_word("main");
+        checkToken(Token.MAIN);
         int ret = 0;
 
         while (ret != -1) {
@@ -62,12 +67,16 @@ public class Parser {
             ret = funcDecl();
         }
 
-        find_word("{");
+        checkToken(Token.OPEN_CURL);
         statSequence();
-        find_word("}.");
+        checkToken(Token.CLOSE_CURL);
     }
 
-
+    void checkToken(Token t) {
+        if(t != tn.getT())
+            error();
+    }
+    /*
     void find_word(String word) {
         for (char c : word.toCharArray()) {
             if (in == c) {
@@ -77,6 +86,7 @@ public class Parser {
             }
         }
     }
+    */
 
     void error() {
         System.out.println("Parse error at position " + pos + "of line" + lineno);
@@ -88,24 +98,26 @@ public class Parser {
 
         typeDecl();
         ident();
-        while (in == ',') {
+        while (tn.getT() == Token.COMMA) {
+            next();
             ident();
         }
 
-        find_word(";");
+        checkToken(Token.SEMI_COLON);
+        next();
         return ret;
     }
 
     void typeDecl() {
         //typeDecl = “var” | “array” “[“ number “]” { “[“ number “]” }
-        if (in == 'v') {
-            find_word("var");
+        if (tn.getT() == Token.VAR) {
+            checkToken(Token.VAR);
         } else {
-            find_word("array");
+            checkToken(Token.ARRAY);
             do {
-                find_word("[");
+                checkToken("[");
                 number();
-                find_word("]");
+                checkToken("]");
             } while (in == '[');
         }
     }
@@ -157,18 +169,18 @@ public class Parser {
         //funcDecl = (“function” | “procedure”) ident [formalParam] “;” funcBody “;” .
 
         if (in == 'f') {
-            find_word("function");
+            checkToken("function");
         } else if (in == 'p') {
-            find_word("procedure");
+            checkToken("procedure");
         } else {
             return -1;
         }
 
         ident();
         formalParam();
-        find_word(";");
+        checkToken(";");
         funcBody();
-        find_word(";");
+        checkToken(";");
 
         return 0;
     }
@@ -228,7 +240,7 @@ public class Parser {
         while (in == '[') {
             next();
             expr();
-            find_word("]");
+            checkToken("]");
         }
     }
 
@@ -255,7 +267,7 @@ public class Parser {
             if(in == '(') {
                 next();
                 expr();
-                find_word(")");
+                checkToken(")");
             }
 
             if(Character.isDigit(in))
@@ -293,14 +305,14 @@ public class Parser {
     }
 
     void assignment() {
-        find_word("let");
+        checkToken("let");
         designator();
-        find_word("<-");
+        checkToken("<-");
         expr();
     }
 
     void funcCall() {
-        find_word("call");
+        checkToken("call");
         ident();
         if(in == '(')
         {
@@ -313,33 +325,33 @@ public class Parser {
                     expr();
                 }
             }
-            find_word(")");
+            checkToken(")");
         }
     }
 
     void ifStmt() {
-        find_word("if");
+        checkToken("if");
         relation();
-        find_word("then");
+        checkToken("then");
         statSequence();
         if(in == 'e')
         {
-            find_word("else");
+            checkToken("else");
             statSequence();
         }
-        find_word("fi");
+        checkToken("fi");
     }
 
     void whileStmt() {
-        find_word("while");
+        checkToken("while");
         relation();
-        find_word("do");
+        checkToken("do");
         statSequence();
-        find_word("od");
+        checkToken("od");
     }
 
     void returnStmt() {
-        find_word("return");
+        checkToken("return");
 
         expr();
     }
@@ -362,7 +374,7 @@ public class Parser {
                 ident();
             }
 
-            find_word(")");
+            checkToken(")");
         }
     }
 
