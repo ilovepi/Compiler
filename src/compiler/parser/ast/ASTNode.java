@@ -27,6 +27,7 @@ abstract class ASTNode {
         }while (nextToken != null && nextToken.getT() != Token.EOF);
     }
 
+
     public static void getNextToken(Token t) throws ParserException {
         getNextToken();
         checkError(t);
