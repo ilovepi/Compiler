@@ -1,5 +1,5 @@
-// Copy propagation test
-// Adapted from Muchnick, p.357
+# Copy propagation test
+# Adapted from Muchnick, p.357
 main
 var a, b, c, d, e;
 {

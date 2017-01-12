@@ -1,6 +1,6 @@
-// I don't think this is a duplicate, but this test is similar to other
-// live range analysis tests.
-// Based on test 022
+# I don't think this is a duplicate, but this test is similar to other
+# live range analysis tests.  
+# Based on test 022
 main
 var a, b, c;
 {

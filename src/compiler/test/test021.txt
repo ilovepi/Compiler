@@ -1,4 +1,4 @@
-// Very simple interference graph test
+# Very simple interference graph test
 main
 var a, b;
 {
