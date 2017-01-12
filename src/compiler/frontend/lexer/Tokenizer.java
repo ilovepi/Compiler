@@ -11,10 +11,19 @@ public class Tokenizer {
     private String line;
     private int pos;
 
+    public int getPos() {
+        return pos;
+    }
+
+    public int getLineno() {
+        return lineno;
+    }
+
+    private int lineno;
+
 
     private FileReader fr;
     private BufferedReader reader;
-
 
 
     //TODO: Replace the StreamTokenizer with my own tokenizer class
@@ -27,6 +36,7 @@ public class Tokenizer {
             line = reader.readLine();
 
             pos = 0;
+            lineno = 1;
 
 
         } catch (FileNotFoundException e) {
@@ -38,112 +48,128 @@ public class Tokenizer {
 
     public TokenNode getNextToken() {
 
-        if(line == null)
+        if (line == null)
             return null;
-        if(pos >= line.length())
+        while (pos == line.length()) {
+            advanceLine();
+        }
+
+        if (line == null)
             return null;
+
+
+        if (pos > line.length())
+            return null;
+
         //read character
-        char c = line.charAt(pos);
+        //char c = line.charAt(pos);
         String token;
 
         int end = findEndOfToken(line, pos);
-        if(end == pos && end < line.length())
+        if (end == pos && end < line.length())
             end++;
 
         token = line.substring(pos, end);
 
         pos = end;
-        if (end == line.length())
-        {
-            try {
-                line = reader.readLine();
-                pos = 0;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        if (end == line.length()) {
+            advanceLine();
         }
+        if (token.isEmpty())
+            return getNextToken();
         return new TokenNode(Token.classifyToken(token), token);
 
     }
 
-    int findEndOfToken(String str, int position)
-    {
+    public void advanceLine() {
+        do {
+            try {
+                line = reader.readLine();
+                pos = 0;
+                lineno++;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            if (line == null)
+                break;
+
+            line.trim();
+
+        } while (line.trim().isEmpty());
+    }
+
+    int findEndOfToken(String str, int position) {
         boolean started = false;
         char[] word = str.toCharArray();
 
-        for (int i = position; i < str.length(); ++i)
-        {
+        for (int i = position; i < str.length(); ++i) {
             char currentChar = word[i];
             char nextChar;
-            if( i < (str.length()-1 ))
-                nextChar = word[i+1];
+            if (i < (str.length() - 1))
+                nextChar = word[i + 1];
             else
-                nextChar='\n';
-
+                nextChar = '\n';
 
             //skip leading whitespace
-            if(!started)
-            {
-                if(Character.isWhitespace(currentChar)) {
+            if (!started) {
+                if (Character.isWhitespace(currentChar)) {
                     pos++;
                     continue;
-                }
-                else
-                    started= true;
+                } else
+                    started = true;
             }
 
-           switch (currentChar)
-           {
-               case ' ':
-               case '\t':
-               case '\n':
-               case ';':
-               case ',':
-               case '+':
-               case '-':
-               case '*':
-               case '{':
-               case '}':
-               case '(':
-               case ')':
-                   return i;
-               case '<':
-               {
+            switch (currentChar) {
+                case ' ':
+                case '\t':
+                case '\n':
+                case ';':
+                case ',':
+                case '+':
+                case '-':
+                case '*':
+                case '{':
+                case '}':
+                case '(':
+                case ')':
+                    return i;
+                case '<': {
 
-                   if(nextChar == '-' || nextChar == '=')
-                   {
-                       return i+2;
-                   }
-                   return i;
-               }
+                    if (nextChar == '-' || nextChar == '=') {
+                        return i + 2;
+                    }
+                    return i;
+                }
 
-               case '>':
-               case '=':
-               case '!':
-                   if(nextChar == '=')
-                       return i+1;
-                   else
-                       return i;
+                case '>':
+                case '=':
+                case '!':
+                    if (nextChar == '=')
+                        return i + 2;
+                    else
+                        return i;
 
 
-               case '/':
-                   if(nextChar == '/')
-                   {
-                       return str.length();
-                   }
-                   else
-                       return i;
-               default:
-                   if( (currentChar >= 'a' && currentChar <='z' ) ||
-                           (currentChar >= 'A' && currentChar <='Z' ) ||
-                           (currentChar >= '0' && currentChar <= '9') )
-                   {
-                       continue;
-                   }
-                   else {
-                       return i;
-                   }
-           }
+                case '/':
+                    if (nextChar == '/') {
+                        return str.length();
+                    } else
+                        return i;
+                case '#':
+                    return str.length();
+                default:
+                    if ((currentChar >= 'a' && currentChar <= 'z') ||
+                            (currentChar >= 'A' && currentChar <= 'Z') ||
+                            (currentChar >= '0' && currentChar <= '9')) {
+                        if (Character.isLetterOrDigit(nextChar))
+                            continue;
+
+                        return i + 1;
+                    } else {
+                        return i;
+                    }
+            }
         }
 
         return str.length();

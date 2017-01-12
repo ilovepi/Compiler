@@ -1,5 +1,10 @@
 package compiler.frontend.parser;
 
+
+import compiler.frontend.lexer.Token;
+import compiler.frontend.lexer.TokenNode;
+import compiler.frontend.lexer.Tokenizer;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -9,54 +14,43 @@ import java.io.IOException;
  */
 public class Parser {
     FileInputStream is;
-    char in;
-    int lineno;
-    int pos;
 
-    Parser() {
+    Tokenizer tokenizer;
+    TokenNode tn;
+    String srcFilename;
+
+    public Parser() {
         is = null;
-        lineno = 0;
-        pos = 0;
-
+        tokenizer = null;
+        tn = null;
+        srcFilename = null;
     }
 
 
-    void parse(String filename) {
-        try {
-            is = new FileInputStream(filename);
-            next();
-            comp();
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-
+    public void parse(String filename) {
+        srcFilename = filename;
+        tokenizer = new Tokenizer(filename);
+        next();
+        comp();
     }
 
 
     void next() {
 
-        try {
-            int res = is.read();
-            if (res != -1)
-                in = (char) res;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        do {
+            tn = tokenizer.getNextToken();
+            if (tn == null) {
+                return;
+                //error(Token.UNKNOWN);
+            }
+        } while (tn.getT() == Token.COMMENT);
+
+
     }
 
     void comp() {
         //“main” { varDecl } { funcDecl } “{” statSequence “}” “.” .
-        find_word("main");
+        checkToken(Token.MAIN);
         int ret = 0;
 
         while (ret != -1) {
@@ -69,12 +63,22 @@ public class Parser {
             ret = funcDecl();
         }
 
-        find_word("{");
+        checkToken(Token.OPEN_CURL);
         statSequence();
-        find_word("}.");
+        checkToken(Token.CLOSE_CURL);
+        checkToken(Token.EOF);
     }
 
-
+    void checkToken(Token t) {
+        if(tn == null)
+            error(Token.UNKNOWN);
+        if (t != tn.getT())
+            error(t);
+        do {
+            next();
+        } while (tn != null && tn.getT() == Token.COMMENT);
+    }
+    /*
     void find_word(String word) {
         for (char c : word.toCharArray()) {
             if (in == c) {
@@ -84,110 +88,127 @@ public class Parser {
             }
         }
     }
+    */
 
-    void error() {
-        System.out.println("Parse error at position " + pos + "of line" + lineno);
+    public void error(Token t) {
+        System.out.println("Error: Expected " + t);
+        error();
+    }
+
+    public void error() {
+        System.out.println("Parse error at position " + tokenizer.getPos() +
+                " of line " + tokenizer.getLineno() + " in file " + srcFilename);
+        System.exit(-1);
     }
 
     int varDecl() {
         //varDecl = typeDecl indent { “,” ident } “;” .
         int ret = 0;
 
-        typeDecl();
+        ret = typeDecl();
+        if (ret == -1)
+            return ret;
+
         ident();
-        while (in == ',') {
+        while (tn.getT() == Token.COMMA) {
+            next();
             ident();
         }
 
-        find_word(";");
-        return ret;
+        checkToken(Token.SEMI_COLON);
+        return 0;
     }
 
-    void typeDecl() {
+    int typeDecl() {
         //typeDecl = “var” | “array” “[“ number “]” { “[“ number “]” }
-        if (in == 'v') {
-            find_word("var");
-        } else {
-            find_word("array");
+        if (tn.getT() == Token.VAR) {
+            next();
+            return 0;
+        } else if (tn.getT() == Token.ARRAY) {
+            next();
             do {
-                find_word("[");
+                checkToken(Token.OPEN_BRACKET);
                 number();
-                find_word("]");
-            } while (in == '[');
+                checkToken(Token.CLOSE_BRACKET);
+            } while (tn.getT() == Token.OPEN_BRACKET);
+
+            return 0;
         }
+
+        return -1;
     }
 
     int number() {
-        StringBuilder sb = new StringBuilder();
 
-        if (Character.isDigit(in)) {
-            while (Character.isDigit(in)) {
-                sb.append(in);
-                next();
-            }
-        } else {
-            error();
-        }
-
-        return Integer.parseInt(sb.toString());
-    }
-
-    void letter() {
-        if (Character.isLowerCase(in)) {
-
+        int ret = 0;
+        if (tn.getT() == Token.NUMBER) {
+            ret = tn.getVal();
             next();
+            return ret;
         } else {
-            error();
+            error(Token.NUMBER);
         }
 
+        //unreachable either will return a value or error
+        return ret;
     }
+
 
     String ident() {
-        StringBuilder sb = new StringBuilder();
-        if (Character.isLowerCase(in)) {
-            sb.append(in);
+
+        String ret = "";
+        if (tn.getT() == Token.IDENTIFIER) {
+            ret = tn.getS();
             next();
+            return ret;
         } else {
-            error();
+            error(Token.IDENTIFIER);
         }
 
-        while (Character.isLowerCase(in) || Character.isDigit(in)) {
-            sb.append(in);
-            next();
-        }
-
-        return sb.toString();
+        //unreachable either will return a value or error
+        return ret;
     }
 
 
     int funcDecl() {
         //funcDecl = (“function” | “procedure”) ident [formalParam] “;” funcBody “;” .
 
-        if (in == 'f') {
-            find_word("function");
-        } else if (in == 'p') {
-            find_word("procedure");
+        if (tn.getT() == Token.FUNCTION) {
+            next();
+        } else if (tn.getT() == Token.PROCEDURE) {
+            next();
         } else {
             return -1;
         }
 
         ident();
         formalParam();
-        find_word(";");
+        checkToken(Token.SEMI_COLON);
         funcBody();
-        find_word(";");
+        checkToken(Token.SEMI_COLON);
 
         return 0;
     }
 
     void funcBody() {
+        //funcBody = { varDecl } “{” [ statSequence ] “}”.
 
+        int ret = 0;
+        do {
+            ret = varDecl();
+        } while (ret != -1);
+
+        checkToken(Token.OPEN_CURL);
+        if (tn.getT() != Token.CLOSE_CURL) {
+            statSequence();
+        }
+        checkToken(Token.CLOSE_CURL);
     }
 
     void statSequence() {
         //statSequence = statement { “;” statement }.
         statement();
-        while (in == ';') {
+        while (tn.getT() == Token.SEMI_COLON) {
             next();
             statement();
         }
@@ -195,53 +216,59 @@ public class Parser {
 
     void statement() {
         //statement = assignment | funcCall | ifStatement | whileStatement | returnStatement.
-        switch (in) {
-            case 'l':
+        Token t = tn.getT();
+        switch (t) {
+            case LET:
                 assignment();
                 break;
-            case 'c':
+            case CALL:
                 funcCall();
                 break;
-            case 'i':
+            case IF:
                 ifStmt();
                 break;
-            case 'w':
+            case WHILE:
                 whileStmt();
                 break;
-            case 'r':
+            case RETURN:
                 returnStmt();
                 break;
+
+            // may nee to remove the error statement
+            default:
+                error(Token.LET);
         }
     }
 
     void relOp() {
-        switch (in) {
-            case '=':
-            case '!':
-            case '<':
-            case '>':
+        Token t = tn.getT();
+        switch (t) {
+            case EQUAL:
+            case NOT_EQUAL:
+            case GREATER:
+            case GREATER_EQ:
+            case LESS:
+            case LESS_EQ:
                 next();
-                if (in == '=')
-                    next();
                 break;
 
             default:
-                error();
+                error(Token.EQUAL);
         }
     }
 
     void designator() {
         ident();
-        while (in == '[') {
+        while (tn.getT() == Token.OPEN_BRACKET) {
             next();
             expr();
-            find_word("]");
+            checkToken(Token.CLOSE_BRACKET);
         }
     }
 
     void expr() {
         term();
-        while (in == '+' || in == '-') {
+        while (tn.getT() == Token.PLUS || tn.getT() == Token.MINUS) {
             next();
             term();
         }
@@ -249,7 +276,7 @@ public class Parser {
 
     void term() {
         factor();
-        while (in == '*' || in == '/') {
+        while (tn.getT() == Token.TIMES || tn.getT() == Token.DIVIDE) {
             next();
             factor();
         }
@@ -258,39 +285,26 @@ public class Parser {
 
     void factor() {
 
-
-            if(in == '(') {
+        Token t = tn.getT();
+        switch (t) {
+            case OPEN_PAREN:
                 next();
                 expr();
-                find_word(")");
-            }
-
-            if(Character.isDigit(in))
-            {
-                number();
-
-            }
-
-            if(in == 'c') {
+                checkToken(Token.CLOSE_PAREN);
+                //next();
+                break;
+            case NUMBER:
                 next();
-                if (in == 'a'){
-                    next();
-                    if(in == 'l'){
-                        next();
-                        if(in == 'l')
-                        {
-                            next();
-                            if(Character.isWhitespace(in))
-                            {
-                                next();
-
-
-                            }
-                        }
-                    }
-                }
-            }
-
+                break;
+            case IDENTIFIER:
+                designator();
+                break;
+            case CALL:
+                funcCall();
+                break;
+            default:
+                error(Token.OPEN_PAREN);
+        }
     }
 
     void relation() {
@@ -300,76 +314,73 @@ public class Parser {
     }
 
     void assignment() {
-        find_word("let");
+        checkToken(Token.LET);
         designator();
-        find_word("<-");
+        checkToken(Token.ASSIGN);
         expr();
     }
 
     void funcCall() {
-        find_word("call");
+        checkToken(Token.CALL);
         ident();
-        if(in == '(')
-        {
+        if (tn.getT() == Token.OPEN_PAREN) {
             next();
-            if(in != ')')
-            {
+            if (tn.getT() != Token.CLOSE_PAREN) {
                 expr();
-                while(in == ',')
-                {
+                while (tn.getT() == Token.COMMA) {
+                    next();
                     expr();
                 }
             }
-            find_word(")");
+            checkToken(Token.CLOSE_PAREN);
         }
     }
 
     void ifStmt() {
-        find_word("if");
+        checkToken(Token.IF);
         relation();
-        find_word("then");
+        checkToken(Token.THEN);
         statSequence();
-        if(in == 'e')
-        {
-            find_word("else");
+        if (tn.getT() == Token.ELSE) {
+            next();
             statSequence();
         }
-        find_word("fi");
+        checkToken(Token.FI);
     }
 
     void whileStmt() {
-        find_word("while");
+        checkToken(Token.WHILE);
         relation();
-        find_word("do");
+        checkToken(Token.DO);
         statSequence();
-        find_word("od");
+        checkToken(Token.OD);
     }
 
     void returnStmt() {
-        find_word("return");
+        checkToken(Token.RETURN);
 
         expr();
     }
 
 
     void formalParam() {
-        if (in == ';')
+        if (tn.getT() == Token.SEMI_COLON)
             return;
-        if (in == '(') {
+        if (tn.getT() == Token.OPEN_PAREN) {
             next();
 
-            if (in == ')') {
+            if (tn.getT() == Token.CLOSE_PAREN) {
                 next();
                 return;
             }
 
             ident();
-            while (in == ',') {
+            while (tn.getT() == Token.COMMA) {
                 next();
                 ident();
             }
 
-            find_word(")");
+            checkToken(Token.CLOSE_PAREN);
         }
     }
 

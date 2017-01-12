@@ -3,6 +3,7 @@ package compiler;
 import compiler.frontend.lexer.Tokenizer;
 import compiler.frontend.lexer.Token;
 import compiler.frontend.lexer.TokenNode;
+import compiler.frontend.parser.Parser;
 
 /**
  * Created by Paul Kirth on 10/13/16.
@@ -12,11 +13,17 @@ public class Main {
 
     public static void main(String[] args)
     {
-        Tokenizer s = new Tokenizer("src/compiler/test002.txt");
+        for (String filename: args)
+        {
 
-        TokenNode tn;
+            //String filename = "test015.txt";
+/*
+            String filename = "test001.txt";
+            Tokenizer s = new Tokenizer(filename);
 
-        String str;
+            TokenNode tn;
+
+            String str;
 
         do{
             tn = s.getNextToken();
@@ -37,6 +44,10 @@ public class Main {
         }
         while (tn != null);
 
+        //*/
 
+            Parser p = new Parser();
+            p.parse(filename);
+        }
     }
 }
