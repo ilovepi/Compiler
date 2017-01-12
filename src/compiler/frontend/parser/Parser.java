@@ -70,6 +70,8 @@ public class Parser {
     }
 
     void checkToken(Token t) {
+        if(tn == null)
+            error(Token.UNKNOWN);
         if (t != tn.getT())
             error(t);
         do {

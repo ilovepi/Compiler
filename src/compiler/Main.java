@@ -13,9 +13,12 @@ public class Main {
 
     public static void main(String[] args)
     {
-        for (String filename: args) {
+        //for (String filename: args)
+        {
 
+            String filename = "test015.txt";
 /*
+            String filename = "test009.txt";
             Tokenizer s = new Tokenizer(filename);
 
             TokenNode tn;
@@ -41,7 +44,7 @@ public class Main {
         }
         while (tn != null);
 
-        */
+        //*/
 
             Parser p = new Parser();
             p.parse(filename);

@@ -11,7 +11,7 @@ main
         while 3 < par do
             if 2 < 3 then
                 let q <- par+q
-                #let par <- 4
+                //let par <- 4
             fi;
             while 4 >= q do
                 let q <- par - q

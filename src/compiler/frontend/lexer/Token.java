@@ -145,6 +145,9 @@ public enum  Token {
                 else if (str.matches("//.*")) {
                     return COMMENT;
                 }
+                 else if (str.matches("#.*")) {
+                    return COMMENT;
+                }
                 else
                 {
                     return UNKNOWN;

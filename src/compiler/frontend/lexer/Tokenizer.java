@@ -48,12 +48,19 @@ public class Tokenizer {
 
     public TokenNode getNextToken() {
 
+        while( line != null && pos == line.length()) {
+            advanceLine();
+        }
+
         if (line == null)
             return null;
-        if (pos >= line.length())
+
+
+        if (pos > line.length())
             return null;
+
         //read character
-        char c = line.charAt(pos);
+        //char c = line.charAt(pos);
         String token;
 
         int end = findEndOfToken(line, pos);
@@ -64,24 +71,28 @@ public class Tokenizer {
 
         pos = end;
         if (end == line.length()) {
-            do {
-                try {
-                    line = reader.readLine();
-                    pos = 0;
-                    lineno++;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                if(line == null)
-                    break;
-
-                line=line.trim();
-
-            } while (line.isEmpty());
+            advanceLine();
         }
         return new TokenNode(Token.classifyToken(token), token);
 
+    }
+
+    public void advanceLine() {
+        do {
+            try {
+                line = reader.readLine();
+                pos = 0;
+                lineno++;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            if(line == null)
+                break;
+
+            line.trim();
+
+        } while (line.trim().isEmpty());
     }
 
     int findEndOfToken(String str, int position) {
@@ -131,7 +142,7 @@ public class Tokenizer {
                 case '=':
                 case '!':
                     if (nextChar == '=')
-                        return i + 1;
+                        return i + 2;
                     else
                         return i;
 
