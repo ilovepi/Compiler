@@ -1,5 +1,5 @@
-# Nested if/while testcase
-# Based on discussions with Alex, Marcelo, and Babak
+// Nested if/while testcase
+// Based on discussions with Alex, Marcelo, and Babak
 main
 var a, b, c, d, e;
 {

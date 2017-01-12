@@ -1,8 +1,8 @@
-# Nested if/while v3
-# If I think I pass this, I'm moving on.
-# This test should not be attempted by anyone who is pregnant, nursing, has 
-# high blood pressure, aliens, and stressed out graduate students.
-# Based on test 13.
+// Nested if/while v3
+// If I think I pass this, I'm moving on.
+// This test should not be attempted by anyone who is pregnant, nursing, has
+// high blood pressure, aliens, and stressed out graduate students.
+// Based on test 13.
 main
 var a, b, c, d, e, f, g, h;
 {

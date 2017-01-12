@@ -1,4 +1,4 @@
-# Array testing
+// Array testing
 main
 array [ 5 ][ 10 ][ 15 ][ 20 ] a;
 var b, c, d;

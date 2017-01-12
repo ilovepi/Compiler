@@ -13,13 +13,15 @@ public class Main {
 
     public static void main(String[] args)
     {
-        String filename = args[0];
-        Tokenizer s = new Tokenizer(filename);
+        for (String filename: args) {
 
-        TokenNode tn;
-
-        String str;
 /*
+            Tokenizer s = new Tokenizer(filename);
+
+            TokenNode tn;
+
+            String str;
+
         do{
             tn = s.getNextToken();
             if(tn == null)
@@ -41,7 +43,8 @@ public class Main {
 
         */
 
-        Parser p = new Parser();
-        p.parse(filename);
+            Parser p = new Parser();
+            p.parse(filename);
+        }
     }
 }

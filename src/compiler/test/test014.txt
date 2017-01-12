@@ -1,4 +1,4 @@
-# Brandis and Mossenbock test for while loops
+// Brandis and Mossenbock test for while loops
 main
 var a, b;
 {

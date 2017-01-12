@@ -17,16 +17,18 @@ public class Parser {
 
     Tokenizer tokenizer;
     TokenNode tn;
+    String srcFilename;
 
     public Parser() {
         is = null;
         tokenizer = null;
         tn = null;
-
+        srcFilename = null;
     }
 
 
     public void parse(String filename) {
+        srcFilename = filename;
         tokenizer = new Tokenizer(filename);
         next();
         comp();
@@ -36,11 +38,12 @@ public class Parser {
     void next() {
 
         do {
-        tn = tokenizer.getNextToken();
-         if (tn == null) {
-            error();
-        }
-      }while(tn.getT() == Token.COMMENT);
+            tn = tokenizer.getNextToken();
+            if (tn == null) {
+                return;
+                //error(Token.UNKNOWN);
+            }
+        } while (tn.getT() == Token.COMMENT);
 
 
     }
@@ -63,14 +66,15 @@ public class Parser {
         checkToken(Token.OPEN_CURL);
         statSequence();
         checkToken(Token.CLOSE_CURL);
+        checkToken(Token.EOF);
     }
 
     void checkToken(Token t) {
         if (t != tn.getT())
-            error();
-      do {
-          next();
-      }while(tn.getT() == Token.COMMENT);
+            error(t);
+        do {
+            next();
+        } while (tn != null && tn.getT() == Token.COMMENT);
     }
     /*
     void find_word(String word) {
@@ -84,8 +88,14 @@ public class Parser {
     }
     */
 
+    public void error(Token t) {
+        System.out.println("Error: Expected " + t);
+        error();
+    }
+
     public void error() {
-        System.out.println("Parse error at position " + tokenizer.getPos()  + " of line " + tokenizer.getLineno());
+        System.out.println("Parse error at position " + tokenizer.getPos() +
+                " of line " + tokenizer.getLineno() + " in file " + srcFilename);
         System.exit(-1);
     }
 
@@ -94,7 +104,7 @@ public class Parser {
         int ret = 0;
 
         ret = typeDecl();
-        if(ret == -1)
+        if (ret == -1)
             return ret;
 
         ident();
@@ -112,7 +122,7 @@ public class Parser {
         if (tn.getT() == Token.VAR) {
             next();
             return 0;
-        } else if(tn.getT() == Token.ARRAY){
+        } else if (tn.getT() == Token.ARRAY) {
             next();
             do {
                 checkToken(Token.OPEN_BRACKET);
@@ -134,7 +144,7 @@ public class Parser {
             next();
             return ret;
         } else {
-            error();
+            error(Token.NUMBER);
         }
 
         //unreachable either will return a value or error
@@ -150,7 +160,7 @@ public class Parser {
             next();
             return ret;
         } else {
-            error();
+            error(Token.IDENTIFIER);
         }
 
         //unreachable either will return a value or error
@@ -224,7 +234,7 @@ public class Parser {
 
             // may nee to remove the error statement
             default:
-                error();
+                error(Token.LET);
         }
     }
 
@@ -238,10 +248,10 @@ public class Parser {
             case LESS:
             case LESS_EQ:
                 next();
-
+                break;
 
             default:
-                error();
+                error(Token.EQUAL);
         }
     }
 
@@ -279,7 +289,7 @@ public class Parser {
                 next();
                 expr();
                 checkToken(Token.CLOSE_PAREN);
-                next();
+                //next();
                 break;
             case NUMBER:
                 next();
@@ -291,7 +301,7 @@ public class Parser {
                 funcCall();
                 break;
             default:
-                error();
+                error(Token.OPEN_PAREN);
         }
     }
 
@@ -316,6 +326,7 @@ public class Parser {
             if (tn.getT() != Token.CLOSE_PAREN) {
                 expr();
                 while (tn.getT() == Token.COMMA) {
+                    next();
                     expr();
                 }
             }

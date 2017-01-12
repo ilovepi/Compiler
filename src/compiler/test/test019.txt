@@ -1,4 +1,4 @@
-# Copy propagation transitive test
+// Copy propagation transitive test
 main
 var a, b, c, d;
 {
