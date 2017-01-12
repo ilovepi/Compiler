@@ -48,7 +48,9 @@ public class Tokenizer {
 
     public TokenNode getNextToken() {
 
-        while( line != null && pos == line.length()) {
+        if (line == null)
+            return null;
+        while (pos == line.length()) {
             advanceLine();
         }
 
@@ -73,6 +75,8 @@ public class Tokenizer {
         if (end == line.length()) {
             advanceLine();
         }
+        if (token.isEmpty())
+            return getNextToken();
         return new TokenNode(Token.classifyToken(token), token);
 
     }
@@ -87,7 +91,7 @@ public class Tokenizer {
                 e.printStackTrace();
             }
 
-            if(line == null)
+            if (line == null)
                 break;
 
             line.trim();
@@ -152,11 +156,16 @@ public class Tokenizer {
                         return str.length();
                     } else
                         return i;
+                case '#':
+                    return str.length();
                 default:
                     if ((currentChar >= 'a' && currentChar <= 'z') ||
                             (currentChar >= 'A' && currentChar <= 'Z') ||
                             (currentChar >= '0' && currentChar <= '9')) {
-                        continue;
+                        if (Character.isLetterOrDigit(nextChar))
+                            continue;
+
+                        return i + 1;
                     } else {
                         return i;
                     }

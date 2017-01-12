@@ -13,12 +13,12 @@ public class Main {
 
     public static void main(String[] args)
     {
-        //for (String filename: args)
+        for (String filename: args)
         {
 
-            String filename = "test015.txt";
+            //String filename = "test015.txt";
 /*
-            String filename = "test009.txt";
+            String filename = "test001.txt";
             Tokenizer s = new Tokenizer(filename);
 
             TokenNode tn;
