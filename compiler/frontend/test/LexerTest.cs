@@ -10,7 +10,7 @@ namespace compiler.frontend.test
 
         [Test]
         //[DeploymentItem("LexerTest1.txt", "targetFolder")]
-        public void TestMethod()
+        public void nextTest()
         {
             lex = new Lexer(TestContext.CurrentContext.TestDirectory + @"\frontend\test\LexerTest1.txt");            
 
@@ -29,5 +29,12 @@ namespace compiler.frontend.test
             Assert.That(ex.Message, Is.EqualTo("Error: Lexer cannot read beyond the end of the file"));
 
         }
+
+        [Test]
+        public void getNextTokenTest()
+        {
+            Assert.Fail();
+        }
+
     }
 }
