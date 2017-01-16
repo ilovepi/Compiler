@@ -11,6 +11,7 @@ namespace compiler.frontend
     {
         StreamReader sr;
         public char c;
+		SymbolTable sym;
 
         public Lexer(string filename)
         {
@@ -23,6 +24,8 @@ namespace compiler.frontend
                 Console.WriteLine(e.Message);
                 throw e;
             }
+
+			sym = new SymbolTable();
         }
 
         ~Lexer()
@@ -43,5 +46,14 @@ namespace compiler.frontend
             c = (char)sr.Read();
             return c;
         }
+
+
+		public int getNextToken()
+		{
+			
+		}
+
+
+
     }
 }

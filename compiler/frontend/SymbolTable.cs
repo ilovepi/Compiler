@@ -16,6 +16,7 @@ namespace compiler
 			count = 0;
 			values = new Dictionary<string, int>();
 			symbols = new Dictionary<int, string>();
+			init();
 		}
 
 		public void insert(string key)
@@ -42,50 +43,50 @@ namespace compiler
 
 		private void init()
 		{
-			insert("+"); //1
+			insert("+");    //01
 			insert("-");
 			insert("*");
-			insert("/");//4
+			insert("/");    //04
 
-			insert("==");//5
+			insert("==");   //05
 			insert("<=");
 			insert("!=");
 			insert(">=");
 			insert("<");
-			insert(">");//10
+			insert(">");    //10
 
-            insert("<-");//11
+            insert("<-");   //11
 			insert(";");
-			insert(",");//13
+			insert(",");    //13
 
-			insert("(");//14
+			insert("(");    //14
 			insert(")");
 			insert("[");
 			insert("]");
 			insert("{");
-			insert("}");//19
+			insert("}");    //19
 
 
-            insert("let");//20
+            insert("let");  //20
 			insert("call");
-			insert("var");//21
+			insert("var");  //21
 
-			insert("if");//22
+			insert("if");   //22
 			insert("then");
-			insert("else");//23
+			insert("else"); //23
 
-			insert("fi");//24
+			insert("fi");   //24
 			insert("while");
 			insert("do");
-			insert("od");//27
+			insert("od");   //27
 
 			insert("return");//28
 			insert("main");
 			insert("function");
 			insert("procedure");
-			insert(".");//32
-
+			insert(".");    //32
 		}
+
 
 
 	}
