@@ -10,6 +10,7 @@ namespace compiler
 		Dictionary<int, string> symbols;
 
 		int count;
+		int keywords;
 
 		public SymbolTable()
 		{
@@ -17,6 +18,7 @@ namespace compiler
 			values = new Dictionary<string, int>();
 			symbols = new Dictionary<int, string>();
 			init();
+			keywords = count;
 		}
 
 		public void insert(string key)
@@ -40,6 +42,12 @@ namespace compiler
 		{
 			return values[key];
 		}
+
+		public bool lookup(string key)
+		{
+			return values.ContainsKey(key);
+		}
+
 
 		private void init()
 		{
@@ -87,6 +95,11 @@ namespace compiler
 			insert(".");    //32
 		}
 
+		public bool isId(string s)
+		{
+			// if the entry is an ID, it must come after keywords
+			return ( keywords < val(s) );
+		}
 
 
 	}
