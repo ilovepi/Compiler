@@ -5,10 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace compiler.frontend
+namespace compiler.frontend.test
 {
     [TestFixture]
-    public class LexerTest
+    public class ParserTest
     {
         [Test]
         public void TestMethod()

@@ -10,13 +10,19 @@ namespace compiler.frontend
     class Lexer
     {
         StreamReader sr;
-        char c;
+        public char c;
 
-        Lexer(string filename)
+        public Lexer(string filename)
         {
-            sr = new StreamReader(filename);
-
-            next();
+            try
+            {
+                sr = new StreamReader(filename);
+            }
+            catch(FileNotFoundException e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            //next();
 
         }
 
@@ -29,13 +35,16 @@ namespace compiler.frontend
             }
         }
 
-        public void next()
+        public char next()
         {
             if(sr.Peek() == -1)
             {
                 throw new Exception("Error: Lexer cannot read beyond the end of the file");
             }
             c = (char)sr.Read();
+            return c;
         }
+
+
     }
 }
