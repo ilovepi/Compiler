@@ -5,10 +5,12 @@ namespace compiler.frontend
 {
 	class Lexer
 	{
-		StreamReader sr;
-		public char c;
-		SymbolTable symbolTble;
-        //int symbolTble
+		StreamReader sr;// file reader
+		public char c; // current char
+		SymbolTable symbolTble; // symbol table
+        int sym; // current token
+        int val; // numberic value
+        int id; // identifier
 
 		public Lexer(string filename)
 		{
@@ -45,7 +47,7 @@ namespace compiler.frontend
 		}
 
 
-		public Result getNextToken()
+		public Token getNextToken()
 		{
 			findNextToken();
 
@@ -57,14 +59,18 @@ namespace compiler.frontend
 			{
 				return symbol();
 			}
+            else if(char.IsSymbol(c))
+            {
+                return punctuation();
+            }
 
 			throw new Exception("Error: unable to parse next token");
 
 		}
 
-		public int number()
+		public Token number()
 		{
-			Result ret = new Result();
+			
 			string s = string.Empty;
 
 			while (char.IsDigit(c))
@@ -73,14 +79,14 @@ namespace compiler.frontend
 				next();
 			}
 
-			ret.kind = (int)kind.constant;
-			ret.value = int.Parse(s);
-			return ret;
+			val = int.Parse(s);
+            return Token.NUMBER;
+			
 		}
 
-		public int punctuation()
+		public Token punctuation()
 		{
-			Result ret = new Result();
+			
 			if (c == '=')
 			{
 				next();
@@ -90,8 +96,7 @@ namespace compiler.frontend
 										"must be one of: '==', '>=', '<=', '!='");
 				}
 
-				ret.id = symbolTble.val("==");
-
+				return Token.EQUAL;
 			}
 			else if (c == '!')
 			{
@@ -102,22 +107,22 @@ namespace compiler.frontend
 										"must be one of: '==', '>=', '<=', '!='");
 				}
 
-				ret.id = symbolTble.val("!=");
-			}
+                return Token.NOT_EQUAL;
+            }
 			else if (c == '<')
 			{
 				next();
-				if (c != '=')
+				if (c == '=')
 				{
-					ret.id = symbolTble.val("<");
+                    return Token.LESS_EQ;
 				}
 				else if (c == '-')
 				{
-					ret.id = symbolTble.val("<-");
+					return Token.ASSIGN;
 				}
 				else
 				{
-					ret.id = symbolTble.val("<=");
+					return Token.LESS;
 				}
 			}
 			else if (c == '<')
