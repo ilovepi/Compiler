@@ -5,10 +5,12 @@ namespace compiler.frontend
 {
 	class Lexer
 	{
-		StreamReader sr;
-		public char c;
-		SymbolTable symbolTble;
-        //int symbolTble
+		StreamReader sr;// file reader
+		public char c; // current char
+		SymbolTable symbolTble; // symbol table
+        int sym; // current token
+        int val; // numberic value
+        int id; // identifier
 
 		public Lexer(string filename)
 		{
@@ -45,7 +47,7 @@ namespace compiler.frontend
 		}
 
 
-		public Result getNextToken()
+		public int getNextToken()
 		{
 			findNextToken();
 
@@ -57,6 +59,10 @@ namespace compiler.frontend
 			{
 				return symbol();
 			}
+            else if(char.IsSymbol(c))
+            {
+                return punctuation();
+            }
 
 			throw new Exception("Error: unable to parse next token");
 
@@ -64,7 +70,7 @@ namespace compiler.frontend
 
 		public int number()
 		{
-			Result ret = new Result();
+			
 			string s = string.Empty;
 
 			while (char.IsDigit(c))
@@ -73,9 +79,9 @@ namespace compiler.frontend
 				next();
 			}
 
-			ret.kind = (int)kind.constant;
+			
 			ret.value = int.Parse(s);
-			return ret;
+			
 		}
 
 		public int punctuation()
