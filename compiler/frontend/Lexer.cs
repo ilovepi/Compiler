@@ -50,7 +50,7 @@ namespace compiler.frontend
 
 		public int getNextToken()
 		{
-			
+			if()
 		}
 
 
