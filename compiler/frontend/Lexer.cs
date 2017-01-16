@@ -21,6 +21,7 @@ namespace compiler.frontend
             catch(FileNotFoundException e)
             {
                 Console.WriteLine(e.Message);
+                throw e;
             }
             //next();
 

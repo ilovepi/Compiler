@@ -15,9 +15,10 @@ namespace compiler.frontend.test
         Lexer lex;
 
         [Test]
+        //[DeploymentItem("LexerTest1.txt", "targetFolder")]
         public void TestMethod()
         {
-            lex = new Lexer("LexerTest1.txt");            
+            lex = new Lexer(TestContext.CurrentContext.TestDirectory + @"\frontend\test\LexerTest1.txt");            
 
             string str = "Read some character";
 
