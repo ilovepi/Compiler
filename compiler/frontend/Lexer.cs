@@ -9,7 +9,7 @@ namespace compiler.frontend
 		public char c; // current char
 		SymbolTable symbolTble; // symbol table
         int sym; // current token
-        int val; // numberic value
+        int val; // numeric value
         int id; // identifier
 
 		public Lexer(string filename)
@@ -80,8 +80,8 @@ namespace compiler.frontend
 			}
 
 			
-			ret.value = int.Parse(s);
-			
+			val = int.Parse(s);
+			return 0xffff;
 		}
 
 		public int punctuation()
@@ -139,16 +139,12 @@ namespace compiler.frontend
 				}
 			}
 
-
-
-
-
-			return ret;
+			return ret.id;
 		}
 
 		public int symbol()
 		{
-			//Result ret = new Result();
+            Result ret = new Result();
 
 			string s = string.Empty;
 			s += c;
@@ -160,7 +156,7 @@ namespace compiler.frontend
 				next();
 			}
 
-			//ret.kind = (int)kind.variable;
+            ret.kind = (int)kind.variable;
 
 			if (symbolTble.lookup(s))
 			{
@@ -172,7 +168,7 @@ namespace compiler.frontend
 				ret.id = symbolTble.val(s);
 			}
 
-			return ret;
+			return ret.id;
 		}
 
 		/// <summary>
@@ -185,7 +181,6 @@ namespace compiler.frontend
 				next();
 			}
 		}
-
 
 
 	}

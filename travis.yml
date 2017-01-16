@@ -4,6 +4,6 @@ install:
   - nuget restore compiler/compiler.sln
   - nuget install NUnit.Runners -Version 2.6.4 -OutputDirectory testrunner
 script:
-  - xbuild /p:Configuration=Release compiler.sln
-  - mono ./testrunner/NUnit.Runners.2.6.4/tools/nunit-console.exe ./compiler/compiler/bin/Release/MyProject.Tests.dll
-
+  - cd compiler
+  - xbuild /p:TargetFrameworkVersion="v4.5"  /p:Configuration=Debug compiler.sln
+  - mono ./packages/NUnit.ConsoleRunner.3.6.0/tools/nunit3-console.exe ./bin/Debug/compiler.dll
