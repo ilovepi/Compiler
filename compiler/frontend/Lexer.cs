@@ -7,7 +7,8 @@ namespace compiler.frontend
 	{
 		StreamReader sr;
 		public char c;
-		SymbolTable sym;
+		SymbolTable symbolTble;
+        //int symbolTble
 
 		public Lexer(string filename)
 		{
@@ -21,7 +22,7 @@ namespace compiler.frontend
 				throw e;
 			}
 
-			sym = new SymbolTable();
+			symbolTble = new SymbolTable();
 		}
 
 		~Lexer()
@@ -61,7 +62,7 @@ namespace compiler.frontend
 
 		}
 
-		public Result number()
+		public int number()
 		{
 			Result ret = new Result();
 			string s = string.Empty;
@@ -77,7 +78,7 @@ namespace compiler.frontend
 			return ret;
 		}
 
-		public Result punctuation()
+		public int punctuation()
 		{
 			Result ret = new Result();
 			if (c == '=')
@@ -89,7 +90,7 @@ namespace compiler.frontend
 										"must be one of: '==', '>=', '<=', '!='");
 				}
 
-				ret.id = sym.val("==");
+				ret.id = symbolTble.val("==");
 
 			}
 			else if (c == '!')
@@ -101,22 +102,22 @@ namespace compiler.frontend
 										"must be one of: '==', '>=', '<=', '!='");
 				}
 
-				ret.id = sym.val("!=");
+				ret.id = symbolTble.val("!=");
 			}
 			else if (c == '<')
 			{
 				next();
 				if (c != '=')
 				{
-					ret.id = sym.val("<");
+					ret.id = symbolTble.val("<");
 				}
 				else if (c == '-')
 				{
-					ret.id = sym.val("<-");
+					ret.id = symbolTble.val("<-");
 				}
 				else
 				{
-					ret.id = sym.val("<=");
+					ret.id = symbolTble.val("<=");
 				}
 			}
 			else if (c == '<')
@@ -124,11 +125,11 @@ namespace compiler.frontend
 				next();
 				if (c != '=')
 				{
-					ret.id = sym.val("<");
+					ret.id = symbolTble.val("<");
 				}
 				else
 				{
-					ret.id = sym.val("<=");
+					ret.id = symbolTble.val("<=");
 				}
 			}
 
@@ -139,9 +140,9 @@ namespace compiler.frontend
 			return ret;
 		}
 
-		public Result symbol()
+		public int symbol()
 		{
-			Result ret = new Result();
+			//Result ret = new Result();
 
 			string s = string.Empty;
 			s += c;
@@ -153,16 +154,16 @@ namespace compiler.frontend
 				next();
 			}
 
-			ret.kind = (int)kind.variable;
+			//ret.kind = (int)kind.variable;
 
-			if (sym.lookup(s))
+			if (symbolTble.lookup(s))
 			{
-				ret.id = sym.val(s);
+				return symbolTble.val(s);
 			}
 			else
 			{
-				sym.insert(s);
-				ret.id = sym.val(s);
+				symbolTble.insert(s);
+				ret.id = symbolTble.val(s);
 			}
 
 			return ret;
