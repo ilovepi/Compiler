@@ -23,8 +23,6 @@ namespace compiler.frontend
                 Console.WriteLine(e.Message);
                 throw e;
             }
-            //next();
-
         }
 
         ~Lexer()
@@ -45,7 +43,5 @@ namespace compiler.frontend
             c = (char)sr.Read();
             return c;
         }
-
-
     }
 }

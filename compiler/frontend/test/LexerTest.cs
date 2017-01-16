@@ -12,7 +12,7 @@ namespace compiler.frontend.test
         //[DeploymentItem("LexerTest1.txt", "targetFolder")]
         public void nextTest()
         {
-            lex = new Lexer(TestContext.CurrentContext.TestDirectory + @"\frontend\test\LexerTest1.txt");            
+            lex = new Lexer(TestContext.CurrentContext.TestDirectory + @"/frontend/test/LexerTest1.txt");            
 
             // Exact string contents of LExerTest1.txt
             string str = "Read some characters";
