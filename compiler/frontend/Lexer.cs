@@ -125,25 +125,36 @@ namespace compiler.frontend
 					return Token.LESS;
 				}
 			}
-			else if (c == '<')
-			{
-				next();
-				if (c != '=')
-				{
-					ret.id = symbolTble.val("<");
-				}
-				else
-				{
-					ret.id = symbolTble.val("<=");
-				}
-			}
+            else if (c == '>')
+            {
+                next();
+                if (c == '=')
+                {
+                    return Token.GREATER_EQ;
+                }               
+                else
+                {
+                    return Token.GREATER;
+                }
+            }
+            else if ()
 
 
 
 
 
-			return ret;
-		}
+
+
+
+
+
+
+
+        }
+
+
+
+
 
 		public int symbol()
 		{
