@@ -77,6 +77,67 @@ namespace compiler.frontend
 			return ret;
 		}
 
+		public Result punctuation()
+		{
+			Result ret = new Result();
+			if (c == '=')
+			{
+				next();
+				if (c != '=')
+				{
+					throw new Exception("Error: '=' is not a valid token, " +
+										"must be one of: '==', '>=', '<=', '!='");
+				}
+
+				ret.id = sym.val("==");
+
+			}
+			else if (c == '!')
+			{
+				next();
+				if (c != '=')
+				{
+					throw new Exception("Error: '!' is not a valid token, " +
+										"must be one of: '==', '>=', '<=', '!='");
+				}
+
+				ret.id = sym.val("!=");
+			}
+			else if (c == '<')
+			{
+				next();
+				if (c != '=')
+				{
+					ret.id = sym.val("<");
+				}
+				else if (c == '-')
+				{
+					ret.id = sym.val("<-");
+				}
+				else
+				{
+					ret.id = sym.val("<=");
+				}
+			}
+			else if (c == '<')
+			{
+				next();
+				if (c != '=')
+				{
+					ret.id = sym.val("<");
+				}
+				else
+				{
+					ret.id = sym.val("<=");
+				}
+			}
+
+
+
+
+
+			return ret;
+		}
 
 		public Result symbol()
 		{
@@ -107,6 +168,9 @@ namespace compiler.frontend
 			return ret;
 		}
 
+		/// <summary>
+		/// Finds the next token. Scans forward through whitespace.
+		/// </summary>
 		public void findNextToken()
 		{
 			while (char.IsWhiteSpace(c))

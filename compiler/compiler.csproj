@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="frontend\test\LexerTest2.txt" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="frontend\test\LexerTest1.txt">
