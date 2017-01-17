@@ -9,7 +9,7 @@ namespace compiler.frontend
         public char c; // current char
         SymbolTable symbolTble; // symbol table
         int sym; // current token
-        int val; // numberic value
+        int val; // numeric value
         int id; // identifier
 
         public Lexer(string filename)
