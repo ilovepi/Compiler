@@ -95,6 +95,60 @@ namespace compiler
 			insert(".");    //32
 		}
 
+
+
+		private void init_tokens()
+		{
+			insert(Token.PLUS);    //01
+			insert(Token.MINUS);
+			insert("*");
+			insert("/");    //04
+
+			insert("==");   //05
+			insert("<=");
+			insert("!=");
+			insert(">=");
+			insert("<");
+			insert(">");    //10
+
+            insert("<-");   //11
+			insert(";");
+			insert(",");    //13
+
+			insert("(");    //14
+			insert(")");
+			insert("[");
+			insert("]");
+			insert("{");
+			insert("}");    //19
+
+
+            insert("let");  //20
+			insert("call");
+			insert("var");  //21
+
+			insert("if");   //22
+			insert("then");
+			insert("else"); //23
+
+			insert("fi");   //24
+			insert("while");
+			insert("do");
+			insert("od");   //27
+
+			insert("return");//28
+			insert("main");
+			insert("function");
+			insert("procedure");
+			insert(".");    //32
+		}
+
+
+
+
+
+
+
 		public bool isId(string s)
 		{
 			// if the entry is an ID, it must come after keywords
