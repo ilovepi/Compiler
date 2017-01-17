@@ -1,6 +1,10 @@
 ﻿using System;
 
 using System.Collections.Generic;
+
+using compiler.frontend;
+
+
 namespace compiler
 {
 	public class SymbolTable
@@ -10,7 +14,6 @@ namespace compiler
 		Dictionary<int, string> symbols;
 
 		int count;
-		int keywords;
 
 		public SymbolTable()
 		{
@@ -18,7 +21,6 @@ namespace compiler
 			values = new Dictionary<string, int>();
 			symbols = new Dictionary<int, string>();
 			init();
-			keywords = count;
 		}
 
 		public void insert(string key)
@@ -27,11 +29,12 @@ namespace compiler
 			{
 				throw new Exception("Error: cannot insert duplicate symbols");
 			}
-			count++;
+			
 			values.Add(key, count);
 			symbols.Add(count, key);
-			
-		}
+            count++;
+
+        }
 
 		public string symbol(int key)
 		{
@@ -51,17 +54,19 @@ namespace compiler
 
 		private void init()
 		{
+            insert(".unknown");
+
 			insert("+");    //01
 			insert("-");
 			insert("*");
 			insert("/");    //04
 
 			insert("==");   //05
-			insert("<=");
-			insert("!=");
-			insert(">=");
-			insert("<");
-			insert(">");    //10
+            insert("!=");
+            insert("<");
+            insert("<=");
+            insert(">");
+            insert(">=");   //10
 
             insert("<-");   //11
 			insert(";");
@@ -77,82 +82,33 @@ namespace compiler
 
             insert("let");  //20
 			insert("call");
-			insert("var");  //21
-
-			insert("if");   //22
-			insert("then");
-			insert("else"); //23
-
-			insert("fi");   //24
-			insert("while");
-			insert("do");
-			insert("od");   //27
-
-			insert("return");//28
+            insert("if");   
+            insert("then");
+            insert("else");
+            insert("fi");
+            insert("while");
+            insert("do");
+            insert("od");   //28
+            
+			insert("return");//29
 			insert("main");
-			insert("function");
+            insert("var");
+            insert("array"); //32
+
+            insert("function");//33
 			insert("procedure");
-			insert(".");    //32
+			insert(".");
+            insert("//");
+            // since '.' is the EOF symbol, .number and .identifier should be safe
+            insert(".number"); 
+            insert(".identifier"); //38           
 		}
 
-
-
-		private void init_tokens()
-		{
-			insert(Token.PLUS);    //01
-			insert(Token.MINUS);
-			insert("*");
-			insert("/");    //04
-
-			insert("==");   //05
-			insert("<=");
-			insert("!=");
-			insert(">=");
-			insert("<");
-			insert(">");    //10
-
-            insert("<-");   //11
-			insert(";");
-			insert(",");    //13
-
-			insert("(");    //14
-			insert(")");
-			insert("[");
-			insert("]");
-			insert("{");
-			insert("}");    //19
-
-
-            insert("let");  //20
-			insert("call");
-			insert("var");  //21
-
-			insert("if");   //22
-			insert("then");
-			insert("else"); //23
-
-			insert("fi");   //24
-			insert("while");
-			insert("do");
-			insert("od");   //27
-
-			insert("return");//28
-			insert("main");
-			insert("function");
-			insert("procedure");
-			insert(".");    //32
-		}
-
-
-
-
-
-
-
+        
 		public bool isId(string s)
 		{
 			// if the entry is an ID, it must come after keywords
-			return ( keywords < val(s) );
+			return ( val(".identifier") < val(s) );
 		}
 
 

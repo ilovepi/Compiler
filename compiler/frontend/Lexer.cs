@@ -3,7 +3,7 @@ using System.IO;
 
 namespace compiler.frontend
 {
-    class Lexer
+    public class Lexer
     {
         StreamReader sr;// file reader
         public char c; // current char
@@ -25,6 +25,7 @@ namespace compiler.frontend
             }
 
             symbolTble = new SymbolTable();
+            next();
         }
 
         ~Lexer()
@@ -59,10 +60,10 @@ namespace compiler.frontend
             {
                 return symbol();
             }
-            else if (char.IsSymbol(c))
-            {
+            else if (!char.IsWhiteSpace(c))
+            {                
                 return punctuation();
-            }
+            }          
 
             throw new Exception("Error: unable to parse next token");
 
@@ -95,6 +96,7 @@ namespace compiler.frontend
                         throw new Exception("Error: '=' is not a valid token, " +
                                             "must be one of: '==', '>=', '<=', '!='");
                     }
+                    next();
                     return Token.EQUAL;
 
                 case '!':
@@ -104,16 +106,19 @@ namespace compiler.frontend
                         throw new Exception("Error: '!' is not a valid token, " +
                                             "must be one of: '==', '>=', '<=', '!='");
                     }
+                    next();
                     return Token.NOT_EQUAL;
 
                 case '<':
                     next();
                     if (c == '=')
                     {
+                        next();
                         return Token.LESS_EQ;
                     }
                     else if (c == '-')
                     {
+                        next();
                         return Token.ASSIGN;
                     }
                     else
@@ -125,6 +130,7 @@ namespace compiler.frontend
                     next();
                     if (c == '=')
                     {
+                        next();
                         return Token.GREATER_EQ;
                     }
                     else
@@ -134,10 +140,13 @@ namespace compiler.frontend
 
 
                 case '+':
+                    next();
                     return Token.PLUS;
                 case '-':
+                    next();
                     return Token.MINUS;
                 case '*':
+                    next();
                     return Token.TIMES;
                 case '/':
                     next();
@@ -153,27 +162,35 @@ namespace compiler.frontend
 
 
                 case ',':
+                    next();
                     return Token.COMMA;
                 case ';':
+                    next();
                     return Token.SEMI_COLON;
-                case '.':
+                case '.':                    
                     return Token.EOF;
 
                 case '(':
+                    next();
                     return Token.OPEN_PAREN;
 
                 case ')':
+                    next();
                     return Token.CLOSE_PAREN;
 
 
                 case '[':
+                    next();
                     return Token.OPEN_BRACKET;
                 case ']':
+                    next();
                     return Token.CLOSE_BRACKET;
 
                 case '{':
+                    next();
                     return Token.OPEN_CURL;
                 case '}':
+                    next();
                     return Token.CLOSE_CURL;
 
             
@@ -186,7 +203,7 @@ namespace compiler.frontend
 
 
 
-        public int symbol()
+        public Token symbol()
         {
             //Result ret = new Result();
 
@@ -204,15 +221,17 @@ namespace compiler.frontend
 
             if (symbolTble.lookup(s))
             {
-                return symbolTble.val(s);
+                id = symbolTble.val(s);
             }
             else
             {
                 symbolTble.insert(s);
-                ret.id = symbolTble.val(s);
+                id = symbolTble.val(s);
             }
 
-            return ret;
+            if(symbolTble.isId(s))
+                return Token.IDENTIFIER;
+            return (Token)id;
         }
 
         /// <summary>

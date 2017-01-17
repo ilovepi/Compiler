@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace compiler.frontend
 {
-    enum Token
+    public enum Token
     {
+        UNKNOWN,
         //Arithmetic operators
         PLUS, MINUS, TIMES, DIVIDE,
 
@@ -28,17 +29,18 @@ namespace compiler.frontend
         LET, CALL, IF, THEN, ELSE, FI, WHILE, DO, OD, RETURN,
         MAIN, VAR, ARRAY,
 
-        IDENTIFIER, NUMBER, FUNCTION, PROCEDURE,
+        FUNCTION, PROCEDURE,
 
         // parsing tokens
         EOF,
         COMMENT,
 
-        UNKNOWN
+       
+        NUMBER, IDENTIFIER
 
     }
 
-    class TokenHelper
+    public class TokenHelper
     {
 
         /**
