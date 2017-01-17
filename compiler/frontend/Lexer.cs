@@ -86,8 +86,13 @@ namespace compiler.frontend
 
 		public Token punctuation()
 		{
-			
-			if (c == '=')
+            switch (c)
+            {
+                default:
+                    break;
+            }
+
+            if (c == '=')
 			{
 				next();
 				if (c != '=')
