@@ -14,20 +14,19 @@ namespace compiler.frontend.test
         {
             lex = new Lexer(TestContext.CurrentContext.TestDirectory + @"/frontend/test/LexerTest1.txt");            
 
-            // Exact string contents of LExerTest1.txt
+            // Exact string contents of LExerTest1.txt without the '.'
             string str = "Read some characters";
 
             foreach(char c in str)
             {
-                char b = lex.next();
                 //Console.WriteLine("Scanner expects '" + c + "', but read '" + b +"'");
-                Assert.AreEqual(c, b);
+                Assert.AreEqual(c, lex.c);
+                lex.next();
             }
 
             // make sure we throw an exception for reading past the end of the file
             var ex = Assert.Throws<Exception>(() => lex.next());
             Assert.That(ex.Message, Is.EqualTo("Error: Lexer cannot read beyond the end of the file"));
-
         }
 
         [Test]
