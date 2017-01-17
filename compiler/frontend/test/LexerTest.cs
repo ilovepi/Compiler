@@ -13,7 +13,7 @@ namespace compiler.frontend.test
         public void badFilenameTest()
         {
             // fake file should not exist
-            var ex = Assert.Throws<FileNotFoundException>(() => lex = new Lexer("fake-file.txt"));
+            Assert.Throws<FileNotFoundException>(() => lex = new Lexer("fake-file.txt"));
         }
 
         [Test]
