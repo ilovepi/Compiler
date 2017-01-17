@@ -3,205 +3,230 @@ using System.IO;
 
 namespace compiler.frontend
 {
-	class Lexer
-	{
-		StreamReader sr;// file reader
-		public char c; // current char
-		SymbolTable symbolTble; // symbol table
+    class Lexer
+    {
+        StreamReader sr;// file reader
+        public char c; // current char
+        SymbolTable symbolTble; // symbol table
         int sym; // current token
         int val; // numberic value
         int id; // identifier
 
-		public Lexer(string filename)
-		{
-			try
-			{
-				sr = new StreamReader(filename);
-			}
-			catch (FileNotFoundException e)
-			{
-				Console.WriteLine(e.Message);
-				throw e;
-			}
+        public Lexer(string filename)
+        {
+            try
+            {
+                sr = new StreamReader(filename);
+            }
+            catch (FileNotFoundException e)
+            {
+                Console.WriteLine(e.Message);
+                throw e;
+            }
 
-			symbolTble = new SymbolTable();
-		}
+            symbolTble = new SymbolTable();
+        }
 
-		~Lexer()
-		{
-			if (sr != null)
-			{
-				sr.Close();
-				sr = null;
-			}
-		}
+        ~Lexer()
+        {
+            if (sr != null)
+            {
+                sr.Close();
+                sr = null;
+            }
+        }
 
-		public char next()
-		{
-			if (sr.Peek() == -1)
-			{
-				throw new Exception("Error: Lexer cannot read beyond the end of the file");
-			}
-			c = (char)sr.Read();
-			return c;
-		}
+        public char next()
+        {
+            if (sr.Peek() == -1)
+            {
+                throw new Exception("Error: Lexer cannot read beyond the end of the file");
+            }
+            c = (char)sr.Read();
+            return c;
+        }
 
 
-		public Token getNextToken()
-		{
-			findNextToken();
+        public Token getNextToken()
+        {
+            findNextToken();
 
-			if (char.IsDigit(c))
-			{
-				return number();
-			}
-			else if (char.IsLetter(c))
-			{
-				return symbol();
-			}
-            else if(char.IsSymbol(c))
+            if (char.IsDigit(c))
+            {
+                return number();
+            }
+            else if (char.IsLetter(c))
+            {
+                return symbol();
+            }
+            else if (char.IsSymbol(c))
             {
                 return punctuation();
             }
 
-			throw new Exception("Error: unable to parse next token");
+            throw new Exception("Error: unable to parse next token");
 
-		}
+        }
 
-		public Token number()
-		{
-			
-			string s = string.Empty;
+        public Token number()
+        {
 
-			while (char.IsDigit(c))
-			{
-				s += c;
-				next();
-			}
+            string s = string.Empty;
 
-			val = int.Parse(s);
+            while (char.IsDigit(c))
+            {
+                s += c;
+                next();
+            }
+
+            val = int.Parse(s);
             return Token.NUMBER;
-			
-		}
 
-		public Token punctuation()
-		{
+        }
+
+        public Token punctuation()
+        {
             switch (c)
             {
+                case '=':
+                    next();
+                    if (c != '=')
+                    {
+                        throw new Exception("Error: '=' is not a valid token, " +
+                                            "must be one of: '==', '>=', '<=', '!='");
+                    }
+                    return Token.EQUAL;
+
+                case '!':
+                    next();
+                    if (c != '=')
+                    {
+                        throw new Exception("Error: '!' is not a valid token, " +
+                                            "must be one of: '==', '>=', '<=', '!='");
+                    }
+                    return Token.NOT_EQUAL;
+
+                case '<':
+                    next();
+                    if (c == '=')
+                    {
+                        return Token.LESS_EQ;
+                    }
+                    else if (c == '-')
+                    {
+                        return Token.ASSIGN;
+                    }
+                    else
+                    {
+                        return Token.LESS;
+                    }
+
+                case '>':
+                    next();
+                    if (c == '=')
+                    {
+                        return Token.GREATER_EQ;
+                    }
+                    else
+                    {
+                        return Token.GREATER;
+                    }
+
+
+                case '+':
+                    return Token.PLUS;
+                case '-':
+                    return Token.MINUS;
+                case '*':
+                    return Token.TIMES;
+                case '/':
+                    next();
+                    if (c == '/')
+                    {
+                        while(c != '\n')
+                        {
+                            next();
+                        }
+                        return Token.COMMENT;
+                    }
+                    return Token.DIVIDE;
+
+
+                case ',':
+                    return Token.COMMA;
+                case ';':
+                    return Token.SEMI_COLON;
+                case '.':
+                    return Token.EOF;
+
+                case '(':
+                    return Token.OPEN_PAREN;
+
+                case ')':
+                    return Token.CLOSE_PAREN;
+
+
+                case '[':
+                    return Token.OPEN_BRACKET;
+                case ']':
+                    return Token.CLOSE_BRACKET;
+
+                case '{':
+                    return Token.OPEN_CURL;
+                case '}':
+                    return Token.CLOSE_CURL;
+
+            
                 default:
-                    break;
+                    return Token.UNKNOWN;                    
             }
-
-            if (c == '=')
-			{
-				next();
-				if (c != '=')
-				{
-					throw new Exception("Error: '=' is not a valid token, " +
-										"must be one of: '==', '>=', '<=', '!='");
-				}
-
-				return Token.EQUAL;
-			}
-			else if (c == '!')
-			{
-				next();
-				if (c != '=')
-				{
-					throw new Exception("Error: '!' is not a valid token, " +
-										"must be one of: '==', '>=', '<=', '!='");
-				}
-
-                return Token.NOT_EQUAL;
-            }
-			else if (c == '<')
-			{
-				next();
-				if (c == '=')
-				{
-                    return Token.LESS_EQ;
-				}
-				else if (c == '-')
-				{
-					return Token.ASSIGN;
-				}
-				else
-				{
-					return Token.LESS;
-				}
-			}
-            else if (c == '>')
-            {
-                next();
-                if (c == '=')
-                {
-                    return Token.GREATER_EQ;
-                }               
-                else
-                {
-                    return Token.GREATER;
-                }
-            }
-            else if ()
-
-
-
-
-
-
-
-
-
-
-
-
         }
 
 
 
 
 
-		public int symbol()
-		{
-			//Result ret = new Result();
+        public int symbol()
+        {
+            //Result ret = new Result();
 
-			string s = string.Empty;
-			s += c;
-			next();
+            string s = string.Empty;
+            s += c;
+            next();
 
-			while (char.IsLetterOrDigit(c))
-			{
-				s += c;
-				next();
-			}
+            while (char.IsLetterOrDigit(c))
+            {
+                s += c;
+                next();
+            }
 
-			//ret.kind = (int)kind.variable;
+            //ret.kind = (int)kind.variable;
 
-			if (symbolTble.lookup(s))
-			{
-				return symbolTble.val(s);
-			}
-			else
-			{
-				symbolTble.insert(s);
-				ret.id = symbolTble.val(s);
-			}
+            if (symbolTble.lookup(s))
+            {
+                return symbolTble.val(s);
+            }
+            else
+            {
+                symbolTble.insert(s);
+                ret.id = symbolTble.val(s);
+            }
 
-			return ret;
-		}
+            return ret;
+        }
 
-		/// <summary>
-		/// Finds the next token. Scans forward through whitespace.
-		/// </summary>
-		public void findNextToken()
-		{
-			while (char.IsWhiteSpace(c))
-			{
-				next();
-			}
-		}
+        /// <summary>
+        /// Finds the next token. Scans forward through whitespace.
+        /// </summary>
+        public void findNextToken()
+        {
+            while (char.IsWhiteSpace(c))
+            {
+                next();
+            }
+        }
 
 
 
-	}
+    }
 }
