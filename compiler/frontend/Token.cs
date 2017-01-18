@@ -124,6 +124,10 @@ namespace compiler.frontend
 
                 case Token.MAIN:
                     return "main";
+                case Token.VAR:
+                    return "var";
+                case Token.ARRAY:
+                    return "array";
                 case Token.FUNCTION:
                     return "function";
                 case Token.PROCEDURE:
@@ -204,8 +208,6 @@ namespace compiler.frontend
                     return "LET";
                 case Token.CALL:
                     return "CALL";
-                case Token.VAR:
-                    return "VAR";
 
                 case Token.IF:
                     return "IF";
@@ -227,6 +229,10 @@ namespace compiler.frontend
 
                 case Token.MAIN:
                     return "MAIN";
+                case Token.VAR:
+                    return "VAR";
+                case Token.ARRAY:
+                    return "ARRAY";
                 case Token.FUNCTION:
                     return "FUNCTION";
                 case Token.PROCEDURE:

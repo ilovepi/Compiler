@@ -30,6 +30,13 @@ namespace compiler.frontend.test
         }
 
         [Test]
+        public void getNextTokenArrayTest()
+        {
+
+        }
+
+
+        [Test]
         public void getNextTokenTest()
         {
             lex = new Lexer(TestContext.CurrentContext.TestDirectory + @"/frontend/test/testdata/test001.txt");
