@@ -41,6 +41,7 @@ namespace compiler.frontend.test
         [Test]
         public void getNextTokenTest()
         {
+            //TODO: we need another test like this that covers every part of the classifier
             lex = new Lexer(TestContext.CurrentContext.TestDirectory + @"/frontend/test/testdata/test001.txt");
             Token[] expected_toks = new Token[]{Token.COMMENT,
                                                     Token.MAIN,
