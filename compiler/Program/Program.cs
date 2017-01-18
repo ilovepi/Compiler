@@ -12,7 +12,7 @@ namespace Program
     {
         static void Main(string[] args)
         {
-            Lexer l = new Lexer(@"..\..\testdata\test029.txt");
+            Lexer l = new Lexer(@"..\..\testdata\big.txt");
             Token t;
             do
             {
@@ -21,8 +21,9 @@ namespace Program
 
             } while (t != Token.EOF);
 
-            Console.WriteLine("Press 'enter' to exit ....");
-            Console.ReadLine();
+            // necessary when testing on windows with visual studio
+            //Console.WriteLine("Press 'enter' to exit ....");
+            //Console.ReadLine();
         }
     }
 }
