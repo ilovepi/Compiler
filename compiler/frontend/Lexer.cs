@@ -5,12 +5,12 @@ namespace compiler.frontend
 {
     public class Lexer
     {
-        StreamReader sr;// file reader
-        public char c; // current char
-        SymbolTable symbolTble; // symbol table
-        int sym; // current token
-        int val; // numeric value
-        int id; // identifier
+        private StreamReader sr;        // file reader
+        public char c;                  // current char
+        public SymbolTable symbolTble;  // symbol table
+        public int sym;                 // current token
+        public int val;                 // numeric value
+        public int id;                  // identifier
 
         public Lexer(string filename)
         {
@@ -21,7 +21,7 @@ namespace compiler.frontend
             catch (FileNotFoundException e)
             {
                 Console.WriteLine(e.Message);
-                throw e;
+                throw;
             }
 
             symbolTble = new SymbolTable();
@@ -43,7 +43,7 @@ namespace compiler.frontend
             {
                 throw new Exception("Error: Lexer cannot read beyond the end of the file");
             }
-            c = (char)sr.Read();
+            c = (char) sr.Read();
             return c;
         }
 
@@ -61,17 +61,15 @@ namespace compiler.frontend
                 return symbol();
             }
             else if (!char.IsWhiteSpace(c))
-            {                
+            {
                 return punctuation();
-            }          
+            }
 
             throw new Exception("Error: unable to parse next token");
-
         }
 
         public Token number()
         {
-
             string s = string.Empty;
 
             while (char.IsDigit(c))
@@ -82,7 +80,6 @@ namespace compiler.frontend
 
             val = int.Parse(s);
             return Token.NUMBER;
-
         }
 
         public Token punctuation()
@@ -206,9 +203,6 @@ namespace compiler.frontend
         }
 
 
-
-
-
         public Token symbol()
         {
             //Result ret = new Result();
@@ -235,9 +229,9 @@ namespace compiler.frontend
                 id = symbolTble.val(s);
             }
 
-            if(symbolTble.isId(s))
+            if (symbolTble.isId(s))
                 return Token.IDENTIFIER;
-            return (Token)id;
+            return (Token) id;
         }
 
         /// <summary>
@@ -250,8 +244,5 @@ namespace compiler.frontend
                 next();
             }
         }
-
-
-
     }
 }

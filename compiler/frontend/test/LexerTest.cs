@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using System;
+using System.IO;
 
 namespace compiler.frontend.test
 {
@@ -7,6 +8,13 @@ namespace compiler.frontend.test
     public class LexerTest
     {
         Lexer lex;
+
+        [Test]
+        public void badFilenameTest()
+        {
+            // fake file should not exist
+            var ex = Assert.Throws<FileNotFoundException>(() => lex = new Lexer("fake-file.txt"));
+        }
 
         [Test]
         //[DeploymentItem("LexerTest1.txt", "targetFolder")]
