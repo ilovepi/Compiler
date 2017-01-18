@@ -30,6 +30,7 @@ namespace compiler.frontend
 
         ~Lexer()
         {
+            //TODO: Need unit test to verify that destructior releases files
             if (sr != null)
             {
                 sr.Close();
@@ -84,6 +85,7 @@ namespace compiler.frontend
 
         public Token punctuation()
         {
+            //TODO: test coverage for this function is weak, add more path coverage
             switch (c)
             {
                 case '=':

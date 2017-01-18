@@ -25,6 +25,7 @@ namespace compiler
 
 		public void insert(string key)
 		{
+            //TODO: Add test to cover the exception
 			if (values.ContainsKey(key))
 			{
 				throw new Exception("Error: cannot insert duplicate symbols");
@@ -38,6 +39,7 @@ namespace compiler
 
 		public string symbol(int key)
 		{
+            //TODO: no test covers this function
 			return symbols[key];
 		}
 
@@ -54,6 +56,7 @@ namespace compiler
 
 		private void init()
 		{
+            //TODO: add test to verify that the enum and this dict have identical values
             insert(".unknown");
 
 			insert("+");    //01
@@ -107,6 +110,7 @@ namespace compiler
         
 		public bool isId(string s)
 		{
+            //TODO: add unit test
 			// if the entry is an ID, it must come after keywords
 			return ( val(".identifier") < val(s) );
 		}
