@@ -152,14 +152,20 @@ namespace compiler.frontend
                     next();
                     if (c == '/')
                     {
-                        while(c != '\n')
+                        while (c != '\n')
                         {
                             next();
                         }
                         return Token.COMMENT;
                     }
                     return Token.DIVIDE;
-
+                case '#':
+                    next();
+                    while (c != '\n')
+                    {
+                        next();
+                    }
+                    return Token.COMMENT;
 
                 case ',':
                     next();
@@ -167,7 +173,7 @@ namespace compiler.frontend
                 case ';':
                     next();
                     return Token.SEMI_COLON;
-                case '.':                    
+                case '.':
                     return Token.EOF;
 
                 case '(':
@@ -193,9 +199,9 @@ namespace compiler.frontend
                     next();
                     return Token.CLOSE_CURL;
 
-            
+
                 default:
-                    return Token.UNKNOWN;                    
+                    return Token.UNKNOWN;
             }
         }
 

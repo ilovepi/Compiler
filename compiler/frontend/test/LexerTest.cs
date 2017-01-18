@@ -29,12 +29,6 @@ namespace compiler.frontend.test
             Assert.That(ex.Message, Is.EqualTo("Error: Lexer cannot read beyond the end of the file"));
         }
 
-        [Test]
-        public void getNextTokenArrayTest()
-        {
-
-        }
-
 
         [Test]
         public void getNextTokenTest()

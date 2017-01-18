@@ -12,7 +12,7 @@ namespace Program
     {
         static void Main(string[] args)
         {
-            Lexer l = new Lexer(@"..\..\testdata\test002.txt");
+            Lexer l = new Lexer(@"..\..\testdata\test029.txt");
             Token t;
             do
             {
