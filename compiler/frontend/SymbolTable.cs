@@ -57,7 +57,7 @@ namespace compiler
 		private void init()
 		{
             //TODO: add test to verify that the enum and this dict have identical values
-            insert(".unknown");
+            insert(".unknown"); //0 safe since '.' is EOF char, nothing should ever come after it
 
 			insert("+");    //01
 			insert("-");
