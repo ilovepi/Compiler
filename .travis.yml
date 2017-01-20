@@ -1,8 +1,8 @@
 env:
   global:
-  # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
-  #   via the "travis encrypt" command using the project repo's public key
-  - secure: "Mmzo4wWznjOGKjhP05Z6cWxbbRpTjL2YC6L71I89DMLSEBYXDkHymYBJcWn0Jf10Yzjb6Ayq+Mvj8IY8qm0Rdgg04ch2pVQsGkYOEJb0DMVNxuiQkH96eWy+czj2fILxEHBsyb+vY8YdnvbYEbCAO1RiYjdYnMGtcfgq29XR/NA/XF77Ngp+eSvcsorgQOsPXJlKFENdJCwOsNknotvEl5YvhLglVNzShi/4xoayS1MpbF+Zf3FNaLDzujA98OVkhXpjIaNLq1Z4CYJZZ2pEykLb6egoGrSx190z7GXvMpDIbkQJLSRGduKIUaLCxKdqhdaXSXWlERwp2X2ZK0nEshVxqIbIk47r3wH0SuGGZ/wDnKN8UqD5EpapKvAcrdylmJxhC10IoPfqFUvTg6CqVHnc39klKnTpGLCcU7jRS8+x6FRTTQ4fQhudaK5Y2RYkZHdgIFnxNnynPfEi606yuu6JmB95WsXFXwv6fKUYhoTIt0YqNUJ4Bc+1hBCw7QV8enFU9q3+smRdtQ/WrfSpCQb+QV25c6Rrkr4JEBGBdi1gjrtHm5HtfUGuthbSHiJCPfz47jF/4rWTdg62fjGmYGcSaPIzQ4wqbh8oyjYitiLV1JHr880NdTvaMZYP9emyx1i/U7NLKT+ITwEDk3VPW3Cj8jssZe7yrXci+HEXqjA="
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+   - secure: "Mmzo4wWznjOGKjhP05Z6cWxbbRpTjL2YC6L71I89DMLSEBYXDkHymYBJcWn0Jf10Yzjb6Ayq+Mvj8IY8qm0Rdgg04ch2pVQsGkYOEJb0DMVNxuiQkH96eWy+czj2fILxEHBsyb+vY8YdnvbYEbCAO1RiYjdYnMGtcfgq29XR/NA/XF77Ngp+eSvcsorgQOsPXJlKFENdJCwOsNknotvEl5YvhLglVNzShi/4xoayS1MpbF+Zf3FNaLDzujA98OVkhXpjIaNLq1Z4CYJZZ2pEykLb6egoGrSx190z7GXvMpDIbkQJLSRGduKIUaLCxKdqhdaXSXWlERwp2X2ZK0nEshVxqIbIk47r3wH0SuGGZ/wDnKN8UqD5EpapKvAcrdylmJxhC10IoPfqFUvTg6CqVHnc39klKnTpGLCcU7jRS8+x6FRTTQ4fQhudaK5Y2RYkZHdgIFnxNnynPfEi606yuu6JmB95WsXFXwv6fKUYhoTIt0YqNUJ4Bc+1hBCw7QV8enFU9q3+smRdtQ/WrfSpCQb+QV25c6Rrkr4JEBGBdi1gjrtHm5HtfUGuthbSHiJCPfz47jF/4rWTdg62fjGmYGcSaPIzQ4wqbh8oyjYitiLV1JHr880NdTvaMZYP9emyx1i/U7NLKT+ITwEDk3VPW3Cj8jssZe7yrXci+HEXqjA="
 
 
 language: csharp
@@ -13,7 +13,7 @@ install:
 
 
 before_install:
-      - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
+  - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
 
 addons:
   coverity_scan:
