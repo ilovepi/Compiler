@@ -3,6 +3,7 @@ using System.IO;
 
 namespace compiler.frontend
 {
+    // TODO: write unit test for ident v. number storage
     public class Lexer
     {
         private StreamReader sr;        // file reader
