@@ -17,7 +17,7 @@ before_install:
 
 addons:
   coverity_scan:
-    project:
+     project:
       name: "ilovepi/Compiler"
       description: "A Project for Evaluating Compiler Algoithms and Design"
     notification_email: pk1574@gmail.com
