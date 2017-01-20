@@ -18,8 +18,8 @@ before_install:
 addons:
   coverity_scan:
     project:
-     name: "ilovepi/Compiler"
-     description: "A Project for Evaluating Compiler Algoithms and Design"
+      name: "ilovepi/Compiler"
+      description: "A Project for Evaluating Compiler Algoithms and Design"
     notification_email: pk1574@gmail.com
     build_command_prepend: "xbuild /p:TargetFrameworkVersion="v4.5"  /p:Configuration=Debug compiler.sln"
     build_command:   "xbuild /p:TargetFrameworkVersion="v4.5"  /p:Configuration=Debug compiler.sln"
