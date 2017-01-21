@@ -146,10 +146,10 @@
       <ModuleName>System.Web</ModuleName>
       <Classes />
     </Module>
-    <Module hash="38-42-F4-65-FD-B7-34-17-29-47-E5-86-97-04-D3-D0-4E-55-8C-44">
+    <Module hash="30-C5-B0-9D-4E-6F-1A-2F-42-DD-F0-D1-CE-B1-D7-6F-52-79-CE-17">
       <Summary numSequencePoints="0" visitedSequencePoints="0" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="0" branchCoverage="0" maxCyclomaticComplexity="1" minCyclomaticComplexity="0" visitedClasses="0" numClasses="0" visitedMethods="0" numMethods="0" />
       <ModulePath>D:\Code\compiler\compiler\NUnit.Tests\bin\Debug\NUnit.Tests.dll</ModulePath>
-      <ModuleTime>2017-01-21T07:58:26.2586832Z</ModuleTime>
+      <ModuleTime>2017-01-21T08:49:42.6501784Z</ModuleTime>
       <ModuleName>NUnit.Tests</ModuleName>
       <Files>
         <File uid="1" fullPath="D:\Code\compiler\compiler\NUnit.Tests\Frontend\ParserTest.cs" />
@@ -264,10 +264,10 @@
       <ModuleName>System.Xml</ModuleName>
       <Classes />
     </Module>
-    <Module hash="70-72-FD-5B-1B-11-B5-EF-D8-25-71-96-69-49-ED-5C-D9-47-B4-6B">
+    <Module hash="89-22-CF-12-8A-9B-11-50-60-6E-B4-45-2B-81-47-0F-68-3A-21-81">
       <Summary numSequencePoints="337" visitedSequencePoints="182" numBranchPoints="185" visitedBranchPoints="61" sequenceCoverage="54.01" branchCoverage="32.97" maxCyclomaticComplexity="41" minCyclomaticComplexity="1" visitedClasses="2" numClasses="4" visitedMethods="23" numMethods="36" />
       <ModulePath>D:\Code\compiler\compiler\NUnit.Tests\bin\Debug\compiler.dll</ModulePath>
-      <ModuleTime>2017-01-21T07:58:23.3614383Z</ModuleTime>
+      <ModuleTime>2017-01-21T08:35:15.755702Z</ModuleTime>
       <ModuleName>compiler</ModuleName>
       <Files>
         <File uid="5" fullPath="D:\Code\compiler\compiler\frontend\SymbolTable.cs" />

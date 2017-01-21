@@ -19,7 +19,7 @@ test:
   assemblies: '**\compiler.dll'
 after_test:
 - ps: "pwd;ls;
-      .\\packages\\OpenCover.4.6.519\\tools\\OpenCover.Console.exe -register:user -target:.\\packages\\NUnit.ConsoleRunner.3.6.0\\tools\\nunit3-console.exe \"-targetargs:\"\"NUnit.Tests\\bin\\$env:CONFIGURATION\\NUnit.Tests.dll\"\" \"  -output:opencoverCoverage.xml
+      .\\packages\\OpenCover.4.6.519\\tools\\OpenCover.Console.exe -register:user -target:.\\packages\\NUnit.ConsoleRunner.3.6.0\\tools\\nunit3-console.exe \"-targetargs:\"\"NUnit.Tests\\bin\\$env:CONFIGURATION\\NUnit.Tests.dll\"\" \" -excludebyfile:*Test.cs;Property*  -output:opencoverCoverage.xml
 
        $coveralls = (Resolve-Path \".\\packages/coveralls.net.*/tools/csmacnz.coveralls.exe\").ToString()
 
