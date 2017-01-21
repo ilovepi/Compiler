@@ -1,22 +1,64 @@
 ﻿using System;
+using System.Data.Common;
 using System.IO;
 
 namespace compiler.frontend
 {
+    // TODO: write unit test for ident v. number storage
     public class Lexer
     {
-        private StreamReader sr;        // file reader
-        public char c;                  // current char
-        public SymbolTable symbolTble;  // symbol table
-        public int sym;                 // current token
-        public int val;                 // numeric value
-        public int id;                  // identifier
+        /// <summary>
+        /// A StreamReader to read chars from file
+        /// </summary>
+        public StreamReader Sr { get; set; }
 
+        /// <summary>
+        /// The current character from the file
+        /// </summary>
+        public char C { get; set; }
+
+        /// <summary>
+        /// Table of all program symbols
+        /// </summary>
+        public SymbolTable SymbolTble { get; }
+
+        /// <summary>
+        /// The current Symbol
+        /// </summary>
+        public int Sym { get; set; }
+
+        /// <summary>
+        /// The last Numeric Value
+        /// </summary>
+        public int Val { get; set; }
+
+
+        /// <summary>
+        /// The last identifier
+        /// </summary>
+        public int Id { get; set; }
+
+        /// <summary>
+        /// The current line number in the source text
+        /// </summary>
+        public int LineNo              // line number in file
+        { set; get; }
+
+        /// <summary>
+        /// The current position in the current line
+        /// </summary>
+        public int Position                 // position in line
+        { set; get; }
+
+        /// <summary>
+        /// Constructor for the Lexer
+        /// </summary>
+        /// <param name="filename">The name of the source file to begin tokenizing</param>
         public Lexer(string filename)
         {
             try
             {
-                sr = new StreamReader(filename);
+                Sr = new StreamReader(filename);
             }
             catch (FileNotFoundException e)
             {
@@ -24,28 +66,30 @@ namespace compiler.frontend
                 throw;
             }
 
-            symbolTble = new SymbolTable();
+            SymbolTble = new SymbolTable();
             next();
+            LineNo = 1;
+
         }
 
         ~Lexer()
         {
             //TODO: Need unit test to verify that destructior releases files
-            if (sr != null)
+            if (Sr != null)
             {
-                sr.Close();
-                sr = null;
+                Sr.Close();
+                Sr = null;
             }
         }
 
         public char next()
         {
-            if (sr.Peek() == -1)
+            if (Sr.Peek() == -1)
             {
                 throw new Exception("Error: Lexer cannot read beyond the end of the file");
             }
-            c = (char) sr.Read();
-            return c;
+            C = (char)Sr.Read();
+            return C;
         }
 
 
@@ -53,15 +97,15 @@ namespace compiler.frontend
         {
             findNextToken();
 
-            if (char.IsDigit(c))
+            if (char.IsDigit(C))
             {
                 return number();
             }
-            else if (char.IsLetter(c))
+            else if (char.IsLetter(C))
             {
                 return symbol();
             }
-            else if (!char.IsWhiteSpace(c))
+            else if (!char.IsWhiteSpace(C))
             {
                 return punctuation();
             }
@@ -73,24 +117,24 @@ namespace compiler.frontend
         {
             string s = string.Empty;
 
-            while (char.IsDigit(c))
+            while (char.IsDigit(C))
             {
-                s += c;
+                s += C;
                 next();
             }
 
-            val = int.Parse(s);
+            Val = int.Parse(s);
             return Token.NUMBER;
         }
 
         public Token punctuation()
         {
             //TODO: test coverage for this function is weak, add more path coverage
-            switch (c)
+            switch (C)
             {
                 case '=':
                     next();
-                    if (c != '=')
+                    if (C != '=')
                     {
                         throw new Exception("Error: '=' is not a valid token, " +
                                             "must be one of: '==', '>=', '<=', '!='");
@@ -100,7 +144,7 @@ namespace compiler.frontend
 
                 case '!':
                     next();
-                    if (c != '=')
+                    if (C != '=')
                     {
                         throw new Exception("Error: '!' is not a valid token, " +
                                             "must be one of: '==', '>=', '<=', '!='");
@@ -110,12 +154,12 @@ namespace compiler.frontend
 
                 case '<':
                     next();
-                    if (c == '=')
+                    if (C == '=')
                     {
                         next();
                         return Token.LESS_EQ;
                     }
-                    else if (c == '-')
+                    else if (C == '-')
                     {
                         next();
                         return Token.ASSIGN;
@@ -127,7 +171,7 @@ namespace compiler.frontend
 
                 case '>':
                     next();
-                    if (c == '=')
+                    if (C == '=')
                     {
                         next();
                         return Token.GREATER_EQ;
@@ -149,9 +193,9 @@ namespace compiler.frontend
                     return Token.TIMES;
                 case '/':
                     next();
-                    if (c == '/')
+                    if (C == '/')
                     {
-                        while (c != '\n')
+                        while (C != '\n')
                         {
                             next();
                         }
@@ -160,7 +204,7 @@ namespace compiler.frontend
                     return Token.DIVIDE;
                 case '#':
                     next();
-                    while (c != '\n')
+                    while (C != '\n')
                     {
                         next();
                     }
@@ -210,30 +254,30 @@ namespace compiler.frontend
             //Result ret = new Result();
 
             string s = string.Empty;
-            s += c;
+            s += C;
             next();
 
-            while (char.IsLetterOrDigit(c))
+            while (char.IsLetterOrDigit(C))
             {
-                s += c;
+                s += C;
                 next();
             }
 
             //ret.kind = (int)kind.variable;
 
-            if (symbolTble.lookup(s))
+            if (SymbolTble.lookup(s))
             {
-                id = symbolTble.val(s);
+                Id = SymbolTble.val(s);
             }
             else
             {
-                symbolTble.insert(s);
-                id = symbolTble.val(s);
+                SymbolTble.insert(s);
+                Id = SymbolTble.val(s);
             }
 
-            if (symbolTble.isId(s))
+            if (SymbolTble.isId(s))
                 return Token.IDENTIFIER;
-            return (Token) id;
+            return (Token)Id;
         }
 
         /// <summary>
@@ -241,7 +285,7 @@ namespace compiler.frontend
         /// </summary>
         public void findNextToken()
         {
-            while (char.IsWhiteSpace(c))
+            while (char.IsWhiteSpace(C))
             {
                 next();
             }

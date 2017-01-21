@@ -49,10 +49,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Frontend\LexerTest1.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Frontend\test001Tokens.txt" />
-    <None Include="Frontend\LexerTest2.txt" />
+    <None Include="Frontend\LexerTest2.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Content Include="Frontend\testdata\big.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

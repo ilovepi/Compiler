@@ -21,7 +21,7 @@ namespace NUnit.Tests.Frontend
         //[DeploymentItem("LexerTest1.txt", "targetFolder")]
         public void NextTest()
         {
-            Lex = new Lexer(TestContext.CurrentContext.TestDirectory + @"/frontend/test/LexerTest1.txt");
+            Lex = new Lexer(TestContext.CurrentContext.TestDirectory + @"/frontend/LexerTest1.txt");
 
             // Exact string contents of LExerTest1.txt without the '.'
             string str = "Read some characters";
@@ -29,7 +29,7 @@ namespace NUnit.Tests.Frontend
             foreach (char c in str)
             {
                 //Console.WriteLine("Scanner expects '" + c + "', but read '" + b +"'");
-                Assert.AreEqual(c, Lex.c);
+                Assert.AreEqual(c, Lex.C);
                 Lex.next();
             }
 
@@ -43,7 +43,7 @@ namespace NUnit.Tests.Frontend
         public void GetNextTokenTest()
         {
             //TODO: we need another test like this that covers every part of the classifier
-            Lex = new Lexer(TestContext.CurrentContext.TestDirectory + @"/frontend/test/testdata/test001.txt");
+            Lex = new Lexer(TestContext.CurrentContext.TestDirectory + @"/frontend/testdata/test001.txt");
             Token[] expectedToks = new Token[]{Token.COMMENT,
                                                     Token.MAIN,
                                                     Token.VAR,
