@@ -49,24 +49,27 @@ namespace compiler.frontend
 
 			getExpected(Token.CLOSE_BRACKET);
         }
-
-        public void Factor(){
+        public void Factor() {
 			if ((t == Token.IDENTIFIER) || (t == Token.IDENTIFIER))
 			{
 				next();
 			}
 			else error();
         }
+        public void Term() {
+            
+        }
+        public void Expression() {
+            
+        }
+        public void Relation() {
+            
+        }
+			                    
+		public void Assign()
+		{
 
-        public void Term(){
-            
-        }
-        public void Expression(){
-            
-        }
-        public void Relation(){
-            
-        }
+		}
 
     }
 }
