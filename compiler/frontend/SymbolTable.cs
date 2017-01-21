@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 
 namespace compiler.frontend
 {
@@ -24,7 +25,7 @@ namespace compiler.frontend
             //TODO: Add test to cover the exception
 			if (Values.ContainsKey(key))
 			{
-				throw new Exception("Error: cannot insert duplicate symbols");
+			    throw new DuplicateNameException("Error: Symbol Table cannot contain duplicate symbols: " + key);
 			}
 			
 			Values.Add(key, Count);
