@@ -1,8 +1,0 @@
-﻿main
-	stuff;
-	// comment
-	# other comment
-	a + b
-	a+b
-	let c <- a +b;
-	.

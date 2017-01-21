@@ -6,4 +6,4 @@ install:
 script:
   - cd compiler
   - xbuild /p:TargetFrameworkVersion="v4.5"  /p:Configuration=Debug compiler.sln
-  - mono ./packages/NUnit.ConsoleRunner.3.6.0/tools/nunit3-console.exe ./bin/Debug/compiler.dll
+  - mono ./packages/NUnit.ConsoleRunner.3.6.0/tools/nunit3-console.exe ./NUnit.Tests/bin/Debug/NUnit.Tests.dll
