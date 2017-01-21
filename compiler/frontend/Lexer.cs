@@ -13,6 +13,20 @@ namespace compiler.frontend
         public int val;                 // numeric value
         public int id;                  // identifier
 
+        public int lineno;              // line number in file
+        {
+            set;
+            get;
+
+        }
+
+        public int pos;                 // position in line
+        {
+            set;
+            get;
+        }
+
+
         public Lexer(string filename)
         {
             try
@@ -27,6 +41,8 @@ namespace compiler.frontend
 
             symbolTble = new SymbolTable();
             next();
+            lineno = 1;
+
         }
 
         ~Lexer()
