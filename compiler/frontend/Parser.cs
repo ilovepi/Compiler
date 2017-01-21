@@ -12,8 +12,10 @@ namespace compiler.frontend
 	{
 		public Token t;
 		public Lexer s;
+		string filename;
 
-		void getExpected(Token expected)
+
+		public void getExpected(Token expected)
 		{
 			if (t == expected)
 			{
@@ -21,6 +23,19 @@ namespace compiler.frontend
 			}
 			else error();
 		}
+
+		public void error(string str)
+		{
+			//TODO: determine location in file
+			Console.WriteLine ("Error Parsing file: " + filename + ", " + str);
+			error_fatal();
+		}
+
+		public void error_fatal(){
+			//TODO: determine location in file
+			throw new Exception("Fatal Error Parsing file: " + filename + ". Unable to continue";
+		}
+
 
         public void next() {
             t = s.getNextToken();
