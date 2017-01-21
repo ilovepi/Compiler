@@ -67,7 +67,7 @@ namespace compiler.frontend
             }
 
             SymbolTble = new SymbolTable();
-            next();
+            Next();
             LineNo = 1;
 
         }
@@ -82,7 +82,7 @@ namespace compiler.frontend
             }
         }
 
-        public char next()
+        public char Next()
         {
             if (Sr.Peek() == -1)
             {
@@ -93,75 +93,75 @@ namespace compiler.frontend
         }
 
 
-        public Token getNextToken()
+        public Token GetNextToken()
         {
-            findNextToken();
+            FindNextToken();
 
             if (char.IsDigit(C))
             {
-                return number();
+                return Number();
             }
             else if (char.IsLetter(C))
             {
-                return symbol();
+                return Symbol();
             }
             else if (!char.IsWhiteSpace(C))
             {
-                return punctuation();
+                return Punctuation();
             }
 
             throw new Exception("Error: unable to parse next token");
         }
 
-        public Token number()
+        public Token Number()
         {
             string s = string.Empty;
 
             while (char.IsDigit(C))
             {
                 s += C;
-                next();
+                Next();
             }
 
             Val = int.Parse(s);
             return Token.NUMBER;
         }
 
-        public Token punctuation()
+        public Token Punctuation()
         {
             //TODO: test coverage for this function is weak, add more path coverage
             switch (C)
             {
                 case '=':
-                    next();
+                    Next();
                     if (C != '=')
                     {
                         throw new Exception("Error: '=' is not a valid token, " +
                                             "must be one of: '==', '>=', '<=', '!='");
                     }
-                    next();
+                    Next();
                     return Token.EQUAL;
 
                 case '!':
-                    next();
+                    Next();
                     if (C != '=')
                     {
                         throw new Exception("Error: '!' is not a valid token, " +
                                             "must be one of: '==', '>=', '<=', '!='");
                     }
-                    next();
+                    Next();
                     return Token.NOT_EQUAL;
 
                 case '<':
-                    next();
+                    Next();
                     if (C == '=')
                     {
-                        next();
+                        Next();
                         return Token.LESS_EQ;
                     }
                     else if (C == '-')
                     {
-                        next();
+                        Next();
                         return Token.ASSIGN;
                     }
                     else
@@ -170,10 +170,10 @@ namespace compiler.frontend
                     }
 
                 case '>':
-                    next();
+                    Next();
                     if (C == '=')
                     {
-                        next();
+                        Next();
                         return Token.GREATER_EQ;
                     }
                     else
@@ -183,63 +183,63 @@ namespace compiler.frontend
 
 
                 case '+':
-                    next();
+                    Next();
                     return Token.PLUS;
                 case '-':
-                    next();
+                    Next();
                     return Token.MINUS;
                 case '*':
-                    next();
+                    Next();
                     return Token.TIMES;
                 case '/':
-                    next();
+                    Next();
                     if (C == '/')
                     {
                         while (C != '\n')
                         {
-                            next();
+                            Next();
                         }
                         return Token.COMMENT;
                     }
                     return Token.DIVIDE;
                 case '#':
-                    next();
+                    Next();
                     while (C != '\n')
                     {
-                        next();
+                        Next();
                     }
                     return Token.COMMENT;
 
                 case ',':
-                    next();
+                    Next();
                     return Token.COMMA;
                 case ';':
-                    next();
+                    Next();
                     return Token.SEMI_COLON;
                 case '.':
                     return Token.EOF;
 
                 case '(':
-                    next();
+                    Next();
                     return Token.OPEN_PAREN;
 
                 case ')':
-                    next();
+                    Next();
                     return Token.CLOSE_PAREN;
 
 
                 case '[':
-                    next();
+                    Next();
                     return Token.OPEN_BRACKET;
                 case ']':
-                    next();
+                    Next();
                     return Token.CLOSE_BRACKET;
 
                 case '{':
-                    next();
+                    Next();
                     return Token.OPEN_CURL;
                 case '}':
-                    next();
+                    Next();
                     return Token.CLOSE_CURL;
 
 
@@ -249,33 +249,33 @@ namespace compiler.frontend
         }
 
 
-        public Token symbol()
+        public Token Symbol()
         {
             //Result ret = new Result();
 
             string s = string.Empty;
             s += C;
-            next();
+            Next();
 
             while (char.IsLetterOrDigit(C))
             {
                 s += C;
-                next();
+                Next();
             }
 
             //ret.kind = (int)kind.variable;
 
-            if (SymbolTble.lookup(s))
+            if (SymbolTble.Lookup(s))
             {
-                Id = SymbolTble.val(s);
+                Id = SymbolTble.Val(s);
             }
             else
             {
-                SymbolTble.insert(s);
-                Id = SymbolTble.val(s);
+                SymbolTble.Insert(s);
+                Id = SymbolTble.Val(s);
             }
 
-            if (SymbolTble.isId(s))
+            if (SymbolTble.IsId(s))
                 return Token.IDENTIFIER;
             return (Token)Id;
         }
@@ -283,11 +283,11 @@ namespace compiler.frontend
         /// <summary>
         /// Finds the next token. Scans forward through whitespace.
         /// </summary>
-        public void findNextToken()
+        public void FindNextToken()
         {
             while (char.IsWhiteSpace(C))
             {
-                next();
+                Next();
             }
         }
     }

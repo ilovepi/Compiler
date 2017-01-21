@@ -16,7 +16,7 @@ namespace Program
             Token t;
             do
             {
-                t = l.getNextToken();
+                t = l.GetNextToken();
                 Console.WriteLine( TokenHelper.printToken(t) );
 
             } while (t != Token.EOF);
