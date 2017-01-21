@@ -15,15 +15,16 @@ namespace compiler.frontend
 
         public int lineno;              // line number in file
         {
-            set;
-            get;
+            set{ lineno = Value; }
+            get{return lineno;};
 
         }
 
         public int pos;                 // position in line
         {
-            set;
-            get;
+            set{ pos = Value; }
+            get{return pos;};
+
         }
 
 
