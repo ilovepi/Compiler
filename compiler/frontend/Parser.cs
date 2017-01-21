@@ -13,13 +13,13 @@ namespace compiler.frontend
 		public Token t;
 		public Lexer s;
 
-		public void getExpected(Token expected)
+		void getExpected(Token expected)
 		{
 			if (t == expected)
 			{
 				next();
 			}
-			error();s
+			else error();
 		}
 
         public void next() {
@@ -27,25 +27,14 @@ namespace compiler.frontend
         }
 
         public void Designator() {
-            if (t == Token.IDENTIFIER)
-			{
-                next();
-            }
-            else error();
+			getExpected(Token.IDENTIFIER);
+			getExpected(Token.OPEN_BRACKET);
 
-			if (t == Token.OPEN_BRACKET)
-			{
-				next();
-			}
-			else error();
+			Expression();
 
-			while (t != Token.CLOSE_BRACKET)
-			{
-				Expression();
-				next();
-			}
-
+			getExpected(Token.CLOSE_BRACKET);
         }
+
         public void Factor(){
 			if ((t == Token.IDENTIFIER) || (t == Token.IDENTIFIER))
 			{
@@ -53,6 +42,7 @@ namespace compiler.frontend
 			}
 			else error();
         }
+
         public void Term(){
             
         }
