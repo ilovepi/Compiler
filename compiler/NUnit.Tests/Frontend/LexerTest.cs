@@ -96,6 +96,7 @@ namespace NUnit.Tests.Frontend
 
             // invoke garbage collector to ensure destructor runs now
             GC.Collect();
+            GC.WaitForPendingFinalizers();
 
             // check if the file is infact, closed
             var fileInfo = new FileInfo(filename);
