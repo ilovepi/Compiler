@@ -27,7 +27,7 @@ namespace compiler.frontend
 
         public void error(string str)
         {
-            //TODO: determine location in file
+            //TODO: determine location in file for error messages
             Console.WriteLine ("Error Parsing file: " + filename + ", " + str);
             error_fatal();
         }
