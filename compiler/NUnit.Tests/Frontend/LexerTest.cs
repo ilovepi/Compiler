@@ -30,11 +30,11 @@ namespace NUnit.Tests.Frontend
             {
                 //Console.WriteLine("Scanner expects '" + c + "', but read '" + b +"'");
                 Assert.AreEqual(c, Lex.C);
-                Lex.next();
+                Lex.Next();
             }
 
             // make sure we throw an exception for reading past the end of the file
-            var ex = Assert.Throws<Exception>(() => Lex.next());
+            var ex = Assert.Throws<Exception>(() => Lex.Next());
             Assert.That(ex.Message, Is.EqualTo("Error: Lexer cannot read beyond the end of the file"));
         }
 
@@ -77,8 +77,8 @@ namespace NUnit.Tests.Frontend
 
             foreach (Token parsedToken in expectedToks)
             {
-                t = lex.getNextToken();
-                Assert.AreEqual(t, parsed_token);
+                t = Lex.GetNextToken();
+                Assert.AreEqual(t, parsedToken);
             }    
         }
 

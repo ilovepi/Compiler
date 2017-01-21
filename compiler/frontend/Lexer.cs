@@ -249,7 +249,7 @@ namespace compiler.frontend
         }
 
 
-        public Token symbol()
+        public Token Symbol()
         {
             //Result ret = new Result();
 
