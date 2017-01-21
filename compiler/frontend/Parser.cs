@@ -13,8 +13,13 @@ namespace compiler.frontend
         public Token t;
         public Lexer s;
         string filename;
-        int lineno;
-        int pos;
+
+        public Parser(string p_fileName)
+        {
+            filename = p_fileName;
+            t = null;
+            s = new Lexer(filename);
+        }
 
         public void getExpected(Token expected)
         {
