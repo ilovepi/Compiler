@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 
-namespace compiler.frontend.test
+namespace NUnit.Tests.Frontend
 {
     [TestFixture]
     public class ParserTest
