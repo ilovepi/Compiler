@@ -7,6 +7,7 @@ environment:
 before_build:
 - cmd: >-
     cd compiler
+    
     nuget restore
 build:
   project: compiler/compiler.sln
