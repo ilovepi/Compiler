@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using compiler.frontend;
 
 namespace Program
@@ -17,7 +12,7 @@ namespace Program
             do
             {
                 t = l.GetNextToken();
-                Console.WriteLine( TokenHelper.printToken(t) );
+                Console.WriteLine( TokenHelper.PrintToken(t) );
 
             } while (t != Token.EOF);
 

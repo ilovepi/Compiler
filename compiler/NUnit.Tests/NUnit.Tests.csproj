@@ -35,10 +35,12 @@
       <HintPath>..\packages\NUnit.3.0.1\lib\net45\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Frontend\LexerTest.cs" />
     <Compile Include="Frontend\ParserTest.cs" />
+    <Compile Include="Frontend\SymbolTableTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
