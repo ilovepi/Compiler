@@ -18,4 +18,12 @@ build:
 test:
   assemblies: '**\compiler.dll'
 after_test:
-- ps: "pwd;ls;\n.\\packages\\OpenCover.4.6.519\\tools\\OpenCover.Console.exe -register:user -target:.\\packages\\NUnit.ConsoleRunner.3.6.0\\tools\\nunit3-console.exe \"-targetargs:\"\"NUnit.Tests\\bin\\Debug\\NUnit.Tests.dll\"\" \"  -output:opencoverCoverage.xml\n\n    $coveralls = (Resolve-Path \".\\packages/coveralls.net.*/tools/csmacnz.coveralls.exe\").ToString()\n    \n    $env:APPVEYOR_BUILD_NUMBER\n    \n    & $coveralls --opencover -i opencoverCoverage.xml --repoToken $env:COVERALLS_REPO_TOKEN --useRelativePaths --commitId $env:APPVEYOR_REPO_COMMIT --commitBranch $env:APPVEYOR_REPO_BRANCH --commitAuthor $env:APPVEYOR_REPO_COMMIT_AUTHOR --commitEmail $env:APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL --commitMessage $env:APPVEYOR_REPO_COMMIT_MESSAGE --jobId $env:APPVEYOR_BUILD_NUMBER --serviceName appveyor"
+- ps: "pwd;ls;
+      .\\packages\\OpenCover.4.6.519\\tools\\OpenCover.Console.exe -register:user -target:.\\packages\\NUnit.ConsoleRunner.3.6.0\\tools\\nunit3-console.exe \"-targetargs:\"\"NUnit.Tests\\bin\\$env:CONFIGURATION\\NUnit.Tests.dll\"\" \"  -output:opencoverCoverage.xml
+
+       $coveralls = (Resolve-Path \".\\packages/coveralls.net.*/tools/csmacnz.coveralls.exe\").ToString()
+
+       $env:APPVEYOR_BUILD_NUMBER
+           
+       & $coveralls --opencover -i opencoverCoverage.xml --repoToken $env:COVERALLS_REPO_TOKEN --useRelativePaths --commitId $env:APPVEYOR_REPO_COMMIT --commitBranch $env:APPVEYOR_REPO_BRANCH --commitAuthor $env:APPVEYOR_REPO_COMMIT_AUTHOR --commitEmail $env:APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL --commitMessage $env:APPVEYOR_REPO_COMMIT_MESSAGE --jobId $env:APPVEYOR_BUILD_NUMBER --serviceName appveyor
+       "
