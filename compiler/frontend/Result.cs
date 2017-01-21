@@ -12,20 +12,39 @@ namespace compiler
 
 	public struct Result
 	{
-        private int kind; // const, var, register, conditional
-        private int value; // numeric value
-        private int id; //id number
-        private int regno; // register number
-        private int cc; // conditional code: GT, GTE, LT, LTE, EQ, NEQ, 
-        private int trueValue; // branch offset for true
-        private int falseValue; // branch offset for false
+        /// <summary>
+        /// Const, Variable, Register, Conditional
+        /// </summary>
+	    public int Kind { get; }
 
-        public int Kind { get => kind; set => kind = value; }
-        public int Value { get => value; set => this.value = value; }
-        public int Id { get => id; set => id = value; }
-        public int Regno { get => regno; set => regno = value; }
-        public int Cc { get => cc; set => cc = value; }
-        public int TrueValue { get => trueValue; set => trueValue = value; }
-        public int FalseValue { get => falseValue; set => falseValue = value; }
-    }
+        /// <summary>
+        /// Numeric value
+        /// </summary>
+	    public int Value { get; }
+
+        /// <summary>
+        /// UUID for an identifier
+        /// </summary>
+	    public int Id { get; }
+
+        /// <summary>
+        /// Register number
+        /// </summary>
+	    public int Regno { get; }
+
+        /// <summary>
+        /// Comparison Code ??? maybe I forgot what this was
+        /// </summary>
+	    public int Cc { get; }
+
+        /// <summary>
+        /// True branch offset
+        /// </summary>
+	    public int TrueValue { get; }
+
+        /// <summary>
+        /// False branch offset
+        /// </summary>
+	    public int FalseValue { get; }
+	}
 }
