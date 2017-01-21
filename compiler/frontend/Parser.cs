@@ -14,6 +14,12 @@ namespace compiler.frontend
         public Lexer s;
         string filename;
 
+        public Parser(string p_fileName)
+        {
+            filename = p_fileName;
+            t = Token.UNKNOWN;
+            s = new Lexer(filename);
+        }
 		public bool isRelOp()
 		{
 			switch (t)
@@ -41,20 +47,21 @@ namespace compiler.frontend
                 next();
             }
             else {
-				error();
+				error("Error in file: " + filename + " at line " + s.lineno + ", pos " + s.pos +
+					  "\n\tFound: " + TokenHelper.toString(t) + " but Expected: " + 
+				      TokenHelper.toString(expected));
             }
         }
 
         public void error(string str)
         {
-            //TODO: determine location in file
+            //TODO: determine location in file for error messages
             Console.WriteLine ("Error Parsing file: " + filename + ", " + str);
             error_fatal();
         }
 
-        public void error_fatal()
-		{
-            //TODO: determine location in file
+        public void error_fatal(){
+            //TODO: determine location in file for error messages
 			throw new Exception("Fatal Error Parsing file: " + filename + ". Unable to continue");
         }
 
@@ -89,14 +96,15 @@ namespace compiler.frontend
 				case Token.OPEN_PAREN:
 					next();
 					Expression();
-					getExpected(Token.CLOSE_BRACKET)
+					getExpected(Token.CLOSE_BRACKET);
 					break;
 				case Token.CALL:
 					next();
 					FuncCall();
 					break;
 				default:
-					error();
+					error_fatal();
+					break;
 			}
         }
 
@@ -125,7 +133,7 @@ namespace compiler.frontend
 			Expression();
 			if (!isRelOp())
 			{
-				error();
+				error_fatal();
 			}
 			next();
 			Expression();
@@ -136,7 +144,7 @@ namespace compiler.frontend
 
 		}
 
-		public void FunctionCall()
+		public void FuncCall()
 		{
 			
 		}
