@@ -33,18 +33,7 @@ namespace compiler.frontend
 
         }
 
-		public string Symbol(int key)
-		{
-            //TODO: no test covers this function
-			return Symbols[key];
-		}
-
-		public int Val(string key)
-		{
-			return Values[key];
-		}
-
-		public bool Lookup(string key)
+	    public bool Lookup(string key)
 		{
 			return Values.ContainsKey(key);
 		}
@@ -106,9 +95,9 @@ namespace compiler.frontend
         
 		public bool IsId(string s)
 		{
-            //TODO: add unit test
+   
 			// if the entry is an ID, it must come after keywords
-			return ( Val(".identifier") < Val(s) );
+			return ( Values[".identifier"] < Values[s]);
 		}
 
 

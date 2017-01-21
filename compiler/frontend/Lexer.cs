@@ -266,12 +266,12 @@ namespace compiler.frontend
 
             if (SymbolTble.Lookup(s))
             {
-                Id = SymbolTble.Val(s);
+                Id = SymbolTble.Values[s];
             }
             else
             {
                 SymbolTble.Insert(s);
-                Id = SymbolTble.Val(s);
+                Id = SymbolTble.Values[s];
             }
 
             if (SymbolTble.IsId(s))
