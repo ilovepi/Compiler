@@ -1,5 +1,4 @@
-﻿using System;
-namespace compiler
+﻿namespace compiler.frontend
 {
 	public enum Kind
 	{
@@ -12,20 +11,39 @@ namespace compiler
 
 	public struct Result
 	{
-        private int kind; // const, var, register, conditional
-        private int value; // numeric value
-        private int id; //id number
-        private int regno; // register number
-        private int cc; // conditional code: GT, GTE, LT, LTE, EQ, NEQ, 
-        private int trueValue; // branch offset for true
-        private int falseValue; // branch offset for false
+        /// <summary>
+        /// Const, Variable, Register, Conditional
+        /// </summary>
+	    public int Kind { get; set; }
 
-        public int Kind { get => kind; set => kind = value; }
-        public int Value { get => value; set => this.value = value; }
-        public int Id { get => id; set => id = value; }
-        public int Regno { get => regno; set => regno = value; }
-        public int Cc { get => cc; set => cc = value; }
-        public int TrueValue { get => trueValue; set => trueValue = value; }
-        public int FalseValue { get => falseValue; set => falseValue = value; }
-    }
+	    /// <summary>
+        /// Numeric value
+        /// </summary>
+	    public int Value { get; set; }
+
+	    /// <summary>
+        /// UUID for an identifier
+        /// </summary>
+	    public int Id { get; set; }
+
+	    /// <summary>
+        /// Register number
+        /// </summary>
+	    public int Regno { get; set; }
+
+	    /// <summary>
+        /// Comparison Code ??? maybe I forgot what this was
+        /// </summary>
+	    public int Cc { get; set; }
+
+	    /// <summary>
+        /// True branch offset
+        /// </summary>
+	    public int TrueValue { get; set; }
+
+	    /// <summary>
+        /// False branch offset
+        /// </summary>
+	    public int FalseValue { get; set; }
+	}
 }
