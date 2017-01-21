@@ -1,4 +1,0 @@
---csc
-c:/program files (x86)/microsoft visual studio/2017/professional/msbuild/15.0/bin/csc.exe
---output
-D:/Code/compiler/compiler/cov-int/tmp/csc-libs-out-7f579bdac006c7453f62683542bd504f.txt
