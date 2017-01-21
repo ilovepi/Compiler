@@ -73,13 +73,56 @@ namespace NUnit.Tests.Frontend
                                                     Token.EOF
                                                     };
 
-            Token t;
-
             foreach (Token parsedToken in expectedToks)
             {
-                t = Lex.GetNextToken();
+                var t = Lex.GetNextToken();
                 Assert.AreEqual(t, parsedToken);
             }    
+        }
+
+
+        [Test]
+        public void DestructorTest()
+        {
+            // filename -- arbitrary
+            string filename = TestContext.CurrentContext.TestDirectory + @"/Frontend/LexerTest1.txt";
+
+            // create a lexer
+            Lex = new Lexer(filename);
+
+            // release the lexer, so that the file will close
+            Lex = null;
+            Assert.Null(Lex);
+
+            // invoke garbage collector to ensure destructor runs now
+            GC.Collect();
+
+            // check if the file is infact, closed
+            var fileInfo = new FileInfo(filename);
+            Assert.False(IsFileinUse(fileInfo));
+        }
+
+        protected virtual bool IsFileinUse(FileInfo file)
+        {
+            FileStream stream = null;
+
+            try
+            {
+                stream = file.Open(FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+            }
+            catch (IOException)
+            {
+                //the file is unavailable because it is:
+                //still being written to
+                //or being processed by another thread
+                //or does not exist (has already been processed)
+                return true;
+            }
+            finally
+            {
+                stream?.Close();
+            }
+            return false;
         }
 
     }

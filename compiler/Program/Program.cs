@@ -12,7 +12,7 @@ namespace Program
             do
             {
                 t = l.GetNextToken();
-                Console.WriteLine( TokenHelper.printToken(t) );
+                Console.WriteLine( TokenHelper.PrintToken(t) );
 
             } while (t != Token.EOF);
 

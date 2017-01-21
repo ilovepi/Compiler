@@ -5,27 +5,27 @@ namespace compiler.frontend
 
     class Parser
     {
-        public Token t;
-        public Lexer s;
-        string _filename;
+        public Token Tok { get; set; }
+        public Lexer Scanner { get; }
+        private readonly string _filename;
 
         public Parser(string pFileName)
         {
             _filename = pFileName;
-            t = Token.UNKNOWN;
-            s = new Lexer(_filename);
+            Tok = Token.UNKNOWN;
+            Scanner = new Lexer(_filename);
         }
 
         public void GetExpected(Token expected)
         {
-            if (t == expected)
+            if (Tok == expected)
             {
                 Next();
             }
             else {
-				Error("Error in file: " + _filename + " at line " + s.LineNo + ", pos " + s.Position +
-					  "\n\tFound: " + TokenHelper.toString(t) + " but Expected: " + 
-				      TokenHelper.toString(expected));
+				Error("Error in file: " + _filename + " at line " + Scanner.LineNo + ", pos " + Scanner.Position +
+					  "\n\tFound: " + TokenHelper.ToString(Tok) + " but Expected: " + 
+				      TokenHelper.ToString(expected));
             }
         }
 
@@ -43,7 +43,7 @@ namespace compiler.frontend
 
 
         public void Next() {
-            t = s.GetNextToken();
+            Tok = Scanner.GetNextToken();
         }
 
         public void Designator() {
@@ -56,7 +56,7 @@ namespace compiler.frontend
         }
 
         public void Factor(){
-            if ((t == Token.IDENTIFIER) || (t == Token.IDENTIFIER))
+            if ((Tok == Token.IDENTIFIER) || (Tok == Token.IDENTIFIER))
             {
                 Next();
             }

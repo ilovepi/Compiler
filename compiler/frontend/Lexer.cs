@@ -40,14 +40,12 @@ namespace compiler.frontend
         /// <summary>
         /// The current line number in the source text
         /// </summary>
-        public int LineNo              // line number in file
-        { set; get; }
+        public int LineNo { set; get; }
 
         /// <summary>
         /// The current position in the current line
         /// </summary>
-        public int Position                 // position in line
-        { set; get; }
+        public int Position { set; get; }
 
         /// <summary>
         /// Constructor for the Lexer
@@ -68,12 +66,10 @@ namespace compiler.frontend
             SymbolTble = new SymbolTable();
             Next();
             LineNo = 1;
-
         }
 
         ~Lexer()
         {
-            //TODO: Need unit test to verify that destructior releases files
             if (Sr != null)
             {
                 Sr.Close();

@@ -44,7 +44,7 @@ namespace compiler.frontend
         * @param t The token to read
         * @return String representation of the token
         */
-        public static String toString(Token t)
+        public static String ToString(Token t)
         {
             // choose the correct string based on the Token
             switch (t)
@@ -149,7 +149,7 @@ namespace compiler.frontend
          * @param t The token to read
          * @return String representation of the token
          */
-        public static String printToken(Token t)
+        public static String PrintToken(Token t)
         {
             //
             switch (t)
