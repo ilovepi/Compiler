@@ -1,4 +1,4 @@
-version: 1.0.{build}
+version: 1.1.{build}-{branch}
 configuration: Release
 platform: Any CPU
 environment:
@@ -7,13 +7,12 @@ environment:
 before_build:
 - cmd: >-
     cd compiler
-
     nuget restore
 build:
   project: compiler/compiler.sln
   verbosity: normal
 test:
-  assemblies: '**\compiler.dll'
+  assemblies: '**\NUnit.Tests.dll'
 after_test:
 - ps: "pwd;ls;
       .\\packages\\OpenCover.4.6.519\\tools\\OpenCover.Console.exe -register:user -target:.\\packages\\NUnit.ConsoleRunner.3.6.0\\tools\\nunit3-console.exe \"-targetargs:\"\"NUnit.Tests\\bin\\$env:CONFIGURATION\\NUnit.Tests.dll\"\" \"  -filter:"+[*]* -[*.Tests]*"  -output:opencoverCoverage.xml
