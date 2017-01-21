@@ -8,51 +8,68 @@ using compiler.frontend;
 namespace compiler.frontend
 {
 
-	class Parser
-	{
-		public Token t;
-		public Lexer s;
+    class Parser
+    {
+        public Token t;
+        public Lexer s;
+        string _filename;
 
-		public void getExpected(Token expected)
-		{
-			if (t == expected)
-			{
-				next();
-			}
-			error();s
-		}
+        public Parser(string pFileName)
+        {
+            _filename = pFileName;
+            t = Token.UNKNOWN;
+            s = new Lexer(_filename);
+        }
 
-        public void next() {
-            t = s.getNextToken();
+        public void GetExpected(Token expected)
+        {
+            if (t == expected)
+            {
+                Next();
+            }
+            else {
+				Error("Error in file: " + _filename + " at line " + s.LineNo + ", pos " + s.Position +
+					  "\n\tFound: " + TokenHelper.toString(t) + " but Expected: " + 
+				      TokenHelper.toString(expected));
+            }
+        }
+
+        public void Error(string str)
+        {
+            //TODO: determine location in file for error messages
+            Console.WriteLine ("Error Parsing file: " + _filename + ", " + str);
+            FatalError();
+        }
+
+        public void FatalError(){
+            //TODO: determine location in file for error messages
+			throw new Exception("Fatal Error Parsing file: " + _filename + ". Unable to continue");
+        }
+
+
+        public void Next() {
+            t = s.GetNextToken();
         }
 
         public void Designator() {
-            if (t == Token.IDENTIFIER)
-			{
-                next();
-            }
-            else error();
+            GetExpected(Token.IDENTIFIER);
+            GetExpected(Token.OPEN_BRACKET);
 
-			if (t == Token.OPEN_BRACKET)
-			{
-				next();
-			}
-			else error();
+            Expression();
 
-			while (t != Token.CLOSE_BRACKET)
-			{
-				Expression();
-				next();
-			}
-
+            GetExpected(Token.CLOSE_BRACKET);
         }
+
         public void Factor(){
-			if ((t == Token.IDENTIFIER) || (t == Token.IDENTIFIER))
-			{
-				next();
-			}
-			else error();
+            if ((t == Token.IDENTIFIER) || (t == Token.IDENTIFIER))
+            {
+                Next();
+            }
+            else {
+                FatalError();
+            }
         }
+
         public void Term(){
             
         }
@@ -62,6 +79,11 @@ namespace compiler.frontend
         public void Relation(){
             
         }
+			                    
+		public void Assign()
+		{
+
+		}
 
     }
 }
