@@ -1,26 +1,27 @@
-﻿using NUnit.Framework;
-using System;
+﻿using System;
 using System.IO;
+using NUnit.Framework;
+using compiler.frontend;
 
-namespace compiler.frontend.test
+namespace NUnit.Tests.Frontend
 {
     [TestFixture]
     public class LexerTest
     {
-        Lexer lex;
+        public Lexer Lex { get; private set; }
 
         [Test]
-        public void badFilenameTest()
+        public void BadFilenameTest()
         {
             // fake file should not exist
-            Assert.Throws<FileNotFoundException>(() => lex = new Lexer("fake-file.txt"));
+            Assert.Throws<FileNotFoundException>(() => Lex = new Lexer("fake-file.txt"));
         }
 
         [Test]
         //[DeploymentItem("LexerTest1.txt", "targetFolder")]
-        public void nextTest()
+        public void NextTest()
         {
-            lex = new Lexer(TestContext.CurrentContext.TestDirectory + @"/frontend/test/LexerTest1.txt");
+            Lex = new Lexer(TestContext.CurrentContext.TestDirectory + @"/frontend/test/LexerTest1.txt");
 
             // Exact string contents of LExerTest1.txt without the '.'
             string str = "Read some characters";
@@ -28,22 +29,22 @@ namespace compiler.frontend.test
             foreach (char c in str)
             {
                 //Console.WriteLine("Scanner expects '" + c + "', but read '" + b +"'");
-                Assert.AreEqual(c, lex.c);
-                lex.next();
+                Assert.AreEqual(c, Lex.c);
+                Lex.next();
             }
 
             // make sure we throw an exception for reading past the end of the file
-            var ex = Assert.Throws<Exception>(() => lex.next());
+            var ex = Assert.Throws<Exception>(() => Lex.next());
             Assert.That(ex.Message, Is.EqualTo("Error: Lexer cannot read beyond the end of the file"));
         }
 
 
         [Test]
-        public void getNextTokenTest()
+        public void GetNextTokenTest()
         {
             //TODO: we need another test like this that covers every part of the classifier
-            lex = new Lexer(TestContext.CurrentContext.TestDirectory + @"/frontend/test/testdata/test001.txt");
-            Token[] expected_toks = new Token[]{Token.COMMENT,
+            Lex = new Lexer(TestContext.CurrentContext.TestDirectory + @"/frontend/test/testdata/test001.txt");
+            Token[] expectedToks = new Token[]{Token.COMMENT,
                                                     Token.MAIN,
                                                     Token.VAR,
                                                     Token.IDENTIFIER,
@@ -74,10 +75,10 @@ namespace compiler.frontend.test
 
             Token t;
 
-            foreach (Token parsed_token in expected_toks)
+            foreach (Token parsedToken in expectedToks)
             {
-                t = lex.getNextToken();
-                Assert.AreEqual(t, parsed_token);
+                t = Lex.getNextToken();
+                Assert.AreEqual(t, parsedToken);
             }    
         }
 
