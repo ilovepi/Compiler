@@ -17,7 +17,7 @@ namespace compiler.frontend
         public Parser(string p_fileName)
         {
             filename = p_fileName;
-            t = null;
+            t = Token.UNKNOWN;
             s = new Lexer(filename);
         }
 
@@ -28,7 +28,9 @@ namespace compiler.frontend
                 next();
             }
             else {
-                error();
+				error("Error in file: " + filename + " at line " + s.lineno + ", pos " + s.pos +
+					  "\n\tFound: " + TokenHelper.toString(t) + " but Expected: " + 
+				      TokenHelper.toString(expected));
             }
         }
 
@@ -41,7 +43,7 @@ namespace compiler.frontend
 
         public void error_fatal(){
             //TODO: determine location in file for error messages
-            throw new Exception("Fatal Error Parsing file: " + filename + ". Unable to continue";
+			throw new Exception("Fatal Error Parsing file: " + filename + ". Unable to continue");
         }
 
 
@@ -64,7 +66,7 @@ namespace compiler.frontend
                 next();
             }
             else {
-                error();
+                error_fatal();
             }
         }
 

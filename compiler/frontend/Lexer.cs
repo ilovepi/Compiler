@@ -13,17 +13,17 @@ namespace compiler.frontend
         public int val;                 // numeric value
         public int id;                  // identifier
 
-        public int lineno;              // line number in file
+        public int lineno              // line number in file
         {
-            set{ lineno = Value; }
-            get{return lineno;};
+            set{ lineno = value; }
+            get{return lineno;}
 
         }
 
-        public int pos;                 // position in line
+        public int pos                 // position in line
         {
-            set{ pos = Value; }
-            get{return pos;};
+            set{ pos = value; }
+            get{return pos;}
 
         }
 
