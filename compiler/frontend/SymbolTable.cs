@@ -1,118 +1,114 @@
 ﻿using System;
-
 using System.Collections.Generic;
 
-using compiler.frontend;
-
-
-namespace compiler
+namespace compiler.frontend
 {
 	public class SymbolTable
 	{
-		Dictionary<string, int> values;
-	
-		Dictionary<int, string> symbols;
+	    public Dictionary<string, int> Values { get; set; }
 
-		int count;
+	    public Dictionary<int, string> Symbols { get; set; }
 
-		public SymbolTable()
+	    public int Count { get; private set; }
+
+	    public SymbolTable()
 		{
-			count = 0;
-			values = new Dictionary<string, int>();
-			symbols = new Dictionary<int, string>();
-			init();
+			Count = 0;
+			Values = new Dictionary<string, int>();
+			Symbols = new Dictionary<int, string>();
+			Init();
 		}
 
-		public void insert(string key)
+		public void Insert(string key)
 		{
             //TODO: Add test to cover the exception
-			if (values.ContainsKey(key))
+			if (Values.ContainsKey(key))
 			{
 				throw new Exception("Error: cannot insert duplicate symbols");
 			}
 			
-			values.Add(key, count);
-			symbols.Add(count, key);
-            count++;
+			Values.Add(key, Count);
+			Symbols.Add(Count, key);
+            Count++;
 
         }
 
-		public string symbol(int key)
+		public string Symbol(int key)
 		{
             //TODO: no test covers this function
-			return symbols[key];
+			return Symbols[key];
 		}
 
-		public int val(string key)
+		public int Val(string key)
 		{
-			return values[key];
+			return Values[key];
 		}
 
-		public bool lookup(string key)
+		public bool Lookup(string key)
 		{
-			return values.ContainsKey(key);
+			return Values.ContainsKey(key);
 		}
 
 
-		private void init()
+		private void Init()
 		{
             //TODO: add test to verify that the enum and this dict have identical values
-            insert(".unknown"); //0 safe since '.' is EOF char, nothing should ever come after it
+            Insert(".unknown"); //0 safe since '.' is EOF char, nothing should ever come after it
 
-			insert("+");    //01
-			insert("-");
-			insert("*");
-			insert("/");    //04
+			Insert("+");    //01
+			Insert("-");
+			Insert("*");
+			Insert("/");    //04
 
-			insert("==");   //05
-            insert("!=");
-            insert("<");
-            insert("<=");
-            insert(">");
-            insert(">=");   //10
+			Insert("==");   //05
+            Insert("!=");
+            Insert("<");
+            Insert("<=");
+            Insert(">");
+            Insert(">=");   //10
 
-            insert("<-");   //11
-			insert(";");
-			insert(",");    //13
+            Insert("<-");   //11
+			Insert(";");
+			Insert(",");    //13
 
-			insert("(");    //14
-			insert(")");
-			insert("[");
-			insert("]");
-			insert("{");
-			insert("}");    //19
+			Insert("(");    //14
+			Insert(")");
+			Insert("[");
+			Insert("]");
+			Insert("{");
+			Insert("}");    //19
 
 
-            insert("let");  //20
-			insert("call");
-            insert("if");   
-            insert("then");
-            insert("else");
-            insert("fi");
-            insert("while");
-            insert("do");
-            insert("od");   //28
+            Insert("let");  //20
+			Insert("call");
+            Insert("if");   
+            Insert("then");
+            Insert("else");
+            Insert("fi");
+            Insert("while");
+            Insert("do");
+            Insert("od");   //28
             
-			insert("return");//29
-			insert("main");
-            insert("var");
-            insert("array"); //32
+			Insert("return");//29
+			Insert("main");
+            Insert("var");
+            Insert("array"); //32
 
-            insert("function");//33
-			insert("procedure");
-			insert(".");
-            insert("//");
+            Insert("function");//33
+			Insert("procedure");
+			Insert(".");
+            Insert("//");
             // since '.' is the EOF symbol, .number and .identifier should be safe
-            insert(".number"); 
-            insert(".identifier"); //38           
+            Insert(".number"); 
+            Insert(".identifier"); //38           
 		}
 
         
-		public bool isId(string s)
+		public bool IsId(string s)
 		{
             //TODO: add unit test
 			// if the entry is an ID, it must come after keywords
-			return ( val(".identifier") < val(s) );
+			return ( Val(".identifier") < Val(s) );
 		}
 
 

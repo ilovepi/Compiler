@@ -1,24 +1,31 @@
 ﻿using System;
 namespace compiler
 {
-	public enum kind
+	public enum Kind
 	{
-		constant,
-		variable,
-		register,
-		conditional
+		Constant,
+		Variable,
+		Register,
+		Conditional
 	}
 
 
 	public struct Result
 	{
-		public int kind; // const, var, register, conditional
-		public int value; // numeric value
-		public int id; //id number
-		public int regno; // register number
-		public int cc; // conditional code: GT, GTE, LT, LTE, EQ, NEQ, 
-		public int true_value; // branch offset for true
-		public int false_value; // branch offset for false
+        private int kind; // const, var, register, conditional
+        private int value; // numeric value
+        private int id; //id number
+        private int regno; // register number
+        private int cc; // conditional code: GT, GTE, LT, LTE, EQ, NEQ, 
+        private int trueValue; // branch offset for true
+        private int falseValue; // branch offset for false
 
-	}
+        public int Kind { get => kind; set => kind = value; }
+        public int Value { get => value; set => this.value = value; }
+        public int Id { get => id; set => id = value; }
+        public int Regno { get => regno; set => regno = value; }
+        public int Cc { get => cc; set => cc = value; }
+        public int TrueValue { get => trueValue; set => trueValue = value; }
+        public int FalseValue { get => falseValue; set => falseValue = value; }
+    }
 }

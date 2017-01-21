@@ -12,61 +12,61 @@ namespace compiler.frontend
     {
         public Token t;
         public Lexer s;
-        string filename;
+        string _filename;
 
-        public Parser(string p_fileName)
+        public Parser(string pFileName)
         {
-            filename = p_fileName;
+            _filename = pFileName;
             t = Token.UNKNOWN;
-            s = new Lexer(filename);
+            s = new Lexer(_filename);
         }
 
-        public void getExpected(Token expected)
+        public void GetExpected(Token expected)
         {
             if (t == expected)
             {
-                next();
+                Next();
             }
             else {
-				error("Error in file: " + filename + " at line " + s.lineno + ", pos " + s.pos +
+				Error("Error in file: " + _filename + " at line " + s.LineNo + ", pos " + s.Position +
 					  "\n\tFound: " + TokenHelper.toString(t) + " but Expected: " + 
 				      TokenHelper.toString(expected));
             }
         }
 
-        public void error(string str)
+        public void Error(string str)
         {
             //TODO: determine location in file for error messages
-            Console.WriteLine ("Error Parsing file: " + filename + ", " + str);
-            error_fatal();
+            Console.WriteLine ("Error Parsing file: " + _filename + ", " + str);
+            FatalError();
         }
 
-        public void error_fatal(){
+        public void FatalError(){
             //TODO: determine location in file for error messages
-			throw new Exception("Fatal Error Parsing file: " + filename + ". Unable to continue");
+			throw new Exception("Fatal Error Parsing file: " + _filename + ". Unable to continue");
         }
 
 
-        public void next() {
-            t = s.getNextToken();
+        public void Next() {
+            t = s.GetNextToken();
         }
 
         public void Designator() {
-            getExpected(Token.IDENTIFIER);
-            getExpected(Token.OPEN_BRACKET);
+            GetExpected(Token.IDENTIFIER);
+            GetExpected(Token.OPEN_BRACKET);
 
             Expression();
 
-            getExpected(Token.CLOSE_BRACKET);
+            GetExpected(Token.CLOSE_BRACKET);
         }
 
         public void Factor(){
             if ((t == Token.IDENTIFIER) || (t == Token.IDENTIFIER))
             {
-                next();
+                Next();
             }
             else {
-                error_fatal();
+                FatalError();
             }
         }
 
