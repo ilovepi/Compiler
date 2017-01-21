@@ -1,5 +1,4 @@
-﻿using System;
-namespace compiler
+﻿namespace compiler.frontend
 {
 	public enum Kind
 	{
@@ -15,36 +14,36 @@ namespace compiler
         /// <summary>
         /// Const, Variable, Register, Conditional
         /// </summary>
-	    public int Kind { get; }
+	    public int Kind { get; set; }
 
-        /// <summary>
+	    /// <summary>
         /// Numeric value
         /// </summary>
-	    public int Value { get; }
+	    public int Value { get; set; }
 
-        /// <summary>
+	    /// <summary>
         /// UUID for an identifier
         /// </summary>
-	    public int Id { get; }
+	    public int Id { get; set; }
 
-        /// <summary>
+	    /// <summary>
         /// Register number
         /// </summary>
-	    public int Regno { get; }
+	    public int Regno { get; set; }
 
-        /// <summary>
+	    /// <summary>
         /// Comparison Code ??? maybe I forgot what this was
         /// </summary>
-	    public int Cc { get; }
+	    public int Cc { get; set; }
 
-        /// <summary>
+	    /// <summary>
         /// True branch offset
         /// </summary>
-	    public int TrueValue { get; }
+	    public int TrueValue { get; set; }
 
-        /// <summary>
+	    /// <summary>
         /// False branch offset
         /// </summary>
-	    public int FalseValue { get; }
+	    public int FalseValue { get; set; }
 	}
 }
