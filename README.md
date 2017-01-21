@@ -7,3 +7,5 @@ Simple Compiler for Testing Algorithms and Implementations
   <img alt="Coverity Scan Build Status"
        src="https://scan.coverity.com/projects/11524/badge.svg"/>
 </a>
+
+[![Coverage Status](https://coveralls.io/repos/github/ilovepi/Compiler/badge.svg?branch=master)](https://coveralls.io/github/ilovepi/Compiler?branch=master)
