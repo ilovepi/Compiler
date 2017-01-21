@@ -8,33 +8,34 @@ using compiler.frontend;
 namespace compiler.frontend
 {
 
-	class Parser
-	{
-		public Token t;
-		public Lexer s;
-		string filename;
+    class Parser
+    {
+        public Token t;
+        public Lexer s;
+        string filename;
 
 
-		public void getExpected(Token expected)
-		{
-			if (t == expected)
-			{
-				next();
-			}
-			else error();
-		}
+        public void getExpected(Token expected)
+        {
+            if (t == expected)
+            {
+                next();
+            }
+            else {error();
+            }
+        }
 
-		public void error(string str)
-		{
-			//TODO: determine location in file
-			Console.WriteLine ("Error Parsing file: " + filename + ", " + str);
-			error_fatal();
-		}
+        public void error(string str)
+        {
+            //TODO: determine location in file
+            Console.WriteLine ("Error Parsing file: " + filename + ", " + str);
+            error_fatal();
+        }
 
-		public void error_fatal(){
-			//TODO: determine location in file
-			throw new Exception("Fatal Error Parsing file: " + filename + ". Unable to continue";
-		}
+        public void error_fatal(){
+            //TODO: determine location in file
+            throw new Exception("Fatal Error Parsing file: " + filename + ". Unable to continue";
+        }
 
 
         public void next() {
@@ -42,27 +43,29 @@ namespace compiler.frontend
         }
 
         public void Designator() {
-			getExpected(Token.IDENTIFIER);
-			getExpected(Token.OPEN_BRACKET);
+            getExpected(Token.IDENTIFIER);
+            getExpected(Token.OPEN_BRACKET);
 
-			Expression();
+            Expression();
 
-			getExpected(Token.CLOSE_BRACKET);
+            getExpected(Token.CLOSE_BRACKET);
         }
-        public void Factor() {
-			if ((t == Token.IDENTIFIER) || (t == Token.IDENTIFIER))
-			{
-				next();
-			}
-			else error();
+
+        public void Factor(){
+            if ((t == Token.IDENTIFIER) || (t == Token.IDENTIFIER))
+            {
+                next();
+            }
+            else error();
         }
-        public void Term() {
+
+        public void Term(){
             
         }
-        public void Expression() {
+        public void Expression(){
             
         }
-        public void Relation() {
+        public void Relation(){
             
         }
 			                    
