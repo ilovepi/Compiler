@@ -13,7 +13,8 @@ namespace compiler.frontend
         public Token t;
         public Lexer s;
         string filename;
-
+        int lineno;
+        int pos;
 
         public void getExpected(Token expected)
         {
@@ -21,7 +22,8 @@ namespace compiler.frontend
             {
                 next();
             }
-            else {error();
+            else {
+                error();
             }
         }
 
@@ -33,7 +35,7 @@ namespace compiler.frontend
         }
 
         public void error_fatal(){
-            //TODO: determine location in file
+            //TODO: determine location in file for error messages
             throw new Exception("Fatal Error Parsing file: " + filename + ". Unable to continue";
         }
 
@@ -56,7 +58,9 @@ namespace compiler.frontend
             {
                 next();
             }
-            else error();
+            else {
+                error();
+            }
         }
 
         public void Term(){
