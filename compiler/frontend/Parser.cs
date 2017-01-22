@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("ParserUnitTest")]
+
 namespace compiler.frontend
 {
-
+    
     public class Parser : IDisposable
     {
         public Token Tok { get; set; }
@@ -45,14 +47,14 @@ namespace compiler.frontend
         }
 
 
-        public void GetExpected(Token expected)
+        private void GetExpected(Token expected)
         {
             if (Tok == expected)
             {
                 Next();
             }
             else {
-				Error("Error in file: " + _filename + " at line " + Scanner.LineNo + ", pos " + Scanner.Position +
+				Error("Error in file: " + _filename + " at line " + LineNo + ", pos " + Pos +
 					  "\n\tFound: " + TokenHelper.ToString(Tok) + " but Expected: " + 
 				      TokenHelper.ToString(expected));
             }
@@ -123,7 +125,7 @@ namespace compiler.frontend
 
        
 
-        public void Expression()
+        private void Expression()
 		{
 			Term();
 			while ((Tok == Token.PLUS) || (Tok == Token.MINUS))
@@ -232,11 +234,9 @@ namespace compiler.frontend
             }
         }
 
-        public void ThrowParserException(Token Expected)
+        public void ThrowParserException(Token expected)
         {
-            ParserException e;
-            throw CreateParserException(Expected, Tok, )
-            
+            throw ParserException.CreateParserException(expected, Tok, LineNo, Pos, _filename);
         }
         
 

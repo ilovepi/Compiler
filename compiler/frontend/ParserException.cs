@@ -22,7 +22,7 @@ namespace compiler.frontend
         }
 
 
-        public ParserException CreateParserException(Token expected, Token found, int line, int pos, string file)
+        public static ParserException CreateParserException(Token expected, Token found, int line, int pos, string file)
         {
             string message = "Error in file: " + file + " at line " + line + ", pos " + pos +
                              "\n\tFound: " + TokenHelper.ToString(found) + " but Expected: " +
