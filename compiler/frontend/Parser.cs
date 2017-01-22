@@ -16,25 +16,22 @@ namespace compiler.frontend
             Tok = Token.UNKNOWN;
             Scanner = new Lexer(_filename);
         }
-		public bool isRelOp()
+
+		public bool IsRelOp()
 		{
-			switch (Tok)
-			{
-				case Token.EQUAL:
-					return true;
-				case Token.NOT_EQUAL:
-					return true;
-				case Token.LESS:
-					return true;
-				case Token.LESS_EQ:
-					return true;
-				case Token.GREATER:
-					return true;
-				case Token.GREATER_EQ:
-					return true;
-			}
-			return false;
-		}
+            switch (Tok)
+            {
+                case Token.EQUAL:
+                case Token.NOT_EQUAL:
+                case Token.LESS:
+                case Token.LESS_EQ:
+                case Token.GREATER:
+                case Token.GREATER_EQ:
+                    return true;
+                default:
+                    return false;
+            }
+        }
 
 
         ~Parser()
@@ -145,7 +142,7 @@ namespace compiler.frontend
             Expression();
             if (
                 !
-                    isRelOp())
+                    IsRelOp())
             {
                 FatalError();
             }
