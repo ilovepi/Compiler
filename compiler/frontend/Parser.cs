@@ -1,19 +1,10 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 
 namespace compiler.frontend
 {
-    
     public class Parser : IDisposable
     {
-        public Token Tok { get; set; }
-        public Lexer Scanner { get; set; }
-
         private readonly string _filename;
-
-        public int Pos => Scanner.Position;
-
-        public int LineNo => Scanner.LineNo;
 
         public Parser(string pFileName)
         {
@@ -22,8 +13,22 @@ namespace compiler.frontend
             Scanner = new Lexer(_filename);
         }
 
-		public bool IsRelOp()
-		{
+        public Token Tok { get; set; }
+        public Lexer Scanner { get; set; }
+
+        public int Pos => Scanner.Position;
+
+        public int LineNo => Scanner.LineNo;
+
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        public bool IsRelOp()
+        {
             switch (Tok)
             {
                 case Token.EQUAL:
@@ -48,14 +53,11 @@ namespace compiler.frontend
         public void GetExpected(Token expected)
         {
             if (Tok == expected)
-            {
                 Next();
-            }
-            else {
-				Error("Error in file: " + _filename + " at line " + LineNo + ", pos " + Pos +
-					  "\n\tFound: " + TokenHelper.ToString(Tok) + " but Expected: " + 
-				      TokenHelper.ToString(expected));
-            }
+            else
+                Error("Error in file: " + _filename + " at line " + LineNo + ", pos " + Pos +
+                      "\n\tFound: " + TokenHelper.ToString(Tok) + " but Expected: " +
+                      TokenHelper.ToString(expected));
         }
 
         public void Error(string str)
@@ -65,81 +67,84 @@ namespace compiler.frontend
             FatalError();
         }
 
-        public void FatalError(){
+        public void FatalError()
+        {
             //TODO: determine location in file for error messages
-			throw new ParserException("Fatal Error Parsing file: " + _filename + ". Unable to continue");
+            throw new ParserException("Fatal Error Parsing file: " + _filename + ". Unable to continue");
         }
 
 
-        public void Next() {
+        public void Next()
+        {
             Tok = Scanner.GetNextToken();
         }
 
-        public void Designator() {
+        public void Designator()
+        {
             GetExpected(Token.IDENTIFIER);
             while (Tok == Token.OPEN_BRACKET)
             {
-                
-            
-            GetExpected(Token.OPEN_BRACKET);
+                GetExpected(Token.OPEN_BRACKET);
 
-            Expression();
+                Expression();
 
-            GetExpected(Token.CLOSE_BRACKET);
-}
+                GetExpected(Token.CLOSE_BRACKET);
+            }
         }
 
-        public void Factor(){
-			switch (Tok)
-			{
-				case Token.NUMBER:
-					//TODO: Record number value
-					Next();
-					break;
-				case Token.IDENTIFIER:
-					//TODO: Record identifier
-					Designator();
-					break;
-				case Token.OPEN_PAREN:
-					Next();
-					Expression();
-					GetExpected(Token.CLOSE_BRACKET);
-					break;
-				case Token.CALL:
-					Next();
-					FuncCall();
-					break;
-				default:
-                    FatalError();;
-					break;
-			}
+        public void Factor()
+        {
+            switch (Tok)
+            {
+                case Token.NUMBER:
+                    //TODO: Record number value
+                    Next();
+                    break;
+                case Token.IDENTIFIER:
+                    //TODO: Record identifier
+                    Designator();
+                    break;
+                case Token.OPEN_PAREN:
+                    Next();
+                    Expression();
+                    GetExpected(Token.CLOSE_BRACKET);
+                    break;
+                case Token.CALL:
+                    Next();
+                    FuncCall();
+                    break;
+                default:
+                    FatalError();
+                    ;
+                    break;
+            }
         }
 
 
-        public void Term(){
-			Factor();
-			while ((Tok == Token.TIMES) || (Tok == Token.DIVIDE))
-			{
-				Next();
-				Factor();
-			}
+        public void Term()
+        {
+            Factor();
+            while (Tok == Token.TIMES || Tok == Token.DIVIDE)
+            {
+                Next();
+                Factor();
+            }
         }
 
 
         public void Expression()
-		{
-			Term();
-			while ((Tok == Token.PLUS) || (Tok == Token.MINUS))
-			{
-				Next();
-				Term();
-			}
-}
+        {
+            Term();
+            while (Tok == Token.PLUS || Tok == Token.MINUS)
+            {
+                Next();
+                Term();
+            }
+        }
 
         public void Assign()
-		{
-
-		}
+        {
+        }
 
         public void Computation()
         {
@@ -150,9 +155,7 @@ namespace compiler.frontend
             Expression();
 
             if (!IsRelOp())
-            {
                 FatalError();
-            }
             Next();
             Expression();
         }
@@ -163,7 +166,6 @@ namespace compiler.frontend
 
         public void Num()
         {
-            
         }
 
         public void VarDecl()
@@ -177,7 +179,6 @@ namespace compiler.frontend
 
         public void FuncDecl()
         {
-            
         }
 
         public void FuncBody()
@@ -206,9 +207,7 @@ namespace compiler.frontend
 
         public void WhileStmt()
         {
-            
         }
-
 
 
         private void ReturnStmt()
@@ -216,11 +215,8 @@ namespace compiler.frontend
         }
 
         public void FormalParams()
-        { }
-
-
-
-
+        {
+        }
 
 
         public void Parse()
@@ -239,27 +235,15 @@ namespace compiler.frontend
         {
             throw ParserException.CreateParserException(expected, Tok, LineNo, Pos, _filename);
         }
-        
 
-        public void Dispose() 
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual  void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
             if (disposing)
-            {
                 if (Scanner != null)
                 {
                     Scanner.Dispose();
                     Scanner = null;
                 }
-            }
-            
         }
-
-
     }
 }
