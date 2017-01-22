@@ -23,48 +23,51 @@ namespace NUnit.Tests.Frontend
         [Test]
         public void DesignatorBadExpressionTest()
         {
+            //TODO: add more cases to the test file, and hit them all
             using (Checker = new Parser(ProgramDir + @"/Frontend/parserdata/BadExpression.txt"))
             {
-                Checker.Designator();
+                Checker.Next();
+                Assert.Throws<ParserException>( ()=> Checker.Designator());
             }
         }
 
         [Test]
         public void DesignatorArrayTest()
         {
-            Assert.Fail();
+            //TODO: add more cases to the test file, and hit them all
+            using (Checker = new Parser(ProgramDir + @"/Frontend/parserdata/Array.txt"))
+            {
+                Checker.Next();
+                Checker.Designator();
+                Checker.Designator();
+                Checker.Designator();
+            }
         }
-
-        [Test]
-        public void DesignatorBadIdTest()
-        {
-            Assert.Fail();
-        }
-
-        [Test]
-        public void DesignatorBadMulitDimArrayTest()
-        {
-            Assert.Fail();
-        }
-
-
-        [Test]
-        public void DesignatorBadWhitespaceTest()
-        {
-            Assert.Fail();
-        }
-
+        
+        
         [Test]
         public void DesignatorIdOnlyTest()
         {
-            Assert.Fail();
+            //TODO: add more cases to the test file, and hit them all
+            using (Checker = new Parser(ProgramDir + @"/Frontend/parserdata/Identifier.txt"))
+            {
+                Checker.Next();
+                Checker.Designator();
+            }
         }
 
 
         [Test]
         public void DesignatorMultiDimensionalArrayTest()
         {
-            Assert.Fail();
+            //TODO: add more cases to the test file, and hit them all
+            using (Checker = new Parser(ProgramDir + @"/Frontend/parserdata/MultiDimArray.txt"))
+            {
+                Checker.Next();
+                Checker.Designator();
+                Checker.Designator();
+                Checker.Designator();
+            }
         }
 
 

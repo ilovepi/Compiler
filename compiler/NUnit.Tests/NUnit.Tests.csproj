@@ -51,10 +51,18 @@
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Frontend\parserdata\Array.txt" />
-    <Content Include="Frontend\parserdata\BadExpression.txt" />
-    <Content Include="Frontend\parserdata\MultiDimArray.txt" />
-    <Content Include="Frontend\parserdata\Identifier.txt" />
+    <Content Include="Frontend\parserdata\Array.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Frontend\parserdata\BadExpression.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Frontend\parserdata\MultiDimArray.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Frontend\parserdata\Identifier.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Frontend\testdata\BadTokens.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

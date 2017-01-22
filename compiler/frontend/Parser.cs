@@ -115,7 +115,6 @@ namespace compiler.frontend
                     break;
                 default:
                     FatalError();
-                    ;
                     break;
             }
         }
