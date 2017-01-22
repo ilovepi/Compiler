@@ -45,13 +45,15 @@ namespace NUnit.Tests.Frontend
         [TestCase(@"/Frontend/testdata/factorial.txt")]
         public void TokenizingTest(string pFilename)
         {
+            
             string filename = TestContext.CurrentContext.TestDirectory + pFilename;
 
             using (Parser p = new Parser(filename))
             {
                 p.Parse();
-                Assert.Fail("Test and class not implemented ...");
+                
             }
+            Assert.Fail("Test and class not implemented ...");
         }
 
     }

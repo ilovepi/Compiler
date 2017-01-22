@@ -161,11 +161,14 @@ namespace compiler.frontend
 
         public void Parse()
         {
-           
-            Computation();
-
-
-            throw new NotImplementedException();
+            try
+            {
+                Computation();
+            }
+            catch (Exception e)
+            {
+                throw new NotImplementedException(e.Message);
+            }
         }
 
 
