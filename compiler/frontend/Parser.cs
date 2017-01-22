@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace compiler.frontend
 {
 
-    public class Parser:IDisposable
+    public class Parser : IDisposable
     {
         public Token Tok { get; set; }
-        public Lexer Scanner { get; }
+        public Lexer Scanner { get; set; }
         private readonly string _filename;
 
         public Parser(string pFileName)
@@ -15,6 +16,13 @@ namespace compiler.frontend
             Tok = Token.UNKNOWN;
             Scanner = new Lexer(_filename);
         }
+
+
+        ~Parser()
+        {
+            Dispose(false);
+        }
+
 
         private void GetExpected(Token expected)
         {
@@ -80,12 +88,6 @@ namespace compiler.frontend
 
 		}
 
-        public void Dispose()
-        {
-            Scanner.Dispose();
-        }
-
-
         private void Computation()
         {
         }
@@ -124,7 +126,7 @@ namespace compiler.frontend
         }
 
 
-        private void relOp()
+        private void RelOp()
         {
         }
 
@@ -165,5 +167,32 @@ namespace compiler.frontend
 
             throw new NotImplementedException();
         }
+
+
+
+
+
+
+
+        public void Dispose() 
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual  void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (Scanner != null)
+                {
+                    Scanner.Dispose();
+                    Scanner = null;
+                }
+            }
+            
+        }
+
+
     }
 }

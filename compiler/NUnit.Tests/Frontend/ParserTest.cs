@@ -50,6 +50,7 @@ namespace NUnit.Tests.Frontend
             using (Parser p = new Parser(filename))
             {
                 p.Parse();
+                Assert.Fail("Test and class not implemented ...");
             }
         }
 
