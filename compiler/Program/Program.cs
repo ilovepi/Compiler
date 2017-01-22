@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using compiler.frontend;
 
 namespace Program
@@ -12,12 +7,12 @@ namespace Program
     {
         static void Main(string[] args)
         {
-            Lexer l = new Lexer(@"..\..\testdata\big.txt");
+            Lexer l = new Lexer(@"../../testdata/big.txt");
             Token t;
             do
             {
-                t = l.getNextToken();
-                Console.WriteLine( TokenHelper.printToken(t) );
+                t = l.GetNextToken();
+                Console.WriteLine( TokenHelper.PrintToken(t) );
 
             } while (t != Token.EOF);
 

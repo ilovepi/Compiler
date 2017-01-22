@@ -1,24 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using compiler.frontend;
+using System.Runtime.CompilerServices;
 
 namespace compiler.frontend
 {
 
-    class Parser
+    public class Parser : IDisposable
     {
-        public Token t;
-        public Lexer s;
-        string filename;
+        public Token Tok { get; set; }
+        public Lexer Scanner { get; set; }
+        private readonly string _filename;
 
-        public Parser(string p_fileName)
+        public Parser(string pFileName)
         {
-            filename = p_fileName;
-            t = Token.UNKNOWN;
-            s = new Lexer(filename);
+            _filename = pFileName;
+            Tok = Token.UNKNOWN;
+            Scanner = new Lexer(_filename);
         }
 		public bool isRelOp()
 		{
@@ -40,49 +36,53 @@ namespace compiler.frontend
 			return false;
 		}
 
-        public void getExpected(Token expected)
+
+        ~Parser()
         {
-            if (t == expected)
+            Dispose(false);
+        }
+
+
+        private void GetExpected(Token expected)
+        {
+            if (Tok == expected)
             {
-                next();
+                Next();
             }
             else {
-				error("Error in file: " + filename + " at line " + s.lineno + ", pos " + s.pos +
-					  "\n\tFound: " + TokenHelper.toString(t) + " but Expected: " + 
-				      TokenHelper.toString(expected));
+				Error("Error in file: " + _filename + " at line " + Scanner.LineNo + ", pos " + Scanner.Position +
+					  "\n\tFound: " + TokenHelper.ToString(Tok) + " but Expected: " + 
+				      TokenHelper.ToString(expected));
             }
         }
 
-        public void error(string str)
+        private void Error(string str)
         {
             //TODO: determine location in file for error messages
-            Console.WriteLine ("Error Parsing file: " + filename + ", " + str);
-            error_fatal();
+            Console.WriteLine("Error Parsing file: " + _filename + ", " + str);
+            FatalError();
         }
 
-        public void error_fatal(){
+        private void FatalError(){
             //TODO: determine location in file for error messages
-			throw new Exception("Fatal Error Parsing file: " + filename + ". Unable to continue");
+			throw new Exception("Fatal Error Parsing file: " + _filename + ". Unable to continue");
         }
 
 
-        public void next() {
-            t = s.getNextToken();
+        private void Next() {
+            Tok = Scanner.GetNextToken();
         }
 
-        public void Designator() 
-		{
-			getExpected(Token.IDENTIFIER);
-			while (t == Token.OPEN_BRACKET)
-			{
-				next();
-				Expression();
-				getExpected(Token.CLOSE_BRACKET);
-			}
+        private void Designator() {
+            GetExpected(Token.IDENTIFIER);
+            GetExpected(Token.OPEN_BRACKET);
+
+            Expression();
+
+            GetExpected(Token.CLOSE_BRACKET);
         }
 
-        public void Factor()
-		{
+        private void Factor(){
 			switch (t)
 			{
 				case Token.NUMBER:
@@ -108,8 +108,7 @@ namespace compiler.frontend
 			}
         }
 
-        public void Term()
-		{
+        private void Term(){
 			Factor();
 			while ((t == Token.TIMES) || (t == Token.DIVIDE))
 			{
@@ -117,6 +116,13 @@ namespace compiler.frontend
 				Factor();
 			}
         }
+
+        private void Assign()
+		{
+
+		}
+
+       
 
         public void Expression()
 		{
@@ -126,6 +132,14 @@ namespace compiler.frontend
 				next();
 				Term();
 			}
+}
+        private void Assign()
+		{
+
+		}
+
+        private void Computation()
+        {
         }
 
         public void Relation()
@@ -137,17 +151,114 @@ namespace compiler.frontend
 			}
 			next();
 			Expression();
+        private void Identifier()
+        {
         }
-			                    
-		public void Assign()
-		{
 
-		}
+        private void Num()
+        {
+            
+        }
 
 		public void FuncCall()
 		{
 			
 		}
+
+        private void VarDecl()
+        {
+        }
+
+
+        private void TypeDecl()
+        {
+        }
+
+        private void FuncDecl()
+        {
+            
+        }
+
+        private void FuncBody()
+        {
+        }
+
+
+        private void Statement()
+        {
+        }
+
+
+        private void RelOp()
+        {
+        }
+
+
+        private void FuncCall()
+        {
+        }
+
+        private void IfStmt()
+        {
+        }
+
+
+        private  void WhileStmt()
+        {
+            
+        }
+
+
+
+        private void ReturnStmt()
+        {
+        }
+
+        private void FormalParams()
+        { }
+
+
+
+
+
+
+        public void Parse()
+        {
+            try
+            {
+                Computation();
+            }
+            catch (Exception e)
+            {
+                throw new NotImplementedException(e.Message);
+            }
+        }
+
+
+
+
+
+
+
+        public void Dispose() 
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual  void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (Scanner != null)
+                {
+                    Scanner.Dispose();
+                    Scanner = null;
+                }
+            }
+            
+        }
+
 
     }
 }
