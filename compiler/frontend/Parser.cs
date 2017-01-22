@@ -8,7 +8,12 @@ namespace compiler.frontend
     {
         public Token Tok { get; set; }
         public Lexer Scanner { get; set; }
+
         private readonly string _filename;
+
+        public int Pos => Scanner.Position;
+
+        public int LineNo => Scanner.LineNo;
 
         public Parser(string pFileName)
         {
@@ -40,8 +45,7 @@ namespace compiler.frontend
         }
 
 
-
-        private void GetExpected(Token expected)
+        public void GetExpected(Token expected)
         {
             if (Tok == expected)
             {
@@ -226,6 +230,13 @@ namespace compiler.frontend
             {
                 throw new NotImplementedException(e.Message);
             }
+        }
+
+        public void ThrowParserException(Token Expected)
+        {
+            ParserException e;
+            throw CreateParserException(Expected, Tok, )
+            
         }
         
 
