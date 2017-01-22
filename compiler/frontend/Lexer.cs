@@ -4,7 +4,7 @@ using System.IO;
 namespace compiler.frontend
 {
     // TODO: write unit test for ident v. number storage
-    public class Lexer
+    public class Lexer : IDisposable
     {
         /// <summary>
         /// A StreamReader to read chars from file
@@ -70,11 +70,7 @@ namespace compiler.frontend
 
         ~Lexer()
         {
-            if (Sr != null)
-            {
-                Sr.Close();
-                Sr = null;
-            }
+            Dispose(false);
         }
 
         public char Next()
@@ -125,8 +121,10 @@ namespace compiler.frontend
             {
                 return Punctuation();
             }
-
-            throw new Exception("Error: unable to parse next token");
+            else
+            {
+                throw new Exception("Error: unable to parse next token");
+            }
         }
 
         public Token Number()
@@ -307,6 +305,26 @@ namespace compiler.frontend
             {
                 Next();
             }
+        }
+
+        private void ReleaseUnmanagedResources()
+        {
+            // TODO release unmanaged resources here
+        }
+
+        private void Dispose(bool disposing)
+        {
+            ReleaseUnmanagedResources();
+            if (disposing)
+            {
+                Sr?.Dispose();
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

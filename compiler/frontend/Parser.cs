@@ -3,7 +3,7 @@
 namespace compiler.frontend
 {
 
-    class Parser
+    class Parser:IDisposable
     {
         public Token Tok { get; set; }
         public Lexer Scanner { get; }
@@ -80,5 +80,9 @@ namespace compiler.frontend
 
 		}
 
+        public void Dispose()
+        {
+            Scanner?.Dispose();
+        }
     }
 }
