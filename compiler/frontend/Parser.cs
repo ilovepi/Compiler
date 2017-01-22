@@ -18,7 +18,7 @@ namespace compiler.frontend
         }
 		public bool isRelOp()
 		{
-			switch (t)
+			switch (Tok)
 			{
 				case Token.EQUAL:
 					return true;
@@ -41,6 +41,7 @@ namespace compiler.frontend
         {
             Dispose(false);
         }
+
 
 
         private void GetExpected(Token expected)
@@ -83,53 +84,50 @@ namespace compiler.frontend
         }
 
         private void Factor(){
-			switch (t)
+			switch (Tok)
 			{
 				case Token.NUMBER:
 					//TODO: Record number value
-					next();
+					Next();
 					break;
 				case Token.IDENTIFIER:
 					//TODO: Record identifier
 					Designator();
 					break;
 				case Token.OPEN_PAREN:
-					next();
+					Next();
 					Expression();
-					getExpected(Token.CLOSE_BRACKET);
+					GetExpected(Token.CLOSE_BRACKET);
 					break;
 				case Token.CALL:
-					next();
+					Next();
 					FuncCall();
 					break;
 				default:
-					error_fatal();
+                    FatalError();;
 					break;
 			}
         }
 
+
         private void Term(){
 			Factor();
-			while ((t == Token.TIMES) || (t == Token.DIVIDE))
+			while ((Tok == Token.TIMES) || (Tok == Token.DIVIDE))
 			{
-				next();
+				Next();
 				Factor();
 			}
         }
 
-        private void Assign()
-		{
-
-		}
 
        
 
         public void Expression()
 		{
 			Term();
-			while ((t == Token.PLUS) || (t == Token.MINUS))
+			while ((Tok == Token.PLUS) || (Tok == Token.MINUS))
 			{
-				next();
+				Next();
 				Term();
 			}
 }
@@ -143,14 +141,18 @@ namespace compiler.frontend
         }
 
         public void Relation()
-		{
-			Expression();
-			if (!isRelOp())
-			{
-				error_fatal();
-			}
-			next();
-			Expression();
+        {
+            Expression();
+            if (
+                !
+                    isRelOp())
+            {
+                FatalError();
+            }
+            Next();
+            Expression();
+        }
+
         private void Identifier()
         {
         }
@@ -159,11 +161,6 @@ namespace compiler.frontend
         {
             
         }
-
-		public void FuncCall()
-		{
-			
-		}
 
         private void VarDecl()
         {
@@ -233,12 +230,7 @@ namespace compiler.frontend
                 throw new NotImplementedException(e.Message);
             }
         }
-
-
-
-
-
-
+        
 
         public void Dispose() 
         {
