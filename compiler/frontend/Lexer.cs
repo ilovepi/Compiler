@@ -81,14 +81,35 @@ namespace compiler.frontend
         {
             if (Sr.Peek() == -1)
             {
-                throw new Exception("Error: Lexer cannot read beyond the end of the file");
+                C = '.';
+                throw new IOException("Error: Lexer cannot read beyond the end of the file");
             }
             C = (char)Sr.Read();
+            if (C == '\n')
+            {
+                Position = 0;
+                LineNo++;
+            }
+            else
+            {
+                Position++;
+            }
+
             return C;
         }
 
 
         public Token GetNextToken()
+        {
+            // HACK: could wrap in try/catch and return Token.UNKOWN
+            // and leave existing exceptions in the helper functions
+            // and classifiers
+            var token = NextToken();
+            Sym = (int) token;
+            return token;
+        }
+
+        private Token NextToken()
         {
             FindNextToken();
 
@@ -131,8 +152,9 @@ namespace compiler.frontend
                     Next();
                     if (C != '=')
                     {
-                        throw new Exception("Error: '=' is not a valid token, " +
-                                            "must be one of: '==', '>=', '<=', '!='");
+                        return Token.UNKNOWN;
+                        //throw new Exception("Error: '=' is not a valid token, " +
+                        //                    "must be one of: '==', '>=', '<=', '!='");
                     }
                     Next();
                     return Token.EQUAL;
@@ -141,8 +163,9 @@ namespace compiler.frontend
                     Next();
                     if (C != '=')
                     {
-                        throw new Exception("Error: '!' is not a valid token, " +
-                                            "must be one of: '==', '>=', '<=', '!='");
+                        return Token.UNKNOWN;
+                        //throw new Exception("Error: '!' is not a valid token, " +
+                        //                    "must be one of: '==', '>=', '<=', '!='");
                     }
                     Next();
                     return Token.NOT_EQUAL;

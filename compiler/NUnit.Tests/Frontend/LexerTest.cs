@@ -21,7 +21,7 @@ namespace NUnit.Tests.Frontend
         //[DeploymentItem("LexerTest1.txt", "targetFolder")]
         public void NextTest()
         {
-            Lex = new Lexer(TestContext.CurrentContext.TestDirectory + @"/Frontend/LexerTest1.txt");
+            Lex = new Lexer(TestContext.CurrentContext.TestDirectory + @"/Frontend/testdata/LexerTest1.txt");
 
             // Exact string contents of LExerTest1.txt without the '.'
             string str = "Read some characters";
@@ -34,7 +34,7 @@ namespace NUnit.Tests.Frontend
             }
 
             // make sure we throw an exception for reading past the end of the file
-            var ex = Assert.Throws<Exception>(() => Lex.Next());
+            var ex = Assert.Throws<IOException>(() => Lex.Next());
             Assert.That(ex.Message, Is.EqualTo("Error: Lexer cannot read beyond the end of the file"));
         }
 
@@ -80,12 +80,67 @@ namespace NUnit.Tests.Frontend
             }    
         }
 
+        [Test]
+        public void NextIncrementsPosition()
+        {
+            Lex = new Lexer(TestContext.CurrentContext.TestDirectory + @"/Frontend/testdata/test001.txt");
+
+            bool increasing;
+            Token t;
+            int curr_line;
+            int prev_line;
+            int cur_pos;
+            int prev_pos;
+            do
+            {
+                prev_pos = Lex.Position;
+                prev_line = Lex.LineNo;
+                
+                t = Lex.GetNextToken();
+                
+                cur_pos = Lex.Position;
+                curr_line = Lex.LineNo;
+
+                if (curr_line > prev_line)
+                {
+                    increasing = false;
+                }
+                else
+                {
+                    increasing = true;
+                }
+
+                if (prev_pos == cur_pos)
+                {
+                    if(t != Token.EOF)
+                        Assert.AreNotEqual(prev_line, curr_line);
+                }
+                else
+                {
+                    Assert.AreNotEqual(prev_pos,cur_pos);
+                    if (increasing)
+                    {
+                        Assert.Less(prev_pos, cur_pos);
+                    }
+                    else
+                    {
+                        Assert.Greater(prev_pos, cur_pos);
+                    }
+                }
+
+            } while (t != Token.EOF);
+
+            Assert.AreEqual(8,curr_line);
+            Assert.AreEqual(2,cur_pos);
+        }
+
+
 
         [Test]
         public void DestructorTest()
         {
             // pFilename -- arbitrary
-            string filename = TestContext.CurrentContext.TestDirectory + @"/Frontend/LexerTest1.txt";
+            string filename = TestContext.CurrentContext.TestDirectory + @"/Frontend/testdata/LexerTest1.txt";
 
             // create a lexer
             Lex = new Lexer(filename);
@@ -124,6 +179,50 @@ namespace NUnit.Tests.Frontend
                 stream?.Close();
             }
             return false;
+        }
+
+
+
+
+        [Test]
+        public void ClassifyUnknownTest()
+        {
+            string filename = TestContext.CurrentContext.TestDirectory +
+                @"/Frontend/testdata/BadTokens.txt";
+
+            Lex = new Lexer(filename);
+            Token t;
+            do
+            {
+               
+                try
+                {
+                    t = Lex.GetNextToken();
+                }
+                catch (IOException exception)
+                {
+                    Console.WriteLine(exception.Message);
+                    t = Token.EOF;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    t = Token.UNKNOWN;
+                    throw;
+                }
+
+                Assert.True( (t == Token.UNKNOWN) || (t == Token.EOF ) );
+                if (t == Token.UNKNOWN)
+                {
+
+                    var a = TokenHelper.PrintToken(t);
+                    var b = TokenHelper.ToString(t);
+                    Assert.AreEqual( "UNKNOWN", a);
+                    Assert.AreEqual( "unknown", b);
+                }
+
+            } while (t != Token.EOF);
+
         }
 
 
@@ -168,14 +267,27 @@ namespace NUnit.Tests.Frontend
             Lex = new Lexer(filename);
 
             Token t;
+            string a, b;
             do
             {
                 t = Lex.GetNextToken();
-                Console.WriteLine(TokenHelper.PrintToken(t));
+                a = TokenHelper.PrintToken(t);
+                b = TokenHelper.ToString(t);
+                Assert.AreNotEqual(a, "UNKNOWN");
+                Assert.AreNotEqual(b,"unknown");
+                Assert.AreNotEqual(a, "ERROR");
+                Assert.AreNotEqual(b, "ERROR");
+                if (t != Token.EOF)
+                {
+                    Assert.AreNotEqual(a, b);
+                }
+                //Console.WriteLine(TokenHelper.PrintToken(t));
                 Assert.AreNotEqual(t, Token.UNKNOWN);
             } while (t != Token.EOF);
 
         }
+
+       
 
     }
 }

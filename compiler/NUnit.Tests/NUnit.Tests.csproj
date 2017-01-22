@@ -50,11 +50,14 @@
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Frontend\LexerTest1.txt">
+    <Content Include="Frontend\testdata\BadTokens.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Frontend\testdata\LexerTest1.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Frontend\test001Tokens.txt" />
-    <None Include="Frontend\LexerTest2.txt">
+    <None Include="Frontend\testdata\LexerTest2.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <Content Include="Frontend\testdata\big.txt">
