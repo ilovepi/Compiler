@@ -17,11 +17,28 @@ namespace compiler.frontend
             Scanner = new Lexer(_filename);
         }
 
+		public bool IsRelOp()
+		{
+            switch (Tok)
+            {
+                case Token.EQUAL:
+                case Token.NOT_EQUAL:
+                case Token.LESS:
+                case Token.LESS_EQ:
+                case Token.GREATER:
+                case Token.GREATER_EQ:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
 
         ~Parser()
         {
             Dispose(false);
         }
+
 
 
         private void GetExpected(Token expected)
@@ -64,25 +81,53 @@ namespace compiler.frontend
         }
 
         private void Factor(){
-            if ((Tok == Token.IDENTIFIER) || (Tok == Token.IDENTIFIER))
-            {
-                Next();
-            }
-            else {
-                FatalError();
-            }
+			switch (Tok)
+			{
+				case Token.NUMBER:
+					//TODO: Record number value
+					Next();
+					break;
+				case Token.IDENTIFIER:
+					//TODO: Record identifier
+					Designator();
+					break;
+				case Token.OPEN_PAREN:
+					Next();
+					Expression();
+					GetExpected(Token.CLOSE_BRACKET);
+					break;
+				case Token.CALL:
+					Next();
+					FuncCall();
+					break;
+				default:
+                    FatalError();;
+					break;
+			}
         }
+
 
         private void Term(){
-            
-        }
-        private void Expression(){
-            
-        }
-        private void Relation(){
-            
+			Factor();
+			while ((Tok == Token.TIMES) || (Tok == Token.DIVIDE))
+			{
+				Next();
+				Factor();
+			}
         }
 
+
+       
+
+        public void Expression()
+		{
+			Term();
+			while ((Tok == Token.PLUS) || (Tok == Token.MINUS))
+			{
+				Next();
+				Term();
+			}
+}
         private void Assign()
 		{
 
@@ -90,6 +135,19 @@ namespace compiler.frontend
 
         private void Computation()
         {
+        }
+
+        public void Relation()
+        {
+            Expression();
+            if (
+                !
+                    IsRelOp())
+            {
+                FatalError();
+            }
+            Next();
+            Expression();
         }
 
         private void Identifier()
@@ -100,7 +158,6 @@ namespace compiler.frontend
         {
             
         }
-
 
         private void VarDecl()
         {
@@ -170,12 +227,7 @@ namespace compiler.frontend
                 throw new NotImplementedException(e.Message);
             }
         }
-
-
-
-
-
-
+        
 
         public void Dispose() 
         {
