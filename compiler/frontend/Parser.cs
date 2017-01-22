@@ -3,7 +3,7 @@
 namespace compiler.frontend
 {
 
-    class Parser:IDisposable
+    public class Parser:IDisposable
     {
         public Token Tok { get; set; }
         public Lexer Scanner { get; }
@@ -16,7 +16,7 @@ namespace compiler.frontend
             Scanner = new Lexer(_filename);
         }
 
-        public void GetExpected(Token expected)
+        private void GetExpected(Token expected)
         {
             if (Tok == expected)
             {
@@ -29,24 +29,24 @@ namespace compiler.frontend
             }
         }
 
-        public void Error(string str)
+        private void Error(string str)
         {
             //TODO: determine location in file for error messages
             Console.WriteLine("Error Parsing file: " + _filename + ", " + str);
             FatalError();
         }
 
-        public void FatalError(){
+        private void FatalError(){
             //TODO: determine location in file for error messages
 			throw new Exception("Fatal Error Parsing file: " + _filename + ". Unable to continue");
         }
 
 
-        public void Next() {
+        private void Next() {
             Tok = Scanner.GetNextToken();
         }
 
-        public void Designator() {
+        private void Designator() {
             GetExpected(Token.IDENTIFIER);
             GetExpected(Token.OPEN_BRACKET);
 
@@ -55,7 +55,7 @@ namespace compiler.frontend
             GetExpected(Token.CLOSE_BRACKET);
         }
 
-        public void Factor(){
+        private void Factor(){
             if ((Tok == Token.IDENTIFIER) || (Tok == Token.IDENTIFIER))
             {
                 Next();
@@ -65,24 +65,105 @@ namespace compiler.frontend
             }
         }
 
-        public void Term(){
+        private void Term(){
             
         }
-        public void Expression(){
+        private void Expression(){
             
         }
-        public void Relation(){
+        private void Relation(){
             
         }
-			                    
-		public void Assign()
+
+        private void Assign()
 		{
 
 		}
 
         public void Dispose()
         {
-            Scanner?.Dispose();
+            Scanner.Dispose();
+        }
+
+
+        private void Computation()
+        {
+        }
+
+        private void Identifier()
+        {
+        }
+
+        private void Num()
+        {
+            
+        }
+
+
+        private void VarDecl()
+        {
+        }
+
+
+        private void TypeDecl()
+        {
+        }
+
+        private void FuncDecl()
+        {
+            
+        }
+
+        private void FuncBody()
+        {
+        }
+
+
+        private void Statement()
+        {
+        }
+
+
+        private void relOp()
+        {
+        }
+
+
+        private void FuncCall()
+        {
+        }
+
+        private void IfStmt()
+        {
+        }
+
+
+        private  void WhileStmt()
+        {
+            
+        }
+
+
+
+        private void ReturnStmt()
+        {
+        }
+
+        private void FormalParams()
+        { }
+
+
+
+
+
+
+        public void parse()
+        {
+           
+            Computation();
+
+
+            throw new NotImplementedException();
         }
     }
 }
