@@ -79,12 +79,14 @@ namespace compiler.frontend
             GetExpected(Token.IDENTIFIER);
             while (Tok == Token.OPEN_BRACKET)
             {
-                GetExpected(Token.OPEN_BRACKET);
+                
+            
+            GetExpected(Token.OPEN_BRACKET);
 
-                Expression();
+            Expression();
 
-                GetExpected(Token.CLOSE_BRACKET);
-            }
+            GetExpected(Token.CLOSE_BRACKET);
+}
         }
 
         public void Factor(){
@@ -146,9 +148,8 @@ namespace compiler.frontend
         public void Relation()
         {
             Expression();
-            if (
-                !
-                    IsRelOp())
+
+            if (!IsRelOp())
             {
                 FatalError();
             }
