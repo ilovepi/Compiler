@@ -139,19 +139,21 @@ namespace NUnit.Tests.Frontend
         [Test]
         public void DestructorTest()
         {
-            // pFilename -- arbitrary
+            
+                // pFilename -- arbitrary
             string filename = TestContext.CurrentContext.TestDirectory + @"/Frontend/testdata/LexerTest1.txt";
+            { 
+                // create a lexer
+                Lex = new Lexer(filename);
 
-            // create a lexer
-            Lex = new Lexer(filename);
+                // release the lexer, so that the file will close
+                Lex = null;
+                Assert.Null(Lex);
 
-            // release the lexer, so that the file will close
-            Lex = null;
-            Assert.Null(Lex);
-
-            // invoke garbage collector to ensure destructor runs now
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
+                // invoke garbage collector to ensure destructor runs now
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+            }
 
             // check if the file is infact, closed
             var fileInfo = new FileInfo(filename);
