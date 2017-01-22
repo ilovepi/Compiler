@@ -2,6 +2,7 @@
 using compiler.frontend;
 using NUnit.Framework;
 
+
 namespace NUnit.Tests.Frontend
 {
     [TestFixture]
@@ -64,15 +65,83 @@ namespace NUnit.Tests.Frontend
         [Test]
         public void GetExpectedThrowsTest()
         {
-            var ex =Assert.Throws<ParserException>(() => Checker.GetExpected(Token.UNKNOWN));
+            var ex =Assert.Throws<ParserException>(() => Checker.GetExpected(Token.EOF));
            
+        }
+
+
+
+        [Test]
+        public void GetExpectedAdvanceTest()
+        {
+            Assert.AreEqual(1, Checker.Pos);
+            Assert.AreEqual(1, Checker.LineNo);
+            Checker.GetExpected(Token.UNKNOWN);
+            Assert.AreEqual(Token.COMMENT, Checker.Tok);
+            Assert.AreEqual(1, Checker.Pos);
+            Assert.AreEqual(2, Checker.LineNo);
+            Checker.GetExpected(Token.COMMENT);
+            Assert.AreEqual(Token.MAIN, Checker.Tok);
+            Assert.AreEqual(6,Checker.Pos);
+        }
+
+        [Test]
+        public void DesignatorIdOnlyTest()
+        {
+            Assert.Fail();
+        }
+
+        [Test]
+        public void DesignatorArrayTest()
+        {
+            Assert.Fail();
+        }
+
+        [Test]
+        public void DesignatorBadIdTest()
+        {
+            Assert.Fail();
+        }
+
+        public void DesignatorBadExpressionTest()
+        {
+            Assert.Fail();
+        }
+
+
+        [Test]
+        public void DesignatorBadWhitespaceTest()
+        {
+            Assert.Fail();
+        }
+
+
+        [Test]
+        public void DesignatorMultiDimensionalArrayTest()
+        {
+            Assert.Fail();
+        }
+
+        [Test]
+        public void DesignatorBadMulitDimArrayTest()
+        {
+            Assert.Fail();
         }
 
 
 
 
 
-        
+
+
+
+
+
+
+
+
+
+
     }
 
 

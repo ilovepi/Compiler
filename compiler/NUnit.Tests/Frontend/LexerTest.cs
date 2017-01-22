@@ -131,7 +131,7 @@ namespace NUnit.Tests.Frontend
             } while (t != Token.EOF);
 
             Assert.AreEqual(8,curr_line);
-            Assert.AreEqual(2,cur_pos);
+            Assert.AreEqual(3,cur_pos);
         }
 
 

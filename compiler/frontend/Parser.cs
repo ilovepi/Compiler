@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("ParserUnitTest")]
-
 namespace compiler.frontend
 {
     
@@ -47,7 +45,7 @@ namespace compiler.frontend
         }
 
 
-        private void GetExpected(Token expected)
+        public void GetExpected(Token expected)
         {
             if (Tok == expected)
             {
@@ -60,33 +58,36 @@ namespace compiler.frontend
             }
         }
 
-        private void Error(string str)
+        public void Error(string str)
         {
             //TODO: determine location in file for error messages
             Console.WriteLine("Error Parsing file: " + _filename + ", " + str);
             FatalError();
         }
 
-        private void FatalError(){
+        public void FatalError(){
             //TODO: determine location in file for error messages
-			throw new Exception("Fatal Error Parsing file: " + _filename + ". Unable to continue");
+			throw new ParserException("Fatal Error Parsing file: " + _filename + ". Unable to continue");
         }
 
 
-        private void Next() {
+        public void Next() {
             Tok = Scanner.GetNextToken();
         }
 
-        private void Designator() {
+        public void Designator() {
             GetExpected(Token.IDENTIFIER);
-            GetExpected(Token.OPEN_BRACKET);
+            while (Tok == Token.OPEN_BRACKET)
+            {
+                GetExpected(Token.OPEN_BRACKET);
 
-            Expression();
+                Expression();
 
-            GetExpected(Token.CLOSE_BRACKET);
+                GetExpected(Token.CLOSE_BRACKET);
+            }
         }
 
-        private void Factor(){
+        public void Factor(){
 			switch (Tok)
 			{
 				case Token.NUMBER:
@@ -113,7 +114,7 @@ namespace compiler.frontend
         }
 
 
-        private void Term(){
+        public void Term(){
 			Factor();
 			while ((Tok == Token.TIMES) || (Tok == Token.DIVIDE))
 			{
@@ -123,9 +124,7 @@ namespace compiler.frontend
         }
 
 
-       
-
-        private void Expression()
+        public void Expression()
 		{
 			Term();
 			while ((Tok == Token.PLUS) || (Tok == Token.MINUS))
@@ -134,12 +133,13 @@ namespace compiler.frontend
 				Term();
 			}
 }
-        private void Assign()
+
+        public void Assign()
 		{
 
 		}
 
-        private void Computation()
+        public void Computation()
         {
         }
 
@@ -156,54 +156,54 @@ namespace compiler.frontend
             Expression();
         }
 
-        private void Identifier()
+        public void Identifier()
         {
         }
 
-        private void Num()
-        {
-            
-        }
-
-        private void VarDecl()
-        {
-        }
-
-
-        private void TypeDecl()
-        {
-        }
-
-        private void FuncDecl()
+        public void Num()
         {
             
         }
 
-        private void FuncBody()
+        public void VarDecl()
         {
         }
 
 
-        private void Statement()
+        public void TypeDecl()
+        {
+        }
+
+        public void FuncDecl()
+        {
+            
+        }
+
+        public void FuncBody()
         {
         }
 
 
-        private void RelOp()
+        public void Statement()
         {
         }
 
 
-        private void FuncCall()
-        {
-        }
-
-        private void IfStmt()
+        public void RelOp()
         {
         }
 
 
-        private  void WhileStmt()
+        public void FuncCall()
+        {
+        }
+
+        public void IfStmt()
+        {
+        }
+
+
+        public void WhileStmt()
         {
             
         }
@@ -214,7 +214,7 @@ namespace compiler.frontend
         {
         }
 
-        private void FormalParams()
+        public void FormalParams()
         { }
 
 

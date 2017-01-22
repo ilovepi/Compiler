@@ -40,7 +40,7 @@
   <ItemGroup>
     <Compile Include="Frontend\LexerTest.cs" />
     <Compile Include="Frontend\ParserIntegrationTest.cs" />
-    <Compile Include="Frontend\ParserTest.cs" />
+    <Compile Include="Frontend\ParserUnitTest.cs" />
     <Compile Include="Frontend\SymbolTableTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -83,7 +83,7 @@ namespace compiler.frontend
             C = (char)Sr.Read();
             if (C == '\n')
             {
-                Position = 0;
+                Position = 1;
                 LineNo++;
             }
             else

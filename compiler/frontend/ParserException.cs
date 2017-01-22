@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 namespace compiler.frontend
 {
+    [Serializable]
     public class ParserException : Exception
     {
         public ParserException()
