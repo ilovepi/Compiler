@@ -301,7 +301,7 @@ namespace compiler.frontend
         /// <summary>
         /// Finds the next token. Scans forward through whitespace.
         /// </summary>
-        public void FindNextToken()
+        private void FindNextToken()
         {
             while (char.IsWhiteSpace(C))
             {
