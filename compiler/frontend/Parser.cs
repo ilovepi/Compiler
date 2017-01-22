@@ -157,7 +157,7 @@ namespace compiler.frontend
 
 
 
-        public void parse()
+        public void Parse()
         {
            
             Computation();

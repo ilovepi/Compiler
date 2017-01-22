@@ -49,7 +49,7 @@ namespace NUnit.Tests.Frontend
 
             using (Parser p = new Parser(filename))
             {
-                p.parse();
+                p.Parse();
             }
         }
 
