@@ -10,17 +10,23 @@ namespace NUnit.Tests.Frontend
         [SetUp]
         public void Init()
         {
-            ProgramPath = TestContext.CurrentContext.TestDirectory + @"/Frontend/testdata/test001.txt";
+            ProgramDir = TestContext.CurrentContext.TestDirectory;
+            ProgramPath = ProgramDir + @"/Frontend/testdata/test001.txt";
             Checker = new Parser(ProgramPath);
         }
 
         public string ProgramPath { get; private set; }
+        public string ProgramDir { get; set; }
 
         public Parser Checker { get; set; }
 
+        [Test]
         public void DesignatorBadExpressionTest()
         {
-            Assert.Fail();
+            using (Checker = new Parser(ProgramDir + @"/Frontend/parserdata/BadExpression.txt"))
+            {
+                Checker.Designator();
+            }
         }
 
         [Test]
