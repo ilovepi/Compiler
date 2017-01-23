@@ -81,7 +81,8 @@ namespace compiler.frontend
 
         public void Designator()
         {
-            GetExpected(Token.IDENTIFIER);
+            Identifier();
+
             while (Tok == Token.OPEN_BRACKET)
             {
                 GetExpected(Token.OPEN_BRACKET);
@@ -97,12 +98,10 @@ namespace compiler.frontend
             switch (Tok)
             {
                 case Token.NUMBER:
-                    //TODO: Record number value
-                    Next();
+                    Num();
                     break;
                 case Token.IDENTIFIER:
-                    //TODO: Record identifier
-                    Designator();
+                    Identifier();
                     break;
                 case Token.OPEN_PAREN:
                     Next();
@@ -168,22 +167,25 @@ namespace compiler.frontend
 
         public void Identifier()
         {
+            GetExpected(Token.IDENTIFIER);
         }
 
         public void Num()
         {
+            GetExpected(Token.NUMBER);
         }
 
         public void VarDecl()
         {
             TypeDecl();
 
-            GetExpected(Token.IDENTIFIER);
+            Identifier();
 
             while (Tok == Token.COMMA)
             {
                 Next();
-                GetExpected(Token.IDENTIFIER);
+
+                Identifier();
             }
 
             GetExpected(Token.SEMI_COLON);
@@ -200,13 +202,17 @@ namespace compiler.frontend
             Next();
 
             GetExpected(Token.OPEN_BRACKET);
-            GetExpected(Token.NUMBER);
+
+            Num();
+
             GetExpected(Token.CLOSE_BRACKET);
 
             while (Tok == Token.OPEN_BRACKET)
             {
                 Next();
-                GetExpected(Token.NUMBER);
+
+                Num();
+
                 GetExpected(Token.CLOSE_BRACKET);
             }
         }
@@ -220,7 +226,7 @@ namespace compiler.frontend
 
             Next();
 
-            GetExpected(Token.IDENTIFIER);
+            Identifier();
 
             if (Tok == Token.OPEN_PAREN)
             {
@@ -356,7 +362,8 @@ namespace compiler.frontend
                 while (Tok == Token.COMMA)
                 {
                     Next();
-                    GetExpected(Token.IDENTIFIER);
+
+                    Identifier();
                 }
             }
 
