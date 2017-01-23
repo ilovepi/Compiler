@@ -3,20 +3,59 @@ using System.IO;
 
 namespace compiler.frontend
 {
-    public class Lexer
+    // TODO: write unit test for ident v. number storage
+    public class Lexer : IDisposable
     {
-        private StreamReader sr;        // file reader
-        public char c;                  // current char
-        public SymbolTable symbolTble;  // symbol table
-        public int sym;                 // current token
-        public int val;                 // numeric value
-        public int id;                  // identifier
+        /// <summary>
+        /// A StreamReader to read chars from file
+        /// </summary>
+        public StreamReader Sr { get; set; }
 
+        /// <summary>
+        /// The current character from the file
+        /// </summary>
+        public char C { get; set; }
+
+        /// <summary>
+        /// Table of all program symbols
+        /// </summary>
+        public SymbolTable SymbolTble { get; }
+
+        /// <summary>
+        /// The current Symbol
+        /// </summary>
+        public int Sym { get; set; }
+
+        /// <summary>
+        /// The last Numeric Value
+        /// </summary>
+        public int Val { get; set; }
+
+
+        /// <summary>
+        /// The last identifier
+        /// </summary>
+        public int Id { get; set; }
+
+        /// <summary>
+        /// The current line number in the source text
+        /// </summary>
+        public int LineNo { set; get; }
+
+        /// <summary>
+        /// The current position in the current line
+        /// </summary>
+        public int Position { set; get; }
+
+        /// <summary>
+        /// Constructor for the Lexer
+        /// </summary>
+        /// <param name="filename">The name of the source file to begin tokenizing</param>
         public Lexer(string filename)
         {
             try
             {
-                sr = new StreamReader(filename);
+                Sr = new StreamReader(filename);
             }
             catch (FileNotFoundException e)
             {
@@ -24,100 +63,121 @@ namespace compiler.frontend
                 throw;
             }
 
-            symbolTble = new SymbolTable();
-            next();
+            SymbolTble = new SymbolTable();
+            Next();
+            LineNo = 1;
         }
 
         ~Lexer()
         {
-            //TODO: Need unit test to verify that destructior releases files
-            if (sr != null)
-            {
-                sr.Close();
-                sr = null;
-            }
+            Dispose(false);
         }
 
-        public char next()
+        public char Next()
         {
-            if (sr.Peek() == -1)
+            if (Sr.Peek() == -1)
             {
-                throw new Exception("Error: Lexer cannot read beyond the end of the file");
+                C = '.';
+                throw new IOException("Error: Lexer cannot read beyond the end of the file");
             }
-            c = (char) sr.Read();
-            return c;
+            C = (char)Sr.Read();
+            if (C == '\n')
+            {
+                Position = 1;
+                LineNo++;
+            }
+            else
+            {
+                Position++;
+            }
+
+            return C;
         }
 
 
-        public Token getNextToken()
+        public Token GetNextToken()
         {
-            findNextToken();
-
-            if (char.IsDigit(c))
-            {
-                return number();
-            }
-            else if (char.IsLetter(c))
-            {
-                return symbol();
-            }
-            else if (!char.IsWhiteSpace(c))
-            {
-                return punctuation();
-            }
-
-            throw new Exception("Error: unable to parse next token");
+            // HACK: could wrap in try/catch and return Token.UNKOWN
+            // and leave existing exceptions in the helper functions
+            // and classifiers
+            var token = NextToken();
+            Sym = (int) token;
+            return token;
         }
 
-        public Token number()
+        private Token NextToken()
+        {
+            FindNextToken();
+
+            if (char.IsDigit(C))
+            {
+                return Number();
+            }
+            else if (char.IsLetter(C))
+            {
+                return Symbol();
+            }
+            else if (!char.IsWhiteSpace(C))
+            {
+                return Punctuation();
+            }
+            else
+            {
+                throw new Exception("Error: unable to parse next token");
+            }
+        }
+
+        public Token Number()
         {
             string s = string.Empty;
 
-            while (char.IsDigit(c))
+            while (char.IsDigit(C))
             {
-                s += c;
-                next();
+                s += C;
+                Next();
             }
 
-            val = int.Parse(s);
+            Val = int.Parse(s);
             return Token.NUMBER;
         }
 
-        public Token punctuation()
+        public Token Punctuation()
         {
             //TODO: test coverage for this function is weak, add more path coverage
-            switch (c)
+            switch (C)
             {
                 case '=':
-                    next();
-                    if (c != '=')
+                    Next();
+                    if (C != '=')
                     {
-                        throw new Exception("Error: '=' is not a valid token, " +
-                                            "must be one of: '==', '>=', '<=', '!='");
+                        return Token.UNKNOWN;
+                        //throw new Exception("Error: '=' is not a valid token, " +
+                        //                    "must be one of: '==', '>=', '<=', '!='");
                     }
-                    next();
+                    Next();
                     return Token.EQUAL;
 
                 case '!':
-                    next();
-                    if (c != '=')
+                    Next();
+                    if (C != '=')
                     {
-                        throw new Exception("Error: '!' is not a valid token, " +
-                                            "must be one of: '==', '>=', '<=', '!='");
+                        return Token.UNKNOWN;
+                        //throw new Exception("Error: '!' is not a valid token, " +
+                        //                    "must be one of: '==', '>=', '<=', '!='");
                     }
-                    next();
+                    Next();
                     return Token.NOT_EQUAL;
 
                 case '<':
-                    next();
-                    if (c == '=')
+                    Next();
+                    if (C == '=')
                     {
-                        next();
+                        Next();
                         return Token.LESS_EQ;
                     }
-                    else if (c == '-')
+                    else if (C == '-')
                     {
-                        next();
+                        Next();
                         return Token.ASSIGN;
                     }
                     else
@@ -126,10 +186,10 @@ namespace compiler.frontend
                     }
 
                 case '>':
-                    next();
-                    if (c == '=')
+                    Next();
+                    if (C == '=')
                     {
-                        next();
+                        Next();
                         return Token.GREATER_EQ;
                     }
                     else
@@ -139,63 +199,63 @@ namespace compiler.frontend
 
 
                 case '+':
-                    next();
+                    Next();
                     return Token.PLUS;
                 case '-':
-                    next();
+                    Next();
                     return Token.MINUS;
                 case '*':
-                    next();
+                    Next();
                     return Token.TIMES;
                 case '/':
-                    next();
-                    if (c == '/')
+                    Next();
+                    if (C == '/')
                     {
-                        while (c != '\n')
+                        while (C != '\n')
                         {
-                            next();
+                            Next();
                         }
                         return Token.COMMENT;
                     }
                     return Token.DIVIDE;
                 case '#':
-                    next();
-                    while (c != '\n')
+                    Next();
+                    while (C != '\n')
                     {
-                        next();
+                        Next();
                     }
                     return Token.COMMENT;
 
                 case ',':
-                    next();
+                    Next();
                     return Token.COMMA;
                 case ';':
-                    next();
+                    Next();
                     return Token.SEMI_COLON;
                 case '.':
                     return Token.EOF;
 
                 case '(':
-                    next();
+                    Next();
                     return Token.OPEN_PAREN;
 
                 case ')':
-                    next();
+                    Next();
                     return Token.CLOSE_PAREN;
 
 
                 case '[':
-                    next();
+                    Next();
                     return Token.OPEN_BRACKET;
                 case ']':
-                    next();
+                    Next();
                     return Token.CLOSE_BRACKET;
 
                 case '{':
-                    next();
+                    Next();
                     return Token.OPEN_CURL;
                 case '}':
-                    next();
+                    Next();
                     return Token.CLOSE_CURL;
 
 
@@ -205,46 +265,66 @@ namespace compiler.frontend
         }
 
 
-        public Token symbol()
+        public Token Symbol()
         {
             //Result ret = new Result();
 
             string s = string.Empty;
-            s += c;
-            next();
+            s += C;
+            Next();
 
-            while (char.IsLetterOrDigit(c))
+            while (char.IsLetterOrDigit(C))
             {
-                s += c;
-                next();
+                s += C;
+                Next();
             }
 
             //ret.kind = (int)kind.variable;
 
-            if (symbolTble.lookup(s))
+            if (SymbolTble.Lookup(s))
             {
-                id = symbolTble.val(s);
+                Id = SymbolTble.Values[s];
             }
             else
             {
-                symbolTble.insert(s);
-                id = symbolTble.val(s);
+                SymbolTble.Insert(s);
+                Id = SymbolTble.Values[s];
             }
 
-            if (symbolTble.isId(s))
+            if (SymbolTble.IsId(s))
                 return Token.IDENTIFIER;
-            return (Token) id;
+            return (Token)Id;
         }
 
         /// <summary>
         /// Finds the next token. Scans forward through whitespace.
         /// </summary>
-        public void findNextToken()
+        private void FindNextToken()
         {
-            while (char.IsWhiteSpace(c))
+            while (char.IsWhiteSpace(C))
             {
-                next();
+                Next();
             }
+        }
+
+        private void ReleaseUnmanagedResources()
+        {
+            // TODO release unmanaged resources here
+        }
+
+        private void Dispose(bool disposing)
+        {
+            ReleaseUnmanagedResources();
+            if (disposing)
+            {
+                Sr?.Dispose();
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }
