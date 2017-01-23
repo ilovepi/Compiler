@@ -247,7 +247,7 @@ namespace compiler.frontend
                 VarDecl();
             }
 
-            GetExpected(Token.OPEN_CURL;
+            GetExpected(Token.OPEN_CURL);
 
             if ((Tok == Token.LET) || (Tok == Token.CALL) || (Tok == Token.IF)
                 || (Tok == Token.WHILE) || (Tok == Token.RETURN))
