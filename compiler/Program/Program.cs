@@ -5,20 +5,23 @@ namespace Program
 {
     class Program
     {
+        //TODO: adjust main to use the parser when it is complete
         static void Main(string[] args)
         {
-            Lexer l = new Lexer(@"../../testdata/big.txt");
-            Token t;
-            do
+            using (Lexer l = new Lexer(@"../../testdata/big.txt"))
             {
-                t = l.GetNextToken();
-                Console.WriteLine( TokenHelper.PrintToken(t) );
+                Token t;
+                do
+                {
+                    t = l.GetNextToken();
+                    Console.WriteLine(TokenHelper.PrintToken(t));
 
-            } while (t != Token.EOF);
+                } while (t != Token.EOF);
 
-            // necessary when testing on windows with visual studio
-            //Console.WriteLine("Press 'enter' to exit ....");
-            //Console.ReadLine();
+                // necessary when testing on windows with visual studio
+                //Console.WriteLine("Press 'enter' to exit ....");
+                //Console.ReadLine();
+            }
         }
     }
 }
