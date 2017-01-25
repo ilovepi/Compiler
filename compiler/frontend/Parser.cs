@@ -70,8 +70,7 @@ namespace compiler.frontend
 
         public void FatalError()
         {
-            //TODO: determine location in file for error messages
-            throw new ParserException("Fatal Error Parsing file: " + _filename + ". Unable to continue");
+            throw ParserException.CreateParserException(Tok, LineNo, Pos, _filename);
         }
 
 
