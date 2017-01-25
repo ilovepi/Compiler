@@ -31,5 +31,13 @@ namespace compiler.frontend
                              TokenHelper.ToString(expected);
             return new ParserException(message);
         }
+
+
+        public static ParserException CreateParserException(Token found, int line, int pos, string file)
+        {
+            string message = "Error in file: " + file + " at line " + line + ", pos " + pos +
+                             "\n\tFound: " + TokenHelper.ToString(found);
+            return new ParserException(message);
+        }
     }
 }
