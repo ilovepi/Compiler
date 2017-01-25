@@ -55,9 +55,10 @@ namespace compiler.frontend
             if (Tok == expected)
                 Next();
             else
-                Error("Error in file: " + _filename + " at line " + LineNo + ", pos " + Pos +
+                throw ParserException.CreateParserException(expected, Tok, LineNo, Pos, _filename);
+                /*Error("Error in file: " + _filename + " at line " + LineNo + ", pos " + Pos +
                       "\n\tFound: " + TokenHelper.ToString(Tok) + " but Expected: " +
-                      TokenHelper.ToString(expected));
+                      TokenHelper.ToString(expected));*/
         }
 
         public void Error(string str)
