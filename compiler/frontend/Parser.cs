@@ -219,6 +219,7 @@ namespace compiler.frontend
         {
             if ((Tok != Token.VAR) && (Tok != Token.ARRAY))
             {
+                // TODO pass info to FatalError
                 FatalError();
             }
 
@@ -408,6 +409,7 @@ namespace compiler.frontend
 
         public void Parse()
         {
+            Next();
             Computation();
         }
 
