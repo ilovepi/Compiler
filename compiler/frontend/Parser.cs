@@ -217,28 +217,31 @@ namespace compiler.frontend
 
         public void TypeDecl()
         {
-            if ((Tok != Token.VAR) && (Tok != Token.ARRAY))
-            {
-                // TODO pass info to FatalError
-                FatalError();
-            }
-
-            Next();
-
-            GetExpected(Token.OPEN_BRACKET);
-
-            Num();
-
-            GetExpected(Token.CLOSE_BRACKET);
-
-            while (Tok == Token.OPEN_BRACKET)
+            if (Tok == Token.VAR)
             {
                 Next();
+            }
+            else if (Tok == Token.ARRAY)
+            {
+                Next();
+
+                GetExpected(Token.OPEN_BRACKET);
 
                 Num();
 
                 GetExpected(Token.CLOSE_BRACKET);
+
+                while (Tok == Token.OPEN_BRACKET)
+                {
+                    Next();
+
+                    Num();
+
+                    GetExpected(Token.CLOSE_BRACKET);
+                }
             }
+            // TODO: replace
+            FatalError();
         }
 
         public void FuncDecl()
