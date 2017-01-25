@@ -404,14 +404,7 @@ namespace compiler.frontend
 
         public void Parse()
         {
-            try
-            {
-                Computation();
-            }
-            catch (Exception e)
-            {
-                throw new NotImplementedException(e.Message);
-            }
+            Computation();
         }
 
         public void ThrowParserException(Token expected)
