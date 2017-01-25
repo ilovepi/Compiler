@@ -76,7 +76,10 @@ namespace compiler.frontend
 
         public void Next()
         {
-            Tok = Scanner.GetNextToken();
+            do
+            {
+                Tok = Scanner.GetNextToken();
+            } while (Tok == Token.COMMENT);
         }
 
         public void Designator()
