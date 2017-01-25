@@ -81,7 +81,8 @@ namespace compiler.frontend
 
         public void Designator()
         {
-            GetExpected(Token.IDENTIFIER);
+            Identifier();
+
             while (Tok == Token.OPEN_BRACKET)
             {
                 GetExpected(Token.OPEN_BRACKET);
@@ -97,12 +98,10 @@ namespace compiler.frontend
             switch (Tok)
             {
                 case Token.NUMBER:
-                    //TODO: Record number value
-                    Next();
+                    Num();
                     break;
                 case Token.IDENTIFIER:
-                    //TODO: Record identifier
-                    Designator();
+                    Identifier();
                     break;
                 case Token.OPEN_PAREN:
                     Next();
@@ -143,10 +142,36 @@ namespace compiler.frontend
 
         public void Assign()
         {
+            GetExpected(Token.LET);
+
+            Designator();
+
+            GetExpected(Token.ASSIGN);
+
+            Expression();
         }
 
         public void Computation()
         {
+            GetExpected(Token.MAIN);
+
+            while ((Tok == Token.VAR) || (Tok == Token.ARRAY))
+            {
+                VarDecl();
+            }
+
+            while ((Tok == Token.FUNCTION) || (Tok == Token.PROCEDURE))
+            {
+                FuncDecl();
+            }
+
+            GetExpected(Token.OPEN_CURL);
+
+            StatementSequence();
+
+            GetExpected(Token.CLOSE_CURL);
+
+            GetExpected(Token.EOF);
         }
 
         public void Relation()
@@ -161,60 +186,219 @@ namespace compiler.frontend
 
         public void Identifier()
         {
+            GetExpected(Token.IDENTIFIER);
         }
 
         public void Num()
         {
+            GetExpected(Token.NUMBER);
         }
 
         public void VarDecl()
         {
+            TypeDecl();
+
+            Identifier();
+
+            while (Tok == Token.COMMA)
+            {
+                Next();
+
+                Identifier();
+            }
+
+            GetExpected(Token.SEMI_COLON);
         }
 
 
         public void TypeDecl()
         {
+            if ((Tok != Token.VAR) && (Tok != Token.ARRAY))
+            {
+                FatalError();
+            }
+
+            Next();
+
+            GetExpected(Token.OPEN_BRACKET);
+
+            Num();
+
+            GetExpected(Token.CLOSE_BRACKET);
+
+            while (Tok == Token.OPEN_BRACKET)
+            {
+                Next();
+
+                Num();
+
+                GetExpected(Token.CLOSE_BRACKET);
+            }
         }
 
         public void FuncDecl()
         {
+            if ((Tok != Token.FUNCTION) && (Tok != Token.PROCEDURE))
+            {
+                FatalError();
+            }
+
+            Next();
+
+            Identifier();
+
+            if (Tok == Token.OPEN_PAREN)
+            {
+                FormalParams();
+            }
+
+            GetExpected(Token.SEMI_COLON);
+
+            FuncBody();
+
+            GetExpected(Token.SEMI_COLON);
         }
 
         public void FuncBody()
         {
+            while ((Tok == Token.VAR) || (Tok == Token.ARRAY))
+            {
+                VarDecl();
+            }
+
+            GetExpected(Token.OPEN_CURL);
+
+            if ((Tok == Token.LET) || (Tok == Token.CALL) || (Tok == Token.IF)
+                || (Tok == Token.WHILE) || (Tok == Token.RETURN))
+            {
+                StatementSequence();
+            }
+
+            GetExpected(Token.CLOSE_CURL);
         }
 
 
         public void Statement()
         {
+            if ((Tok != Token.LET) || (Tok != Token.CALL) || (Tok != Token.IF)
+                || (Tok != Token.WHILE) || (Tok != Token.RETURN))
+            {
+                FatalError();
+            }
+
+            Next();
+        }
+
+
+        public void StatementSequence()
+        {
+            Statement();
+
+            while (Tok == Token.SEMI_COLON)
+            {
+                Next();
+                Statement();
+            }
         }
 
 
         public void RelOp()
         {
+            if (!IsRelOp())
+            {
+                FatalError();
+            }
+
+            Next();
         }
 
 
         public void FuncCall()
         {
+            GetExpected(Token.CALL);
+
+            Identifier();
+
+            if (Tok == Token.OPEN_PAREN)
+            {
+                GetExpected(Token.OPEN_PAREN);
+
+                if (Tok == Token.IDENTIFIER)
+                {
+                    Expression();
+
+                    while (Tok == Token.COMMA)
+                    {
+                        Next();
+                        Expression();
+                    }
+                }
+
+                GetExpected(Token.CLOSE_PAREN);
+            }
         }
 
         public void IfStmt()
         {
+            GetExpected(Token.IF);
+
+            Relation();
+
+            GetExpected(Token.THEN);
+
+            StatementSequence();
+
+            if (Tok == Token.ELSE)
+            {
+                Next();
+                StatementSequence();
+            }
+
+            GetExpected(Token.FI);
         }
 
 
         public void WhileStmt()
         {
+            GetExpected(Token.WHILE);
+
+            Relation();
+
+            GetExpected(Token.DO);
+
+            StatementSequence();
+
+            GetExpected(Token.OD);
         }
 
 
         private void ReturnStmt()
         {
+            GetExpected(Token.RETURN);
+
+            if ((Tok == Token.IDENTIFIER) || (Tok == Token.NUMBER) || (Tok == Token.OPEN_PAREN) || (Tok == Token.CALL))
+            {
+                Expression();
+            }
         }
 
         public void FormalParams()
         {
+            GetExpected(Token.OPEN_PAREN);
+
+            if (Tok == Token.IDENTIFIER)
+            {
+                Next();
+
+                while (Tok == Token.COMMA)
+                {
+                    Next();
+
+                    Identifier();
+                }
+            }
+
+            GetExpected(Token.CLOSE_PAREN);
         }
 
 
