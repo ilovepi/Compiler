@@ -153,6 +153,25 @@ namespace compiler.frontend
 
         public void Computation()
         {
+            GetExpected(Token.MAIN);
+
+            while ((Tok == Token.VAR) || (Tok == Token.ARRAY))
+            {
+                VarDecl();
+            }
+
+            while ((Tok == Token.FUNCTION) || (Tok == Token.PROCEDURE))
+            {
+                FuncDecl();
+            }
+
+            GetExpected(Token.OPEN_CURL);
+
+            StatementSequence();
+
+            GetExpected(Token.CLOSE_CURL);
+
+            GetExpected(Token.EOF);
         }
 
         public void Relation()
@@ -285,6 +304,12 @@ namespace compiler.frontend
 
         public void RelOp()
         {
+            if (!IsRelOp())
+            {
+                FatalError();
+            }
+
+            Next();
         }
 
 
@@ -349,6 +374,12 @@ namespace compiler.frontend
 
         private void ReturnStmt()
         {
+            GetExpected(Token.RETURN);
+
+            if ((Tok == Token.IDENTIFIER) || (Tok == Token.NUMBER) || (Tok == Token.OPEN_PAREN) || (Tok == Token.CALL))
+            {
+                Expression();
+            }
         }
 
         public void FormalParams()
