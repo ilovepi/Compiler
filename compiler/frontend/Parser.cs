@@ -104,7 +104,7 @@ namespace compiler.frontend
                     Num();
                     break;
                 case Token.IDENTIFIER:
-                    Identifier();
+                    Designator();
                     break;
                 case Token.OPEN_PAREN:
                     Next();
