@@ -290,13 +290,24 @@ namespace compiler.frontend
 
         public void Statement()
         {
-            if ((Tok != Token.LET) || (Tok != Token.CALL) || (Tok != Token.IF)
-                || (Tok != Token.WHILE) || (Tok != Token.RETURN))
+            if (Tok == Token.LET) {
+                Assign();
+            } else if (Tok == Token.CALL)
+            {
+                FuncCall();
+            } else if (Tok == Token.IF)
+            {
+                IfStmt();
+            } else if (Tok == Token.WHILE)
+            {
+                WhileStmt();
+            } else if (Tok == Token.RETURN)
+            {
+                ReturnStmt();
+            } else
             {
                 FatalError();
             }
-
-            Next();
         }
 
 
