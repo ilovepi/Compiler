@@ -76,7 +76,7 @@ namespace NUnit.Tests.Frontend
         {
             Assert.AreEqual(1, Checker.Pos);
             Assert.AreEqual(1, Checker.LineNo);
-            Checker.GetExpected(Token.UNKNOWN);
+            //Checker.GetExpected(Token.UNKNOWN);
             Assert.AreEqual(Token.COMMENT, Checker.Tok);
             Assert.AreEqual(1, Checker.Pos);
             Assert.AreEqual(2, Checker.LineNo);
