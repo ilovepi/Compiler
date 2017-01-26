@@ -109,10 +109,9 @@ namespace compiler.frontend
                 case Token.OPEN_PAREN:
                     Next();
                     Expression();
-                    GetExpected(Token.CLOSE_BRACKET);
+                    GetExpected(Token.CLOSE_PAREN);
                     break;
                 case Token.CALL:
-                    Next();
                     FuncCall();
                     break;
                 default:
@@ -325,12 +324,14 @@ namespace compiler.frontend
 
         public void RelOp()
         {
+            // TODO implement comparisions (replace IsRelOp)
             if (!IsRelOp())
             {
                 FatalError();
+            } else
+            {
+                Next();
             }
-
-            Next();
         }
 
 
