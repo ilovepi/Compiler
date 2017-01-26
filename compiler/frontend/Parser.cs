@@ -239,8 +239,11 @@ namespace compiler.frontend
                     GetExpected(Token.CLOSE_BRACKET);
                 }
             }
-            // TODO: replace
-            FatalError();
+            else
+            {
+                // TODO: replace
+                FatalError();
+            }
         }
 
         public void FuncDecl()
