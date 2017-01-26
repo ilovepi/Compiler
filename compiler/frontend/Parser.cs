@@ -181,7 +181,9 @@ namespace compiler.frontend
             Expression();
 
             if (!IsRelOp())
+            {
                 FatalError();
+            }
             Next();
             Expression();
         }
@@ -345,7 +347,10 @@ namespace compiler.frontend
             {
                 GetExpected(Token.OPEN_PAREN);
 
-                if (Tok == Token.IDENTIFIER)
+                if ((Tok == Token.IDENTIFIER) ||
+                    (Tok == Token.NUMBER) || 
+                    (Tok == Token.OPEN_PAREN) || 
+                    (Tok == Token.CALL))
                 {
                     Expression();
 
