@@ -81,6 +81,13 @@ namespace compiler.frontend
                 throw new IOException("Error: Lexer cannot read beyond the end of the file");
             }
             C = (char)Sr.Read();
+
+            // if(C== '\r')
+            // {
+            //     return Next();
+            // }
+            // else
+
             if (C == '\n')
             {
                 Position = 1;

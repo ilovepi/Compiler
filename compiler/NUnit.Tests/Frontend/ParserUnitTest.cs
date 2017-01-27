@@ -79,6 +79,15 @@ namespace NUnit.Tests.Frontend
             Checker.GetExpected(Token.UNKNOWN);
             Assert.AreEqual(Token.MAIN, Checker.Tok);
             Assert.AreEqual(6, Checker.Pos);
+            Assert.AreEqual(2, Checker.LineNo);
+
+            Checker.GetExpected(Token.MAIN);
+            Assert.AreEqual(Token.VAR, Checker.Tok);
+            Assert.AreEqual(5, Checker.Pos);
+            Assert.AreEqual(3, Checker.LineNo);
+
+            Checker.GetExpected(Token.VAR);
+            Assert.AreEqual(Token.IDENTIFIER, Checker.Tok);
         }
 
 
