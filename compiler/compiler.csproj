@@ -58,6 +58,8 @@
     <Compile Include="middlend\ir\BasicBlock.cs" />
     <Compile Include="middlend\ir\Instruction.cs" />
     <Compile Include="middlend\ir\Anchor.cs" />
+    <Compile Include="middlend\ir\Node.cs" />
+    <Compile Include="middlend\ir\CFG.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="backend\" />
