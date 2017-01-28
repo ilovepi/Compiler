@@ -57,6 +57,7 @@
     <Compile Include="frontend\Result.cs" />
     <Compile Include="middlend\ir\BasicBlock.cs" />
     <Compile Include="middlend\ir\Instruction.cs" />
+    <Compile Include="middlend\ir\Anchor.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="backend\" />
