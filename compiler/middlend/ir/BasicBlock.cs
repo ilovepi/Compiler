@@ -3,12 +3,13 @@ using System.Collections.Generic;
 
 namespace compiler.middleend.ir
 {
+	//TODO: redisign this class and its supporting classes
 	public class BasicBlock
 	{
 
 		public List<Instruction> Instructions{ get; set; }
 
-		public Anchor Anchors { get; set; }
+		public Anchor AnchorBlock { get; set; }
 
 
 
@@ -16,20 +17,28 @@ namespace compiler.middleend.ir
 		{
 			Instructions = new List<Instruction>();
 
-			Anchors = new Anchor();
+			AnchorBlock = new Anchor();
 		}
 
 
 		public void AddInstruction(Instruction ins)
 		{
-			
+			Instructions.Add(ins);
+			AnchorBlock.Insert(ins);
 		}
 
 
-		public Instruction search(Instruction ins)
+		public Instruction Search(Instruction ins)
 		{
+			var instList = AnchorBlock.FindOpChain(ins.Op);
 
-			return Anchor.
+			foreach(var item in instList)
+			{
+				if (item.Equals(ins))
+					return item;
+			}
+
+			return null;
 		}
 
 
