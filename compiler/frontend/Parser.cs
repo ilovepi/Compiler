@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace compiler.frontend
 {
@@ -19,6 +21,8 @@ namespace compiler.frontend
         public int Pos => Scanner.Position;
 
         public int LineNo => Scanner.LineNo;
+
+      
 
 
         public void Dispose()
@@ -82,10 +86,11 @@ namespace compiler.frontend
             } while (Tok == Token.COMMENT);
         }
 
-        public void Designator()
+        public void Designator(Result res)
         {
-            Identifier();
+            Identifier(res);
 
+            //TODO handle generating array addresses
             while (Tok == Token.OPEN_BRACKET)
             {
                 GetExpected(Token.OPEN_BRACKET);
@@ -98,13 +103,17 @@ namespace compiler.frontend
 
         public void Factor()
         {
+
+            Result x = new Result();
+
             switch (Tok)
             {
                 case Token.NUMBER:
-                    Num();
+                    
+                    Num(x);
                     break;
                 case Token.IDENTIFIER:
-                    Designator();
+                    Designator(x);
                     break;
                 case Token.OPEN_PAREN:
                     Next();
@@ -144,9 +153,10 @@ namespace compiler.frontend
 
         public void Assign()
         {
+            var res = new Result();
             GetExpected(Token.LET);
 
-            Designator();
+            Designator(res);
 
             GetExpected(Token.ASSIGN);
 
@@ -188,14 +198,19 @@ namespace compiler.frontend
             Expression();
         }
 
-        public void Identifier()
+        public void Identifier(Result res)
         {
             GetExpected(Token.IDENTIFIER);
+            res.Kind = Kind.Variable;
+            res.Addr = Scanner.SymbolTble.AddressTble[Scanner.Id];
         }
 
-        public void Num()
+        public void Num(Result result)
         {
             GetExpected(Token.NUMBER);
+            result.Kind = Kind.Constant;
+            result.Value = Scanner.Val;
+
         }
 
         public void VarDecl()
@@ -217,6 +232,8 @@ namespace compiler.frontend
 
         public void TypeDecl()
         {
+            var res = new Result();
+
             if (Tok == Token.VAR)
             {
                 Next();
@@ -227,7 +244,7 @@ namespace compiler.frontend
 
                 GetExpected(Token.OPEN_BRACKET);
 
-                Num();
+                Num(res);
 
                 GetExpected(Token.CLOSE_BRACKET);
 
@@ -235,7 +252,7 @@ namespace compiler.frontend
                 {
                     Next();
 
-                    Num();
+                    Num(res);
 
                     GetExpected(Token.CLOSE_BRACKET);
                 }

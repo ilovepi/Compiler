@@ -14,7 +14,7 @@
         /// <summary>
         /// Const, Variable, Register, Conditional
         /// </summary>
-	    public int Kind { get; set; }
+	    public Kind Kind { get; set; }
 
 	    /// <summary>
         /// Numeric value
@@ -25,6 +25,11 @@
         /// UUID for an identifier
         /// </summary>
 	    public int Id { get; set; }
+
+        /// <summary>
+        /// Memory address location
+        /// </summary>
+        public  int Addr { get; set; }
 
 	    /// <summary>
         /// Register number

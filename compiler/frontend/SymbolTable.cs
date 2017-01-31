@@ -9,13 +9,16 @@ namespace compiler.frontend
 
 	    public Dictionary<int, string> Symbols { get; set; }
 
-	    public int Count { get; private set; }
+        public Dictionary<int, int> AddressTble { get; set; }
+
+        public int Count { get; private set; }
 
 	    public SymbolTable()
 		{
 			Count = 0;
 			Values = new Dictionary<string, int>();
 			Symbols = new Dictionary<int, string>();
+            AddressTble = new Dictionary<int, int>();
 			Init();
 		}
 
@@ -32,6 +35,21 @@ namespace compiler.frontend
             Count++;
 
         }
+
+        //TODO: We may only want/need the address version
+	    public void Insert(string key, int address)
+	    {
+	        Insert(key);
+            InsertAddress(key, address);
+	    }
+
+
+        //TODO: determine if this is necessary
+	    public void InsertAddress(string key, int address)
+	    {
+            AddressTble.Add(Values[key], address);
+	    }
+
 
 	    public bool Lookup(string key)
 		{
