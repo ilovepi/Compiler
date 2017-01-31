@@ -295,7 +295,7 @@ namespace compiler.frontend
             Next();
 
             //TODO: Need a special address thing for functions
-            Identifier();
+            CreateIdentifier();
 
             if (Tok == Token.OPEN_PAREN)
             {
@@ -378,9 +378,12 @@ namespace compiler.frontend
 
         public void FuncCall()
         {
+
             GetExpected(Token.CALL);
 
-            Identifier();
+            Result res = new Result();
+
+            Identifier(res);
 
             if (Tok == Token.OPEN_PAREN)
             {
