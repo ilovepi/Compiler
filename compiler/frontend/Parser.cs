@@ -22,7 +22,12 @@ namespace compiler.frontend
 
         public int LineNo => Scanner.LineNo;
 
-      
+        public int CurrAddress { get; set; }
+
+        /// <summary>
+        /// A stack of frame addresses -- esentially a list of frame pointers
+        /// </summary>
+        public List<int> AddressStack { get; set; }
 
 
         public void Dispose()
@@ -205,6 +210,21 @@ namespace compiler.frontend
             res.Addr = Scanner.SymbolTble.AddressTble[Scanner.Id];
         }
 
+        public void CreateIdentifier()
+        {
+            GetExpected(Token.IDENTIFIER);
+            Scanner.SymbolTble.InsertAddress(Scanner.Id, NextAddress());
+            
+        }
+
+
+        
+        public int NextAddress()
+        {
+            //TDOO: implement this function
+            return 0;
+        }
+
         public void Num(Result result)
         {
             GetExpected(Token.NUMBER);
@@ -217,13 +237,14 @@ namespace compiler.frontend
         {
             TypeDecl();
 
-            Identifier();
+            // TODO: this is where we need to set variable addresses
+            CreateIdentifier();
 
             while (Tok == Token.COMMA)
             {
                 Next();
 
-                Identifier();
+                CreateIdentifier();
             }
 
             GetExpected(Token.SEMI_COLON);
@@ -273,6 +294,7 @@ namespace compiler.frontend
 
             Next();
 
+            //TODO: Need a special address thing for functions
             Identifier();
 
             if (Tok == Token.OPEN_PAREN)
@@ -432,13 +454,16 @@ namespace compiler.frontend
 
             if (Tok == Token.IDENTIFIER)
             {
-                Next();
+
+                //TODO: handle parameters????
+                CreateIdentifier();//Identifier();
 
                 while (Tok == Token.COMMA)
                 {
                     Next();
 
-                    Identifier();
+                    //not sure this is correct per above
+                    CreateIdentifier();
                 }
             }
 

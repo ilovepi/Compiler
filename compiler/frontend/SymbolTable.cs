@@ -50,8 +50,13 @@ namespace compiler.frontend
             AddressTble.Add(Values[key], address);
 	    }
 
+        public void InsertAddress(int key, int address)
+        {
+            AddressTble.Add(key, address);
+        }
 
-	    public bool Lookup(string key)
+
+        public bool Lookup(string key)
 		{
 			return Values.ContainsKey(key);
 		}
