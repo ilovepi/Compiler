@@ -6,12 +6,25 @@ namespace compiler
 	{
 		public BasicBlock BB { get; set; }
 
+        /// <summary>
+        /// Parent from a true branch(left)
+        /// </summary>
 		public Node TrueParent { get; set; }
 
+        /// <summary>
+        /// Parent from a false branch (right)
+        /// </summary>
 		public Node FalseParent { get; set; }
 
+        /// <summary>
+        /// Child on the true branch (left)
+        /// </summary>
 		public Node TrueChild { get; set; }
 
+
+        /// <summary>
+        /// Child on the false branch (right)
+        /// </summary>
 		public Node FalseChild { get; set; }
 
 
@@ -24,6 +37,16 @@ namespace compiler
 			TrueParent = null;
 			FalseParent = null;
 		}
+
+
+	    public bool IsRoot()
+	    {
+	        return (TrueParent == null) && (FalseParent == null);
+	    }
+
+
+
+
 
 	}
 }
