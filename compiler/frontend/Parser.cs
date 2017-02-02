@@ -95,18 +95,26 @@ namespace compiler.frontend
         {
             Identifier(res);
 
+            // gen load addr of id
+
             //TODO handle generating array addresses
             while (Tok == Token.OPEN_BRACKET)
             {
                 GetExpected(Token.OPEN_BRACKET);
 
+                // calulate offset
                 Expression();
 
+                //add offset to addr of id
+
+                //load result of addition
+
+                //get bracket
                 GetExpected(Token.CLOSE_BRACKET);
             }
         }
 
-        public void Factor()
+        public Result Factor()
         {
 
             Result x = new Result();
@@ -132,16 +140,20 @@ namespace compiler.frontend
                     FatalError();
                     break;
             }
+
+            return x;
         }
 
 
         public void Term()
         {
-            Factor();
+            Result f1;
+            Result f2;
+            f1 = Factor();
             while (Tok == Token.TIMES || Tok == Token.DIVIDE)
             {
                 Next();
-                Factor();
+                f2 =Factor();
             }
         }
 
@@ -207,7 +219,7 @@ namespace compiler.frontend
         {
             GetExpected(Token.IDENTIFIER);
             res.Kind = Kind.Variable;
-            res.Addr = Scanner.SymbolTble.AddressTble[Scanner.Id];
+            //res.Addr = Scanner.SymbolTble.AddressTble[Scanner.Id];
         }
 
         public void CreateIdentifier()
@@ -230,7 +242,6 @@ namespace compiler.frontend
             GetExpected(Token.NUMBER);
             result.Kind = Kind.Constant;
             result.Value = Scanner.Val;
-
         }
 
         public void VarDecl()

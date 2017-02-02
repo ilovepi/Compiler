@@ -19,13 +19,13 @@ namespace compiler.middleend.ir
 		/// The First Argument in the Instruction
 		/// </summary>
 		/// <value>The arg1.</value>
-		public int Arg1 { get; set; }
+		//public int Arg1 { get; set; }
 
 		/// <summary>
 		/// The Second Argument in the instruction
 		/// </summary>
 		/// <value>The arg2.</value>
-		public int Arg2 { get; set; }
+		//public int Arg2 { get; set; }
 
 		/// <summary>
 		/// Linked list pointer to the previous instruction
@@ -46,8 +46,8 @@ namespace compiler.middleend.ir
 		{
 			Num = pNum;
 			Op = pOp;
-			Arg1 = pArg1;
-			Arg2 = pArg2;
+			//Arg1 = pArg1;
+			//Arg2 = pArg2;
 
 			Prev = null;
 			Next = null;
@@ -57,7 +57,7 @@ namespace compiler.middleend.ir
 		public bool Equals(Instruction other)
 		{
 			//TODO: determine if the instruction number is important in comparison
-			return (Op == other.Op) && (Arg1 == other.Arg1) && (Arg2 == other.Arg2);
+		    return (Op == other.Op);  // && (Arg1 == other.Arg1) && (Arg2 == other.Arg2);
 		}
 
 
