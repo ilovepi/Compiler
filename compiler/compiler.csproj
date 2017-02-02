@@ -52,7 +52,7 @@
     <Compile Include="frontend\Parser.cs" />
     <Compile Include="frontend\ParserException.cs" />
     <Compile Include="frontend\Token.cs" />
-    <Compile Include="middlend\ir\InstructionAI.cs" />
+    <Compile Include="middlend\ir\Operand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="frontend\SymbolTable.cs" />
     <Compile Include="frontend\Result.cs" />
