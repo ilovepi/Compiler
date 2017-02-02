@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using compiler.middleend.ir;
+using compiler.middlend.ir;
 
 namespace compiler.frontend
 {
@@ -97,6 +99,7 @@ namespace compiler.frontend
 
             // gen load addr of id
 
+
             //TODO handle generating array addresses
             while (Tok == Token.OPEN_BRACKET)
             {
@@ -114,27 +117,25 @@ namespace compiler.frontend
             }
         }
 
-        public Result Factor()
+        public Instruction Factor()
         {
-
-            Result x = new Result();
+            Instruction x;
 
             switch (Tok)
             {
                 case Token.NUMBER:
-                    
-                    Num(x);
+                    x = Num();
                     break;
                 case Token.IDENTIFIER:
-                    Designator(x);
+                    x = Designator();
                     break;
                 case Token.OPEN_PAREN:
                     Next();
-                    Expression();
+                    x = Expression();
                     GetExpected(Token.CLOSE_PAREN);
                     break;
                 case Token.CALL:
-                    FuncCall();
+                    x = FuncCall();
                     break;
                 default:
                     FatalError();
@@ -145,11 +146,9 @@ namespace compiler.frontend
         }
 
 
-        public void Term()
+        public Instruction Term()
         {
-            Result f1;
-            Result f2;
-            f1 = Factor();
+            Factor();
             while (Tok == Token.TIMES || Tok == Token.DIVIDE)
             {
                 Next();
@@ -158,8 +157,10 @@ namespace compiler.frontend
         }
 
 
-        public void Expression()
+        public List<Instruction> Expression()
         {
+            var instList = new List<Instruction>();
+
             Term();
             while (Tok == Token.PLUS || Tok == Token.MINUS)
             {
@@ -237,11 +238,11 @@ namespace compiler.frontend
             return 0;
         }
 
-        public void Num(Result result)
+        public Insruction Num(Result result)
         {
             GetExpected(Token.NUMBER);
-            result.Kind = Kind.Constant;
-            result.Value = Scanner.Val;
+            int n = 0;
+            return new Instruction(n,  , Operand.OpType.Constant, Scanner.Val);
         }
 
         public void VarDecl()
