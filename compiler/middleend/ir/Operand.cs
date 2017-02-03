@@ -1,7 +1,7 @@
 ﻿using System;
 using compiler.middleend.ir;
 
-namespace compiler.middlend.ir
+namespace compiler.middleend.ir
 {
     public class Operand : IEquatable<Operand>
     {

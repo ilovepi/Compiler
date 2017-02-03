@@ -253,9 +253,11 @@ namespace compiler.frontend
             return ret;
         }
 
-        public void Computation()
+        public CFG Computation()
         {
             GetExpected(Token.MAIN);
+
+            CFG cfg = new CFG();
 
             while ((Tok == Token.VAR) || (Tok == Token.ARRAY))
             {
@@ -264,16 +266,18 @@ namespace compiler.frontend
 
             while ((Tok == Token.FUNCTION) || (Tok == Token.PROCEDURE))
             {
-                FuncDecl();
+                cfg.Insert( FuncDecl() );
             }
 
             GetExpected(Token.OPEN_CURL);
 
-            StatementSequence();
+            cfg.Insert(StatementSequence());
 
             GetExpected(Token.CLOSE_CURL);
 
             GetExpected(Token.EOF);
+
+            return cfg;
         }
 
         public void Relation()
@@ -371,8 +375,10 @@ namespace compiler.frontend
             }
         }
 
-        public void FuncDecl()
+        public CFG FuncDecl()
         {
+            CFG cfg = new CFG();
+
             if ((Tok != Token.FUNCTION) && (Tok != Token.PROCEDURE))
             {
                 FatalError();
@@ -394,6 +400,8 @@ namespace compiler.frontend
             FuncBody();
 
             GetExpected(Token.SEMI_COLON);
+
+            return cfg;
         }
 
         public void FuncBody()
@@ -417,23 +425,29 @@ namespace compiler.frontend
 
         public CFG Statement(CFG cfg)
         {
+
+            //TODO: CFG has trouble adding to new blocks, or inserting into CFG
             
 
             if (Tok == Token.LET) {
-                cfg.Root.BB.Instructions.AddRange(Assign());
+                cfg.getLeaf().BB.Instructions.AddRange(Assign());
             } else if (Tok == Token.CALL)
             {
-                cfg.Root.BB.Instructions = FuncCall();
+                cfg.getLeaf().BB.Instructions = FuncCall();
+
             } else if (Tok == Token.IF)
             {
-                // TODO: fix this
-                cfg = IfStmt();
+                // TODO: fix this, and insert into CFG
+                cfg.getLeaf().Insert(IfStmt().Root,true);
+
             } else if (Tok == Token.WHILE)
             {
-                WhileStmt();
+                cfg.Insert(WhileStmt());
+
             } else if (Tok == Token.RETURN)
             {
-                cfg.Root.BB.Instructions.AddRange(ReturnStmt());
+                cfg.getLeaf().BB.Instructions.AddRange(ReturnStmt());
+
             } else
             {
                 FatalError();
@@ -547,17 +561,27 @@ namespace compiler.frontend
         }
 
 
-        public void WhileStmt()
+        public CFG WhileStmt()
         {
+            //todo: create compare block
+            CFG cfg = new CFG();
+
             GetExpected(Token.WHILE);
 
             Relation();
 
             GetExpected(Token.DO);
 
-            StatementSequence();
+            //todo: create while block
+
+            //todo: insert into while block
+            cfg.Insert(StatementSequence());
 
             GetExpected(Token.OD);
+
+            //todo: create join block and fix cfg
+
+            return cfg;
         }
 
 
@@ -605,7 +629,7 @@ namespace compiler.frontend
         public void Parse()
         {
             Next();
-            Computation();
+            FlowCfg = Computation();
         }
 
         public void ThrowParserException(Token expected)

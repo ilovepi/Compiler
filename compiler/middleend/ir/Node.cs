@@ -56,19 +56,19 @@ namespace compiler
 	            }
 	            else
 	            {
-	                Insert(TrueChild, true);
+	                TrueChild.Insert(other,true);
 	            }
 	        }
 	        else
 	        {
-                if (TrueChild == null)
+                if (FalseChild == null)
                 {
                     FalseChild = other;
                     other.FalseParent = this;
                 }
                 else
                 {
-                    Insert(FalseChild, true);
+                    FalseChild.Insert(FalseChild , false);
                 }
             }
 

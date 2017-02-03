@@ -31,6 +31,35 @@ namespace compiler
 	        }
 	    }
 
+	    public void Insert(CFG subtree)
+	    {
+	        if (Root != null)
+	        {
+	            Root.Insert(subtree.Root,true);
+	        }
+	        else
+	        {
+	            Root = subtree.Root;
+	        }
+	    }
+
+	    public Node getLeaf()
+	    {
+	        return getLeaf(Root);
+	    }
+
+	    public Node getLeaf(Node child)
+	    {
+	        if (child.TrueChild != null)
+	        {
+	            return getLeaf(child.TrueChild);
+            }
+	        else
+	        {
+	            return child;
+	        }
+	    }
+
 
 
 		//TODO: create methods to walk the CFG
