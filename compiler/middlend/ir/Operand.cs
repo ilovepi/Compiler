@@ -9,7 +9,8 @@ namespace compiler.middlend.ir
         {
             Constant,
             Identifier,
-            Instruction
+            Instruction,
+            Register
         };
 
 
@@ -24,7 +25,8 @@ namespace compiler.middlend.ir
 
         public Instruction Inst { get; set; }
 
-        Operand(Instruction pInst)
+
+        public Operand(Instruction pInst)
         {
             Kind = OpType.Instruction;
             Inst = pInst;
@@ -32,17 +34,26 @@ namespace compiler.middlend.ir
         }
 
 
-        Operand(OpType opType, int pValue)
+        public Operand(OpType opType, int pValue)
         {
-           if(opType == OpType.Identifier)
-               throw new Exception("Wrong op type in constructor");
+            if (opType == OpType.Identifier)
+                throw new Exception("Wrong op type in constructor");
 
             Kind = opType;
             Inst = null;
-            if(Kind == OpType.Constant)
+            if (Kind == OpType.Constant)
+            {
                 Val = pValue;
+
+            }
             else if (Kind == OpType.Identifier)
+            {
                 IdKey = pValue;
+            }
+            else
+            {
+                Val = pValue;
+            }
         }
 
         public bool Equals(Operand other)

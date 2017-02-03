@@ -1,11 +1,12 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using compiler.middleend.ir;
 using compiler.middlend.ir;
 
 namespace compiler.frontend
 {
+
     public class Parser : IDisposable
     {
         private readonly string _filename;
@@ -93,9 +94,10 @@ namespace compiler.frontend
             } while (Tok == Token.COMMENT);
         }
 
-        public void Designator(Result res)
+        public List<Instruction> Designator()
         {
-            Identifier(res);
+            var ret = new List<Instruction>();
+            ret.Add(Identifier());
 
             // gen load addr of id
 
@@ -106,7 +108,7 @@ namespace compiler.frontend
                 GetExpected(Token.OPEN_BRACKET);
 
                 // calulate offset
-                Expression();
+                ret.AddRange(Expression());
 
                 //add offset to addr of id
 
@@ -115,70 +117,129 @@ namespace compiler.frontend
                 //get bracket
                 GetExpected(Token.CLOSE_BRACKET);
             }
+
+            return ret;
         }
 
-        public Instruction Factor()
+        public List<Instruction> Factor()
         {
-            Instruction x;
+            List<Instruction> ret = new List<Instruction>();
 
             switch (Tok)
             {
                 case Token.NUMBER:
-                    x = Num();
+                    ret.Add(Num());
                     break;
                 case Token.IDENTIFIER:
-                    x = Designator();
+                    ret.AddRange(Designator());
                     break;
                 case Token.OPEN_PAREN:
                     Next();
-                    x = Expression();
+                    ret.AddRange(Expression());
                     GetExpected(Token.CLOSE_PAREN);
                     break;
                 case Token.CALL:
-                    x = FuncCall();
+                    ret.AddRange(FuncCall());
                     break;
                 default:
                     FatalError();
                     break;
             }
 
-            return x;
+            return ret;
         }
 
 
-        public Instruction Term()
+        public List<Instruction> Term()
         {
-            Factor();
+            List<Instruction> ret = Factor();
+            Instruction curr = ret.Last();
+
             while (Tok == Token.TIMES || Tok == Token.DIVIDE)
             {
+                // cache current arithmetic token
+                IrOps op = (Tok == Token.TIMES) ? IrOps.mul : IrOps.div;
+
+                // advance to next token
                 Next();
-                f2 =Factor();
+
+                // add instructions for the next factor
+                ret.AddRange(Factor());
+
+                //cache the last instruction
+                Instruction next = ret.Last();
+
+                // create new instruction
+                Instruction newInst = new Instruction(op, new Operand(curr), new Operand(next));
+
+                // insert new instruction to instruction list
+                ret.Add(newInst);
+
+                // update current instruction to latest instruction
+                curr = ret.Last();
             }
+
+            return ret;
         }
 
 
         public List<Instruction> Expression()
         {
-            var instList = new List<Instruction>();
+            var ret  = Term();
 
-            Term();
+            Instruction curr = ret.Last();
+
             while (Tok == Token.PLUS || Tok == Token.MINUS)
             {
+
+                // cache current arithmetic token
+                IrOps op = (Tok == Token.PLUS) ? IrOps.add : IrOps.sub;
+
+                // advance to next token
                 Next();
-                Term();
+
+                // add instructions for the next term
+                ret.AddRange(Term());
+
+                //cache the last instruction
+                Instruction next = ret.Last();
+
+                // create new instruction
+                Instruction newInst = new Instruction(op, new Operand(curr), new Operand(next));
+
+                // insert new instruction to instruction list
+                ret.Add(newInst);
+
+                // update current instruction to latest instruction
+                curr = ret.Last();
+
             }
+
+            return ret;
         }
 
         public void Assign()
         {
-            var res = new Result();
             GetExpected(Token.LET);
 
-            Designator(res);
+            var ret = Designator();
+            var curr = ret.Last();
 
             GetExpected(Token.ASSIGN);
 
-            Expression();
+            ret.AddRange( Expression() );
+            var next = ret.Last();
+
+            //TODO: Fix this!!!!
+
+                // create new instruction
+                Instruction newInst = new Instruction(IrOps.store, new Operand(curr), new Operand(next));
+
+                // insert new instruction to instruction list
+                ret.Add(newInst);
+
+                // update current instruction to latest instruction
+                curr = ret.Last();
         }
 
         public void Computation()
@@ -216,11 +277,11 @@ namespace compiler.frontend
             Expression();
         }
 
-        public void Identifier(Result res)
+        public Instruction Identifier()
         {
             GetExpected(Token.IDENTIFIER);
-            res.Kind = Kind.Variable;
-            //res.Addr = Scanner.SymbolTble.AddressTble[Scanner.Id];
+
+            return new Instruction(IrOps.load, new Operand(Operand.OpType.Identifier, Scanner.Id), null);
         }
 
         public void CreateIdentifier()
@@ -238,11 +299,11 @@ namespace compiler.frontend
             return 0;
         }
 
-        public Insruction Num(Result result)
+        public Instruction Num()
         {
             GetExpected(Token.NUMBER);
-            int n = 0;
-            return new Instruction(n,  , Operand.OpType.Constant, Scanner.Val);
+
+            return new Instruction(IrOps.load, new Operand(Operand.OpType.Constant, Scanner.Val), null);
         }
 
         public void VarDecl()
@@ -265,7 +326,6 @@ namespace compiler.frontend
 
         public void TypeDecl()
         {
-            var res = new Result();
 
             if (Tok == Token.VAR)
             {
@@ -277,7 +337,7 @@ namespace compiler.frontend
 
                 GetExpected(Token.OPEN_BRACKET);
 
-                Num(res);
+                Num();
 
                 GetExpected(Token.CLOSE_BRACKET);
 
@@ -285,7 +345,7 @@ namespace compiler.frontend
                 {
                     Next();
 
-                    Num(res);
+                    Num();
 
                     GetExpected(Token.CLOSE_BRACKET);
                 }
@@ -388,35 +448,37 @@ namespace compiler.frontend
         }
 
 
-        public void FuncCall()
+        public List<Instruction> FuncCall()
         {
 
             GetExpected(Token.CALL);
 
-            Result res = new Result();
-
-            Identifier(res);
+            var ret = new List<Instruction>();
+            ret.Add(Identifier());
 
             if (Tok == Token.OPEN_PAREN)
             {
                 GetExpected(Token.OPEN_PAREN);
 
                 if ((Tok == Token.IDENTIFIER) ||
-                    (Tok == Token.NUMBER) || 
+                    (Tok == Token.NUMBER)     ||
                     (Tok == Token.OPEN_PAREN) || 
                     (Tok == Token.CALL))
                 {
-                    Expression();
+                   ret.AddRange(Expression());
 
                     while (Tok == Token.COMMA)
                     {
                         Next();
-                        Expression();
+                        ret.AddRange(Expression());
                     }
                 }
 
                 GetExpected(Token.CLOSE_PAREN);
+                //TODO: jump to call
             }
+
+            return ret;
         }
 
         public void IfStmt()
@@ -469,7 +531,6 @@ namespace compiler.frontend
 
             if (Tok == Token.IDENTIFIER)
             {
-
                 //TODO: handle parameters????
                 CreateIdentifier();//Identifier();
 

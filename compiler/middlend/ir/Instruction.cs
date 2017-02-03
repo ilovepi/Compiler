@@ -15,7 +15,7 @@ namespace compiler.middleend.ir
 		/// The op/op code
 		/// </summary>
 		/// <value>The op.</value>
-		public int Op { get; set; }
+		public IrOps Op { get; set; }
 
 		/// <summary>
 		/// The First Argument in the Instruction
@@ -44,9 +44,14 @@ namespace compiler.middleend.ir
 		/// </summary>
 		public Instruction Search { set; get; }
 
-		public Instruction(int pNum, int pOp, Operand pArg1, Operand pArg2)
+
+	    public static int InstructionCounter = 0;
+
+		public Instruction(IrOps pOp, Operand pArg1, Operand pArg2)
 		{
-			Num = pNum;
+		    Num = InstructionCounter;
+		    InstructionCounter++;
+
 			Op = pOp;
 			Arg1 = pArg1;
 			Arg2 = pArg2;
@@ -72,7 +77,8 @@ namespace compiler.middleend.ir
 	        return Equals((Instruction) obj);
 	    }
 
-	    public override int GetHashCode()
+	    /*
+        public override int GetHashCode()
 	    {
 	        unchecked
 	        {
@@ -82,6 +88,7 @@ namespace compiler.middleend.ir
 	            return hashCode;
 	        }
 	    }
+        */
 
 	    public static bool operator ==(Instruction left, Instruction right)
 	    {
