@@ -39,13 +39,17 @@ namespace compiler.middleend.ir
 		{
 			var instList = AnchorBlock.FindOpChain(ins.Op);
 
-			foreach(var item in instList)
-			{
-				if (item.Equals(ins))
-					return item;
-			}
+		    if (instList != null)
+		    {
 
-			return null;
+		        foreach (var item in instList)
+		        {
+		            if (item.Equals(ins))
+		                return item;
+		        }
+		    }
+
+		    return null;
 		}
 
 
