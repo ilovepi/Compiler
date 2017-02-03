@@ -16,6 +16,7 @@ namespace compiler.frontend
             _filename = pFileName;
             Tok = Token.UNKNOWN;
             Scanner = new Lexer(_filename);
+            FlowCfg = new CFG();
         }
 
         public Token Tok { get; set; }
@@ -27,11 +28,14 @@ namespace compiler.frontend
 
         public int CurrAddress { get; set; }
 
+
         /// <summary>
         /// A stack of frame addresses -- esentially a list of frame pointers
         /// </summary>
         public List<int> AddressStack { get; set; }
 
+
+        public CFG FlowCfg { get; set; }
 
         public void Dispose()
         {
@@ -96,8 +100,7 @@ namespace compiler.frontend
 
         public List<Instruction> Designator()
         {
-            var ret = new List<Instruction>();
-            ret.Add(Identifier());
+            var ret = new List<Instruction> {Identifier()};
 
             // gen load addr of id
 
@@ -577,5 +580,6 @@ namespace compiler.frontend
                     Scanner = null;
                 }
         }
+
     }
 }
