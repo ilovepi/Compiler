@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using compiler.middlend.ir;
 
 namespace compiler.middleend.ir
 {
@@ -21,7 +22,7 @@ namespace compiler.middleend.ir
 		/// <param name="inst">Inst.</param>
 		public void Insert(Instruction inst)
 		{
-			int key = inst.Op;
+			var key = inst.Op;
 
 			List<Instruction> chain = null;
 
@@ -38,7 +39,7 @@ namespace compiler.middleend.ir
 			chain.Add(inst);
 		}
 
-		public List<Instruction> FindOpChain(int key)
+		public List<Instruction> FindOpChain(IrOps key)
 		{
 			foreach (var sublist in Oplist)
 			{

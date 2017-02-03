@@ -28,7 +28,7 @@ namespace NUnit.Tests.Frontend
             {
                 Checker.Next();
                 var res = new Result();
-                Assert.Throws<ParserException>( ()=> Checker.Designator(res));
+                Assert.Throws<ParserException>( ()=> Checker.Designator());
             }
         }
 
@@ -39,12 +39,9 @@ namespace NUnit.Tests.Frontend
             using (Checker = new Parser(ProgramDir + @"/Frontend/parserdata/Array.txt"))
             {
                 Checker.Next();
-                var res = new Result();
-                Checker.Designator(res);
-                res = new Result();
-                Checker.Designator(res);
-                res = new Result();
-                Checker.Designator(res);
+                Checker.Designator();
+                Checker.Designator();
+                Checker.Designator();
             }
         }
         
@@ -56,8 +53,7 @@ namespace NUnit.Tests.Frontend
             using (Checker = new Parser(ProgramDir + @"/Frontend/parserdata/Identifier.txt"))
             {
                 Checker.Next();
-                var res = new Result();
-                Checker.Designator(res);
+                Checker.Designator();
             }
         }
 
@@ -69,10 +65,9 @@ namespace NUnit.Tests.Frontend
             using (Checker = new Parser(ProgramDir + @"/Frontend/parserdata/MultiDimArray.txt"))
             {
                 Checker.Next();
-                var res = new Result();
-                Checker.Designator(res);
-                Checker.Designator(res);
-                Checker.Designator(res);
+                Checker.Designator();
+                Checker.Designator();
+                Checker.Designator();
             }
         }
 

@@ -220,6 +220,10 @@ namespace compiler.frontend
 
         public void Assign()
         {
+
+            // assign must use SSA, so our designator *MUST* give us access to an SSA variable
+
+
             GetExpected(Token.LET);
 
             var ret = Designator();
@@ -311,13 +315,16 @@ namespace compiler.frontend
             TypeDecl();
 
             // TODO: this is where we need to set variable addresses
-            CreateIdentifier();
+            //CreateIdentifier();
+            Identifier();
 
             while (Tok == Token.COMMA)
             {
                 Next();
 
-                CreateIdentifier();
+                //CreateIdentifier();
+                Identifier();
+
             }
 
             GetExpected(Token.SEMI_COLON);
@@ -367,7 +374,8 @@ namespace compiler.frontend
             Next();
 
             //TODO: Need a special address thing for functions
-            CreateIdentifier();
+            //CreateIdentifier();
+            Identifier();
 
             if (Tok == Token.OPEN_PAREN)
             {
@@ -532,14 +540,16 @@ namespace compiler.frontend
             if (Tok == Token.IDENTIFIER)
             {
                 //TODO: handle parameters????
-                CreateIdentifier();//Identifier();
+               // CreateIdentifier();
+               Identifier();
 
                 while (Tok == Token.COMMA)
                 {
                     Next();
 
                     //not sure this is correct per above
-                    CreateIdentifier();
+                    //CreateIdentifier();
+                    Identifier();
                 }
             }
 

@@ -36,7 +36,7 @@ namespace compiler.middlend.ir
 
         public Operand(OpType opType, int pValue)
         {
-            if (opType == OpType.Identifier)
+            if (opType == OpType.Instruction)
                 throw new Exception("Wrong op type in constructor");
 
             Kind = opType;
