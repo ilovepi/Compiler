@@ -221,8 +221,9 @@ namespace compiler.frontend
             return ret;
         }
 
-        public void Assign()
+        public List<Instruction> Assign()
         {
+            //List<Instruction> ret = new List<Instruction>();
 
             // assign must use SSA, so our designator *MUST* give us access to an SSA variable
 
@@ -239,14 +240,17 @@ namespace compiler.frontend
 
             //TODO: Fix this!!!!
 
-                // create new instruction
-                Instruction newInst = new Instruction(IrOps.store, new Operand(curr), new Operand(next));
+            // create new instruction
+            Instruction newInst = new Instruction(IrOps.store, new Operand(curr), new Operand(next));
 
-                // insert new instruction to instruction list
-                ret.Add(newInst);
+            // insert new instruction to instruction list
+            ret.Add(newInst);
 
-                // update current instruction to latest instruction
-                curr = ret.Last();
+            // update current instruction to latest instruction
+            curr = ret.Last();
+
+
+            return ret;
         }
 
         public void Computation()
@@ -411,38 +415,48 @@ namespace compiler.frontend
         }
 
 
-        public void Statement()
+        public CFG Statement(CFG cfg)
         {
+            
+
             if (Tok == Token.LET) {
-                Assign();
+                cfg.Root.BB.Instructions.AddRange(Assign());
             } else if (Tok == Token.CALL)
             {
-                FuncCall();
+                cfg.Root.BB.Instructions = FuncCall();
             } else if (Tok == Token.IF)
             {
-                IfStmt();
+                // TODO: fix this
+                cfg = IfStmt();
             } else if (Tok == Token.WHILE)
             {
                 WhileStmt();
             } else if (Tok == Token.RETURN)
             {
-                ReturnStmt();
+                cfg.Root.BB.Instructions.AddRange(ReturnStmt());
             } else
             {
                 FatalError();
             }
+
+            return cfg;
         }
 
 
-        public void StatementSequence()
+        public CFG StatementSequence()
         {
-            Statement();
+            CFG cfg  = new CFG();
+            BasicBlock bb = new BasicBlock("StatSequence");
+            cfg.Root = new Node(bb);
+            cfg = Statement(cfg);
 
             while (Tok == Token.SEMI_COLON)
             {
                 Next();
-                Statement();
+                Statement(cfg);
             }
+
+            return cfg;
         }
 
 
@@ -492,7 +506,7 @@ namespace compiler.frontend
             return ret;
         }
 
-        public void IfStmt()
+        public CFG IfStmt()
         {
             GetExpected(Token.IF);
 
@@ -500,15 +514,36 @@ namespace compiler.frontend
 
             GetExpected(Token.THEN);
 
-            StatementSequence();
+            CFG ifBlock = new CFG();
+            
+
+            Node compBlock = new Node(new BasicBlock("CompareBlock"));
+            Node joinBlock = new Node(new BasicBlock("JoinBlock"));
+            Node falseBlock;
+
+            ifBlock.Root = compBlock;
+
+            var trueBlock = StatementSequence().Root;
+            
+            compBlock.TrueChild = trueBlock;
+            trueBlock.Insert(joinBlock, true);
 
             if (Tok == Token.ELSE)
             {
                 Next();
-                StatementSequence();
+                falseBlock = StatementSequence().Root;
+            }
+            else
+            {
+                falseBlock = joinBlock;
             }
 
+            compBlock.Insert(falseBlock,false);
+            
+
             GetExpected(Token.FI);
+
+            return ifBlock;
         }
 
 
@@ -526,14 +561,21 @@ namespace compiler.frontend
         }
 
 
-        private void ReturnStmt()
+        //TODO: Maybe pass in a return address?
+        private List<Instruction> ReturnStmt()
         {
             GetExpected(Token.RETURN);
 
+            var ret = new List<Instruction>();
+
             if ((Tok == Token.IDENTIFIER) || (Tok == Token.NUMBER) || (Tok == Token.OPEN_PAREN) || (Tok == Token.CALL))
             {
-                Expression();
+                ret.AddRange(Expression());
             }
+
+            //TODO: probably want to make better instruction here, with a real address
+            ret.Add(new Instruction(IrOps.bra, new Operand(Operand.OpType.Register, 0), null));
+            return ret;
         }
 
         public void FormalParams()

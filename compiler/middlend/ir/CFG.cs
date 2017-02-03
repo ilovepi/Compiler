@@ -1,4 +1,6 @@
 ﻿using System;
+using compiler.middleend.ir;
+
 namespace compiler
 {
 	public class CFG
@@ -15,6 +17,21 @@ namespace compiler
 		{
 			Root = null;
 		}
+
+
+	    public void Insert(Node subTree, bool truePath)
+	    {
+	        if (Root == null)
+	        {
+	            Root = subTree;
+	        }
+	        else
+	        {
+                Root.Insert(subTree, truePath);
+	        }
+	    }
+
+
 
 		//TODO: create methods to walk the CFG
 

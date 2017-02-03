@@ -45,6 +45,36 @@ namespace compiler
 	    }
 
 
+	    public void Insert(Node other, bool truePath)
+	    {
+	        if (truePath)
+	        {
+	            if (TrueChild == null)
+	            {
+	                TrueChild = other;
+	                other.TrueParent = this;
+	            }
+	            else
+	            {
+	                Insert(TrueChild, true);
+	            }
+	        }
+	        else
+	        {
+                if (TrueChild == null)
+                {
+                    FalseChild = other;
+                    other.FalseParent = this;
+                }
+                else
+                {
+                    Insert(FalseChild, true);
+                }
+            }
+
+
+        }
+
 
 
 
