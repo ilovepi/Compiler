@@ -43,16 +43,16 @@ namespace compiler
 	        }
 	    }
 
-	    public Node getLeaf()
+	    public Node GetLeaf()
 	    {
-	        return getLeaf(Root);
+	        return GetLeaf(Root);
 	    }
 
-	    public Node getLeaf(Node child)
+	    public Node GetLeaf(Node child)
 	    {
 	        if (child.TrueChild != null)
 	        {
-	            return getLeaf(child.TrueChild);
+	            return GetLeaf(child.TrueChild);
             }
 	        else
 	        {

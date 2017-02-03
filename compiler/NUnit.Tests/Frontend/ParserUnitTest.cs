@@ -27,7 +27,6 @@ namespace NUnit.Tests.Frontend
             using (Checker = new Parser(ProgramDir + @"/Frontend/parserdata/BadExpression.txt"))
             {
                 Checker.Next();
-                var res = new Result();
                 Assert.Throws<ParserException>( ()=> Checker.Designator());
             }
         }

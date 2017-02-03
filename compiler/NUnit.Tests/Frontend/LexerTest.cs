@@ -87,21 +87,21 @@ namespace NUnit.Tests.Frontend
 
             bool increasing;
             Token t;
-            int curr_line;
-            int prev_line;
-            int cur_pos;
-            int prev_pos;
+            int currLine;
+            int prevLine;
+            int curPos;
+            int prevPos;
             do
             {
-                prev_pos = Lex.Position;
-                prev_line = Lex.LineNo;
+                prevPos = Lex.Position;
+                prevLine = Lex.LineNo;
                 
                 t = Lex.GetNextToken();
                 
-                cur_pos = Lex.Position;
-                curr_line = Lex.LineNo;
+                curPos = Lex.Position;
+                currLine = Lex.LineNo;
 
-                if (curr_line > prev_line)
+                if (currLine > prevLine)
                 {
                     increasing = false;
                 }
@@ -110,28 +110,28 @@ namespace NUnit.Tests.Frontend
                     increasing = true;
                 }
 
-                if (prev_pos == cur_pos)
+                if (prevPos == curPos)
                 {
                     if(t != Token.EOF)
-                        Assert.AreNotEqual(prev_line, curr_line);
+                        Assert.AreNotEqual(prevLine, currLine);
                 }
                 else
                 {
-                    Assert.AreNotEqual(prev_pos,cur_pos);
+                    Assert.AreNotEqual(prevPos,curPos);
                     if (increasing)
                     {
-                        Assert.Less(prev_pos, cur_pos);
+                        Assert.Less(prevPos, curPos);
                     }
                     else
                     {
-                        Assert.Greater(prev_pos, cur_pos);
+                        Assert.Greater(prevPos, curPos);
                     }
                 }
 
             } while (t != Token.EOF);
 
-            Assert.AreEqual(8,curr_line);
-            Assert.AreEqual(3,cur_pos);
+            Assert.AreEqual(8,currLine);
+            Assert.AreEqual(3,curPos);
         }
 
 

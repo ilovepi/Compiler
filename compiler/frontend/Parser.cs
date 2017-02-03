@@ -430,15 +430,15 @@ namespace compiler.frontend
             
 
             if (Tok == Token.LET) {
-                cfg.getLeaf().BB.Instructions.AddRange(Assign());
+                cfg.GetLeaf().BB.Instructions.AddRange(Assign());
             } else if (Tok == Token.CALL)
             {
-                cfg.getLeaf().BB.Instructions = FuncCall();
+                cfg.GetLeaf().BB.Instructions = FuncCall();
 
             } else if (Tok == Token.IF)
             {
                 // TODO: fix this, and insert into CFG
-                cfg.getLeaf().Insert(IfStmt().Root,true);
+                cfg.GetLeaf().Insert(IfStmt().Root,true);
 
             } else if (Tok == Token.WHILE)
             {
@@ -446,7 +446,7 @@ namespace compiler.frontend
 
             } else if (Tok == Token.RETURN)
             {
-                cfg.getLeaf().BB.Instructions.AddRange(ReturnStmt());
+                cfg.GetLeaf().BB.Instructions.AddRange(ReturnStmt());
 
             } else
             {
@@ -492,8 +492,7 @@ namespace compiler.frontend
 
             GetExpected(Token.CALL);
 
-            var ret = new List<Instruction>();
-            ret.Add(Identifier());
+            var ret = new List<Instruction> {Identifier()};
 
             if (Tok == Token.OPEN_PAREN)
             {
