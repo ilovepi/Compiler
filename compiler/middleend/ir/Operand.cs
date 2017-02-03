@@ -76,9 +76,11 @@ namespace compiler.middleend.ir
             unchecked
             {
                 var hashCode = (int) Kind;
-                hashCode = (hashCode * 397) ^ Val;
-                hashCode = (hashCode * 397) ^ IdKey;
-                hashCode = (hashCode * 397) ^ (Inst != null ? Inst.GetHashCode() : 0);
+                hashCode = hashCode * 397 ^ Val;
+                hashCode = hashCode * 397 ^ IdKey;
+                var i = hashCode * 397 ^ Inst?.GetHashCode();
+                if (i != null)
+                    hashCode = (int) i;
                 return hashCode;
             }
         }

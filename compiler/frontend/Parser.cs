@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using compiler.middleend.ir;
-using compiler.middlend.ir;
 
 namespace compiler.frontend
 {
@@ -225,7 +224,7 @@ namespace compiler.frontend
         {
             //List<Instruction> ret = new List<Instruction>();
 
-            // assign must use SSA, so our designator *MUST* give us access to an SSA variable
+            //TODO: assign must use SSA, so our designator *MUST* give us access to an SSA variable
 
 
             GetExpected(Token.LET);

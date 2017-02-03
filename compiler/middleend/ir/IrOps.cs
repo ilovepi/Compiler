@@ -1,4 +1,4 @@
-﻿namespace compiler.middlend.ir
+﻿namespace compiler.middleend.ir
 {
 
 
