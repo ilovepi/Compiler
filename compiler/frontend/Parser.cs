@@ -462,6 +462,7 @@ namespace compiler.frontend
             BasicBlock bb = new BasicBlock("StatSequence");
             cfg.Root = new Node(bb);
             cfg = Statement(cfg);
+            Node.consolodate(cfg.Root);
 
             while (Tok == Token.SEMI_COLON)
             {
@@ -572,29 +573,24 @@ namespace compiler.frontend
 
             CFG whileBlock = new CFG();
 
-            CompareNode compBlock = new CompareNode(new BasicBlock("CompareBlock"));
-
-            JoinNode joinBlock = new JoinNode(new BasicBlock("JoinBlock"));
-            Node falseBlock;
-
+            WhileNode compBlock = new WhileNode(new BasicBlock("WhileCompareBlock"));
+            
+            // insert compare block for while stmt
             whileBlock.Insert(compBlock);
 
+            // prepare basic block for loop body
             var trueBlock = StatementSequence().Root;
 
+            // insert the loop body on the true path
             compBlock.InsertTrue(trueBlock);
-            trueBlock.InsertTrue(joinBlock);
-
-
-            //todo: create while block
-
-            //todo: insert into while block
+            
+            // insert the new cfg from the loop body
             trueBlock.Insert(StatementSequence().Root);
 
             Node.Leaf(trueBlock).Child = compBlock;
+            compBlock.LoopParent = trueBlock;
 
             GetExpected(Token.OD);
-
-            //todo: create join block and fix cfg
 
             return whileBlock;
         }

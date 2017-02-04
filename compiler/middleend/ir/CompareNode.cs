@@ -1,4 +1,6 @@
-﻿namespace compiler.middleend.ir
+﻿using System.Collections.Generic;
+
+namespace compiler.middleend.ir
 {
     public class CompareNode : Node
     {
@@ -34,9 +36,11 @@
             Insert(other,true);
         }
 
-        
-
-
-
+        public override List<Node> GetAllChildren()
+        {
+            List<Node> ret = base.GetAllChildren();
+            ret.Add(FalseNode);
+            return ret;
+        }
     }
 }

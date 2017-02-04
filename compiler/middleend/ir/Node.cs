@@ -101,6 +101,27 @@ namespace compiler
             }
         }
 
+	    public virtual List<Node> GetAllChildren()
+	    {
+            var ret = new List<Node>(){Child};
+	        return ret;
+	    }
+
+	    public static void consolodate(Node root)
+	    {
+	        if (root == null || root.Child == null)
+	            return;
+
+	        if (root.Child.GetType() == typeof(Node))
+	        {
+                root.BB.Instructions.AddRange(root.Child.BB.Instructions);
+
+	            var temp = root.Child;
+	            root.Child = temp.Child;
+
+	        }
+	    }
+
 
     }
 }
