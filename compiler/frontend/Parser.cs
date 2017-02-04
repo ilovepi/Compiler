@@ -437,7 +437,7 @@ namespace compiler.frontend
             } else if (Tok == Token.IF)
             {
                 // TODO: fix this, and insert into CFG
-                cfg.GetLeaf().Insert(IfStmt().Root,true);
+                cfg.Insert(IfStmt());
 
             } else if (Tok == Token.WHILE)
             {
@@ -527,23 +527,26 @@ namespace compiler.frontend
             GetExpected(Token.THEN);
 
             CFG ifBlock = new CFG();
-            
 
-            Node compBlock = new Node(new BasicBlock("CompareBlock"));
-            Node joinBlock = new Node(new BasicBlock("JoinBlock"));
+            CompareNode compBlock = new CompareNode(new BasicBlock("CompareBlock"));
+
+            JoinNode joinBlock = new JoinNode(new BasicBlock("JoinBlock"));
             Node falseBlock;
 
-            ifBlock.Root = compBlock;
+            ifBlock.Insert(compBlock);
+
+            
 
             var trueBlock = StatementSequence().Root;
             
-            compBlock.TrueChild = trueBlock;
-            trueBlock.Insert(joinBlock, true);
+            compBlock.InsertTrue(trueBlock);
+            trueBlock.Insert(joinBlock);
 
             if (Tok == Token.ELSE)
             {
                 Next();
                 falseBlock = StatementSequence().Root;
+                Node.Leaf(falseBlock).InsertFalse(joinBlock);
             }
             else
             {

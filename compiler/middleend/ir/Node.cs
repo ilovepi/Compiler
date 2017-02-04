@@ -7,75 +7,81 @@ namespace compiler
 		public BasicBlock BB { get; set; }
 
         /// <summary>
-        /// Parent from a true branch(left)
+        /// Parent Node
         /// </summary>
-		public Node TrueParent { get; set; }
+		public Node Parent { get; set; }
+
+       
 
         /// <summary>
-        /// Parent from a false branch (right)
+        /// Successor Node
         /// </summary>
-		public Node FalseParent { get; set; }
-
-        /// <summary>
-        /// Child on the true branch (left)
-        /// </summary>
-		public Node TrueChild { get; set; }
-
-
-        /// <summary>
-        /// Child on the false branch (right)
-        /// </summary>
-		public Node FalseChild { get; set; }
-
-
+		public Node Child { get; set; }
+        
+       
 
 		public Node(BasicBlock pBB)
 		{
 			BB = pBB;
-			TrueChild = null;
-			FalseChild = null;
-			TrueParent = null;
-			FalseParent = null;
+		    Parent = null;
+		    Child = null;
+
 		}
 
 
 	    public bool IsRoot()
 	    {
-	        return (TrueParent == null) && (FalseParent == null);
+	        return (Parent == null);
 	    }
 
 
-	    public void Insert(Node other, bool truePath)
+	    public virtual void Insert(Node other)
 	    {
-	        if (truePath)
+	        if (Child == null)
 	        {
-	            if (TrueChild == null)
-	            {
-	                TrueChild = other;
-	                other.TrueParent = this;
-	            }
-	            else
-	            {
-	                TrueChild.Insert(other,true);
-	            }
+	            Child = other;
+	            other.UpdateParent(this);
 	        }
 	        else
 	        {
-                if (FalseChild == null)
-                {
-                    FalseChild = other;
-                    other.FalseParent = this;
-                }
-                else
-                {
-                    FalseChild.Insert(FalseChild , false);
-                }
-            }
-
-
+	            Child.Insert(other);
+	        }
         }
 
+	    public virtual void InsertTrue(JoinNode other)
+	    {
+	        Child = other;
+	        other.Parent = this;
 
+	    }
+
+        public virtual void InsertFalse(JoinNode other)
+        {
+            other.FalseParent = this;
+            Child = other;
+        }
+
+        //TODO: does this really work? maybe find a better design
+        virtual public void UpdateParent(Node other)
+	    {
+	        Parent = other;
+	    }
+
+	    public static Node Leaf(Node root)
+	    {
+	        if (root == null)
+	        {
+	            return null;
+            }
+	        if (root.Child == null)
+	        {
+	            return root;
+            }
+	        else
+	        {
+	            return Leaf(root.Child);
+	        }
+	    }
 
 
 	}

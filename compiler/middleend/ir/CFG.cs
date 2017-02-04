@@ -19,7 +19,7 @@ namespace compiler
 		}
 
 
-	    public void Insert(Node subTree, bool truePath)
+	    public void Insert(Node subTree)
 	    {
 	        if (Root == null)
 	        {
@@ -27,20 +27,13 @@ namespace compiler
 	        }
 	        else
 	        {
-                Root.Insert(subTree, truePath);
+	            GetLeaf(Root).Insert(subTree);
 	        }
 	    }
 
 	    public void Insert(CFG subtree)
 	    {
-	        if (Root != null)
-	        {
-	            Root.Insert(subtree.Root,true);
-	        }
-	        else
-	        {
-	            Root = subtree.Root;
-	        }
+	        Insert(subtree.Root);
 	    }
 
 	    public Node GetLeaf()
@@ -50,14 +43,7 @@ namespace compiler
 
 	    public Node GetLeaf(Node child)
 	    {
-	        if (child.TrueChild != null)
-	        {
-	            return GetLeaf(child.TrueChild);
-            }
-	        else
-	        {
-	            return child;
-	        }
+	        return Node.Leaf(child);
 	    }
 
 
