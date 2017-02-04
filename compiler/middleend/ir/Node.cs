@@ -84,5 +84,23 @@ namespace compiler
 	    }
 
 
-	}
+
+        public static Node Leaf(WhileNode root)
+        {
+            if (root == null)
+            {
+                return null;
+            }
+            if (root.FalseNode == null)
+            {
+                return root;
+            }
+            else
+            {
+                return Leaf(root.FalseNode);
+            }
+        }
+
+
+    }
 }

@@ -535,12 +535,10 @@ namespace compiler.frontend
 
             ifBlock.Insert(compBlock);
 
-            
-
             var trueBlock = StatementSequence().Root;
             
             compBlock.InsertTrue(trueBlock);
-            trueBlock.Insert(joinBlock);
+            trueBlock.InsertTrue(joinBlock);
 
             if (Tok == Token.ELSE)
             {
@@ -553,8 +551,7 @@ namespace compiler.frontend
                 falseBlock = joinBlock;
             }
 
-            compBlock.Insert(falseBlock,false);
-            
+            compBlock.InsertFalse(falseBlock);
 
             GetExpected(Token.FI);
 
@@ -565,7 +562,7 @@ namespace compiler.frontend
         public CFG WhileStmt()
         {
             //todo: create compare block
-            CFG cfg = new CFG();
+            
 
             GetExpected(Token.WHILE);
 
@@ -573,16 +570,33 @@ namespace compiler.frontend
 
             GetExpected(Token.DO);
 
+            CFG whileBlock = new CFG();
+
+            CompareNode compBlock = new CompareNode(new BasicBlock("CompareBlock"));
+
+            JoinNode joinBlock = new JoinNode(new BasicBlock("JoinBlock"));
+            Node falseBlock;
+
+            whileBlock.Insert(compBlock);
+
+            var trueBlock = StatementSequence().Root;
+
+            compBlock.InsertTrue(trueBlock);
+            trueBlock.InsertTrue(joinBlock);
+
+
             //todo: create while block
 
             //todo: insert into while block
-            cfg.Insert(StatementSequence());
+            trueBlock.Insert(StatementSequence().Root);
+
+            Node.Leaf(trueBlock).Child = compBlock;
 
             GetExpected(Token.OD);
 
             //todo: create join block and fix cfg
 
-            return cfg;
+            return whileBlock;
         }
 
 

@@ -6,6 +6,7 @@
 
         public JoinNode(BasicBlock pBB) : base(pBB)
         {
+            FalseParent = null;
         }
 
 
