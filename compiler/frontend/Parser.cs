@@ -584,15 +584,13 @@ namespace compiler.frontend
             whileBlock.Insert(compBlock);
 
             // prepare basic block for loop body
-            var trueBlock = StatementSequence().Root;
+            CFG stmts = StatementSequence();
+            var trueBlock = stmts.Root;
 
             // insert the loop body on the true path
             compBlock.InsertTrue(trueBlock);
-            
-            // insert the new cfg from the loop body
-            trueBlock.Insert(StatementSequence().Root);
 
-            Node.Leaf(trueBlock).Child = compBlock;
+            //Node.Leaf(trueBlock).Child = compBlock;
             compBlock.LoopParent = trueBlock;
 
             GetExpected(Token.OD);
