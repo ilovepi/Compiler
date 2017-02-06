@@ -422,37 +422,42 @@ namespace compiler.frontend
         }
 
 
-        public CFG Statement(CFG cfg)
+        public CFG Statement()
         {
 
             //TODO: CFG has trouble adding to new blocks, or inserting into CFG
-            
+            CFG cfgTemp = new CFG();
+
+            cfgTemp.Root = new Node(new BasicBlock("StatementBlock"));
+
+
 
             if (Tok == Token.LET) {
-                cfg.GetLeaf().BB.Instructions.AddRange(Assign());
+                cfgTemp.Root.BB.Instructions.AddRange(Assign());
             } else if (Tok == Token.CALL)
             {
-                cfg.GetLeaf().BB.Instructions = FuncCall();
+                cfgTemp.Root.BB.Instructions = FuncCall();
 
             } else if (Tok == Token.IF)
             {
                 // TODO: fix this, and insert into CFG
-                cfg.Insert(IfStmt());
+                // TODO: fix this, and insert into CFG
+                return IfStmt();
 
             } else if (Tok == Token.WHILE)
             {
-                cfg.Insert(WhileStmt());
+                return WhileStmt();
 
             } else if (Tok == Token.RETURN)
             {
-                cfg.GetLeaf().BB.Instructions.AddRange(ReturnStmt());
+                cfgTemp.Root.BB.Instructions.AddRange(ReturnStmt());
 
             } else
             {
                 FatalError();
             }
 
-            return cfg;
+            return cfgTemp;
         }
 
 
@@ -461,13 +466,13 @@ namespace compiler.frontend
             CFG cfg  = new CFG();
             BasicBlock bb = new BasicBlock("StatSequence");
             cfg.Root = new Node(bb);
-            cfg = Statement(cfg);
+            cfg.Insert(Statement());
             Node.consolodate(cfg.Root);
 
             while (Tok == Token.SEMI_COLON)
             {
                 Next();
-                Statement(cfg);
+                cfg.Insert(Statement());
             }
 
             return cfg;

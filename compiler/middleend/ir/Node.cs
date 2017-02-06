@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using compiler.middleend.ir;
 namespace compiler
 {
@@ -112,14 +113,22 @@ namespace compiler
 	        if (root == null || root.Child == null)
 	            return;
 
-	        if (root.Child.GetType() == typeof(Node))
+            if (object.ReferenceEquals(root, root.Child))
+                throw new Exception("Circular reference in basic block!!");
+
+
+
+            if (root.Child.GetType() == typeof(Node))
 	        {
                 root.BB.Instructions.AddRange(root.Child.BB.Instructions);
 
 	            var temp = root.Child;
 	            root.Child = temp.Child;
 
+                consolodate(root);
 	        }
+           
+
 	    }
 
 
