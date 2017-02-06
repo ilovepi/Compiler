@@ -441,7 +441,6 @@ namespace compiler.frontend
             } else if (Tok == Token.IF)
             {
                 // TODO: fix this, and insert into CFG
-                // TODO: fix this, and insert into CFG
                 return IfStmt();
 
             } else if (Tok == Token.WHILE)
@@ -576,8 +575,10 @@ namespace compiler.frontend
 
             GetExpected(Token.DO);
 
+            // create cfg
             CFG whileBlock = new CFG();
 
+            //crate compare block/loop header block
             WhileNode compBlock = new WhileNode(new BasicBlock("WhileCompareBlock"));
             
             // insert compare block for while stmt
@@ -585,13 +586,17 @@ namespace compiler.frontend
 
             // prepare basic block for loop body
             CFG stmts = StatementSequence();
-            var trueBlock = stmts.Root;
 
+            var loopBlock = stmts.Root;
+            var last = stmts.GetLeaf(stmts.Root);
+          
+            //TODO: try to refactor so that we don't have to insert on the false branch
             // insert the loop body on the true path
-            compBlock.InsertTrue(trueBlock);
+            compBlock.InsertFalse(loopBlock);
 
-            //Node.Leaf(trueBlock).Child = compBlock;
-            compBlock.LoopParent = trueBlock;
+            last.Child = compBlock;
+
+            compBlock.LoopParent = last;
 
             GetExpected(Token.OD);
 
