@@ -47,7 +47,7 @@ namespace compiler
         /// <summary>
         /// Adds a new subtree to this node.
         /// </summary>
-        /// <param name="other"></param>
+        /// <param name="other">The root of the subtree to insert</param>
         public virtual void InsertChild(DominatorNode other)
         {
             // detatch other's subtree from any tree it previously belonged to
