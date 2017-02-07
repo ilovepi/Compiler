@@ -21,6 +21,10 @@ namespace compiler
         
        
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="pBB">A Basic block</param>
 		public Node(BasicBlock pBB)
 		{
 			BB = pBB;
@@ -29,13 +33,20 @@ namespace compiler
 
 		}
 
-
+        /// <summary>
+        /// Checks if this node is a root with no parents
+        /// </summary>
+        /// <returns>True if this node has no parents</returns>
 	    public bool IsRoot()
 	    {
 	        return (Parent == null);
 	    }
 
 
+        /// <summary>
+        /// Inserts a node/subgraph into the CFG
+        /// </summary>
+        /// <param name="other">The root of the other CFG</param>
 	    public virtual void Insert(Node other)
 	    {
 	        if (Child == null)
