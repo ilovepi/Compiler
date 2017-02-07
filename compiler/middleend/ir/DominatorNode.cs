@@ -4,12 +4,38 @@ using compiler.middleend.ir;
 
 namespace compiler
 {
-    class DominatorNode : Node
+    class DominatorNode
     {
-        public DominatorNode(BasicBlock pBB) : base(pBB)
+        public BasicBlock BB { get; set; }
+
+		public DominatorNode Parent { get; set; }
+
+        public List<DominatorNode> Children;
+
+
+        public DominatorNode(BasicBlock pBB)
         {
+            BB = pBB;
             Parent = null;
-            Child = null;
+            Children = new List<DominatorNode>();
+        }
+
+
+        public bool IsRoot()
+        {
+            return (Parent == null);
+        }
+
+
+        public virtual void InsertChild(DominatorNode other)
+        {
+            Children.Add(other);
+        }
+        
+
+        virtual public void UpdateParent(DominatorNode other)
+        {
+            Parent = other;
         }
     }
 }
