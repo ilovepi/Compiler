@@ -35,10 +35,11 @@ namespace compiler
 	    {
 	        Insert(subtree.Root);
 	    }
-
+        
 	    public Node GetLeaf()
 	    {
-	        return GetLeaf(Root);
+            // TODO: Modify to check visited
+            return GetLeaf(Root);
 	    }
 
 	    public Node GetLeaf(Node child)
@@ -47,7 +48,7 @@ namespace compiler
 	    }
 
 
-
+        // TODO: create visitor function that recursively clears 'visited' flags
 		//TODO: create methods to walk the CFG
 
 
