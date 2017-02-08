@@ -72,7 +72,7 @@ namespace compiler
                 child.BlockNumber = BlockCount;
                 q.Enqueue(child);
                 visited.Add(child);
-                DOTOutput += parent.BlockNumber.ToString() + " -> " + child.BlockNumber.ToString() + "\n";
+                DOTOutput += parent.BB.Name + parent.BlockNumber.ToString() + " -> " + child.BB.Name + child.BlockNumber.ToString() + "\n";
             }
         }
 
@@ -105,7 +105,7 @@ namespace compiler
                         break;
                     case (int)Node.NodeTypes.WhileB:
                         BFSCheckEnqueue(current, current.FalseNode);
-                        DOTOutput += current.BlockNumber.ToString() + " -> " + current.BlockNumber.ToString() + "\n";
+                        DOTOutput += current.Child.BB.Name + current.BlockNumber.ToString() + " -> " + current.Child.BB.Name + current.Child.BlockNumber.ToString() + "\n";
                         break;
                 }
             }
