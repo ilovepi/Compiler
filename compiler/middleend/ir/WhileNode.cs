@@ -15,5 +15,12 @@
             LoopParent = null;
         }
 
+
+        public override void CheckEnqueue(CFG cfg)
+        {
+            cfg.BFSCheckEnqueue(this, FalseNode);
+            cfg.DOTOutput += Child.BB.Name + BlockNumber.ToString() + " -> " + Child.BB.Name + Child.BlockNumber.ToString() + "\n";
+        }
+
     }
 }

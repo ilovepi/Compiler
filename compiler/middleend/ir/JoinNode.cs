@@ -24,5 +24,10 @@
             
         }
 
+        public virtual void CheckEnqueue(CFG cfg)
+        {
+            cfg.BFSCheckEnqueue(this, Child);
+        }
+
     }
 }

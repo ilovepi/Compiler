@@ -45,5 +45,11 @@ namespace compiler.middleend.ir
             ret.Add(FalseNode);
             return ret;
         }
+
+        public override void CheckEnqueue(CFG cfg)
+        {
+            cfg.BFSCheckEnqueue(this, Child);
+            cfg.BFSCheckEnqueue(this, FalseNode);
+        }
     }
 }

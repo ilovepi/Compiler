@@ -15,9 +15,9 @@ namespace compiler
 
 		public BasicBlock BB { get; set; }
 
-	    public NodeTypes NodeType;
+	    public NodeTypes NodeType { get; set; }
 
-        /// <summary>
+	    /// <summary>
         /// Parent Node
         /// </summary>
 		public Node Parent { get; set; }
@@ -154,6 +154,11 @@ namespace compiler
 
 	    }
 
+	    public virtual void CheckEnqueue(CFG cfg)
+	    {
+	        cfg.BFSCheckEnqueue(this, Child);
+	    }
 
-    }
+
+	}
 }

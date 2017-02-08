@@ -63,7 +63,7 @@ namespace compiler
         // Checks whether to enqueue a child and do so if appropriate
         /* Validity check *must* be done before enqueue, since output
          * is generated for all parent-children pairs at parent. */
-        private void BFSCheckEnqueue(Node parent, Node child)
+        public void BFSCheckEnqueue(Node parent, Node child)
 	    {
             // TODO: Fix to account for cycles/join blocks
             if ((child != null) && (!visited.Contains(child)))
@@ -76,23 +76,23 @@ namespace compiler
             }
         }
 
-		private void CheckEnqueueBB(Node CurNode)
+		private void CheckEnqueue(Node CurNode)
 		{
 			BFSCheckEnqueue(CurNode, CurNode.Child);
 		}
 
-		private void CheckEnqueueCompareB(CompareNode CurNode)
+		private void CheckEnqueue(CompareNode CurNode)
 		{
 			BFSCheckEnqueue(CurNode, CurNode.Child);
 			BFSCheckEnqueue(CurNode, CurNode.FalseNode);
 		}
 
-		private void CheckEnqueueJoinB(JoinNode CurNode)
+		private void CheckEnqueue(JoinNode CurNode)
 		{
 			BFSCheckEnqueue(CurNode, CurNode.Child);;
 		}
 
-		private void CheckEnqueueWhileB(WhileNode CurNode)
+		private void CheckEnqueue(WhileNode CurNode)
 		{
 			BFSCheckEnqueue(CurNode, (CompareNode)CurNode.FalseNode);
             DOTOutput += CurNode.Child.BB.Name + CurNode.BlockNumber.ToString() + " -> " + CurNode.Child.BB.Name + CurNode.Child.BlockNumber.ToString() + "\n";
@@ -111,22 +111,7 @@ namespace compiler
 	        {
 	            Node current = q.Dequeue();
 	            current.BlockNumber = BlockCount;
-
-	            switch (current.NodeType)
-	            {
-	                case Node.NodeTypes.BB:
-	                    CheckEnqueueBB(current);
-	                    break;
-	                case  Node.NodeTypes.CompareB:
-	                    CheckEnqueueCompareB((CompareNode) current);
-	                    break;
-	                case Node.NodeTypes.JoinB:
-	                    CheckEnqueueJoinB((JoinNode) current);
-	                    break;
-	                case Node.NodeTypes.WhileB:
-	                    CheckEnqueueWhileB((WhileNode) current);
-	                    break;
-	            }
+	            current.CheckEnqueue(this);
 
 
 	            /*
