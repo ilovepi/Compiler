@@ -28,7 +28,6 @@ namespace compiler
         /// Successor Node
         /// </summary>
 		public Node Child { get; set; }
-        public Node FalseNode { get; set; }
 
 	    public int BlockNumber;
 

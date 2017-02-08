@@ -9,6 +9,7 @@ namespace compiler.middleend.ir
         {
             FalseNode = null;
         }
+        public Node FalseNode { get; set; }
 
         public int NodeType = (int)NodeTypes.CompareB;
 
