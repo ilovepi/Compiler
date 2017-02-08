@@ -23,7 +23,7 @@ namespace Program
 //                //Console.ReadLine();
 //            }
             
-            using (Parser p = new Parser(@"../../testdata/test002.txt"))
+            using (Parser p = new Parser(@"../../testdata/test003.txt"))
             {
                 p.Parse();
                 p.FlowCfg.GenerateDOTOutput();
