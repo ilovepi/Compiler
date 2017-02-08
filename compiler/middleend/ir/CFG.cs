@@ -76,6 +76,27 @@ namespace compiler
             }
         }
 
+		private void CheckEnqueueBB(Node CurNode)
+		{
+			BFSCheckEnqueue(CurNode, CurNode.Child);
+		}
+
+		private void CheckEnqueueCompareB(CompareNode CurNode)
+		{
+			BFSCheckEnqueue(CurNode, CurNode.Child);
+			BFSCheckEnqueue(CurNode, CurNode.FalseNode);
+		}
+
+		private void CheckEnqueueJoinB(JoinNode CurNode)
+		{
+			BFSCheckEnqueue(CurNode, CurNode.Child);;
+		}
+
+		private void CheckEnqueueWhileB(WhileNode CurNode)
+		{
+			BFSCheckEnqueue(CurNode, (CompareNode)CurNode.FalseNode);
+            DOTOutput += CurNode.Child.BB.Name + CurNode.BlockNumber.ToString() + " -> " + CurNode.Child.BB.Name + CurNode.Child.BlockNumber.ToString() + "\n";
+		}
         
 	    public void GenerateDOTOutput()
 	    {
@@ -94,18 +115,16 @@ namespace compiler
 	            switch (current.NodeType)
 	            {
                     case (int)Node.NodeTypes.BB:
-	                    BFSCheckEnqueue(current, current.Child);
+	                    CheckEnqueueBB(current);
 	                    break;
                     case (int)Node.NodeTypes.CompareB:
-                        BFSCheckEnqueue(current, current.Child);
-						BFSCheckEnqueue(current, ((CompareNode)current).FalseNode);
+						CheckEnqueueCompareB((CompareNode)current);
                         break;
                     case (int)Node.NodeTypes.JoinB:
-                        BFSCheckEnqueue(current, current.Child);
+						CheckEnqueueJoinB((JoinNode)current);
                         break;
                     case (int)Node.NodeTypes.WhileB:
-                        BFSCheckEnqueue(current, ((CompareNode)current).FalseNode);
-                        DOTOutput += current.Child.BB.Name + current.BlockNumber.ToString() + " -> " + current.Child.BB.Name + current.Child.BlockNumber.ToString() + "\n";
+                        CheckEnqueueWhileB((WhileNode)current);
                         break;
                 }
             }
