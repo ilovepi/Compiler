@@ -83,7 +83,7 @@ namespace compiler
             BlockCount = 0;
             q = new Queue<Node>();
             visited = new HashSet<Node>();
-	        DOTOutput = "";
+	        DOTOutput = String.Empty;
 
             q.Enqueue(Root);
 	        while (q.Count > 0)
