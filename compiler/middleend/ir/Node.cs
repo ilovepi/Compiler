@@ -15,7 +15,7 @@ namespace compiler
 
 		public BasicBlock BB { get; set; }
 
-	    public int NodeType = (int)NodeTypes.BB;
+	    public NodeTypes NodeType;
 
         /// <summary>
         /// Parent Node
@@ -38,8 +38,19 @@ namespace compiler
 			BB = pBB;
 		    Parent = null;
 		    Child = null;
+		    NodeType = NodeTypes.BB;
 
 		}
+
+	    public Node(BasicBlock pBB, NodeTypes n)
+	    {
+	        BB = pBB;
+	        Parent = null;
+	        Child = null;
+	        NodeType = n;
+
+	    }
+
 
 
 	    public bool IsRoot()

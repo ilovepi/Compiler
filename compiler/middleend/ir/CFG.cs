@@ -109,25 +109,46 @@ namespace compiler
             q.Enqueue(Root);
 	        while (q.Count > 0)
 	        {
-                Node current = q.Dequeue();
+	            Node current = q.Dequeue();
 	            current.BlockNumber = BlockCount;
 
 	            switch (current.NodeType)
 	            {
-                    case (int)Node.NodeTypes.BB:
+	                case Node.NodeTypes.BB:
 	                    CheckEnqueueBB(current);
 	                    break;
-                    case (int)Node.NodeTypes.CompareB:
-						CheckEnqueueCompareB((CompareNode)current);
-                        break;
-                    case (int)Node.NodeTypes.JoinB:
-						CheckEnqueueJoinB((JoinNode)current);
-                        break;
-                    case (int)Node.NodeTypes.WhileB:
-                        CheckEnqueueWhileB((WhileNode)current);
-                        break;
+	                case  Node.NodeTypes.CompareB:
+	                    CheckEnqueueCompareB((CompareNode) current);
+	                    break;
+	                case Node.NodeTypes.JoinB:
+	                    CheckEnqueueJoinB((JoinNode) current);
+	                    break;
+	                case Node.NodeTypes.WhileB:
+	                    CheckEnqueueWhileB((WhileNode) current);
+	                    break;
+	            }
+
+
+	            /*
+                if (current.GetType() == typeof(CompareNode))
+                {
+                    CheckEnqueueCompareB((CompareNode)current);
                 }
-            }
+                else if (current.GetType() == typeof(JoinNode))
+                {
+                    CheckEnqueueJoinB((JoinNode)current);
+                }
+                else if (current.GetType() == typeof(WhileNode))
+                {
+                    CheckEnqueueWhileB((WhileNode)current);
+                }
+                else if (current.GetType() == typeof(Node))
+                {
+                    CheckEnqueueBB(current);
+                }
+                */
+
+	        }
 	        DOTOutput = "digraph {{\n" + DOTOutput + "}}";
 	    }
 

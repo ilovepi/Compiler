@@ -4,13 +4,10 @@
     {
         public Node FalseParent { get; set; }
 
-        public JoinNode(BasicBlock pBB) : base(pBB)
+        public JoinNode(BasicBlock pBB) : base(pBB, NodeTypes.JoinB)
         {
             FalseParent = null;
         }
-
-        public int NodeType = (int)NodeTypes.JoinB;
-
 
         public void UpdateParent(Node other, bool trueParent)
         {
