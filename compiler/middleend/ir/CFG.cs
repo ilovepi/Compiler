@@ -98,13 +98,13 @@ namespace compiler
 	                    break;
                     case (int)Node.NodeTypes.CompareB:
                         BFSCheckEnqueue(current, current.Child);
-						BFSCheckEnqueue(current, (CompareNode)current.FalseNode);
+						BFSCheckEnqueue(current, ((CompareNode)current).FalseNode);
                         break;
                     case (int)Node.NodeTypes.JoinB:
                         BFSCheckEnqueue(current, current.Child);
                         break;
                     case (int)Node.NodeTypes.WhileB:
-                        BFSCheckEnqueue(current, (CompareNode)current.FalseNode);
+                        BFSCheckEnqueue(current, ((CompareNode)current).FalseNode);
                         DOTOutput += current.Child.BB.Name + current.BlockNumber.ToString() + " -> " + current.Child.BB.Name + current.Child.BlockNumber.ToString() + "\n";
                         break;
                 }
