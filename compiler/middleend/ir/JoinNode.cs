@@ -9,6 +9,8 @@
             FalseParent = null;
         }
 
+        public int NodeType = (int)NodeTypes.JoinB;
+
 
         public void UpdateParent(Node other, bool trueParent)
         {

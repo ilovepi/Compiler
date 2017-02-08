@@ -14,9 +14,11 @@
             LoopParent = null;
         }
 
-        
+        public int NodeType = (int)NodeTypes.WhileB;
 
-        
+
+
+
 
 
     }

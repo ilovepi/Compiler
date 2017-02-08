@@ -4,12 +4,13 @@ namespace compiler.middleend.ir
 {
     public class CompareNode : Node
     {
-       public Node FalseNode { get; set; }
 
         public CompareNode(BasicBlock pBB) : base(pBB)
         {
             FalseNode = null;
         }
+
+        public int NodeType = (int)NodeTypes.CompareB;
 
         public void Insert(Node other, bool trueChild)
         {

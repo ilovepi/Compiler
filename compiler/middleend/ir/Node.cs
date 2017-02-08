@@ -5,7 +5,17 @@ namespace compiler
 {
 	public class Node
 	{
+	    public enum NodeTypes
+	    {
+	        BB,
+	        CompareB,
+	        JoinB,
+	        WhileB
+	    };
+
 		public BasicBlock BB { get; set; }
+
+	    public int NodeType = (int)NodeTypes.BB;
 
         /// <summary>
         /// Parent Node
@@ -18,10 +28,13 @@ namespace compiler
         /// Successor Node
         /// </summary>
 		public Node Child { get; set; }
-        
-       
+        public Node FalseNode { get; set; }
 
-		public Node(BasicBlock pBB)
+	    public int BlockNumber;
+
+
+
+        public Node(BasicBlock pBB)
 		{
 			BB = pBB;
 		    Parent = null;
