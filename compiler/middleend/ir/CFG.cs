@@ -66,7 +66,7 @@ namespace compiler
         public void BFSCheckEnqueue(Node parent, Node child)
 	    {
             // TODO: Fix to account for cycles/join blocks
-            if ((child != null) )
+            if (child != null)
             {
                 if (!visited.Contains(child) )
                 {
