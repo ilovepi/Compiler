@@ -5,6 +5,8 @@ namespace compiler
 {
 	public class Node
 	{
+	    public static int BlockID=0;
+
 	    public enum NodeTypes
 	    {
 	        BB,
@@ -34,7 +36,9 @@ namespace compiler
 
 
         public Node(BasicBlock pBB)
-		{
+        {
+            BlockID++;
+            BlockNumber = BlockID;
 			BB = pBB;
 		    Parent = null;
 		    Child = null;
@@ -44,11 +48,12 @@ namespace compiler
 
 	    public Node(BasicBlock pBB, NodeTypes n)
 	    {
+	        BlockID++;
+	        BlockNumber = BlockID;
 	        BB = pBB;
 	        Parent = null;
 	        Child = null;
 	        NodeType = n;
-
 	    }
 
 
@@ -139,9 +144,7 @@ namespace compiler
             if (object.ReferenceEquals(root, root.Child))
                 throw new Exception("Circular reference in basic block!!");
 
-
-
-            if (root.Child.GetType() == typeof(Node))
+	        if( (root.GetType() == typeof(Node)) && (root.Child.GetType() == typeof(Node)) )
 	        {
                 root.BB.Instructions.AddRange(root.Child.BB.Instructions);
 
@@ -150,6 +153,10 @@ namespace compiler
 
                 consolodate(root);
 	        }
+            else
+            {
+                consolodate(root.Child);
+            }
            
 
 	    }

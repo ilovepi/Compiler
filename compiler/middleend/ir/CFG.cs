@@ -66,12 +66,17 @@ namespace compiler
         public void BFSCheckEnqueue(Node parent, Node child)
 	    {
             // TODO: Fix to account for cycles/join blocks
-            if ((child != null) && (!visited.Contains(child)))
+            if ((child != null) )
             {
-                BlockCount++;
-                child.BlockNumber = BlockCount;
-                q.Enqueue(child);
-                visited.Add(child);
+                if (!visited.Contains(child) )
+                {
+                    //BlockCount++;
+                    //if(child.BlockNumber == 0)
+                        //child.BlockNumber = BlockCount;
+                    q.Enqueue(child);
+                    visited.Add(child);
+                }
+
                 DOTOutput += parent.BB.Name + parent.BlockNumber.ToString() + " -> " + child.BB.Name + child.BlockNumber.ToString() + "\n";
             }
         }
@@ -101,7 +106,7 @@ namespace compiler
 	    public void GenerateDOTOutput()
 	    {
             // Resets external BFS data on each run
-            BlockCount = 0;
+            //BlockCount = 0;
             q = new Queue<Node>();
             visited = new HashSet<Node>();
 	        DOTOutput = String.Empty;
@@ -110,7 +115,7 @@ namespace compiler
 	        while (q.Count > 0)
 	        {
 	            Node current = q.Dequeue();
-	            current.BlockNumber = BlockCount;
+	            //current.BlockNumber = BlockCount;
 	            current.CheckEnqueue(this);
 
 
