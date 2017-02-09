@@ -70,9 +70,6 @@ namespace compiler
             {
                 if (!visited.Contains(child) )
                 {
-                    //BlockCount++;
-                    //if(child.BlockNumber == 0)
-                        //child.BlockNumber = BlockCount;
                     q.Enqueue(child);
                     visited.Add(child);
                 }
@@ -106,7 +103,6 @@ namespace compiler
 	    public void GenerateDOTOutput()
 	    {
             // Resets external BFS data on each run
-            //BlockCount = 0;
             q = new Queue<Node>();
             visited = new HashSet<Node>();
 	        DOTOutput = String.Empty;
@@ -115,30 +111,9 @@ namespace compiler
 	        while (q.Count > 0)
 	        {
 	            Node current = q.Dequeue();
-	            //current.BlockNumber = BlockCount;
 	            current.CheckEnqueue(this);
-
-
-	            /*
-                if (current.GetType() == typeof(CompareNode))
-                {
-                    CheckEnqueueCompareB((CompareNode)current);
-                }
-                else if (current.GetType() == typeof(JoinNode))
-                {
-                    CheckEnqueueJoinB((JoinNode)current);
-                }
-                else if (current.GetType() == typeof(WhileNode))
-                {
-                    CheckEnqueueWhileB((WhileNode)current);
-                }
-                else if (current.GetType() == typeof(Node))
-                {
-                    CheckEnqueueBB(current);
-                }
-                */
-
 	        }
+
 	        DOTOutput = "digraph {{\n" + DOTOutput + "}}";
 	    }
 
