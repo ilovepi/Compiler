@@ -125,7 +125,7 @@ namespace compiler.middleend.ir
             return !Equals(left, right);
         }
 
-        public string ToString()
+        public override string ToString()
         {
             return "" + Num.ToString() + " " + Op.ToString() +" " + Arg1.ToString() + " " + Arg2.ToString();
         }

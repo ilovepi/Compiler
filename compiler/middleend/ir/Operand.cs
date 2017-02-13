@@ -103,7 +103,7 @@ namespace compiler.middleend.ir
             }
         }
 
-        public string ToString()
+        public override string ToString()
         {
             switch (Kind)
             {
