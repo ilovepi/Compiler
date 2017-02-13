@@ -115,7 +115,7 @@ namespace compiler
                 current.CheckEnqueue(this);
             }
 
-            DOTOutput = "digraph {{\n" + DOTOutput + "}}";
+            DOTOutput = "digraph {\n" + DOTOutput + "}";
         }
     }
 }
