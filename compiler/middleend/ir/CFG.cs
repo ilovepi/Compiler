@@ -72,7 +72,7 @@ namespace compiler
                     visited.Add(child);
                 }
 
-                DOTOutput += parent.DotId() + "[label=\"" + parent.DotLabel() + "\"]\n";
+                DOTOutput += parent.DotId() + "[label=<" + parent.DotLabel() + ">]\n";
                 DOTOutput += parent.DotId() + " -> " + child.DotId() + "\n";
             }
         }

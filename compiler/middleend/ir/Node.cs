@@ -224,11 +224,11 @@ namespace compiler
 
         public string DotLabel()
         {
-            string label = BB.Name;
+            string label = "<b>" + BB.Name + "</b>";
 
             foreach (Instruction inst in BB.Instructions)
             {
-                label += "\\n " + inst.ToString();
+                label += "<br/>" + inst.ToString();
             }
 
             return label;
