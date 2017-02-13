@@ -76,18 +76,18 @@ namespace compiler.middleend.ir
 	        return Equals((Instruction) obj);
 	    }
 
-	    /*
+
         public override int GetHashCode()
 	    {
 	        unchecked
 	        {
-	            var hashCode = Op;
-	            hashCode = (hashCode * 397) ^ (Arg1 != null ? Arg1.GetHashCode() : 0);
-	            hashCode = (hashCode * 397) ^ (Arg2 != null ? Arg2.GetHashCode() : 0);
+	            var hashCode = (int)Op;
+	            hashCode = (hashCode * 397) ^ (Arg1?.GetHashCode() ?? 0);
+	            hashCode = (hashCode * 397) ^ (Arg2?.GetHashCode() ?? 0);
 	            return hashCode;
 	        }
 	    }
-        */
+      
 
 	    public static bool operator ==(Instruction left, Instruction right)
 	    {
