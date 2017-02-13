@@ -283,16 +283,53 @@ namespace compiler.frontend
             return cfg;
         }
 
-        public void Relation()
+        public List<Instruction> Relation()
         {
-            Expression();
+            var ret  = Expression();
+
+            var arg1 = ret.Last();
 
             if (!IsRelOp())
             {
                 FatalError();
             }
+
+            Token comp = Tok;
+
             Next();
-            Expression();
+            ret.AddRange( Expression() );
+            var arg2 = ret.Last();
+
+            ret.Add(new Instruction(IrOps.cmp, new Operand( arg1), new Operand( arg2)));
+            ret.Add(new Instruction(IrOps.bne, new Operand(ret.Last()), new Operand(Operand.OpType.Constant, 0)));
+
+            // set the correct IR op code
+            switch (comp)
+            {
+                case Token.EQUAL:
+                    ret.Last().Op = IrOps.bne;
+                    break;
+                case Token.NOT_EQUAL:
+                    ret.Last().Op = IrOps.beq;
+                    break;
+                case Token.LESS:
+                    ret.Last().Op = IrOps.bge;
+                    break;
+                case Token.LESS_EQ:
+                    ret.Last().Op = IrOps.bgt;
+                    break;
+                case Token.GREATER:
+                    ret.Last().Op = IrOps.ble;
+                    break;
+                case Token.GREATER_EQ:
+                    ret.Last().Op = IrOps.blt;
+                    break;
+                default:
+                    FatalError();
+                    break;
+            }
+
+            return ret;
         }
 
         public Instruction Identifier()
@@ -530,17 +567,19 @@ namespace compiler.frontend
         public CFG IfStmt()
         {
             GetExpected(Token.IF);
-
-            Relation();
-
-            GetExpected(Token.THEN);
-
             var ifBlock = new CFG();
-
             var compBlock = new CompareNode(new BasicBlock("CompareBlock"));
 
             var joinBlock = new JoinNode(new BasicBlock("JoinBlock"));
             Node falseBlock = joinBlock;
+
+            compBlock.BB.Instructions.AddRange( Relation() );
+
+            GetExpected(Token.THEN);
+
+            
+
+           
 
             ifBlock.Insert(compBlock);
 
@@ -561,20 +600,16 @@ namespace compiler.frontend
 
             GetExpected(Token.FI);
 
+            compBlock.BB.Instructions.Last().Arg2 = new Operand( falseBlock.BB.Instructions.First());
+            trueBlock.BB.Instructions.Last().Arg2 = new Operand(joinBlock.BB.Instructions.First());
+
             return ifBlock;
         }
 
 
         public CFG WhileStmt()
         {
-            //todo: create compare block
-
-
             GetExpected(Token.WHILE);
-
-            Relation();
-
-            GetExpected(Token.DO);
 
             // create cfg
             var whileBlock = new CFG();
@@ -584,6 +619,12 @@ namespace compiler.frontend
 
             // insert compare block for while stmt
             whileBlock.Insert(compBlock);
+
+            // add the relation/branch comparison into the loop header block
+            compBlock.BB.Instructions.AddRange(Relation());
+
+            GetExpected(Token.DO);
+            
 
             // prepare basic block for loop body
             CFG stmts = StatementSequence();
@@ -601,6 +642,12 @@ namespace compiler.frontend
 
             GetExpected(Token.OD);
 
+            
+            last.BB.Instructions.Last().Arg2 = new Operand(compBlock.BB.Instructions.First());
+
+            // TODO: this is straight up wrong. we can leave this alone and fix it in the enclosing scope
+            compBlock.BB.Instructions.Last().Arg2 = new Operand(last.BB.Instructions.Last());
+            
             return whileBlock;
         }
 
