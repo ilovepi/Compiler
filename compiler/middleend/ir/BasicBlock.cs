@@ -34,10 +34,9 @@ namespace compiler.middleend.ir
 
         public void AddInstructionList(List<Instruction> insList)
         {
-            Instructions.AddRange(insList);
             foreach (Instruction instruction in insList)
             {
-                AnchorBlock.Insert(instruction);
+                AddInstruction(instruction);
             }
         }
 
