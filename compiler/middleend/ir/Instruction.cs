@@ -125,8 +125,10 @@ namespace compiler.middleend.ir
             return !Equals(left, right);
         }
 
+        
         public override string ToString()
         {
+            // TODO: determine if we can replace this exception with a runtime check or fix for the general case
             try
             {
                 return "" + Num.ToString() + " " + Op.ToString() + " " + Arg1.ToString() + " " + Arg2.ToString();
