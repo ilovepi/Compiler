@@ -4,7 +4,6 @@ namespace compiler.middleend.ir
 {
     public class CompareNode : Node
     {
-
         public CompareNode(BasicBlock pBB) : base(pBB, NodeTypes.CompareB)
         {
             FalseNode = null;
@@ -26,7 +25,6 @@ namespace compiler.middleend.ir
                 FalseNode = other;
                 other.Parent = this;
             }
-
         }
 
         public void InsertFalse(Node other)
@@ -36,7 +34,7 @@ namespace compiler.middleend.ir
 
         public void InsertTrue(Node other)
         {
-            Insert(other,true);
+            Insert(other, true);
         }
 
         public override List<Node> GetAllChildren()

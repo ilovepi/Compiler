@@ -1,12 +1,12 @@
-﻿using System;
+﻿using System.IO;
 using compiler.frontend;
 
 namespace Program
 {
-    class Program
+    internal class Program
     {
         //TODO: adjust main to use the parser when it is complete
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
 //            using (Lexer l = new Lexer(@"../../testdata/big.txt"))
 //            {
@@ -22,20 +22,17 @@ namespace Program
 //                //Console.WriteLine("Press 'enter' to exit ....");
 //                //Console.ReadLine();
 //            }
-            
-            using (Parser p = new Parser(@"../../testdata/test003.txt"))
+
+            using (var p = new Parser(@"../../testdata/test003.txt"))
             {
                 p.Parse();
                 p.FlowCfg.GenerateDOTOutput();
 
-                using (System.IO.StreamWriter file = new System.IO.StreamWriter("graph.txt"))
+                using (var file = new StreamWriter("graph.txt"))
                 {
-                    file.WriteLine( p.FlowCfg.DOTOutput);
+                    file.WriteLine(p.FlowCfg.DOTOutput);
                 }
-
             }
-            
-            
         }
     }
 }

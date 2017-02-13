@@ -1,61 +1,50 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace compiler.middleend.ir
 {
+    public class Anchor
+    {
+        public Anchor()
+        {
+            Oplist = new List<List<Instruction>>();
+        }
 
+        public List<List<Instruction>> Oplist { get; set; }
 
-	public class Anchor
-	{
+        /// <summary>
+        ///     Insert the specified inst. into the Anchor lists
+        /// </summary>
+        /// <param name="inst">Inst.</param>
+        public void Insert(Instruction inst)
+        {
+            IrOps key = inst.Op;
 
-		public List<List<Instruction>> Oplist { get; set; }
+            List<Instruction> chain = null;
 
-		public Anchor()
-		{
-			Oplist = new List<List<Instruction>>();
-		}
+            chain = FindOpChain(key);
 
-		/// <summary>
-		/// Insert the specified inst. into the Anchor lists
-		/// </summary>
-		/// <param name="inst">Inst.</param>
-		public void Insert(Instruction inst)
-		{
-			var key = inst.Op;
+            // if the op never existed, add it
+            if (chain == null)
+            {
+                chain = new List<Instruction>();
+                Oplist.Add(chain);
+            }
 
-			List<Instruction> chain = null;
+            // insert the new instruction at the bottom of the list
+            chain.Add(inst);
+        }
 
-			chain = FindOpChain(key);
+        public List<Instruction> FindOpChain(IrOps key)
+        {
+            foreach (List<Instruction> sublist in Oplist)
+            {
+                if (sublist[0].Op == key)
+                {
+                    return sublist;
+                }
+            }
 
-			// if the op never existed, add it
-			if (chain == null)
-			{
-				chain = new List<Instruction>();
-				Oplist.Add(chain);
-			}
-
-			// insert the new instruction at the bottom of the list
-			chain.Add(inst);
-		}
-
-		public List<Instruction> FindOpChain(IrOps key)
-		{
-			foreach (var sublist in Oplist)
-			{
-				// search through lists for correct op
-				if (sublist[0].Op == key)
-				{
-					return sublist;
-				} // end if
-			} // end for
-
-			return null;
-		}
-
-
-
-
-	}
-
-
+            return null;
+        }
+    }
 }

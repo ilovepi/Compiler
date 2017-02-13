@@ -1,7 +1,5 @@
 ﻿namespace compiler.middleend.ir
 {
-
-
     public enum IrOps
     {
         neg,
@@ -26,8 +24,7 @@
         read,
         write,
         writeNL
-    };
-
+    }
 
 
 //TODO: move to own file in backend
@@ -39,7 +36,7 @@
         div = 3,
         mod = 4,
         cmp = 5,
-        or  = 8,
+        or = 8,
         and = 9,
         bic = 10,
         xor = 11,
@@ -53,7 +50,7 @@
         divi = 19,
         modi = 20,
         cmpi = 21,
-        ori  = 24,
+        ori = 24,
         andi = 25,
         bici = 26,
         xori = 27,
@@ -82,6 +79,5 @@
         wrd = 51,
         wrh = 52,
         wrl = 53
-
-    };
+    }
 }

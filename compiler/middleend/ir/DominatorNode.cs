@@ -1,29 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using compiler.middleend.ir;
 
 namespace compiler
 {
-    class DominatorNode
+    internal class DominatorNode
     {
         /// <summary>
-        /// The basic block of the node
-        /// </summary>
-        public BasicBlock BB { get; set; }
-
-        /// <summary>
-        /// The parent of this node
-        /// </summary>
-		public DominatorNode Parent { get; set; }
-
-        /// <summary>
-        /// The Nodes which this basic block directly dominates
+        ///     The Nodes which this basic block directly dominates
         /// </summary>
         public List<DominatorNode> Children;
 
 
         /// <summary>
-        /// constructor
+        ///     constructor
         /// </summary>
         /// <param name="pBB">The basic block of the node</param>
         public DominatorNode(BasicBlock pBB)
@@ -33,19 +22,29 @@ namespace compiler
             Children = new List<DominatorNode>();
         }
 
+        /// <summary>
+        ///     The basic block of the node
+        /// </summary>
+        public BasicBlock BB { get; set; }
 
         /// <summary>
-        /// Checks if this node is a root node
+        ///     The parent of this node
+        /// </summary>
+        public DominatorNode Parent { get; set; }
+
+
+        /// <summary>
+        ///     Checks if this node is a root node
         /// </summary>
         /// <returns>True if this node is a root, with no parents</returns>
         public bool IsRoot()
         {
-            return (Parent == null);
+            return Parent == null;
         }
 
 
         /// <summary>
-        /// Adds a new subtree to this node.
+        ///     Adds a new subtree to this node.
         /// </summary>
         /// <param name="other">The root of the subtree to insert</param>
         public virtual void InsertChild(DominatorNode other)
@@ -63,7 +62,7 @@ namespace compiler
 
 
         /// <summary>
-        /// Removes a node from this subtree
+        ///     Removes a node from this subtree
         /// </summary>
         /// <param name="other"> the root of the subtree to remove</param>
         /// <returns>True if a node was removed, false if the node was not found</returns>
@@ -71,6 +70,5 @@ namespace compiler
         {
             return Children.Remove(other);
         }
-
     }
 }

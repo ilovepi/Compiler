@@ -1,54 +1,54 @@
 ﻿namespace compiler.frontend
 {
-	public enum Kind
-	{
-		Constant,
-		Variable,
-		Register,
-		Conditional
-	}
+    public enum Kind
+    {
+        Constant,
+        Variable,
+        Register,
+        Conditional
+    }
 
 
-	public struct Result
-	{
+    public struct Result
+    {
         /// <summary>
-        /// Const, Variable, Register, Conditional
+        ///     Const, Variable, Register, Conditional
         /// </summary>
-	    public Kind Kind { get; set; }
-
-	    /// <summary>
-        /// Numeric value
-        /// </summary>
-	    public int Value { get; set; }
-
-	    /// <summary>
-        /// UUID for an identifier
-        /// </summary>
-	    public int Id { get; set; }
+        public Kind Kind { get; set; }
 
         /// <summary>
-        /// Memory address location
+        ///     Numeric value
         /// </summary>
-        public  int Addr { get; set; }
+        public int Value { get; set; }
 
-	    /// <summary>
-        /// Register number
+        /// <summary>
+        ///     UUID for an identifier
         /// </summary>
-	    public int Regno { get; set; }
+        public int Id { get; set; }
 
-	    /// <summary>
-        /// Comparison Code ??? maybe I forgot what this was
+        /// <summary>
+        ///     Memory address location
         /// </summary>
-	    public int Cc { get; set; }
+        public int Addr { get; set; }
 
-	    /// <summary>
-        /// True branch offset
+        /// <summary>
+        ///     Register number
         /// </summary>
-	    public int TrueValue { get; set; }
+        public int Regno { get; set; }
 
-	    /// <summary>
-        /// False branch offset
+        /// <summary>
+        ///     Comparison Code ??? maybe I forgot what this was
         /// </summary>
-	    public int FalseValue { get; set; }
-	}
+        public int Cc { get; set; }
+
+        /// <summary>
+        ///     True branch offset
+        /// </summary>
+        public int TrueValue { get; set; }
+
+        /// <summary>
+        ///     False branch offset
+        /// </summary>
+        public int FalseValue { get; set; }
+    }
 }

@@ -5,7 +5,6 @@ using compiler.middleend.ir;
 
 namespace compiler.frontend
 {
-
     public class Parser : IDisposable
     {
         private readonly string _filename;
@@ -29,7 +28,7 @@ namespace compiler.frontend
 
 
         /// <summary>
-        /// A stack of frame addresses -- esentially a list of frame pointers
+        ///     A stack of frame addresses -- esentially a list of frame pointers
         /// </summary>
         public List<int> AddressStack { get; set; }
 
@@ -68,10 +67,14 @@ namespace compiler.frontend
         public void GetExpected(Token expected)
         {
             if (Tok == expected)
+            {
                 Next();
+            }
             else
+            {
                 throw ParserException.CreateParserException(expected, Tok, LineNo, Pos, _filename);
-                /*Error("Error in file: " + _filename + " at line " + LineNo + ", pos " + Pos +
+            }
+            /*Error("Error in file: " + _filename + " at line " + LineNo + ", pos " + Pos +
                       "\n\tFound: " + TokenHelper.ToString(Tok) + " but Expected: " +
                       TokenHelper.ToString(expected));*/
         }
@@ -125,7 +128,7 @@ namespace compiler.frontend
 
         public List<Instruction> Factor()
         {
-            List<Instruction> ret = new List<Instruction>();
+            var ret = new List<Instruction>();
 
             switch (Tok)
             {
@@ -157,10 +160,10 @@ namespace compiler.frontend
             List<Instruction> ret = Factor();
             Instruction curr = ret.Last();
 
-            while (Tok == Token.TIMES || Tok == Token.DIVIDE)
+            while ((Tok == Token.TIMES) || (Tok == Token.DIVIDE))
             {
                 // cache current arithmetic token
-                IrOps op = (Tok == Token.TIMES) ? IrOps.mul : IrOps.div;
+                IrOps op = Tok == Token.TIMES ? IrOps.mul : IrOps.div;
 
                 // advance to next token
                 Next();
@@ -172,7 +175,7 @@ namespace compiler.frontend
                 Instruction next = ret.Last();
 
                 // create new instruction
-                Instruction newInst = new Instruction(op, new Operand(curr), new Operand(next));
+                var newInst = new Instruction(op, new Operand(curr), new Operand(next));
 
                 // insert new instruction to instruction list
                 ret.Add(newInst);
@@ -187,15 +190,14 @@ namespace compiler.frontend
 
         public List<Instruction> Expression()
         {
-            var ret  = Term();
+            List<Instruction> ret = Term();
 
             Instruction curr = ret.Last();
 
-            while (Tok == Token.PLUS || Tok == Token.MINUS)
+            while ((Tok == Token.PLUS) || (Tok == Token.MINUS))
             {
-
                 // cache current arithmetic token
-                IrOps op = (Tok == Token.PLUS) ? IrOps.add : IrOps.sub;
+                IrOps op = Tok == Token.PLUS ? IrOps.add : IrOps.sub;
 
                 // advance to next token
                 Next();
@@ -207,14 +209,13 @@ namespace compiler.frontend
                 Instruction next = ret.Last();
 
                 // create new instruction
-                Instruction newInst = new Instruction(op, new Operand(curr), new Operand(next));
+                var newInst = new Instruction(op, new Operand(curr), new Operand(next));
 
                 // insert new instruction to instruction list
                 ret.Add(newInst);
 
                 // update current instruction to latest instruction
                 curr = ret.Last();
-
             }
 
             return ret;
@@ -229,18 +230,18 @@ namespace compiler.frontend
 
             GetExpected(Token.LET);
 
-            var ret = Designator();
-            var curr = ret.Last();
+            List<Instruction> ret = Designator();
+            Instruction curr = ret.Last();
 
             GetExpected(Token.ASSIGN);
 
-            ret.AddRange( Expression() );
-            var next = ret.Last();
+            ret.AddRange(Expression());
+            Instruction next = ret.Last();
 
             //TODO: Fix this!!!!
 
             // create new instruction
-            Instruction newInst = new Instruction(IrOps.store, new Operand(curr), new Operand(next));
+            var newInst = new Instruction(IrOps.store, new Operand(curr), new Operand(next));
 
             // insert new instruction to instruction list
             ret.Add(newInst);
@@ -256,7 +257,7 @@ namespace compiler.frontend
         {
             GetExpected(Token.MAIN);
 
-            CFG cfg = new CFG();
+            var cfg = new CFG();
 
             while ((Tok == Token.VAR) || (Tok == Token.ARRAY))
             {
@@ -304,11 +305,9 @@ namespace compiler.frontend
         {
             GetExpected(Token.IDENTIFIER);
             Scanner.SymbolTble.InsertAddress(Scanner.Id, NextAddress());
-            
         }
 
 
-        
         public int NextAddress()
         {
             //TDOO: implement this function
@@ -336,7 +335,6 @@ namespace compiler.frontend
 
                 //CreateIdentifier();
                 Identifier();
-
             }
 
             GetExpected(Token.SEMI_COLON);
@@ -345,7 +343,6 @@ namespace compiler.frontend
 
         public void TypeDecl()
         {
-
             if (Tok == Token.VAR)
             {
                 Next();
@@ -378,7 +375,7 @@ namespace compiler.frontend
 
         public CFG FuncDecl()
         {
-            CFG cfg = new CFG();
+            var cfg = new CFG();
 
             if ((Tok != Token.FUNCTION) && (Tok != Token.PROCEDURE))
             {
@@ -426,32 +423,29 @@ namespace compiler.frontend
 
         public CFG Statement()
         {
-
             //TODO: CFG has trouble adding to new blocks, or inserting into CFG
-            CFG cfgTemp = new CFG();
+            var cfgTemp = new CFG();
 
             cfgTemp.Root = new Node(new BasicBlock("StatementBlock"));
 
 
-            if (Tok == Token.LET) {
+            if (Tok == Token.LET)
+            {
                 cfgTemp.Root.BB.Instructions.AddRange(Assign());
                 //cfgTemp.Root.BB.Name = "A"
             }
             else if (Tok == Token.CALL)
             {
                 cfgTemp.Root.BB.Instructions = FuncCall();
-
             }
             else if (Tok == Token.IF)
             {
                 // TODO: fix this, and insert into CFG
                 return IfStmt();
-
             }
             else if (Tok == Token.WHILE)
             {
                 return WhileStmt();
-
             }
             else if (Tok == Token.RETURN)
             {
@@ -468,8 +462,8 @@ namespace compiler.frontend
 
         public CFG StatementSequence()
         {
-            CFG cfg  = new CFG();
-            BasicBlock bb = new BasicBlock("StatSequence");
+            var cfg = new CFG();
+            var bb = new BasicBlock("StatSequence");
             cfg.Root = new Node(bb);
             cfg.Insert(Statement());
 
@@ -493,7 +487,8 @@ namespace compiler.frontend
             if (!IsRelOp())
             {
                 FatalError();
-            } else
+            }
+            else
             {
                 Next();
             }
@@ -502,7 +497,6 @@ namespace compiler.frontend
 
         public List<Instruction> FuncCall()
         {
-
             GetExpected(Token.CALL);
 
             var ret = new List<Instruction> {Identifier()};
@@ -512,11 +506,11 @@ namespace compiler.frontend
                 GetExpected(Token.OPEN_PAREN);
 
                 if ((Tok == Token.IDENTIFIER) ||
-                    (Tok == Token.NUMBER)     ||
-                    (Tok == Token.OPEN_PAREN) || 
+                    (Tok == Token.NUMBER) ||
+                    (Tok == Token.OPEN_PAREN) ||
                     (Tok == Token.CALL))
                 {
-                   ret.AddRange(Expression());
+                    ret.AddRange(Expression());
 
                     while (Tok == Token.COMMA)
                     {
@@ -540,17 +534,17 @@ namespace compiler.frontend
 
             GetExpected(Token.THEN);
 
-            CFG ifBlock = new CFG();
+            var ifBlock = new CFG();
 
-            CompareNode compBlock = new CompareNode(new BasicBlock("CompareBlock"));
+            var compBlock = new CompareNode(new BasicBlock("CompareBlock"));
 
-            JoinNode joinBlock = new JoinNode(new BasicBlock("JoinBlock"));
+            var joinBlock = new JoinNode(new BasicBlock("JoinBlock"));
             Node falseBlock = joinBlock;
 
             ifBlock.Insert(compBlock);
 
-            var trueBlock = StatementSequence().Root;
-            
+            Node trueBlock = StatementSequence().Root;
+
             compBlock.InsertTrue(trueBlock);
             trueBlock.InsertTrue(joinBlock);
 
@@ -573,7 +567,7 @@ namespace compiler.frontend
         public CFG WhileStmt()
         {
             //todo: create compare block
-            
+
 
             GetExpected(Token.WHILE);
 
@@ -582,20 +576,20 @@ namespace compiler.frontend
             GetExpected(Token.DO);
 
             // create cfg
-            CFG whileBlock = new CFG();
+            var whileBlock = new CFG();
 
             //crate compare block/loop header block
-            WhileNode compBlock = new WhileNode(new BasicBlock("WhileCompareBlock"));
-            
+            var compBlock = new WhileNode(new BasicBlock("WhileCompareBlock"));
+
             // insert compare block for while stmt
             whileBlock.Insert(compBlock);
 
             // prepare basic block for loop body
             CFG stmts = StatementSequence();
 
-            var loopBlock = stmts.Root;
-            var last = stmts.GetLeaf(stmts.Root);
-          
+            Node loopBlock = stmts.Root;
+            Node last = stmts.GetLeaf(stmts.Root);
+
             //TODO: try to refactor so that we don't have to insert on the false branch
             // insert the loop body on the true path
             compBlock.InsertFalse(loopBlock);
@@ -634,8 +628,8 @@ namespace compiler.frontend
             if (Tok == Token.IDENTIFIER)
             {
                 //TODO: handle parameters????
-               // CreateIdentifier();
-               Identifier();
+                // CreateIdentifier();
+                Identifier();
 
                 while (Tok == Token.COMMA)
                 {
@@ -665,12 +659,13 @@ namespace compiler.frontend
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)
+            {
                 if (Scanner != null)
                 {
                     Scanner.Dispose();
                     Scanner = null;
                 }
+            }
         }
-
     }
 }

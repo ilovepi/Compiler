@@ -7,48 +7,7 @@ namespace compiler.frontend
     public class Lexer : IDisposable
     {
         /// <summary>
-        /// A StreamReader to read chars from file
-        /// </summary>
-        public StreamReader Sr { get; set; }
-
-        /// <summary>
-        /// The current character from the file
-        /// </summary>
-        public char C { get; set; }
-
-        /// <summary>
-        /// Table of all program symbols
-        /// </summary>
-        public SymbolTable SymbolTble { get; }
-
-        /// <summary>
-        /// The current Symbol
-        /// </summary>
-        public int Sym { get; set; }
-
-        /// <summary>
-        /// The last Numeric Value
-        /// </summary>
-        public int Val { get; set; }
-
-
-        /// <summary>
-        /// The last identifier
-        /// </summary>
-        public int Id { get; set; }
-
-        /// <summary>
-        /// The current line number in the source text
-        /// </summary>
-        public int LineNo { set; get; }
-
-        /// <summary>
-        /// The current position in the current line
-        /// </summary>
-        public int Position { set; get; }
-
-        /// <summary>
-        /// Constructor for the Lexer
+        ///     Constructor for the Lexer
         /// </summary>
         /// <param name="filename">The name of the source file to begin tokenizing</param>
         public Lexer(string filename)
@@ -68,6 +27,53 @@ namespace compiler.frontend
             LineNo = 1;
         }
 
+        /// <summary>
+        ///     A StreamReader to read chars from file
+        /// </summary>
+        public StreamReader Sr { get; set; }
+
+        /// <summary>
+        ///     The current character from the file
+        /// </summary>
+        public char C { get; set; }
+
+        /// <summary>
+        ///     Table of all program symbols
+        /// </summary>
+        public SymbolTable SymbolTble { get; }
+
+        /// <summary>
+        ///     The current Symbol
+        /// </summary>
+        public int Sym { get; set; }
+
+        /// <summary>
+        ///     The last Numeric Value
+        /// </summary>
+        public int Val { get; set; }
+
+
+        /// <summary>
+        ///     The last identifier
+        /// </summary>
+        public int Id { get; set; }
+
+        /// <summary>
+        ///     The current line number in the source text
+        /// </summary>
+        public int LineNo { set; get; }
+
+        /// <summary>
+        ///     The current position in the current line
+        /// </summary>
+        public int Position { set; get; }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
         ~Lexer()
         {
             Dispose(false);
@@ -80,7 +86,7 @@ namespace compiler.frontend
                 C = '.';
                 throw new IOException("Error: Lexer cannot read beyond the end of the file");
             }
-            C = (char)Sr.Read();
+            C = (char) Sr.Read();
 
             // if(C== '\r')
             // {
@@ -107,7 +113,7 @@ namespace compiler.frontend
             // HACK: could wrap in try/catch and return Token.UNKOWN
             // and leave existing exceptions in the helper functions
             // and classifiers
-            var token = NextToken();
+            Token token = NextToken();
             Sym = (int) token;
             return token;
         }
@@ -120,18 +126,15 @@ namespace compiler.frontend
             {
                 return Number();
             }
-            else if (char.IsLetter(C))
+            if (char.IsLetter(C))
             {
                 return Symbol();
             }
-            else if (!char.IsWhiteSpace(C))
+            if (!char.IsWhiteSpace(C))
             {
                 return Punctuation();
             }
-            else
-            {
-                throw new Exception("Error: unable to parse next token");
-            }
+            throw new Exception("Error: unable to parse next token");
         }
 
         public Token Number()
@@ -158,8 +161,6 @@ namespace compiler.frontend
                     if (C != '=')
                     {
                         return Token.UNKNOWN;
-                        //throw new Exception("Error: '=' is not a valid token, " +
-                        //                    "must be one of: '==', '>=', '<=', '!='");
                     }
                     Next();
                     return Token.EQUAL;
@@ -169,8 +170,6 @@ namespace compiler.frontend
                     if (C != '=')
                     {
                         return Token.UNKNOWN;
-                        //throw new Exception("Error: '!' is not a valid token, " +
-                        //                    "must be one of: '==', '>=', '<=', '!='");
                     }
                     Next();
                     return Token.NOT_EQUAL;
@@ -182,15 +181,12 @@ namespace compiler.frontend
                         Next();
                         return Token.LESS_EQ;
                     }
-                    else if (C == '-')
+                    if (C == '-')
                     {
                         Next();
                         return Token.ASSIGN;
                     }
-                    else
-                    {
-                        return Token.LESS;
-                    }
+                    return Token.LESS;
 
                 case '>':
                     Next();
@@ -199,10 +195,7 @@ namespace compiler.frontend
                         Next();
                         return Token.GREATER_EQ;
                     }
-                    else
-                    {
-                        return Token.GREATER;
-                    }
+                    return Token.GREATER;
 
 
                 case '+':
@@ -299,12 +292,14 @@ namespace compiler.frontend
             }
 
             if (SymbolTble.IsId(s))
+            {
                 return Token.IDENTIFIER;
-            return (Token)Id;
+            }
+            return (Token) Id;
         }
 
         /// <summary>
-        /// Finds the next token. Scans forward through whitespace.
+        ///     Finds the next token. Scans forward through whitespace.
         /// </summary>
         private void FindNextToken()
         {
@@ -326,12 +321,6 @@ namespace compiler.frontend
             {
                 Sr?.Dispose();
             }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
     }
 }

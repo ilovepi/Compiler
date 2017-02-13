@@ -2,12 +2,12 @@
 {
     public class JoinNode : Node
     {
-        public Node FalseParent { get; set; }
-
         public JoinNode(BasicBlock pBB) : base(pBB, NodeTypes.JoinB)
         {
             FalseParent = null;
         }
+
+        public Node FalseParent { get; set; }
 
         public void UpdateParent(Node other, bool trueParent)
         {
@@ -21,13 +21,11 @@
                 FalseParent = other;
                 other.Child = this;
             }
-            
         }
 
         public virtual void CheckEnqueue(CFG cfg)
         {
             cfg.BFSCheckEnqueue(this, Child);
         }
-
     }
 }

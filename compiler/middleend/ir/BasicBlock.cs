@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace compiler.middleend.ir
 {
     //TODO: redisign this class and its supporting classes
     public class BasicBlock
     {
-        public string Name { get; }
-        public List<Instruction> Instructions { get; set; }
-
-        public Anchor AnchorBlock { get; set; }
-
-
         public BasicBlock()
         {
             Instructions = new List<Instruction>();
@@ -25,6 +18,11 @@ namespace compiler.middleend.ir
             AnchorBlock = new Anchor();
         }
 
+        public string Name { get; }
+        public List<Instruction> Instructions { get; set; }
+
+        public Anchor AnchorBlock { get; set; }
+
 
         public void AddInstruction(Instruction ins)
         {
@@ -35,14 +33,16 @@ namespace compiler.middleend.ir
 
         public Instruction Search(Instruction ins)
         {
-            var instList = AnchorBlock.FindOpChain(ins.Op);
+            List<Instruction> instList = AnchorBlock.FindOpChain(ins.Op);
 
             if (instList != null)
             {
-                foreach (var item in instList)
+                foreach (Instruction item in instList)
                 {
                     if (item.Equals(ins))
+                    {
                         return item;
+                    }
                 }
             }
 

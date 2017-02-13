@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.Serialization;
 
 namespace compiler.frontend
 {
@@ -8,19 +7,16 @@ namespace compiler.frontend
     {
         public ParserException()
         {
-            
         }
 
         public ParserException(string message)
             : base(message)
         {
-            
         }
 
         public ParserException(string message, Exception inner)
             : base(message, inner)
         {
-
         }
 
 

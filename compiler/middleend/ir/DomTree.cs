@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace compiler
+﻿namespace compiler
 {
-    class DomTree
+    internal class DomTree
     {
-        public DominatorNode Root { get; set; }
-        
-
         public DomTree()
         {
             Root = null;
         }
+
+        public DominatorNode Root { get; set; }
 
 
         public void RecursiveDFS(DominatorNode curNode)
@@ -33,6 +29,5 @@ namespace compiler
                 RecursiveDFS(Root);
             }
         }
-
     }
 }

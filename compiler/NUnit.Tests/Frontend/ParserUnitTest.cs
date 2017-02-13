@@ -21,17 +21,6 @@ namespace NUnit.Tests.Frontend
         public Parser Checker { get; set; }
 
         [Test]
-        public void DesignatorBadExpressionTest()
-        {
-            //TODO: add more cases to the test file, and hit them all
-            using (Checker = new Parser(ProgramDir + @"/Frontend/parserdata/BadExpression.txt"))
-            {
-                Checker.Next();
-                Assert.Throws<ParserException>( ()=> Checker.Designator());
-            }
-        }
-
-        [Test]
         public void DesignatorArrayTest()
         {
             //TODO: add more cases to the test file, and hit them all
@@ -43,8 +32,19 @@ namespace NUnit.Tests.Frontend
                 Checker.Designator();
             }
         }
-        
-        
+
+        [Test]
+        public void DesignatorBadExpressionTest()
+        {
+            //TODO: add more cases to the test file, and hit them all
+            using (Checker = new Parser(ProgramDir + @"/Frontend/parserdata/BadExpression.txt"))
+            {
+                Checker.Next();
+                Assert.Throws<ParserException>(() => Checker.Designator());
+            }
+        }
+
+
         [Test]
         public void DesignatorIdOnlyTest()
         {
@@ -108,7 +108,7 @@ namespace NUnit.Tests.Frontend
                 //using (var p = new Parser(ProgramPath)) 
                 //{
                 Checker.Tok = t;
-                var expected = t >= Token.EQUAL && t <= Token.GREATER_EQ;
+                bool expected = (t >= Token.EQUAL) && (t <= Token.GREATER_EQ);
                 Assert.AreEqual(expected, Checker.IsRelOp());
                 //}
             }

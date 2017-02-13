@@ -1,19 +1,16 @@
-﻿using NUnit.Framework;
-using System.Data;
+﻿using System.Data;
 using compiler.frontend;
+using NUnit.Framework;
 
 namespace NUnit.Tests.Frontend
 {
     [TestFixture]
     public class SymbolTableTest
     {
-        public SymbolTable Table { get; set; }
-
         [SetUp]
         public void Init()
         {
             Table = new SymbolTable();
-            
         }
 
         [TearDown]
@@ -22,11 +19,13 @@ namespace NUnit.Tests.Frontend
             Table = null;
         }
 
-        
+        public SymbolTable Table { get; set; }
+
+
         [Test]
         public void InsertExceptionThrowsTest()
         {
-            var ex = Assert.Throws<DuplicateNameException>(() =>Table.Insert(".unknown"));
+            var ex = Assert.Throws<DuplicateNameException>(() => Table.Insert(".unknown"));
             Assert.That(ex.Message, Is.EqualTo("Error: Symbol Table cannot contain duplicate symbols: .unknown"));
         }
 
@@ -39,9 +38,7 @@ namespace NUnit.Tests.Frontend
 
             // Token.IDENTIFIER should be less than X's value in symbol table
             // could also just check for equality with ".identifier" and Token.IDENTIFIER
-            Assert.Less((int)Token.IDENTIFIER, Table.Values["x"]);
+            Assert.Less((int) Token.IDENTIFIER, Table.Values["x"]);
         }
-
-
     }
 }
