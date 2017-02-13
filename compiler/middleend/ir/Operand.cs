@@ -1,4 +1,5 @@
 ﻿using System;
+using compiler.frontend;
 
 namespace compiler.middleend.ir
 {
@@ -101,5 +102,22 @@ namespace compiler.middleend.ir
                 return hashCode;
             }
         }
+
+        public string ToString()
+        {
+            switch (Kind)
+            {
+                case OpType.Constant:
+                    return "#"+Val.ToString();
+                case OpType.Identifier:
+                    return "VAR" + IdKey;
+                case OpType.Instruction:
+                    return "(" + Inst.Num + ")";
+                case OpType.Register:
+                    return "R" + Val;
+            }
+            return "ERROR!!!";
+        }
+
     }
 }

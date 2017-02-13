@@ -42,6 +42,7 @@
     <Compile Include="Frontend\ParserIntegrationTest.cs" />
     <Compile Include="Frontend\ParserUnitTest.cs" />
     <Compile Include="Frontend\SymbolTableTest.cs" />
+    <Compile Include="Middle-End\InstructionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

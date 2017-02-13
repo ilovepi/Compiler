@@ -12,8 +12,8 @@ namespace compiler.middleend.ir
 
         public Instruction(IrOps pOp, Operand pArg1, Operand pArg2)
         {
-            Num = InstructionCounter;
             InstructionCounter++;
+            Num = InstructionCounter;
 
             Op = pOp;
             Arg1 = pArg1;
@@ -124,5 +124,11 @@ namespace compiler.middleend.ir
         {
             return !Equals(left, right);
         }
+
+        public string ToString()
+        {
+            return "" + Num.ToString() + " " + Op.ToString() +" " + Arg1.ToString() + " " + Arg2.ToString();
+        }
+
     }
 }
