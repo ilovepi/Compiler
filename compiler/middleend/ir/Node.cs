@@ -217,5 +217,22 @@ namespace compiler
             }
         }
 
+        public string DotId()
+        {
+            return BB.Name + BlockNumber;
+        }
+
+        public string DotLabel()
+        {
+            string label = BB.Name;
+
+            foreach (Instruction inst in BB.Instructions)
+            {
+                label += "\\n " + inst.ToString();
+            }
+
+            return label;
+        }
+
     }
 }

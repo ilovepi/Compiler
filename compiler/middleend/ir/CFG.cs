@@ -72,8 +72,8 @@ namespace compiler
                     visited.Add(child);
                 }
 
-                DOTOutput += parent.BB.Name + parent.BlockNumber + " -> " + child.BB.Name +
-                             child.BlockNumber + "\n";
+                DOTOutput += parent.DotId() + "[label=\"" + parent.DotLabel() + "\"]\n";
+                DOTOutput += parent.DotId() + " -> " + child.DotId() + "\n";
             }
         }
 
@@ -97,8 +97,7 @@ namespace compiler
         private void CheckEnqueue(WhileNode CurNode)
         {
             BFSCheckEnqueue(CurNode, (CompareNode) CurNode.FalseNode);
-            DOTOutput += CurNode.Child.BB.Name + CurNode.BlockNumber + " -> " + CurNode.Child.BB.Name +
-                         CurNode.Child.BlockNumber + "\n";
+            DOTOutput += CurNode.DotId() + " -> " + CurNode.Child.DotId() + "\n";
         }
 
         public void GenerateDOTOutput()
@@ -115,7 +114,7 @@ namespace compiler
                 current.CheckEnqueue(this);
             }
 
-            DOTOutput = "digraph {{\n" + DOTOutput + "}}";
+            DOTOutput = "digraph {\n" + DOTOutput + "}";
         }
     }
 }

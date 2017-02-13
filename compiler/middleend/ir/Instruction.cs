@@ -127,7 +127,14 @@ namespace compiler.middleend.ir
 
         public override string ToString()
         {
-            return "" + Num.ToString() + " " + Op.ToString() +" " + Arg1.ToString() + " " + Arg2.ToString();
+            try
+            {
+                return "" + Num.ToString() + " " + Op.ToString() + " " + Arg1.ToString() + " " + Arg2.ToString();
+            }
+            catch (Exception e)
+            {
+                return "" + Num.ToString() + " " + Op.ToString() + " " + Arg1.ToString();
+            }
         }
 
     }
