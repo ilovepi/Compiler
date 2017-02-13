@@ -137,7 +137,7 @@ namespace compiler
             return ret;
         }
 
-        public static void consolodate(Node root)
+        public static void Consolodate(Node root)
         {
             if ((root == null) || (root.Child == null))
             {
@@ -156,11 +156,11 @@ namespace compiler
                 Node temp = root.Child;
                 root.Child = temp.Child;
 
-                consolodate(root);
+                Consolodate(root);
             }
             else
             {
-                consolodate(root.Child);
+                Consolodate(root.Child);
             }
         }
 

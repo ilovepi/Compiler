@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using compiler.middleend.ir;
 
 namespace compiler
@@ -11,7 +12,7 @@ namespace compiler
 
         // External data for BFS
         private int BlockCount = 0;
-        public string DOTOutput = "";
+        public string DOTOutput = String.Empty;
         private Queue<Node> q = new Queue<Node>();
         private HashSet<Node> visited = new HashSet<Node>();
 

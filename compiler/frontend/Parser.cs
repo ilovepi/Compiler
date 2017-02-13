@@ -506,13 +506,13 @@ namespace compiler.frontend
             cfg.Insert(Statement());
 
             // TODO: fix consolodate()
-            Node.consolodate(cfg.Root);
+            Node.Consolodate(cfg.Root);
 
             while (Tok == Token.SEMI_COLON)
             {
                 Next();
                 cfg.Insert(Statement());
-                Node.consolodate(cfg.Root);
+                Node.Consolodate(cfg.Root);
             }
 
             return cfg;
@@ -599,6 +599,9 @@ namespace compiler.frontend
             compBlock.InsertFalse(falseBlock);
 
             GetExpected(Token.FI);
+
+            //TODO: remove placeholder instruction and do something smarter
+            joinBlock.BB.Instructions.Add(new Instruction(IrOps.phi, new Operand(Operand.OpType.Identifier, 0), new Operand(Operand.OpType.Identifier, 0)));
 
             compBlock.BB.Instructions.Last().Arg2 = new Operand( falseBlock.BB.Instructions.First());
             trueBlock.BB.Instructions.Last().Arg2 = new Operand(joinBlock.BB.Instructions.First());
