@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using compiler.middleend.ir;
 
 namespace compiler
@@ -50,7 +51,71 @@ namespace compiler
 
         // TODO: create visitor function that recursively clears 'visited' flags
 
-		//TODO: create BFS method to walk the CFG
+        //TODO: create BFS method to walk the CFG
+
+        // External data for BFS
+        int BlockCount = 0;
+        Queue<Node> q = new Queue<Node>();
+        HashSet<Node> visited = new HashSet<Node>();
+        public string DOTOutput = "";
+
+
+        // Checks whether to enqueue a child and do so if appropriate
+        /* Validity check *must* be done before enqueue, since output
+         * is generated for all parent-children pairs at parent. */
+        public void BFSCheckEnqueue(Node parent, Node child)
+	    {
+            // TODO: Fix to account for cycles/join blocks
+            if (child != null)
+            {
+                if (!visited.Contains(child) )
+                {
+                    q.Enqueue(child);
+                    visited.Add(child);
+                }
+
+                DOTOutput += parent.BB.Name + parent.BlockNumber.ToString() + " -> " + child.BB.Name + child.BlockNumber.ToString() + "\n";
+            }
+        }
+
+		private void CheckEnqueue(Node CurNode)
+		{
+			BFSCheckEnqueue(CurNode, CurNode.Child);
+		}
+
+		private void CheckEnqueue(CompareNode CurNode)
+		{
+			BFSCheckEnqueue(CurNode, CurNode.Child);
+			BFSCheckEnqueue(CurNode, CurNode.FalseNode);
+		}
+
+		private void CheckEnqueue(JoinNode CurNode)
+		{
+			BFSCheckEnqueue(CurNode, CurNode.Child);;
+		}
+
+		private void CheckEnqueue(WhileNode CurNode)
+		{
+			BFSCheckEnqueue(CurNode, (CompareNode)CurNode.FalseNode);
+            DOTOutput += CurNode.Child.BB.Name + CurNode.BlockNumber.ToString() + " -> " + CurNode.Child.BB.Name + CurNode.Child.BlockNumber.ToString() + "\n";
+		}
         
-	}
+	    public void GenerateDOTOutput()
+	    {
+            // Resets external BFS data on each run
+            q = new Queue<Node>();
+            visited = new HashSet<Node>();
+	        DOTOutput = String.Empty;
+
+            q.Enqueue(Root);
+	        while (q.Count > 0)
+	        {
+	            Node current = q.Dequeue();
+	            current.CheckEnqueue(this);
+	        }
+
+	        DOTOutput = "digraph {{\n" + DOTOutput + "}}";
+	    }
+
+    }
 }

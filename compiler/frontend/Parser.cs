@@ -265,7 +265,9 @@ namespace compiler.frontend
 
             while ((Tok == Token.FUNCTION) || (Tok == Token.PROCEDURE))
             {
-                cfg.Insert( FuncDecl() );
+                // throw away cFG for now
+                //cfg.Insert( FuncDecl() );
+                FuncDecl();
             }
 
             GetExpected(Token.OPEN_CURL);
@@ -431,27 +433,31 @@ namespace compiler.frontend
             cfgTemp.Root = new Node(new BasicBlock("StatementBlock"));
 
 
-
             if (Tok == Token.LET) {
                 cfgTemp.Root.BB.Instructions.AddRange(Assign());
-            } else if (Tok == Token.CALL)
+                //cfgTemp.Root.BB.Name = "A"
+            }
+            else if (Tok == Token.CALL)
             {
                 cfgTemp.Root.BB.Instructions = FuncCall();
 
-            } else if (Tok == Token.IF)
+            }
+            else if (Tok == Token.IF)
             {
                 // TODO: fix this, and insert into CFG
                 return IfStmt();
 
-            } else if (Tok == Token.WHILE)
+            }
+            else if (Tok == Token.WHILE)
             {
                 return WhileStmt();
 
-            } else if (Tok == Token.RETURN)
+            }
+            else if (Tok == Token.RETURN)
             {
                 cfgTemp.Root.BB.Instructions.AddRange(ReturnStmt());
-
-            } else
+            }
+            else
             {
                 FatalError();
             }
@@ -466,12 +472,15 @@ namespace compiler.frontend
             BasicBlock bb = new BasicBlock("StatSequence");
             cfg.Root = new Node(bb);
             cfg.Insert(Statement());
+
+            // TODO: fix consolodate()
             Node.consolodate(cfg.Root);
 
             while (Tok == Token.SEMI_COLON)
             {
                 Next();
                 cfg.Insert(Statement());
+                Node.consolodate(cfg.Root);
             }
 
             return cfg;
@@ -536,7 +545,7 @@ namespace compiler.frontend
             CompareNode compBlock = new CompareNode(new BasicBlock("CompareBlock"));
 
             JoinNode joinBlock = new JoinNode(new BasicBlock("JoinBlock"));
-            Node falseBlock;
+            Node falseBlock = joinBlock;
 
             ifBlock.Insert(compBlock);
 
@@ -551,10 +560,7 @@ namespace compiler.frontend
                 falseBlock = StatementSequence().Root;
                 Node.Leaf(falseBlock).InsertFalse(joinBlock);
             }
-            else
-            {
-                falseBlock = joinBlock;
-            }
+
 
             compBlock.InsertFalse(falseBlock);
 

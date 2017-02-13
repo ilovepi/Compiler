@@ -4,12 +4,15 @@ namespace compiler.middleend.ir
 {
     public class CompareNode : Node
     {
-       public Node FalseNode { get; set; }
 
-        public CompareNode(BasicBlock pBB) : base(pBB)
+        public CompareNode(BasicBlock pBB) : base(pBB, NodeTypes.CompareB)
         {
             FalseNode = null;
         }
+
+
+        public Node FalseNode { get; set; }
+
 
         public void Insert(Node other, bool trueChild)
         {
@@ -41,6 +44,12 @@ namespace compiler.middleend.ir
             List<Node> ret = base.GetAllChildren();
             ret.Add(FalseNode);
             return ret;
+        }
+
+        public override void CheckEnqueue(CFG cfg)
+        {
+            cfg.BFSCheckEnqueue(this, Child);
+            cfg.BFSCheckEnqueue(this, FalseNode);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace compiler.middleend.ir
 {
@@ -44,6 +45,15 @@ namespace compiler.middleend.ir
 		public Instruction Search { set; get; }
 
 
+        /// <summary>
+        /// The set of live ranges used in liveness analysis
+        /// </summary>
+        public HashSet<Instruction> LiveRange { get; set; }
+
+
+        /// <summary>
+        /// Global instruction counter for all IR instructions
+        /// </summary>
 	    public static int InstructionCounter = 0;
 
 		public Instruction(IrOps pOp, Operand pArg1, Operand pArg2)
@@ -54,6 +64,8 @@ namespace compiler.middleend.ir
 			Op = pOp;
 			Arg1 = pArg1;
 			Arg2 = pArg2;
+
+            LiveRange = new HashSet<Instruction>();
 
 			Prev = null;
 			Next = null;
@@ -76,18 +88,18 @@ namespace compiler.middleend.ir
 	        return Equals((Instruction) obj);
 	    }
 
-	    /*
+
         public override int GetHashCode()
 	    {
 	        unchecked
 	        {
-	            var hashCode = Op;
-	            hashCode = (hashCode * 397) ^ (Arg1 != null ? Arg1.GetHashCode() : 0);
-	            hashCode = (hashCode * 397) ^ (Arg2 != null ? Arg2.GetHashCode() : 0);
+	            var hashCode = (int)Op;
+	            hashCode = (hashCode * 397) ^ (Arg1?.GetHashCode() ?? 0);
+	            hashCode = (hashCode * 397) ^ (Arg2?.GetHashCode() ?? 0);
 	            return hashCode;
 	        }
 	    }
-        */
+      
 
 	    public static bool operator ==(Instruction left, Instruction right)
 	    {

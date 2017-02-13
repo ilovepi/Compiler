@@ -5,9 +5,21 @@ namespace compiler
 {
 	public class Node
 	{
+	    public static int BlockID=0;
+
+	    public enum NodeTypes
+	    {
+	        BB,
+	        CompareB,
+	        JoinB,
+	        WhileB
+	    };
+
 		public BasicBlock BB { get; set; }
 
-        /// <summary>
+	    public NodeTypes NodeType { get; set; }
+
+	    /// <summary>
         /// Parent Node
         /// </summary>
 		public Node Parent { get; set; }
@@ -21,17 +33,34 @@ namespace compiler
         
        
 
+	    public int BlockNumber;
+
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="pBB">A Basic block</param>
-		public Node(BasicBlock pBB)
-		{
+        public Node(BasicBlock pBB)
+        {
+            BlockID++;
+            BlockNumber = BlockID;
 			BB = pBB;
 		    Parent = null;
 		    Child = null;
+		    NodeType = NodeTypes.BB;
 
 		}
+
+	    public Node(BasicBlock pBB, NodeTypes n)
+	    {
+	        BlockID++;
+	        BlockNumber = BlockID;
+	        BB = pBB;
+	        Parent = null;
+	        Child = null;
+	        NodeType = n;
+	    }
+
+
 
         /// <summary>
         /// Checks if this node is a root with no parents
@@ -127,9 +156,7 @@ namespace compiler
             if (object.ReferenceEquals(root, root.Child))
                 throw new Exception("Circular reference in basic block!!");
 
-
-
-            if (root.Child.GetType() == typeof(Node))
+	        if( (root.GetType() == typeof(Node)) && (root.Child.GetType() == typeof(Node)) )
 	        {
                 root.BB.Instructions.AddRange(root.Child.BB.Instructions);
 
@@ -138,10 +165,18 @@ namespace compiler
 
                 consolodate(root);
 	        }
+            else
+            {
+                consolodate(root.Child);
+            }
            
 
 	    }
 
+	    public virtual void CheckEnqueue(CFG cfg)
+	    {
+	        cfg.BFSCheckEnqueue(this, Child);
+	    }
 
     }
 }
