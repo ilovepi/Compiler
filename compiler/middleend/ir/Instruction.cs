@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace compiler.middleend.ir
 {
@@ -44,6 +45,15 @@ namespace compiler.middleend.ir
 		public Instruction Search { set; get; }
 
 
+        /// <summary>
+        /// The set of live ranges used in liveness analysis
+        /// </summary>
+        public HashSet<Instruction> LiveRange { get; set; }
+
+
+        /// <summary>
+        /// Global instruction counter for all IR instructions
+        /// </summary>
 	    public static int InstructionCounter = 0;
 
 		public Instruction(IrOps pOp, Operand pArg1, Operand pArg2)
@@ -54,6 +64,8 @@ namespace compiler.middleend.ir
 			Op = pOp;
 			Arg1 = pArg1;
 			Arg2 = pArg2;
+
+            LiveRange = new HashSet<Instruction>();
 
 			Prev = null;
 			Next = null;
