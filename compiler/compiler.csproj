@@ -52,6 +52,7 @@
     <Compile Include="frontend\Parser.cs" />
     <Compile Include="frontend\ParserException.cs" />
     <Compile Include="frontend\Token.cs" />
+    <Compile Include="middleend\ir\DomTree.cs" />
     <Compile Include="middleend\ir\DominatorNode.cs" />
     <Compile Include="middleend\ir\CompareNode.cs" />
     <Compile Include="middleend\ir\IrOps.cs" />

@@ -49,16 +49,8 @@ namespace compiler
 
 
         // TODO: create visitor function that recursively clears 'visited' flags
-		//TODO: create methods to walk the CFG
 
-
-		// preorder
-
-		// post order
-
-		// inorder
-
-
-
+		//TODO: create BFS method to walk the CFG
+        
 	}
 }

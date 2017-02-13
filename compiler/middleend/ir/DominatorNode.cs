@@ -60,13 +60,6 @@ namespace compiler
             Children.Add(other);
             other.Parent = this;
         }
-        
-
-        //TODO: Do we need this method?
-        virtual public void UpdateParent(DominatorNode other)
-        {
-            Parent = other;
-        }
 
 
         /// <summary>
