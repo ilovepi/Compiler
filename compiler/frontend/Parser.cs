@@ -462,10 +462,7 @@ namespace compiler.frontend
         public CFG Statement()
         {
             //TODO: CFG has trouble adding to new blocks, or inserting into CFG
-            var cfgTemp = new CFG();
-
-            cfgTemp.Root = new Node(new BasicBlock("StatementBlock"));
-
+            var cfgTemp = new CFG {Root = new Node(new BasicBlock("StatementBlock"))};
 
             switch (Tok)
             {

@@ -23,12 +23,27 @@ namespace NUnit.Tests.Frontend
 
 
         [Test]
+        public void InsertAddressTest()
+        {
+            Table.Insert("x");
+            Table.InsertAddress(Table.Values["x"], 0xfff);
+            Assert.AreEqual(0xfff, Table.AddressTble[Table.Values["x"]]);
+        }
+
+
+        [Test]
         public void InsertExceptionThrowsTest()
         {
             var ex = Assert.Throws<DuplicateNameException>(() => Table.Insert(".unknown"));
             Assert.That(ex.Message, Is.EqualTo("Error: Symbol Table cannot contain duplicate symbols: .unknown"));
         }
 
+        [Test]
+        public void InsertKeyAddressTest()
+        {
+            Table.Insert("x", 0xDEAD);
+            Assert.AreEqual(0xDEAD, Table.AddressTble[Table.Values["x"]]);
+        }
 
         [Test]
         public void IsIdTest()
