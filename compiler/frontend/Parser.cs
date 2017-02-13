@@ -14,10 +14,11 @@ namespace compiler.frontend
             _filename = pFileName;
             Tok = Token.UNKNOWN;
             Scanner = new Lexer(_filename);
-            FlowCfg = new CFG();
+            ProgramCfg = new CFG();
         }
 
         public Token Tok { get; set; }
+
         public Lexer Scanner { get; set; }
 
         public int Pos => Scanner.Position;
@@ -33,7 +34,7 @@ namespace compiler.frontend
         public List<int> AddressStack { get; set; }
 
 
-        public CFG FlowCfg { get; set; }
+        public CFG ProgramCfg { get; set; }
 
         public void Dispose()
         {
@@ -648,7 +649,7 @@ namespace compiler.frontend
         public void Parse()
         {
             Next();
-            FlowCfg = Computation();
+            ProgramCfg = Computation();
         }
 
         public void ThrowParserException(Token expected)

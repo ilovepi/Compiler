@@ -12,11 +12,11 @@ namespace Program
             using (var p = new Parser(@"../../testdata/test003.txt"))
             {
                 p.Parse();
-                p.FlowCfg.GenerateDOTOutput();
+                p.ProgramCfg.GenerateDOTOutput();
 
                 using (var file = new StreamWriter("graph.txt"))
                 {
-                    file.WriteLine(p.FlowCfg.DOTOutput);
+                    file.WriteLine(p.ProgramCfg.DOTOutput);
                 }
             }
         }
