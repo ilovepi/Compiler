@@ -9,7 +9,7 @@ namespace Program
         private static void Main(string[] args)
         {
 
-            using (var p = new Parser(@"../../testdata/test003.txt"))
+            using (var p = new Parser(@"../../testdata/test024.txt"))
             {
                 p.Parse();
                 p.ProgramCfg.GenerateDOTOutput();

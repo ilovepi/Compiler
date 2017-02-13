@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using compiler.middleend.ir;
 
 namespace compiler
@@ -110,26 +111,25 @@ namespace compiler
             {
                 return null;
             }
-            if (root.Child == null)
+            else if (root.Child == null)
             {
                 return root;
             }
-            return Leaf(root.Child);
+            else
+            {
+                return root.Child.Leaf();
+            }
         }
 
-
-        public static Node Leaf(WhileNode root)
+        public virtual Node Leaf()
         {
-            if (root == null)
+            if (Child == null)
             {
-                return null;
+                return this;
             }
-            if (root.FalseNode == null)
-            {
-                return root;
-            }
-            return Leaf(root.FalseNode);
+            return Child.Leaf();
         }
+        
 
         public virtual List<Node> GetAllChildren()
         {
@@ -168,5 +168,32 @@ namespace compiler
         {
             cfg.BFSCheckEnqueue(this, Child);
         }
+
+
+        public Instruction GetNextInstruction()
+        {
+            if (BB.Instructions.Count != 0)
+            {
+                return BB.Instructions.First();
+            }
+            else
+            {
+                return Child?.GetNextInstruction();
+            }
+
+        }
+
+        public Instruction GetLastInstruction()
+        {
+            if (Child == null)
+            {
+                return BB.Instructions.Count == 0 ? null : BB.Instructions.Last();
+            }
+            else
+            {
+                return Child.GetLastInstruction();
+            }
+        }
+
     }
 }

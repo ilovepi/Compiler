@@ -23,7 +23,7 @@
             }
         }
 
-        public virtual void CheckEnqueue(CFG cfg)
+        public override void CheckEnqueue(CFG cfg)
         {
             cfg.BFSCheckEnqueue(this, Child);
         }

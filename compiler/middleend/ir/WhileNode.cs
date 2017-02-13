@@ -21,5 +21,16 @@
             cfg.BFSCheckEnqueue(this, FalseNode);
             cfg.DOTOutput += Child.BB.Name + BlockNumber + " -> " + Child.BB.Name + Child.BlockNumber + "\n";
         }
+
+//        public override Node Leaf()
+//        {
+//            
+//            if (FalseNode == null)
+//            {
+//                return this;
+//            }
+//            return FalseNode.Leaf();
+//        }
+
     }
 }

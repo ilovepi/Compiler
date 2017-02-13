@@ -348,7 +348,7 @@ namespace compiler.frontend
 
         public int NextAddress()
         {
-            //TDOO: implement this function
+            //TODO: implement this function
             return 0;
         }
 
@@ -467,31 +467,24 @@ namespace compiler.frontend
             cfgTemp.Root = new Node(new BasicBlock("StatementBlock"));
 
 
-            if (Tok == Token.LET)
+            switch (Tok)
             {
-                cfgTemp.Root.BB.Instructions.AddRange(Assign());
-                //cfgTemp.Root.BB.Name = "A"
-            }
-            else if (Tok == Token.CALL)
-            {
-                cfgTemp.Root.BB.Instructions = FuncCall();
-            }
-            else if (Tok == Token.IF)
-            {
-                // TODO: fix this, and insert into CFG
-                return IfStmt();
-            }
-            else if (Tok == Token.WHILE)
-            {
-                return WhileStmt();
-            }
-            else if (Tok == Token.RETURN)
-            {
-                cfgTemp.Root.BB.Instructions.AddRange(ReturnStmt());
-            }
-            else
-            {
-                FatalError();
+                case Token.LET:
+                    cfgTemp.Root.BB.Instructions.AddRange(Assign());
+                    break;
+                case Token.CALL:
+                    cfgTemp.Root.BB.Instructions = FuncCall();
+                    break;
+                case Token.IF:
+                    return IfStmt();
+                case Token.WHILE:
+                    return WhileStmt();
+                case Token.RETURN:
+                    cfgTemp.Root.BB.Instructions.AddRange(ReturnStmt());
+                    break;
+                default:
+                    FatalError();
+                    break;
             }
 
             return cfgTemp;
@@ -593,6 +586,7 @@ namespace compiler.frontend
                 Next();
                 falseBlock = StatementSequence().Root;
                 Node.Leaf(falseBlock).InsertFalse(joinBlock);
+                Node.Consolodate(falseBlock);
             }
 
 
@@ -602,9 +596,9 @@ namespace compiler.frontend
 
             //TODO: remove placeholder instruction and do something smarter
             joinBlock.BB.Instructions.Add(new Instruction(IrOps.phi, new Operand(Operand.OpType.Identifier, 0), new Operand(Operand.OpType.Identifier, 0)));
-
-            compBlock.BB.Instructions.Last().Arg2 = new Operand( falseBlock.BB.Instructions.First());
-            trueBlock.BB.Instructions.Last().Arg2 = new Operand(joinBlock.BB.Instructions.First());
+            
+            compBlock.BB.Instructions.Last().Arg2 = new Operand( falseBlock.GetNextInstruction());
+            Node.Leaf( trueBlock).BB.Instructions.Last().Arg2 = new Operand(joinBlock.BB.Instructions.First());
 
             return ifBlock;
         }
@@ -645,11 +639,16 @@ namespace compiler.frontend
 
             GetExpected(Token.OD);
 
-            
+            var followBlock = new Node(new BasicBlock("Follow Block"));
+
+
+            //TODO: remove placeholder instruction and do something smarter
+            followBlock.BB.Instructions.Add(new Instruction(IrOps.phi, new Operand(Operand.OpType.Identifier, 0), new Operand(Operand.OpType.Identifier, 0)));
+
             last.BB.Instructions.Last().Arg2 = new Operand(compBlock.BB.Instructions.First());
 
             // TODO: this is straight up wrong. we can leave this alone and fix it in the enclosing scope
-            compBlock.BB.Instructions.Last().Arg2 = new Operand(last.BB.Instructions.Last());
+            compBlock.BB.Instructions.Last().Arg2 = new Operand(followBlock.BB.Instructions.First());
             
             return whileBlock;
         }
