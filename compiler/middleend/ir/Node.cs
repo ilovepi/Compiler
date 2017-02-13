@@ -137,7 +137,7 @@ namespace compiler
             return ret;
         }
 
-        public static void Consolodate(Node root)
+        public static void Consolidate(Node root)
         {
             if ((root == null) || (root.Child == null))
             {
@@ -156,11 +156,11 @@ namespace compiler
                 Node temp = root.Child;
                 root.Child = temp.Child;
 
-                Consolodate(root);
+                Consolidate(root);
             }
             else
             {
-                Consolodate(root.Child);
+                Consolidate(root.Child);
             }
         }
 
@@ -187,11 +187,33 @@ namespace compiler
         {
             if (Child == null)
             {
-                return BB.Instructions.Count == 0 ? null : BB.Instructions.Last();
+                if (BB.Instructions.Count == 0)
+                {
+                    return null;
+                }
+                else
+                {
+                    return BB.Instructions.Last();
+                }
             }
             else
             {
-                return Child.GetLastInstruction();
+                var ret = Child.GetLastInstruction();
+                if (ret == null)
+                {
+                    if (BB.Instructions.Count == 0)
+                    {
+                        return null;
+                    }
+                    else
+                    {
+                        return BB.Instructions.Last();
+                    }
+                }
+                else
+                {
+                    return ret;
+                }
             }
         }
 

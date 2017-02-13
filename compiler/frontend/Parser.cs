@@ -496,13 +496,13 @@ namespace compiler.frontend
             cfg.Insert(Statement());
 
             // TODO: fix consolodate()
-            Node.Consolodate(cfg.Root);
+            Node.Consolidate(cfg.Root);
 
             while (Tok == Token.SEMI_COLON)
             {
                 Next();
                 cfg.Insert(Statement());
-                Node.Consolodate(cfg.Root);
+                Node.Consolidate(cfg.Root);
             }
 
             return cfg;
@@ -583,7 +583,7 @@ namespace compiler.frontend
                 Next();
                 falseBlock = StatementSequence().Root;
                 Node.Leaf(falseBlock).InsertFalse(joinBlock);
-                Node.Consolodate(falseBlock);
+                Node.Consolidate(falseBlock);
             }
 
 

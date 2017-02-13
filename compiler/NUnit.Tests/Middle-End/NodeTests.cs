@@ -12,60 +12,139 @@ namespace NUnit.Tests.Middle_End
     [TestFixture]
     public class NodeTests
     {
-        public Node root { get; set; }
+        public Node Root { get; set; }
 
         [SetUp]
         public void Init()
         {
-            root = new Node(new BasicBlock("Test Block"));
+            Root = new Node(new BasicBlock("Test Block"));
         }
 
         [Test]
         public void IsRootTest()
         {
-            Assert.IsTrue(root.IsRoot());
+            Assert.IsTrue(Root.IsRoot());
 
-            root.Insert(new Node(new BasicBlock("Child Block")));
+            Root.Insert(new Node(new BasicBlock("Child Block")));
 
-            Assert.IsFalse(root.Child.IsRoot());
+            Assert.IsFalse(Root.Child.IsRoot());
 
         }
 
         [Test]
         public void InsertionTest()
         {
-            Assert.IsTrue(root.IsRoot());
+            Assert.IsTrue(Root.IsRoot());
 
-            root.Insert(new Node(new BasicBlock("Child Block")));
+            Root.Insert(new Node(new BasicBlock("Child Block")));
 
-            Assert.IsFalse(root.Child.IsRoot());
+            Assert.IsFalse(Root.Child.IsRoot());
 
-            root.Insert(new Node(new BasicBlock("Child Block 2")));
+            Root.Insert(new Node(new BasicBlock("Child Block 2")));
         }
 
 
         [Test]
         public void LeafReturnsNullTest()
         {
-            root = null;
-            Assert.Null(Node.Leaf(root));
+            Root = null;
+            Assert.Null(Node.Leaf(Root));
         }
 
 
         [Test]
         public void LeafReturnsRootTest()
         {
-            Assert.AreEqual(root, Node.Leaf(root));
+            Assert.AreEqual(Root, Node.Leaf(Root));
         }
 
 
         [Test]
         public void LeafReturnsChildTest()
         {
-            root.Insert(new Node(new BasicBlock("Child Block")));
-            root.Insert(new Node(new BasicBlock("Child Block 2")));
-            Assert.AreNotEqual(root, Node.Leaf(root));
-            Assert.AreNotEqual(root.Child, Node.Leaf(root));
+            Root.Insert(new Node(new BasicBlock("Child Block")));
+            Root.Insert(new Node(new BasicBlock("Child Block 2")));
+            Assert.AreNotEqual(Root, Node.Leaf(Root));
+            Assert.AreNotEqual(Root.Child, Node.Leaf(Root));
+        }
+
+
+
+        [Test]
+        public void ConsolidateTest()
+        {
+            var inst1 = new Instruction(IrOps.add, new Operand(Operand.OpType.Constant, 10),
+                new Operand(Operand.OpType.Identifier, 10));
+
+            var inst2 = new Instruction(IrOps.add, new Operand(Operand.OpType.Constant, 05),
+                new Operand(inst1));
+
+            Root.BB.Instructions.Add(inst1);
+
+            Root.Insert(new Node(new BasicBlock("Child Block")));
+            Root.Child.BB.Instructions.Add(inst2);
+            Root.Insert(new Node(new BasicBlock("Child Block 2")));
+
+            Node.Consolidate(Root);
+            Assert.AreEqual(Root, Node.Leaf(Root));
+            Assert.AreEqual(2, Root.BB.Instructions.Count);
+        }
+
+        [Test]
+        public void ConsolidateCircularExceptionTest()
+        {
+            Root.Child = Root;
+            var ex = Assert.Throws<Exception>(() => Node.Consolidate(Root));
+            Assert.That(ex.Message, Is.EqualTo("Circular reference in basic block!!"));
+        }
+
+
+        [Test]
+        public void GetNextInstructionTest()
+        {
+            var inst1 = new Instruction(IrOps.add, new Operand(Operand.OpType.Constant, 10),
+               new Operand(Operand.OpType.Identifier, 10));
+
+            var inst2 = new Instruction(IrOps.add, new Operand(Operand.OpType.Constant, 05),
+                new Operand(inst1));
+
+            Root.BB.Instructions.Add(inst1);
+
+            Root.Insert(new Node(new BasicBlock("Child Block")));
+            Root.Child.BB.Instructions.Add(inst2);
+            Root.Insert(new Node(new BasicBlock("Child Block 2")));
+
+            Assert.AreEqual(Root.BB.Instructions.First(), Root.GetNextInstruction());
+
+        }
+
+
+
+        [Test]
+        public void GetLastInstructionTest()
+        {
+            Assert.Null(Root.GetLastInstruction());
+
+            var inst1 = new Instruction(IrOps.add, new Operand(Operand.OpType.Constant, 10),
+               new Operand(Operand.OpType.Identifier, 10));
+
+            var inst2 = new Instruction(IrOps.add, new Operand(Operand.OpType.Constant, 05),
+                new Operand(inst1));
+
+            Root.BB.Instructions.Add(inst1);
+
+            Root.Insert(new Node(new BasicBlock("Child Block")));
+            Root.Child.BB.Instructions.Add(inst2);
+            
+
+            Assert.AreEqual(Root.Child.BB.Instructions.Last(), Root.GetLastInstruction());
+            Root.Insert(new Node(new BasicBlock("Child Block 2")));
+
+            Root.Leaf().BB.Instructions.Add(inst2);
+            Root.Leaf().BB.Instructions.Add(inst1);
+
+            Assert.AreEqual(inst1, Root.GetLastInstruction());
+
         }
 
 
