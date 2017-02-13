@@ -4,17 +4,29 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using compiler.middleend.ir;
 
 namespace NUnit.Tests.Middle_End
 {
     [TestFixture]
     public class BasicBlockTests
     {
-        [Test]
-        public void TestMethod()
+
+        public BasicBlock Block { get; set; }
+
+        [SetUp]
+        public void Init()
         {
-            // TODO: Add your test code here
-            Assert.Pass("Your first passing test");
+            Block = new BasicBlock();
         }
+
+        [Test]
+        public void ConstructorTest()
+        {
+            Assert.Null(Block.Name);
+            Block = new BasicBlock("Test Block");
+            Assert.AreEqual("Test Block", Block.Name);
+        }
+
     }
 }

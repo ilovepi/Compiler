@@ -31,6 +31,18 @@ namespace compiler.middleend.ir
         }
 
 
+
+        public void AddInstructionList(List<Instruction> insList)
+        {
+            Instructions.AddRange(insList);
+            foreach (Instruction instruction in insList)
+            {
+                AnchorBlock.Insert(instruction);
+            }
+        }
+
+
+
         public Instruction Search(Instruction ins)
         {
             List<Instruction> instList = AnchorBlock.FindOpChain(ins.Op);

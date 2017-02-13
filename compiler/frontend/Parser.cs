@@ -297,7 +297,7 @@ namespace compiler.frontend
             Token comp = Tok;
 
             Next();
-            ret.AddRange( Expression() );
+            ret.AddRange(Expression());
             var arg2 = ret.Last();
 
             ret.Add(new Instruction(IrOps.cmp, new Operand( arg1), new Operand( arg2)));
@@ -467,17 +467,17 @@ namespace compiler.frontend
             switch (Tok)
             {
                 case Token.LET:
-                    cfgTemp.Root.BB.Instructions.AddRange(Assign());
+                    cfgTemp.Root.BB.AddInstructionList(Assign());
                     break;
                 case Token.CALL:
-                    cfgTemp.Root.BB.Instructions = FuncCall();
+                    cfgTemp.Root.BB.AddInstructionList(FuncCall());
                     break;
                 case Token.IF:
                     return IfStmt();
                 case Token.WHILE:
                     return WhileStmt();
                 case Token.RETURN:
-                    cfgTemp.Root.BB.Instructions.AddRange(ReturnStmt());
+                    cfgTemp.Root.BB.AddInstructionList(ReturnStmt());
                     break;
                 default:
                     FatalError();
@@ -563,14 +563,10 @@ namespace compiler.frontend
             var joinBlock = new JoinNode(new BasicBlock("JoinBlock"));
             Node falseBlock = joinBlock;
 
-            compBlock.BB.Instructions.AddRange( Relation() );
+            compBlock.BB.AddInstructionList(Relation());
 
             GetExpected(Token.THEN);
-
             
-
-           
-
             ifBlock.Insert(compBlock);
 
             Node trueBlock = StatementSequence().Root;
@@ -615,7 +611,7 @@ namespace compiler.frontend
             whileBlock.Insert(compBlock);
 
             // add the relation/branch comparison into the loop header block
-            compBlock.BB.Instructions.AddRange(Relation());
+            compBlock.BB.AddInstructionList(Relation());
 
             GetExpected(Token.DO);
             

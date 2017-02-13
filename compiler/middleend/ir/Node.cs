@@ -151,7 +151,7 @@ namespace compiler
 
             if ((root.GetType() == typeof(Node)) && (root.Child.GetType() == typeof(Node)))
             {
-                root.BB.Instructions.AddRange(root.Child.BB.Instructions);
+                root.BB.AddInstructionList(root.Child.BB.Instructions);
 
                 Node temp = root.Child;
                 root.Child = temp.Child;
