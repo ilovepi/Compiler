@@ -92,7 +92,6 @@ namespace compiler.frontend
             throw ParserException.CreateParserException(Tok, LineNo, Pos, _filename);
         }
 
-
         public void Next()
         {
             do
@@ -106,7 +105,6 @@ namespace compiler.frontend
             var ret = new List<Instruction> {Identifier()};
 
             // gen load addr of id
-
 
             //TODO handle generating array addresses
             while (Tok == Token.OPEN_BRACKET)
@@ -496,13 +494,14 @@ namespace compiler.frontend
             cfg.Insert(Statement());
 
             // TODO: fix consolodate()
-            Node.Consolidate(cfg.Root);
+           cfg.Root.Consolidate();
 
             while (Tok == Token.SEMI_COLON)
             {
                 Next();
                 cfg.Insert(Statement());
-                Node.Consolidate(cfg.Root);
+
+                cfg.Root.Consolidate();
             }
 
             return cfg;
@@ -572,14 +571,14 @@ namespace compiler.frontend
             Node trueBlock = StatementSequence().Root;
 
             compBlock.InsertTrue(trueBlock);
-            trueBlock.InsertTrue(joinBlock);
+            trueBlock.InsertJoinTrue(joinBlock);
 
             if (Tok == Token.ELSE)
             {
                 Next();
                 falseBlock = StatementSequence().Root;
-                Node.Leaf(falseBlock).InsertFalse(joinBlock);
-                Node.Consolidate(falseBlock);
+                Node.Leaf(falseBlock).InsertJoinFalse(joinBlock);
+                falseBlock.Consolidate();
             }
 
 
@@ -623,15 +622,14 @@ namespace compiler.frontend
 
             Node loopBlock = stmts.Root;
             loopBlock.BB.AddInstruction( new Instruction(IrOps.bra, new Operand(compBlock.GetNextInstruction()), null) );
-
-            Node last = stmts.GetLeaf(stmts.Root);
+            loopBlock.Consolidate();
+            var last = loopBlock.Leaf();
 
             //TODO: try to refactor so that we don't have to insert on the false branch
             // insert the loop body on the true path
             compBlock.InsertTrue(loopBlock);
 
             last.Child = compBlock;
-
             compBlock.LoopParent = last;
 
             GetExpected(Token.OD);
@@ -648,8 +646,6 @@ namespace compiler.frontend
 
             // TODO: this is straight up wrong. we can leave this alone and fix it in the enclosing scope
             compBlock.BB.Instructions.Last().Arg2 = new Operand(followBlock.BB.Instructions.First());
-
-
             
             return whileBlock;
         }

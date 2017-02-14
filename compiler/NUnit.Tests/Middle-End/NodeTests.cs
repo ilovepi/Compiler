@@ -85,7 +85,7 @@ namespace NUnit.Tests.Middle_End
             Root.Child.BB.Instructions.Add(inst2);
             Root.Insert(new Node(new BasicBlock("Child Block 2")));
 
-            Node.Consolidate(Root);
+           Root.Consolidate();
             Assert.AreEqual(Root, Node.Leaf(Root));
             Assert.AreEqual(2, Root.BB.Instructions.Count);
         }
@@ -94,7 +94,7 @@ namespace NUnit.Tests.Middle_End
         public void ConsolidateCircularExceptionTest()
         {
             Root.Child = Root;
-            var ex = Assert.Throws<Exception>(() => Node.Consolidate(Root));
+            var ex = Assert.Throws<Exception>(() => Root.Consolidate());
             Assert.That(ex.Message, Is.EqualTo("Circular reference in basic block!!"));
         }
 

@@ -1,4 +1,6 @@
-﻿namespace compiler.middleend.ir
+﻿using System;
+
+namespace compiler.middleend.ir
 {
     public class JoinNode : Node
     {
@@ -27,5 +29,19 @@
         {
             cfg.BFSCheckEnqueue(this, Child);
         }
+
+
+        public override void Consolidate()
+        {
+            if (ReferenceEquals(this, Child))
+            {
+                throw new Exception("Circular reference in basic block!!");
+            }
+
+            // consolidate children who exist
+            Child?.Consolidate();
+        }
+
+
     }
 }

@@ -87,13 +87,13 @@ namespace compiler
             }
         }
 
-        public virtual void InsertTrue(JoinNode other)
+        public virtual void InsertJoinTrue(JoinNode other)
         {
             Child = other;
             other.Parent = this;
         }
 
-        public virtual void InsertFalse(JoinNode other)
+        public virtual void InsertJoinFalse(JoinNode other)
         {
             other.FalseParent = this;
             Child = other;
@@ -137,38 +137,30 @@ namespace compiler
             return ret;
         }
 
-        public static void Consolidate(Node root)
+        public virtual void Consolidate()
         {
-            if ((root == null) || (root.Child == null))
+            if (Child == null)
             {
                 return;
             }
 
-            if (ReferenceEquals(root, root.Child))
+            if (ReferenceEquals(this, Child))
             {
                 throw new Exception("Circular reference in basic block!!");
             }
 
-            if ((root.GetType() == typeof(Node)) && (root.Child.GetType() == typeof(Node)))
+            if (Child.GetType() == typeof(Node) )
             {
-                root.BB.AddInstructionList(root.Child.BB.Instructions);
+                BB.AddInstructionList(Child.BB.Instructions);
 
-                Node temp = root.Child;
-                root.Child = temp.Child;
+                Node temp = Child;
+                Child = temp.Child;
 
-                Consolidate(root);
-            }
-            else if (root.GetType() == typeof(WhileNode) )
-            {
-                var temp = (WhileNode)root;
-                if(temp.FalseNode == null)
-                    return;
-                else
-                    Consolidate(temp.FalseNode);
+                Consolidate();
             }
             else
             {
-                Consolidate(root.Child);
+                Child.Consolidate();
             }
         }
 

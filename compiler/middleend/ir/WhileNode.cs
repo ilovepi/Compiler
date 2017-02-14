@@ -24,6 +24,7 @@ namespace compiler.middleend.ir
 
         public override void CheckEnqueue(CFG cfg)
         {
+            cfg.BFSCheckEnqueue(this, Child);
             cfg.BFSCheckEnqueue(this, FalseNode);
             cfg.DOTOutput += Child.BB.Name + BlockNumber + " -> " + Child.BB.Name + Child.BlockNumber + "\n";
         }
@@ -51,6 +52,30 @@ namespace compiler.middleend.ir
                     }
             }
 
+
+        public override void InsertJoinTrue(JoinNode other)
+        {
+            FalseNode = other;
+            other.Parent = this;
+        }
+
+        public override void InsertJoinFalse(JoinNode other)
+        {
+            other.FalseParent = this;
+            FalseNode = other;
+        }
+
+        public override void Consolidate()
+        {
+            if (ReferenceEquals(this, Child))
+            {
+                throw new Exception("Circular reference in basic block!!");
+            }
+
+            // consolidate children who exist
+            //Child?.Consolidate();
+            FalseNode?.Consolidate();
+        }
 
 
         public override Instruction GetLastInstruction()

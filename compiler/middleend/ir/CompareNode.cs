@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace compiler.middleend.ir
 {
@@ -18,12 +19,12 @@ namespace compiler.middleend.ir
             if (trueChild)
             {
                 Child = other;
-                other.Parent = this;
+                other.UpdateParent(this);
             }
             else
             {
                 FalseNode = other;
-                other.Parent = this;
+                other.UpdateParent(this);
             }
         }
 
@@ -49,6 +50,18 @@ namespace compiler.middleend.ir
         {
             cfg.BFSCheckEnqueue(this, Child);
             cfg.BFSCheckEnqueue(this, FalseNode);
+        }
+
+        public override void Consolidate()
+        {
+            if (ReferenceEquals(this, Child))
+            {
+                throw new Exception("Circular reference in basic block!!");
+            }
+
+            // consolidate children who exist
+            Child?.Consolidate();
+            FalseNode?.Consolidate();
         }
     }
 }
