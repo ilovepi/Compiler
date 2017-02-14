@@ -13,7 +13,7 @@ namespace Program
                 p.Parse();
                 p.ProgramCfg.GenerateDOTOutput();
 
-                using (var file = new StreamWriter("graph.txt"))
+                using (var file = new StreamWriter("graph.dot"))
                 {
                     file.WriteLine(p.ProgramCfg.DOTOutput);
                 }
