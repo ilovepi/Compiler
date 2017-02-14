@@ -373,13 +373,15 @@ namespace compiler.frontend
 
         public Operand Identifier()
         {
+            var id = Scanner.Id;
             GetExpected(Token.IDENTIFIER);
 
-            return new Operand(Operand.OpType.Identifier, Scanner.Id);
+            return new Operand(Operand.OpType.Identifier, id);
         }
 
         public void CreateIdentifier()
         {
+            var id = Scanner.Id;
             GetExpected(Token.IDENTIFIER);
             Scanner.SymbolTble.InsertAddress(Scanner.Id, NextAddress());
         }
