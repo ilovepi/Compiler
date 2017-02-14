@@ -1,50 +1,72 @@
-﻿using System;
-
-namespace compiler.frontend
+﻿namespace compiler.frontend
 {
     public enum Token
     {
         UNKNOWN,
         //Arithmetic operators
-        PLUS, MINUS, TIMES, DIVIDE,
+        PLUS,
+        MINUS,
+        TIMES,
+        DIVIDE,
 
         //Relational Operators: ==, !=, <, <= , >, >=
-        EQUAL, NOT_EQUAL, LESS, LESS_EQ, GREATER, GREATER_EQ,
+        EQUAL,
+        NOT_EQUAL,
+        LESS,
+        LESS_EQ,
+        GREATER,
+        GREATER_EQ,
 
 
         //Misc operators "<-" , ";" , ","
-        ASSIGN, SEMI_COLON, COMMA,
+        ASSIGN,
+        SEMI_COLON,
+        COMMA,
 
         //Blocks
-        OPEN_PAREN, CLOSE_PAREN,        // "(" ")"
-        OPEN_BRACKET, CLOSE_BRACKET,    // "[", "]"
-        OPEN_CURL, CLOSE_CURL,          // "{", "}"
+        OPEN_PAREN,
+        CLOSE_PAREN, // "(" ")"
+        OPEN_BRACKET,
+        CLOSE_BRACKET, // "[", "]"
+        OPEN_CURL,
+        CLOSE_CURL, // "{", "}"
 
 
         //KEYWORDS
-        LET, CALL, IF, THEN, ELSE, FI, WHILE, DO, OD, RETURN,
-        MAIN, VAR, ARRAY,
+        LET,
+        CALL,
+        IF,
+        THEN,
+        ELSE,
+        FI,
+        WHILE,
+        DO,
+        OD,
+        RETURN,
+        MAIN,
+        VAR,
+        ARRAY,
 
-        FUNCTION, PROCEDURE,
+        FUNCTION,
+        PROCEDURE,
 
         // parsing tokens
         EOF,
         COMMENT,
 
-       
-        NUMBER, IDENTIFIER
 
+        NUMBER,
+        IDENTIFIER
     }
 
     public class TokenHelper
     {
-
-        /**
-        * A to String function for printing Token values
-        * @param t The token to read
-        * @return String representation of the token
-        */
-        public static String ToString(Token t)
+        /// <summary>
+        ///     A to String function for printing Token values
+        /// </summary>
+        /// <param name="t">The token to read</param>
+        /// <returns>String representation of the token</returns>
+        public static string ToString(Token t)
         {
             // choose the correct string based on the Token
             switch (t)
@@ -141,15 +163,15 @@ namespace compiler.frontend
                 default:
                     return "ERROR";
             }
-
         }
 
-        /**
-         * A to String function for printing Token values
-         * @param t The token to read
-         * @return String representation of the token
-         */
-        public static String PrintToken(Token t)
+
+        /// <summary>
+        ///     A to String function for printing Token values
+        /// </summary>
+        /// <param name="t">The token to read</param>
+        /// <returns>String representation of the token</returns>
+        public static string PrintToken(Token t)
         {
             //
             switch (t)
@@ -246,12 +268,6 @@ namespace compiler.frontend
                 default:
                     return "ERROR";
             }
-
         }
-
     }
-
-
-
-
 }

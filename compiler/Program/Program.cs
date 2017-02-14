@@ -1,26 +1,22 @@
-﻿using System;
+﻿using System.IO;
 using compiler.frontend;
 
 namespace Program
 {
-    class Program
+    internal class Program
     {
         //TODO: adjust main to use the parser when it is complete
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            using (Lexer l = new Lexer(@"../../testdata/big.txt"))
+            using (var p = new Parser(@"../../testdata/test009.txt"))
             {
-                Token t;
-                do
+                p.Parse();
+                p.ProgramCfg.GenerateDOTOutput();
+
+                using (var file = new StreamWriter("graph.dot"))
                 {
-                    t = l.GetNextToken();
-                    Console.WriteLine(TokenHelper.PrintToken(t));
-
-                } while (t != Token.EOF);
-
-                // necessary when testing on windows with visual studio
-                //Console.WriteLine("Press 'enter' to exit ....");
-                //Console.ReadLine();
+                    file.WriteLine(p.ProgramCfg.DOTOutput);
+                }
             }
         }
     }
