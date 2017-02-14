@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using compiler.frontend;
 
 namespace compiler.middleend.ir
 {
@@ -123,6 +124,14 @@ namespace compiler.middleend.ir
         public static bool operator !=(Instruction left, Instruction right)
         {
             return !Equals(left, right);
+        }
+
+
+
+
+        public string display(SymbolTable smb)
+        {
+            return $"{Num.ToString()} {Op.ToString()} {Arg1.display(smb)} {Arg2?.display(smb)}";
         }
 
         

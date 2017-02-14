@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using compiler.frontend;
 using compiler.middleend.ir;
 
 namespace compiler
@@ -16,6 +17,8 @@ namespace compiler
         private Queue<Node> q = new Queue<Node>();
         private HashSet<Node> visited = new HashSet<Node>();
 
+        public SymbolTable Sym { get; set; }
+
 
         // may not need these
         //public Node Curr { get; set; }
@@ -25,6 +28,13 @@ namespace compiler
         {
             Root = null;
         }
+
+        public CFG(SymbolTable pSymbolTable)
+        {
+            Sym = pSymbolTable;
+            Root = null;
+        }
+
 
         public Node Root { get; set; }
 
@@ -72,7 +82,7 @@ namespace compiler
                     visited.Add(child);
                 }
 
-                DOTOutput += parent.DotId() + "[label=\"" + parent.DotLabel() + "\"]\n";
+                DOTOutput += parent.DotId() + "[label=\"" + parent.DotLabel(Sym) + "\"]\n";
                 DOTOutput += parent.DotId() + " -> " + child.DotId() + "\n";
             }
         }

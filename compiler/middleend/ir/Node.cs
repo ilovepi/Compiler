@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using compiler.frontend;
 using compiler.middleend.ir;
 
 namespace compiler
@@ -222,13 +223,13 @@ namespace compiler
             return BB.Name + BlockNumber;
         }
 
-        public string DotLabel()
+        public string DotLabel(SymbolTable pSymbolTable)
         {
             string label = BB.Name;
 
             foreach (Instruction inst in BB.Instructions)
             {
-                label += "\\n " + inst.ToString();
+                label += "\\n " + inst.display(pSymbolTable);
             }
 
             return label;

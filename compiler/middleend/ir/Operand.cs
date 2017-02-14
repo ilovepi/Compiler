@@ -119,5 +119,24 @@ namespace compiler.middleend.ir
             return "ERROR!!!";
         }
 
+
+        public string display(SymbolTable smb)
+        {
+
+            switch (Kind)
+            {
+                case OpType.Constant:
+                    return "#" + Val.ToString();
+                case OpType.Identifier:
+                    return smb.Symbols[IdKey];
+                case OpType.Instruction:
+                    return "(" + Inst.Num + ")";
+                case OpType.Register:
+                    return "R" + Val;
+            }
+            return "ERROR!!!";
+        }
+
+
     }
 }
