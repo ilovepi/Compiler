@@ -91,7 +91,6 @@ namespace compiler
         private void CheckEnqueue(JoinNode CurNode)
         {
             BFSCheckEnqueue(CurNode, CurNode.Child);
-            ;
         }
 
         private void CheckEnqueue(WhileNode CurNode)

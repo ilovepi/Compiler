@@ -26,7 +26,7 @@ namespace compiler.middleend.ir
         {
             cfg.BFSCheckEnqueue(this, Child);
             cfg.BFSCheckEnqueue(this, FalseNode);
-            cfg.DOTOutput += Child.BB.Name + BlockNumber + " -> " + Child.BB.Name + Child.BlockNumber + "\n";
+            //cfg.DOTOutput += Child.BB.Name + BlockNumber + " -> " + Child.BB.Name + Child.BlockNumber + "\n";
         }
 
         public override Node Leaf()
