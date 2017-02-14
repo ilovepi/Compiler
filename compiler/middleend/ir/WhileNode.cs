@@ -28,15 +28,29 @@ namespace compiler.middleend.ir
             cfg.DOTOutput += Child.BB.Name + BlockNumber + " -> " + Child.BB.Name + Child.BlockNumber + "\n";
         }
 
-//        public override Node Leaf()
-//        {
-//            
-//            if (FalseNode == null)
-//            {
-//                return this;
-//            }
-//            return FalseNode.Leaf();
-//        }
+        public override Node Leaf()
+        {
+            if (FalseNode == null)
+            {
+                return this;
+            }
+            return FalseNode.Leaf();
+        }
+
+
+        public override void Insert(Node other)
+            {
+                if(FalseNode == null)
+                    {
+                        FalseNode = other;
+                        other.UpdateParent(this);
+                    }
+                else
+                    {
+                        FalseNode.Insert(other);
+                    }
+            }
+
 
 
         public override Instruction GetLastInstruction()

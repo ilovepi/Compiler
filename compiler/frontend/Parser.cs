@@ -636,7 +636,7 @@ namespace compiler.frontend
 
             GetExpected(Token.OD);
 
-            var followBlock = new Node(new BasicBlock("Follow Block"));
+            var followBlock = new Node(new BasicBlock("FollowBlock"));
 
             compBlock.InsertFalse(followBlock);
 
