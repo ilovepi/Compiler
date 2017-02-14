@@ -158,6 +158,14 @@ namespace compiler
 
                 Consolidate(root);
             }
+            else if (root.GetType() == typeof(WhileNode) )
+            {
+                var temp = (WhileNode)root;
+                if(temp.FalseNode == null)
+                    return;
+                else
+                    Consolidate(temp.FalseNode);
+            }
             else
             {
                 Consolidate(root.Child);
@@ -183,7 +191,7 @@ namespace compiler
 
         }
 
-        public Instruction GetLastInstruction()
+        public virtual Instruction GetLastInstruction()
         {
             if (Child == null)
             {

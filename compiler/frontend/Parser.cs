@@ -607,6 +607,9 @@ namespace compiler.frontend
             //crate compare block/loop header block
             var compBlock = new WhileNode(new BasicBlock("WhileCompareBlock"));
 
+            // TODO: Correct placeholder Phi Instruction
+            compBlock.BB.AddInstruction(new Instruction(IrOps.phi, new Operand(Operand.OpType.Identifier, 0), new Operand(Operand.OpType.Identifier, 0)));
+
             // insert compare block for while stmt
             whileBlock.Insert(compBlock);
 
@@ -614,17 +617,18 @@ namespace compiler.frontend
             compBlock.BB.AddInstructionList(Relation());
 
             GetExpected(Token.DO);
-            
 
             // prepare basic block for loop body
             CFG stmts = StatementSequence();
 
             Node loopBlock = stmts.Root;
+            loopBlock.BB.AddInstruction( new Instruction(IrOps.bra, new Operand(compBlock.GetNextInstruction()), null) );
+
             Node last = stmts.GetLeaf(stmts.Root);
 
             //TODO: try to refactor so that we don't have to insert on the false branch
             // insert the loop body on the true path
-            compBlock.InsertFalse(loopBlock);
+            compBlock.InsertTrue(loopBlock);
 
             last.Child = compBlock;
 
@@ -634,14 +638,18 @@ namespace compiler.frontend
 
             var followBlock = new Node(new BasicBlock("Follow Block"));
 
+            compBlock.InsertFalse(followBlock);
+
 
             //TODO: remove placeholder instruction and do something smarter
-            followBlock.BB.Instructions.Add(new Instruction(IrOps.phi, new Operand(Operand.OpType.Identifier, 0), new Operand(Operand.OpType.Identifier, 0)));
+            followBlock.BB.AddInstruction(new Instruction(IrOps.phi, new Operand(Operand.OpType.Identifier, 0), new Operand(Operand.OpType.Identifier, 0)));
 
-            last.BB.Instructions.Last().Arg2 = new Operand(compBlock.BB.Instructions.First());
+            last.GetLastInstruction().Arg2 = new Operand(compBlock.GetNextInstruction());
 
             // TODO: this is straight up wrong. we can leave this alone and fix it in the enclosing scope
             compBlock.BB.Instructions.Last().Arg2 = new Operand(followBlock.BB.Instructions.First());
+
+
             
             return whileBlock;
         }

@@ -1,4 +1,10 @@
-﻿namespace compiler.middleend.ir
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using compiler.middleend.ir;
+
+
+namespace compiler.middleend.ir
 {
     public class WhileNode : CompareNode
     {
@@ -31,6 +37,41 @@
 //            }
 //            return FalseNode.Leaf();
 //        }
+
+
+        public override Instruction GetLastInstruction()
+        {
+            if (FalseNode == null)
+            {
+                if (BB.Instructions.Count == 0)
+                {
+                    return null;
+                }
+                else
+                {
+                    return BB.Instructions.Last();
+                }
+            }
+            else
+            {
+                var ret = FalseNode.GetLastInstruction();
+                if (ret == null)
+                {
+                    if (BB.Instructions.Count == 0)
+                    {
+                        return null;
+                    }
+                    else
+                    {
+                        return BB.Instructions.Last();
+                    }
+                }
+                else
+                {
+                    return ret;
+                }
+            }
+        }
 
     }
 }

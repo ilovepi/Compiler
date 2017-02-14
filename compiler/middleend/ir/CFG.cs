@@ -96,8 +96,9 @@ namespace compiler
 
         private void CheckEnqueue(WhileNode CurNode)
         {
-            BFSCheckEnqueue(CurNode, (CompareNode) CurNode.FalseNode);
-            DOTOutput += CurNode.DotId() + " -> " + CurNode.Child.DotId() + "\n";
+            BFSCheckEnqueue(CurNode,  CurNode.Child);
+            BFSCheckEnqueue(CurNode,  CurNode.FalseNode);
+            //DOTOutput += CurNode.DotId() + " -> " + CurNode.Child.DotId() + "\n";
         }
 
         public void GenerateDOTOutput()
