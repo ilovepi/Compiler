@@ -569,9 +569,10 @@ namespace compiler.frontend
             ifBlock.Insert(compBlock);
 
             Node trueBlock = StatementSequence().Root;
+            trueBlock.Consolidate();
 
             compBlock.InsertTrue(trueBlock);
-            trueBlock.InsertJoinTrue(joinBlock);
+            trueBlock.Leaf().InsertJoinTrue(joinBlock);
 
             if (Tok == Token.ELSE)
             {
