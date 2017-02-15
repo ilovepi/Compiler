@@ -15,6 +15,7 @@ namespace compiler.frontend
             Tok = Token.UNKNOWN;
             Scanner = new Lexer(_filename);
             ProgramCfg = new CFG();
+            FunctionsCfgs = new List<CFG>();
         }
 
         public Token Tok { get; set; }
@@ -35,6 +36,8 @@ namespace compiler.frontend
 
 
         public CFG ProgramCfg { get; set; }
+
+        public List<CFG> FunctionsCfgs { get; set; }
 
         public void Dispose()
         {
@@ -466,7 +469,7 @@ namespace compiler.frontend
 
             //TODO: Need a special address thing for functions
             //CreateIdentifier();
-            Identifier();
+            var id = Identifier();
 
             if (Tok == Token.OPEN_PAREN)
             {
