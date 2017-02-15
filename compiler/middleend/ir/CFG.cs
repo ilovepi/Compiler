@@ -83,7 +83,6 @@ namespace compiler
                     visited.Add(child);
                 }
 
-                DotOutput += parent.DotId() + "[label=\"{" + parent.DotLabel(Sym) + "}\"]\n";
                 DotOutput += parent.DotId() + " -> " + child.DotId() + "\n";
             }
         }
@@ -122,6 +121,7 @@ namespace compiler
             while (q.Count > 0)
             {
                 Node current = q.Dequeue();
+                DotOutput += current.DotId() + "[label=\"{" + current.DotLabel(Sym) + "}\"]\n";
                 current.CheckEnqueue(this);
             }
 
