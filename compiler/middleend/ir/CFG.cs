@@ -83,7 +83,7 @@ namespace compiler
                     visited.Add(child);
                 }
 
-                DotOutput += parent.DotId() + "[label=\"" + parent.DotLabel(Sym) + "\"]\n";
+                DotOutput += parent.DotId() + "[label=\"{" + parent.DotLabel(Sym) + "}\"]\n";
                 DotOutput += parent.DotId() + " -> " + child.DotId() + "\n";
             }
         }
@@ -111,7 +111,7 @@ namespace compiler
             //DOTOutput += CurNode.DotId() + " -> " + CurNode.Child.DotId() + "\n";
         }
 
-        public void GenerateDOTOutput()
+        public void GenerateDOTOutput(int n)
         {
             // Resets external BFS data on each run
             q = new Queue<Node>();
@@ -125,7 +125,7 @@ namespace compiler
                 current.CheckEnqueue(this);
             }
 
-            DotOutput = "digraph {\n" + DotOutput + "}";
+            DotOutput = "subgraph cluster_" +n+" {\nlabel = \"" + Name + "\";\n node[style=filled,shape=record]\n"  +  DotOutput + "}";
         }
     }
 }

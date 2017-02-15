@@ -300,7 +300,12 @@ namespace compiler.frontend
             {
                 // throw away cFG for now
                 //cfg.Insert( FuncDecl() );
-                FuncDecl();
+                var func = FuncDecl();
+                if (func.Root != null)
+                {
+                    FunctionsCfgs.Add(func);
+                }
+                //FuncDecl();
             }
 
             GetExpected(Token.OPEN_CURL);
@@ -487,8 +492,12 @@ namespace compiler.frontend
             GetExpected(Token.SEMI_COLON);
 
             var fb = FuncBody();
+            
 
             fb.Name = Scanner.SymbolTble.Symbols[id.IdKey];
+
+            cfg.Insert(fb);
+            cfg.Name = fb.Name;
 
             GetExpected(Token.SEMI_COLON);
 
@@ -635,6 +644,11 @@ namespace compiler.frontend
             {
                 instructions.AddRange(item.Item2);
             }
+
+            var call = new Instruction(IrOps.bra, id, null);
+
+            instructions.Add(call);
+
 
             return new Tuple<Operand, List<Instruction>>(id, instructions);
         }
@@ -802,6 +816,7 @@ namespace compiler.frontend
             Next();
             ProgramCfg = Computation();
             FunctionsCfgs.Add(ProgramCfg);
+            ProgramCfg.Name = "Main";
             ProgramCfg.Sym = this.Scanner.SymbolTble;
         }
 

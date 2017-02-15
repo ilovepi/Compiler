@@ -229,7 +229,7 @@ namespace compiler
 
             foreach (Instruction inst in BB.Instructions)
             {
-                label += "\\n " + inst.display(pSymbolTable);
+                label += " | " + inst.display(pSymbolTable);
             }
 
             return label;
