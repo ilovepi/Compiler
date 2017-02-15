@@ -187,8 +187,8 @@ namespace compiler.frontend
                 Next();
 
                 // add instructions for the next factor
-                var factor2=  Factor();
-                factor1.Item2.AddRange(factor2.Item2);
+                var factor2 = Factor();
+                instructions.AddRange(factor2.Item2);
 
                 //cache the last instruction
                 //Instruction next = other.Item2.Last();
@@ -197,13 +197,12 @@ namespace compiler.frontend
                 var newInst = new Instruction(op, factor1.Item1, factor2.Item1);
 
                 // insert new instruction to instruction list
-                factor1.Item2.Add(newInst);
+                instructions.Add(newInst);
 
                 // update current instruction to latest instruction
                 //curr = factor1.Last();
 
-                factor1 = new Tuple<Operand, List<Instruction>>(new Operand(factor1.Item2.Last()), factor1.Item2);
-
+                factor1 = new Tuple<Operand, List<Instruction>>(new Operand(newInst), instructions);
             }
 
             return factor1;
@@ -212,7 +211,8 @@ namespace compiler.frontend
 
         public Tuple<Operand, List<Instruction> > Expression()
         {
-           var term1 = Term();
+            var term1 = Term();
+            var instructions = term1.Item2;
 
             //Instruction curr = term1.Item2.Last();
 
@@ -236,12 +236,12 @@ namespace compiler.frontend
 
 
                 // insert new instruction to instruction list
-                term1.Item2.Add(newInst);
+                instructions.Add(newInst);
 
                 // update current instruction to latest instruction
                 //curr = term1.Last();
 
-                term1 = new Tuple<Operand, List<Instruction>>(new Operand(term1.Item2.Last()), term1.Item2);
+                term1 = new Tuple<Operand, List<Instruction>>(new Operand(newInst), instructions);
             }
 
             return term1;
@@ -256,7 +256,7 @@ namespace compiler.frontend
 
             GetExpected(Token.LET);
 
-           var id = Designator();
+            var id = Designator();
             //Instruction curr = ret.Last();
 
             GetExpected(Token.ASSIGN);
@@ -383,7 +383,7 @@ namespace compiler.frontend
         {
             var id = Scanner.Id;
             GetExpected(Token.IDENTIFIER);
-            Scanner.SymbolTble.InsertAddress(Scanner.Id, NextAddress());
+            Scanner.SymbolTble.InsertAddress(id, NextAddress());
         }
 
 
