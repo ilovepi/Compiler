@@ -15,7 +15,7 @@ namespace Program
 
                 using (var file = new StreamWriter("graph.dot"))
                 {
-                    file.WriteLine(p.ProgramCfg.DOTOutput);
+                    file.WriteLine(p.ProgramCfg.DotOutput);
                 }
             }
         }

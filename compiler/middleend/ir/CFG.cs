@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using compiler.frontend;
 using compiler.middleend.ir;
 
@@ -12,13 +13,15 @@ namespace compiler
         //TODO: create BFS method to walk the CFG
 
         // External data for BFS
-        private int BlockCount = 0;
-        public string DOTOutput = String.Empty;
+        //private int BlockCount = 0;
+        public string DotOutput = String.Empty;
         private Queue<Node> q = new Queue<Node>();
         private HashSet<Node> visited = new HashSet<Node>();
 
         public SymbolTable Sym { get; set; }
 
+        public string Name { get; set; }
+        
 
         // may not need these
         //public Node Curr { get; set; }
@@ -35,9 +38,7 @@ namespace compiler
             Root = null;
         }
 
-
         public Node Root { get; set; }
-
 
         public void Insert(Node subTree)
         {
@@ -82,8 +83,8 @@ namespace compiler
                     visited.Add(child);
                 }
 
-                DOTOutput += parent.DotId() + "[label=\"" + parent.DotLabel(Sym) + "\"]\n";
-                DOTOutput += parent.DotId() + " -> " + child.DotId() + "\n";
+                DotOutput += parent.DotId() + "[label=\"" + parent.DotLabel(Sym) + "\"]\n";
+                DotOutput += parent.DotId() + " -> " + child.DotId() + "\n";
             }
         }
 
@@ -115,7 +116,7 @@ namespace compiler
             // Resets external BFS data on each run
             q = new Queue<Node>();
             visited = new HashSet<Node>();
-            DOTOutput = string.Empty;
+            DotOutput = string.Empty;
 
             q.Enqueue(Root);
             while (q.Count > 0)
@@ -124,7 +125,7 @@ namespace compiler
                 current.CheckEnqueue(this);
             }
 
-            DOTOutput = "digraph {\n" + DOTOutput + "}";
+            DotOutput = "digraph {\n" + DotOutput + "}";
         }
     }
 }

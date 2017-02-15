@@ -404,8 +404,10 @@ namespace compiler.frontend
             return new Operand(Operand.OpType.Constant, Scanner.Val);
         }
 
+
         public void VarDecl()
         {
+            // TODO: allocate variables here
             TypeDecl();
 
             // TODO: this is where we need to set variable addresses
@@ -423,12 +425,14 @@ namespace compiler.frontend
             GetExpected(Token.SEMI_COLON);
         }
 
-
-        public void TypeDecl()
+        public int TypeDecl()
         {
+            // TODO: determine size of allocation required
+            int size = 4;
             if (Tok == Token.VAR)
             {
                 Next();
+                //size = 4;
             }
             else if (Tok == Token.ARRAY)
             {
@@ -436,7 +440,8 @@ namespace compiler.frontend
 
                 GetExpected(Token.OPEN_BRACKET);
 
-                Num();
+                var n = Num();
+                size *= n.Val;
 
                 GetExpected(Token.CLOSE_BRACKET);
 
@@ -444,7 +449,8 @@ namespace compiler.frontend
                 {
                     Next();
 
-                    Num();
+                    n = Num();
+                    size *= (n.Val);
 
                     GetExpected(Token.CLOSE_BRACKET);
                 }
@@ -454,6 +460,7 @@ namespace compiler.frontend
                 // TODO: replace
                 FatalError();
             }
+            return size;
         }
 
         public CFG FuncDecl()
@@ -470,23 +477,27 @@ namespace compiler.frontend
             //TODO: Need a special address thing for functions
             //CreateIdentifier();
             var id = Identifier();
+            List<Operand> paramList = null;
 
             if (Tok == Token.OPEN_PAREN)
             {
-                FormalParams();
+                paramList = FormalParams();
             }
 
             GetExpected(Token.SEMI_COLON);
 
-            FuncBody();
+            var fb = FuncBody();
+
+            fb.Name = Scanner.SymbolTble.Symbols[id.IdKey];
 
             GetExpected(Token.SEMI_COLON);
 
             return cfg;
         }
 
-        public void FuncBody()
+        public CFG FuncBody()
         {
+            CFG cfg = null;
             while ((Tok == Token.VAR) || (Tok == Token.ARRAY))
             {
                 VarDecl();
@@ -497,10 +508,12 @@ namespace compiler.frontend
             if ((Tok == Token.LET) || (Tok == Token.CALL) || (Tok == Token.IF)
                 || (Tok == Token.WHILE) || (Tok == Token.RETURN))
             {
-                StatementSequence();
+                cfg = StatementSequence();
             }
 
             GetExpected(Token.CLOSE_CURL);
+
+            return cfg;
         }
 
 
@@ -756,15 +769,17 @@ namespace compiler.frontend
             return retStmt;
         }
 
-        public void FormalParams()
+        public List<Operand> FormalParams()
         {
             GetExpected(Token.OPEN_PAREN);
+
+            List<Operand> paramList = new List<Operand>();
 
             if (Tok == Token.IDENTIFIER)
             {
                 //TODO: handle parameters????
                 // CreateIdentifier();
-                Identifier();
+                paramList.Add(Identifier());
 
                 while (Tok == Token.COMMA)
                 {
@@ -772,11 +787,13 @@ namespace compiler.frontend
 
                     //not sure this is correct per above
                     //CreateIdentifier();
-                    Identifier();
+                    paramList.Add(Identifier());
                 }
             }
 
             GetExpected(Token.CLOSE_PAREN);
+
+            return paramList;
         }
 
 
@@ -784,6 +801,7 @@ namespace compiler.frontend
         {
             Next();
             ProgramCfg = Computation();
+            FunctionsCfgs.Add(ProgramCfg);
             ProgramCfg.Sym = this.Scanner.SymbolTble;
         }
 
