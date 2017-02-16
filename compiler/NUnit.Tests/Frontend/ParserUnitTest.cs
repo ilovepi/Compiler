@@ -91,7 +91,7 @@ namespace NUnit.Tests.Frontend
         [Test]
         public void GetExpectedThrowsTest()
         {
-            var ex = Assert.Throws<ParserException>(() => Checker.GetExpected(Token.EOF));
+            Assert.Throws<ParserException>(() => Checker.GetExpected(Token.EOF));
         }
 
         //[TearDown]

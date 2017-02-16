@@ -4,7 +4,7 @@ namespace compiler.middleend.ir
 {
     public class JoinNode : Node
     {
-        public JoinNode(BasicBlock pBB) : base(pBB, NodeTypes.JoinB)
+        public JoinNode(BasicBlock pBb) : base(pBb, NodeTypes.JoinB)
         {
             FalseParent = null;
         }
@@ -25,9 +25,9 @@ namespace compiler.middleend.ir
             }
         }
 
-        public override void CheckEnqueue(CFG cfg)
+        public override void CheckEnqueue(Cfg cfg)
         {
-            cfg.BFSCheckEnqueue(this, Child);
+            cfg.BfsCheckEnqueue(this, Child);
         }
 
 

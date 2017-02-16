@@ -1,6 +1,6 @@
 ﻿using System.IO;
-using compiler;
 using compiler.frontend;
+using compiler.middleend.ir;
 
 namespace Program
 {
@@ -9,7 +9,7 @@ namespace Program
         //TODO: adjust main to use the parser when it is complete
         private static void Main(string[] args)
         {
-            using (var p = new Parser(@"../../testdata/cell.txt"))
+            using (var p = new Parser(@"../../testdata/test002.txt"))
             {
                 p.Parse();
 
@@ -18,10 +18,10 @@ namespace Program
                     //*
                     file.WriteLine("digraph G{\n");                    
                     int i = 0;
-                    foreach (CFG func in p.FunctionsCfgs)
+                    foreach (Cfg func in p.FunctionsCfgs)
                     {
                         func.Sym = p.Scanner.SymbolTble;
-                        func.GenerateDOTOutput(i++);
+                        func.GenerateDotOutput(i++);
                         file.WriteLine(func.DotOutput);
                     }
                     file.WriteLine("\n}");

@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using compiler.frontend;
-using compiler.middleend.ir;
 
-namespace compiler
+namespace compiler.middleend.ir
 {
-    public class CFG
+    public class Cfg
     {
         // TODO: create visitor function that recursively clears 'visited' flags
 
@@ -15,8 +13,8 @@ namespace compiler
         // External data for BFS
         //private int BlockCount = 0;
         public string DotOutput = String.Empty;
-        private Queue<Node> q = new Queue<Node>();
-        private HashSet<Node> visited = new HashSet<Node>();
+        private Queue<Node> _q = new Queue<Node>();
+        private HashSet<Node> _visited = new HashSet<Node>();
 
         public SymbolTable Sym { get; set; }
 
@@ -27,12 +25,12 @@ namespace compiler
         //public Node Curr { get; set; }
         //public Node Accsessor { get; set; }
 
-        public CFG()
+        public Cfg()
         {
             Root = null;
         }
 
-        public CFG(SymbolTable pSymbolTable)
+        public Cfg(SymbolTable pSymbolTable)
         {
             Sym = pSymbolTable;
             Root = null;
@@ -52,7 +50,7 @@ namespace compiler
             }
         }
 
-        public void Insert(CFG subtree)
+        public void Insert(Cfg subtree)
         {
             Insert(subtree.Root);
         }
@@ -72,55 +70,55 @@ namespace compiler
         // Checks whether to enqueue a child and do so if appropriate
         // Validity check *must* be done before enqueue, since output
         // is generated for all parent-children pairs at parent. 
-        public void BFSCheckEnqueue(Node parent, Node child)
+        public void BfsCheckEnqueue(Node parent, Node child)
         {
             // TODO: Fix to account for cycles/join blocks
             if (child != null)
             {
-                if (!visited.Contains(child))
+                if (!_visited.Contains(child))
                 {
-                    q.Enqueue(child);
-                    visited.Add(child);
+                    _q.Enqueue(child);
+                    _visited.Add(child);
                 }
 
                 DotOutput += parent.DotId() + " -> " + child.DotId() + "\n";
             }
         }
 
-        private void CheckEnqueue(Node CurNode)
+        private void CheckEnqueue(Node curNode)
         {
-            BFSCheckEnqueue(CurNode, CurNode.Child);
+            BfsCheckEnqueue(curNode, curNode.Child);
         }
 
-        private void CheckEnqueue(CompareNode CurNode)
+        private void CheckEnqueue(CompareNode curNode)
         {
-            BFSCheckEnqueue(CurNode, CurNode.Child);
-            BFSCheckEnqueue(CurNode, CurNode.FalseNode);
+            BfsCheckEnqueue(curNode, curNode.Child);
+            BfsCheckEnqueue(curNode, curNode.FalseNode);
         }
 
-        private void CheckEnqueue(JoinNode CurNode)
+        private void CheckEnqueue(JoinNode curNode)
         {
-            BFSCheckEnqueue(CurNode, CurNode.Child);
+            BfsCheckEnqueue(curNode, curNode.Child);
         }
 
-        private void CheckEnqueue(WhileNode CurNode)
+        private void CheckEnqueue(WhileNode curNode)
         {
-            BFSCheckEnqueue(CurNode,  CurNode.Child);
-            BFSCheckEnqueue(CurNode,  CurNode.FalseNode);
+            BfsCheckEnqueue(curNode,  curNode.Child);
+            BfsCheckEnqueue(curNode,  curNode.FalseNode);
             //DOTOutput += CurNode.DotId() + " -> " + CurNode.Child.DotId() + "\n";
         }
 
-        public void GenerateDOTOutput(int n)
+        public void GenerateDotOutput(int n)
         {
             // Resets external BFS data on each run
-            q = new Queue<Node>();
-            visited = new HashSet<Node>();
+            _q = new Queue<Node>();
+            _visited = new HashSet<Node>();
             DotOutput = string.Empty;
 
-            q.Enqueue(Root);
-            while (q.Count > 0)
+            _q.Enqueue(Root);
+            while (_q.Count > 0)
             {
-                Node current = q.Dequeue();
+                Node current = _q.Dequeue();
                 DotOutput += current.DotId() + "[label=\"{" + current.DotLabel(Sym) + "}\"]\n";
                 current.CheckEnqueue(this);
             }

@@ -1,4 +1,4 @@
-﻿namespace compiler
+﻿namespace compiler.middleend.ir
 {
     internal class DomTree
     {
@@ -10,23 +10,23 @@
         public DominatorNode Root { get; set; }
 
 
-        public void RecursiveDFS(DominatorNode curNode)
+        public void RecursiveDfs(DominatorNode curNode)
         {
             // TODO: include display or print function here
             foreach (DominatorNode child in curNode.Children)
             {
                 if (child != null)
                 {
-                    RecursiveDFS(child);
+                    RecursiveDfs(child);
                 }
             }
         }
 
-        public void DFSTraversal()
+        public void DfsTraversal()
         {
             if (Root != null)
             {
-                RecursiveDFS(Root);
+                RecursiveDfs(Root);
             }
         }
     }

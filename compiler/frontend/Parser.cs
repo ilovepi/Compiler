@@ -14,8 +14,9 @@ namespace compiler.frontend
             _filename = pFileName;
             Tok = Token.UNKNOWN;
             Scanner = new Lexer(_filename);
-            ProgramCfg = new CFG();
-            FunctionsCfgs = new List<CFG>();
+            ProgramCfg = new Cfg();
+            FunctionsCfgs = new List<Cfg>();
+            VarTable = new Dictionary<int, SsaVariable>();
         }
 
         public Token Tok { get; set; }
@@ -28,6 +29,8 @@ namespace compiler.frontend
 
         public int CurrAddress { get; set; }
 
+        public Dictionary<int, SsaVariable> VarTable { get; set; }
+
 
         /// <summary>
         ///     A stack of frame addresses -- esentially a list of frame pointers
@@ -35,9 +38,9 @@ namespace compiler.frontend
         public List<int> AddressStack { get; set; }
 
 
-        public CFG ProgramCfg { get; set; }
+        public Cfg ProgramCfg { get; set; }
 
-        public List<CFG> FunctionsCfgs { get; set; }
+        public List<Cfg> FunctionsCfgs { get; set; }
 
         public void Dispose()
         {
@@ -119,7 +122,7 @@ namespace compiler.frontend
             {
                 // load array base address
 
-                var baseAddr = new Instruction(IrOps.load, id, null);
+                var baseAddr = new Instruction(IrOps.Load, id, null);
                 instructions.Add(baseAddr);
                 id = new Operand(baseAddr);
 
@@ -133,7 +136,7 @@ namespace compiler.frontend
 
                 //add offset to addr of id
                 //instructions.Add(new Instruction(IrOps.adda, id,  new Operand(instructions.Last())));
-                instructions.Add(new Instruction(IrOps.adda, id, exp.Item1));
+                instructions.Add(new Instruction(IrOps.Adda, id, exp.Item1));
 
                 // Delay the indirect load until the top of the loop so we can do the last
                 // load or store at the reference site.
@@ -171,7 +174,7 @@ namespace compiler.frontend
                     var des =  Designator();
                     instructions.AddRange(des.Item2);
                     //Operand arg2 = (instructions.Count == 0) ? null : new Operand(instructions.Last())
-                    var baseAddr = new Instruction(IrOps.load, des.Item1, null);
+                    var baseAddr = new Instruction(IrOps.Load, des.Item1, null);
                     instructions.Add(baseAddr);
                     id = new Operand(baseAddr);
                     factor = new Tuple<Operand, List<Instruction>>(id,instructions);
@@ -197,14 +200,13 @@ namespace compiler.frontend
         public Tuple<Operand, List<Instruction>> Term()
         {
             var factor1 = Factor();
-            var id = factor1.Item1;
             var instructions = factor1.Item2;
             //Instruction curr = instructions.Last();
 
             while ((Tok == Token.TIMES) || (Tok == Token.DIVIDE))
             {
                 // cache current arithmetic token
-                IrOps op = Tok == Token.TIMES ? IrOps.mul : IrOps.div;
+                IrOps op = Tok == Token.TIMES ? IrOps.Mul : IrOps.Div;
 
                 // advance to next token
                 Next();
@@ -214,11 +216,12 @@ namespace compiler.frontend
                 instructions.AddRange(factor2.Item2);
 
                 //TODO: find a good way of making this so we can support immediate actions
+                Operand id;
                 if ((factor2.Item1.Kind == Operand.OpType.Constant) && (factor1.Item1.Kind == Operand.OpType.Constant))
                 {
                     var arg2 = factor2.Item1.Val;
                     var arg1 = factor1.Item1.Val;
-                    var res = (op == IrOps.mul) ? (arg1 * arg2) : (arg1 / arg2);
+                    var res = (op == IrOps.Mul) ? (arg1 * arg2) : (arg1 / arg2);
                     id = new Operand(Operand.OpType.Constant, res);
                     //var ret = new Tuple<Operand, List<Instruction>>(new Operand(Operand.OpType.Constant, res), new List<Instruction>() );
 
@@ -250,7 +253,7 @@ namespace compiler.frontend
             while ((Tok == Token.PLUS) || (Tok == Token.MINUS))
             {
                 // cache current arithmetic token
-                IrOps op = Tok == Token.PLUS ? IrOps.add : IrOps.sub;
+                IrOps op = Tok == Token.PLUS ? IrOps.Add : IrOps.Sub;
 
                 // advance to next token
                 Next();
@@ -271,7 +274,7 @@ namespace compiler.frontend
 
 
                     var arg1 = term1.Item1.Val;
-                    var res = (op == IrOps.add) ? (arg1 + arg2) : (arg1 - arg2);
+                    var res = (op == IrOps.Add) ? (arg1 + arg2) : (arg1 - arg2);
                     id = new Operand(Operand.OpType.Constant, res);
                     //var ret = new Tuple<Operand, List<Instruction>>(new Operand(Operand.OpType.Constant, res), new List<Instruction>() );
 
@@ -313,7 +316,7 @@ namespace compiler.frontend
             //TODO: Fix this!!!!
 
             // create new instruction
-            var newInst = new Instruction(IrOps.store, expValue.Item1, id.Item1);
+            var newInst = new Instruction(IrOps.Store, expValue.Item1, id.Item1);
 
             id.Item2.AddRange(expValue.Item2);
 
@@ -326,11 +329,11 @@ namespace compiler.frontend
             return new Tuple<Operand, List<Instruction>>(new Operand(newInst), id.Item2 );
         }
 
-        public CFG Computation()
+        public Cfg Computation()
         {
             GetExpected(Token.MAIN);
 
-            var cfg = new CFG();
+            var cfg = new Cfg();
 
             while ((Tok == Token.VAR) || (Tok == Token.ARRAY))
             {
@@ -385,9 +388,9 @@ namespace compiler.frontend
 
             //var newOperand = new Operand(instructions);
 
-            var compare = new Instruction(IrOps.cmp, arg1, arg2);
+            var compare = new Instruction(IrOps.Cmp, arg1, arg2);
             instructions.Add(compare);
-            var branch = new Instruction(IrOps.bne, new Operand(compare), new Operand(Operand.OpType.Constant, 0));
+            var branch = new Instruction(IrOps.Bne, new Operand(compare), new Operand(Operand.OpType.Constant, 0));
             instructions.Add(branch);
 
 
@@ -395,22 +398,22 @@ namespace compiler.frontend
             switch (comp)
             {
                 case Token.EQUAL:
-                    branch.Op = IrOps.bne;
+                    branch.Op = IrOps.Bne;
                     break;
                 case Token.NOT_EQUAL:
-                   branch.Op = IrOps.beq;
+                   branch.Op = IrOps.Beq;
                     break;
                 case Token.LESS:
-                    branch.Op = IrOps.bge;
+                    branch.Op = IrOps.Bge;
                     break;
                 case Token.LESS_EQ:
-                   branch.Op = IrOps.bgt;
+                   branch.Op = IrOps.Bgt;
                     break;
                 case Token.GREATER:
-                    branch.Op = IrOps.ble;
+                    branch.Op = IrOps.Ble;
                     break;
                 case Token.GREATER_EQ:
-                   branch.Op = IrOps.blt;
+                   branch.Op = IrOps.Blt;
                     break;
                 default:
                     FatalError();
@@ -509,9 +512,9 @@ namespace compiler.frontend
             return size;
         }
 
-        public CFG FuncDecl()
+        public Cfg FuncDecl()
         {
-            var cfg = new CFG();
+            var cfg = new Cfg();
 
             if ((Tok != Token.FUNCTION) && (Tok != Token.PROCEDURE))
             {
@@ -545,9 +548,9 @@ namespace compiler.frontend
             return cfg;
         }
 
-        public CFG FuncBody()
+        public Cfg FuncBody()
         {
-            CFG cfg = null;
+            Cfg cfg = null;
             while ((Tok == Token.VAR) || (Tok == Token.ARRAY))
             {
                 VarDecl();
@@ -567,23 +570,23 @@ namespace compiler.frontend
         }
 
 
-        public CFG Statement()
+        public Cfg Statement()
         {
             //TODO: CFG has trouble adding to new blocks, or inserting into CFG
-            var cfgTemp = new CFG {Root = new Node(new BasicBlock("StatementBlock"))};
+            var cfgTemp = new Cfg {Root = new Node(new BasicBlock("StatementBlock"))};
             // TODO: address what to do with return opperand;
-            Tuple<Operand, List<Instruction>> stmt = null;
+            Tuple<Operand, List<Instruction>> stmt;
 
 
             switch (Tok)
             {
                 case Token.LET:
                     stmt = Assign();
-                    cfgTemp.Root.BB.AddInstructionList(stmt.Item2);
+                    cfgTemp.Root.Bb.AddInstructionList(stmt.Item2);
                     break;
                 case Token.CALL:
                     stmt = FuncCall();
-                    cfgTemp.Root.BB.AddInstructionList(stmt.Item2);
+                    cfgTemp.Root.Bb.AddInstructionList(stmt.Item2);
                     //cfgTemp.Root.BB.AddInstructionList(FuncCall());
                     break;
                 case Token.IF:
@@ -592,7 +595,7 @@ namespace compiler.frontend
                     return WhileStmt();
                 case Token.RETURN:
                     stmt = ReturnStmt();
-                    cfgTemp.Root.BB.AddInstructionList(stmt.Item2);
+                    cfgTemp.Root.Bb.AddInstructionList(stmt.Item2);
                     break;
                 default:
                     FatalError();
@@ -603,9 +606,9 @@ namespace compiler.frontend
         }
 
 
-        public CFG StatementSequence()
+        public Cfg StatementSequence()
         {
-            var cfg = new CFG();
+            var cfg = new Cfg();
             var bb = new BasicBlock("StatSequence");
             cfg.Root = new Node(bb);
             cfg.Insert(Statement());
@@ -686,7 +689,8 @@ namespace compiler.frontend
                 instructions.AddRange(item.Item2);
             }
 
-            var call = new Instruction(IrOps.bra, id, null);
+            var call = new Instruction(IrOps.Bra, id, null);
+            id = new Operand(call);
 
             instructions.Add(call);
 
@@ -694,17 +698,17 @@ namespace compiler.frontend
             return new Tuple<Operand, List<Instruction>>(id, instructions);
         }
 
-        public CFG IfStmt()
+        public Cfg IfStmt()
         {
             GetExpected(Token.IF);
-            var ifBlock = new CFG();
+            var ifBlock = new Cfg();
             var compBlock = new CompareNode(new BasicBlock("CompareBlock"));
 
             var joinBlock = new JoinNode(new BasicBlock("JoinBlock"));
             Node falseBlock = joinBlock;
 
             // HACK: should we use the operand of the relation?
-            compBlock.BB.AddInstructionList(Relation().Item2);
+            compBlock.Bb.AddInstructionList(Relation().Item2);
 
             GetExpected(Token.THEN);
             
@@ -730,42 +734,42 @@ namespace compiler.frontend
             GetExpected(Token.FI);
 
             //TODO: remove placeholder instruction and do something smarter
-            joinBlock.BB.Instructions.Add(new Instruction(IrOps.phi, new Operand(Operand.OpType.Identifier, 0), new Operand(Operand.OpType.Identifier, 0)));
+            joinBlock.Bb.Instructions.Add(new Instruction(IrOps.Phi, new Operand(Operand.OpType.Identifier, 0), new Operand(Operand.OpType.Identifier, 0)));
             
-            compBlock.BB.Instructions.Last().Arg2 = new Operand( falseBlock.GetNextInstruction());
-            Node.Leaf( trueBlock).BB.Instructions.Last().Arg2 = new Operand(joinBlock.BB.Instructions.First());
+            compBlock.Bb.Instructions.Last().Arg2 = new Operand( falseBlock.GetNextInstruction());
+            Node.Leaf( trueBlock).Bb.Instructions.Last().Arg2 = new Operand(joinBlock.Bb.Instructions.First());
 
             return ifBlock;
         }
 
 
-        public CFG WhileStmt()
+        public Cfg WhileStmt()
         {
             GetExpected(Token.WHILE);
 
             // create cfg
-            var whileBlock = new CFG();
+            var whileBlock = new Cfg();
 
             //crate compare block/loop header block
             var compBlock = new WhileNode(new BasicBlock("WhileCompareBlock"));
 
             // TODO: Correct placeholder Phi Instruction
-            compBlock.BB.AddInstruction(new Instruction(IrOps.phi, new Operand(Operand.OpType.Identifier, 0), new Operand(Operand.OpType.Identifier, 0)));
+            compBlock.Bb.AddInstruction(new Instruction(IrOps.Phi, new Operand(Operand.OpType.Identifier, 0), new Operand(Operand.OpType.Identifier, 0)));
 
             // insert compare block for while stmt
             whileBlock.Insert(compBlock);
 
             // add the relation/branch comparison into the loop header block
             // HACK: should we use the opperand of the relation?
-            compBlock.BB.AddInstructionList(Relation().Item2);
+            compBlock.Bb.AddInstructionList(Relation().Item2);
 
             GetExpected(Token.DO);
 
             // prepare basic block for loop body
-            CFG stmts = StatementSequence();
+            Cfg stmts = StatementSequence();
 
             Node loopBlock = stmts.Root;
-            loopBlock.BB.AddInstruction( new Instruction(IrOps.bra, new Operand(compBlock.GetNextInstruction()), null) );
+            loopBlock.Bb.AddInstruction( new Instruction(IrOps.Bra, new Operand(compBlock.GetNextInstruction()), null) );
             loopBlock.Consolidate();
             var last = loopBlock.Leaf();
 
@@ -784,12 +788,12 @@ namespace compiler.frontend
 
 
             //TODO: remove placeholder instruction and do something smarter
-            followBlock.BB.AddInstruction(new Instruction(IrOps.phi, new Operand(Operand.OpType.Identifier, 0), new Operand(Operand.OpType.Identifier, 0)));
+            followBlock.Bb.AddInstruction(new Instruction(IrOps.Phi, new Operand(Operand.OpType.Identifier, 0), new Operand(Operand.OpType.Identifier, 0)));
 
             last.GetLastInstruction().Arg2 = new Operand(compBlock.GetNextInstruction());
 
             // TODO: this is straight up wrong. we can leave this alone and fix it in the enclosing scope
-            compBlock.BB.Instructions.Last().Arg2 = new Operand(followBlock.BB.Instructions.First());
+            compBlock.Bb.Instructions.Last().Arg2 = new Operand(followBlock.Bb.Instructions.First());
             
             return whileBlock;
         }
@@ -811,7 +815,7 @@ namespace compiler.frontend
             }
 
             //TODO: probably want to make better instruction here, with a real address
-            var branchBack = new Instruction(IrOps.bra, new Operand(Operand.OpType.Register, 0), null);
+            var branchBack = new Instruction(IrOps.Bra, new Operand(Operand.OpType.Register, 0), null);
             instructions.Add(branchBack);
             if (retStmt == null)
             {
@@ -859,7 +863,7 @@ namespace compiler.frontend
             ProgramCfg = Computation();
             FunctionsCfgs.Add(ProgramCfg);
             ProgramCfg.Name = "Main";
-            ProgramCfg.Sym = this.Scanner.SymbolTble;
+            ProgramCfg.Sym = Scanner.SymbolTble;
         }
 
         public void ThrowParserException(Token expected)

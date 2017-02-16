@@ -129,9 +129,9 @@ namespace compiler.middleend.ir
 
 
 
-        public string display(SymbolTable smb)
+        public string Display(SymbolTable smb)
         {
-            return $"{Num.ToString()} {Op.ToString()} {Arg1.display(smb)} {Arg2?.display(smb)}";
+            return $"{Num} {Op} {Arg1.Display(smb)} {Arg2?.Display(smb)}";
         }
 
         
@@ -140,11 +140,11 @@ namespace compiler.middleend.ir
             // TODO: determine if we can replace this exception with a runtime check or fix for the general case
             try
             {
-                return "" + Num.ToString() + " " + Op.ToString() + " " + Arg1.ToString() + " " + Arg2.ToString();
+                return "" + Num + " " + Op + " " + Arg1 + " " + Arg2;
             }
             catch (Exception e)
             {
-                return "" + Num.ToString() + " " + Op.ToString() + " " + Arg1.ToString();
+                return "" + Num + " " + Op + " " + Arg1;
             }
         }
 

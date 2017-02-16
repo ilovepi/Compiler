@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using compiler.frontend;
-using compiler.middleend.ir;
 
-namespace compiler
+namespace compiler.middleend.ir
 {
     public class Node
     {
@@ -16,7 +15,7 @@ namespace compiler
             WhileB
         }
 
-        public static int BlockID;
+        public static int BlockId;
 
 
         public int BlockNumber;
@@ -24,28 +23,28 @@ namespace compiler
         /// <summary>
         ///     Constructor
         /// </summary>
-        /// <param name="pBB">A Basic block</param>
-        public Node(BasicBlock pBB)
+        /// <param name="pBb">A Basic block</param>
+        public Node(BasicBlock pBb)
         {
-            BlockID++;
-            BlockNumber = BlockID;
-            BB = pBB;
+            BlockId++;
+            BlockNumber = BlockId;
+            Bb = pBb;
             Parent = null;
             Child = null;
             NodeType = NodeTypes.BB;
         }
 
-        public Node(BasicBlock pBB, NodeTypes n)
+        public Node(BasicBlock pBb, NodeTypes n)
         {
-            BlockID++;
-            BlockNumber = BlockID;
-            BB = pBB;
+            BlockId++;
+            BlockNumber = BlockId;
+            Bb = pBb;
             Parent = null;
             Child = null;
             NodeType = n;
         }
 
-        public BasicBlock BB { get; set; }
+        public BasicBlock Bb { get; set; }
 
         public NodeTypes NodeType { get; set; }
 
@@ -112,14 +111,11 @@ namespace compiler
             {
                 return null;
             }
-            else if (root.Child == null)
+            if (root.Child == null)
             {
                 return root;
             }
-            else
-            {
-                return root.Child.Leaf();
-            }
+            return root.Child.Leaf();
         }
 
         public virtual Node Leaf()
@@ -152,7 +148,7 @@ namespace compiler
 
             if (Child.GetType() == typeof(Node) )
             {
-                BB.AddInstructionList(Child.BB.Instructions);
+                Bb.AddInstructionList(Child.Bb.Instructions);
 
                 Node temp = Child;
                 Child = temp.Child;
@@ -165,71 +161,55 @@ namespace compiler
             }
         }
 
-        public virtual void CheckEnqueue(CFG cfg)
+        public virtual void CheckEnqueue(Cfg cfg)
         {
-            cfg.BFSCheckEnqueue(this, Child);
+            cfg.BfsCheckEnqueue(this, Child);
         }
 
 
         public Instruction GetNextInstruction()
         {
-            if (BB.Instructions.Count != 0)
+            if (Bb.Instructions.Count != 0)
             {
-                return BB.Instructions.First();
+                return Bb.Instructions.First();
             }
-            else
-            {
-                return Child?.GetNextInstruction();
-            }
-
+            return Child?.GetNextInstruction();
         }
 
         public virtual Instruction GetLastInstruction()
         {
             if (Child == null)
             {
-                if (BB.Instructions.Count == 0)
+                if (Bb.Instructions.Count == 0)
                 {
                     return null;
                 }
-                else
-                {
-                    return BB.Instructions.Last();
-                }
+                return Bb.Instructions.Last();
             }
-            else
+            var ret = Child.GetLastInstruction();
+            if (ret == null)
             {
-                var ret = Child.GetLastInstruction();
-                if (ret == null)
+                if (Bb.Instructions.Count == 0)
                 {
-                    if (BB.Instructions.Count == 0)
-                    {
-                        return null;
-                    }
-                    else
-                    {
-                        return BB.Instructions.Last();
-                    }
+                    return null;
                 }
-                else
-                {
-                    return ret;
-                }
+                return Bb.Instructions.Last();
             }
+            return ret;
         }
 
         public string DotId()
         {
-            return BB.Name + BlockNumber;
+            return Bb.Name + BlockNumber;
         }
 
         public string DotLabel(SymbolTable pSymbolTable)
         {
-            string label = BB.Name;
+            string label = Bb.Name;
 
-            foreach (Instruction inst in BB.Instructions)
+            foreach (Instruction inst in Bb.Instructions)
             {
-                label += " | " + inst.display(pSymbolTable);
+                label += " | " + inst.Display(pSymbolTable);
             }
 
             return label;

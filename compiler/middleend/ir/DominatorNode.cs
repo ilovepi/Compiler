@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using compiler.middleend.ir;
 
-namespace compiler
+namespace compiler.middleend.ir
 {
     internal class DominatorNode
     {
@@ -14,10 +13,10 @@ namespace compiler
         /// <summary>
         ///     constructor
         /// </summary>
-        /// <param name="pBB">The basic block of the node</param>
-        public DominatorNode(BasicBlock pBB)
+        /// <param name="pBb">The basic block of the node</param>
+        public DominatorNode(BasicBlock pBb)
         {
-            BB = pBB;
+            Bb = pBb;
             Parent = null;
             Children = new List<DominatorNode>();
         }
@@ -25,7 +24,7 @@ namespace compiler
         /// <summary>
         ///     The basic block of the node
         /// </summary>
-        public BasicBlock BB { get; set; }
+        public BasicBlock Bb { get; set; }
 
         /// <summary>
         ///     The parent of this node

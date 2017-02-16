@@ -5,7 +5,7 @@ namespace compiler.middleend.ir
 {
     public class CompareNode : Node
     {
-        public CompareNode(BasicBlock pBB) : base(pBB, NodeTypes.CompareB)
+        public CompareNode(BasicBlock pBb) : base(pBb, NodeTypes.CompareB)
         {
             FalseNode = null;
         }
@@ -46,10 +46,10 @@ namespace compiler.middleend.ir
             return ret;
         }
 
-        public override void CheckEnqueue(CFG cfg)
+        public override void CheckEnqueue(Cfg cfg)
         {
-            cfg.BFSCheckEnqueue(this, Child);
-            cfg.BFSCheckEnqueue(this, FalseNode);
+            cfg.BfsCheckEnqueue(this, Child);
+            cfg.BfsCheckEnqueue(this, FalseNode);
         }
 
         public override void Consolidate()

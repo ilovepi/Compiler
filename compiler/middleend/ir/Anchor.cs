@@ -19,9 +19,7 @@ namespace compiler.middleend.ir
         {
             IrOps key = inst.Op;
 
-            List<Instruction> chain = null;
-
-            chain = FindOpChain(key);
+            List<Instruction> chain = FindOpChain(key);
 
             // if the op never existed, add it
             if (chain == null)

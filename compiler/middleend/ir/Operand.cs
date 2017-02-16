@@ -9,6 +9,8 @@ namespace compiler.middleend.ir
         {
             Constant,
             Identifier,
+            Variable,
+            Function,
             Instruction,
             Register
         }
@@ -45,6 +47,12 @@ namespace compiler.middleend.ir
             }
         }
 
+        public Operand(SsaVariable ssa)
+        {
+            Variable = ssa;
+            IdKey = Variable.UuId;
+        }
+
 
         public OpType Kind { get; set; }
 
@@ -53,6 +61,8 @@ namespace compiler.middleend.ir
 
 
         public int IdKey { get; set; }
+
+        public SsaVariable Variable { get; set; }
 
 
         public Instruction Inst { get; set; }
@@ -107,26 +117,29 @@ namespace compiler.middleend.ir
         {
             switch (Kind)
             {
+                case OpType.Function:
+                    return "func-" + IdKey;
+                case OpType.Variable:
+                    return "(" + Variable.Location.Num + ")";
                 case OpType.Constant:
-                    return "#"+Val.ToString();
-                case OpType.Identifier:
-                    return "VAR" + IdKey;
+                    return "#" + Val;
                 case OpType.Instruction:
                     return "(" + Inst.Num + ")";
                 case OpType.Register:
                     return "R" + Val;
+                default:
+                    return "ERROR!!!";
             }
-            return "ERROR!!!";
         }
 
 
-        public string display(SymbolTable smb)
+        public string Display(SymbolTable smb)
         {
 
             switch (Kind)
             {
                 case OpType.Constant:
-                    return "#" + Val.ToString();
+                    return "#" + Val;
                 case OpType.Identifier:
                     return smb.Symbols[IdKey];
                 case OpType.Instruction:

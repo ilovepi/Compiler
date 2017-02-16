@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using compiler.middleend.ir;
-
 
 namespace compiler.middleend.ir
 {
     public class WhileNode : CompareNode
     {
         //todo: rightnow we insert on the false node, but we need to fix that
-        public WhileNode(BasicBlock pBB) : base(pBB)
+        public WhileNode(BasicBlock pBb) : base(pBb)
         {
             NodeType = NodeTypes.WhileB;
             FalseNode = null;
@@ -22,10 +19,10 @@ namespace compiler.middleend.ir
         public Node LoopParent { get; set; }
 
 
-        public override void CheckEnqueue(CFG cfg)
+        public override void CheckEnqueue(Cfg cfg)
         {
-            cfg.BFSCheckEnqueue(this, Child);
-            cfg.BFSCheckEnqueue(this, FalseNode);
+            cfg.BfsCheckEnqueue(this, Child);
+            cfg.BfsCheckEnqueue(this, FalseNode);
             //cfg.DOTOutput += Child.BB.Name + BlockNumber + " -> " + Child.BB.Name + Child.BlockNumber + "\n";
         }
 
@@ -82,34 +79,22 @@ namespace compiler.middleend.ir
         {
             if (FalseNode == null)
             {
-                if (BB.Instructions.Count == 0)
+                if (Bb.Instructions.Count == 0)
                 {
                     return null;
                 }
-                else
-                {
-                    return BB.Instructions.Last();
-                }
+                return Bb.Instructions.Last();
             }
-            else
+            var ret = FalseNode.GetLastInstruction();
+            if (ret == null)
             {
-                var ret = FalseNode.GetLastInstruction();
-                if (ret == null)
+                if (Bb.Instructions.Count == 0)
                 {
-                    if (BB.Instructions.Count == 0)
-                    {
-                        return null;
-                    }
-                    else
-                    {
-                        return BB.Instructions.Last();
-                    }
+                    return null;
                 }
-                else
-                {
-                    return ret;
-                }
+                return Bb.Instructions.Last();
             }
+            return ret;
         }
 
     }

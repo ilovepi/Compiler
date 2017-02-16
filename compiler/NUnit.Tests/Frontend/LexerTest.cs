@@ -124,7 +124,9 @@ namespace NUnit.Tests.Frontend
                 catch (Exception e)
                 {
                     Console.WriteLine(e.Message);
-                    t = Token.UNKNOWN;
+
+                    //t = Token.UNKNOWN;
+
                     throw;
                 }
 

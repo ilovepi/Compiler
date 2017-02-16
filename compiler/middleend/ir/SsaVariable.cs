@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NUnit.Framework.Internal;
-
-namespace compiler.middleend.ir
+﻿namespace compiler.middleend.ir
 {
-    class SsaVariable
+    public class SsaVariable
     {
         public int UuId { get; set; }
 
