@@ -1,19 +1,8 @@
-﻿namespace compiler.middleend.ir
+﻿
+namespace compiler.middleend.ir
 {
     public class SsaVariable
     {
-        public int UuId { get; set; }
-
-        public Instruction Location { get; set; }
-
-        /// <summary>
-        /// Previous Instruction
-        /// </summary>
-        public Instruction Prev { get; set; }
-
-        public string Name { get; set; }
-
-
         public SsaVariable()
         {
             Name = null;
@@ -30,9 +19,20 @@
             UuId = puuid;
         }
 
+        public int UuId { get; set; }
+
+        public Instruction Location { get; set; }
+
+        /// <summary>
+        ///     Previous Instruction
+        /// </summary>
+        public Instruction Prev { get; set; }
+
+        public string Name { get; set; }
+
         public override string ToString()
         {
-           return Name + Location.Num;
+            return Name + Location.Num;
         }
     }
 }

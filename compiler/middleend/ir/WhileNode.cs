@@ -1,4 +1,4 @@
-﻿using System;
+﻿
 using System.Linq;
 
 namespace compiler.middleend.ir
@@ -37,20 +37,20 @@ namespace compiler.middleend.ir
 
 
         public override void Insert(Node other)
+        {
+            if (FalseNode == null)
             {
-                if(FalseNode == null)
-                    {
-                        FalseNode = other;
-                        other.UpdateParent(this);
-                    }
-                else
-                    {
-                        FalseNode.Insert(other);
-                    }
+                FalseNode = other;
+                other.UpdateParent(this);
             }
+            else
+            {
+                FalseNode.Insert(other);
+            }
+        }
 
         //TODO: determine if thes are ever called or needed?
-       /* public override void InsertJoinTrue(JoinNode other)
+        /* public override void InsertJoinTrue(JoinNode other)
         {
             FalseNode = other;
             other.Parent = this;
@@ -64,7 +64,7 @@ namespace compiler.middleend.ir
 
         public override void Consolidate()
         {
-            base.CircularRef(FalseNode);
+            CircularRef(FalseNode);
 
             // consolidate children who exist
             //Child?.Consolidate();
@@ -82,7 +82,7 @@ namespace compiler.middleend.ir
                 }
                 return Bb.Instructions.Last();
             }
-            var ret = FalseNode.GetLastInstruction();
+            Instruction ret = FalseNode.GetLastInstruction();
             if (ret == null)
             {
                 if (Bb.Instructions.Count == 0)
@@ -93,6 +93,5 @@ namespace compiler.middleend.ir
             }
             return ret;
         }
-
     }
 }

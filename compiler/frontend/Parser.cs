@@ -109,8 +109,8 @@ namespace compiler.frontend
         public Tuple<Operand, List<Instruction>> Designator()
         {
             //public Operand Designator()
-            var originalId = Identifier();
-            var id = originalId;
+            Operand originalId = Identifier();
+            Operand id = originalId;
             var instructions = new List<Instruction>();
             //Tuple<Operand, List<Instruction>> ret = new Tuple<Operand, List<Instruction>>(id,instructions);
 
@@ -131,7 +131,7 @@ namespace compiler.frontend
 
                 // calulate offset
 
-                var exp = Expression();
+                Tuple<Operand, List<Instruction>> exp = Expression();
                 instructions.AddRange(exp.Item2);
 
                 //add offset to addr of id
@@ -155,7 +155,6 @@ namespace compiler.frontend
             }
 
             return new Tuple<Operand, List<Instruction>>(id, instructions);
-
         }
 
         public Tuple<Operand, List<Instruction>> Factor()
@@ -168,16 +167,16 @@ namespace compiler.frontend
             {
                 case Token.NUMBER:
                     id = Num();
-                    factor = new Tuple<Operand, List<Instruction>>(id, new List<Instruction>() );
+                    factor = new Tuple<Operand, List<Instruction>>(id, new List<Instruction>());
                     break;
                 case Token.IDENTIFIER:
-                    var des =  Designator();
+                    Tuple<Operand, List<Instruction>> des = Designator();
                     instructions.AddRange(des.Item2);
                     //Operand arg2 = (instructions.Count == 0) ? null : new Operand(instructions.Last())
                     var baseAddr = new Instruction(IrOps.Load, des.Item1, null);
                     instructions.Add(baseAddr);
                     id = new Operand(baseAddr);
-                    factor = new Tuple<Operand, List<Instruction>>(id,instructions);
+                    factor = new Tuple<Operand, List<Instruction>>(id, instructions);
                     break;
                 case Token.OPEN_PAREN:
                     Next();
@@ -189,7 +188,8 @@ namespace compiler.frontend
                     break;
                 default:
                     FatalError();
-                    factor = new Tuple<Operand, List<Instruction>>(new Operand(Operand.OpType.Constant,0xDEAD), instructions);
+                    factor = new Tuple<Operand, List<Instruction>>(new Operand(Operand.OpType.Constant, 0xDEAD),
+                        instructions);
                     break;
             }
 
@@ -199,8 +199,8 @@ namespace compiler.frontend
 
         public Tuple<Operand, List<Instruction>> Term()
         {
-            var factor1 = Factor();
-            var instructions = factor1.Item2;
+            Tuple<Operand, List<Instruction>> factor1 = Factor();
+            List<Instruction> instructions = factor1.Item2;
             //Instruction curr = instructions.Last();
 
             while ((Tok == Token.TIMES) || (Tok == Token.DIVIDE))
@@ -212,19 +212,18 @@ namespace compiler.frontend
                 Next();
 
                 // add instructions for the next factor
-                var factor2 = Factor();
+                Tuple<Operand, List<Instruction>> factor2 = Factor();
                 instructions.AddRange(factor2.Item2);
 
                 //TODO: find a good way of making this so we can support immediate actions
                 Operand id;
                 if ((factor2.Item1.Kind == Operand.OpType.Constant) && (factor1.Item1.Kind == Operand.OpType.Constant))
                 {
-                    var arg2 = factor2.Item1.Val;
-                    var arg1 = factor1.Item1.Val;
-                    var res = (op == IrOps.Mul) ? (arg1 * arg2) : (arg1 / arg2);
+                    int arg2 = factor2.Item1.Val;
+                    int arg1 = factor1.Item1.Val;
+                    int res = op == IrOps.Mul ? arg1 * arg2 : arg1 / arg2;
                     id = new Operand(Operand.OpType.Constant, res);
                     //var ret = new Tuple<Operand, List<Instruction>>(new Operand(Operand.OpType.Constant, res), new List<Instruction>() );
-
                 }
                 else
                 {
@@ -242,11 +241,11 @@ namespace compiler.frontend
         }
 
 
-        public Tuple<Operand, List<Instruction> > Expression()
+        public Tuple<Operand, List<Instruction>> Expression()
         {
-            var term1 = Term();
-            var id = term1.Item1;
-            var instructions = term1.Item2;
+            Tuple<Operand, List<Instruction>> term1 = Term();
+            Operand id = term1.Item1;
+            List<Instruction> instructions = term1.Item2;
 
             //Instruction curr = term1.Item2.Last();
 
@@ -259,7 +258,7 @@ namespace compiler.frontend
                 Next();
 
                 // add instructions for the next term
-                var term2 = Term();
+                Tuple<Operand, List<Instruction>> term2 = Term();
 
                 //cache the last instruction
                 //Instruction next = term1.Last();
@@ -270,14 +269,13 @@ namespace compiler.frontend
 
                 if ((term2.Item1.Kind == Operand.OpType.Constant) && (term1.Item1.Kind == Operand.OpType.Constant))
                 {
-                    var arg2 = term2.Item1.Val;
+                    int arg2 = term2.Item1.Val;
 
 
-                    var arg1 = term1.Item1.Val;
-                    var res = (op == IrOps.Add) ? (arg1 + arg2) : (arg1 - arg2);
+                    int arg1 = term1.Item1.Val;
+                    int res = op == IrOps.Add ? arg1 + arg2 : arg1 - arg2;
                     id = new Operand(Operand.OpType.Constant, res);
                     //var ret = new Tuple<Operand, List<Instruction>>(new Operand(Operand.OpType.Constant, res), new List<Instruction>() );
-
                 }
                 else
                 {
@@ -288,7 +286,7 @@ namespace compiler.frontend
                     id = new Operand(newInst);
                 }
 
-                term1 = new Tuple<Operand, List<Instruction>>( id, instructions);
+                term1 = new Tuple<Operand, List<Instruction>>(id, instructions);
             }
 
             return term1;
@@ -303,7 +301,7 @@ namespace compiler.frontend
 
             GetExpected(Token.LET);
 
-            var id = Designator();
+            Tuple<Operand, List<Instruction>> id = Designator();
             //Instruction curr = ret.Last();
 
             GetExpected(Token.ASSIGN);
@@ -311,7 +309,7 @@ namespace compiler.frontend
             //ret.AddRange(Expression());
             //Instruction next = ret.Last();
 
-            var expValue = Expression();
+            Tuple<Operand, List<Instruction>> expValue = Expression();
 
             //TODO: Fix this!!!!
 
@@ -326,7 +324,7 @@ namespace compiler.frontend
             // update current instruction to latest instruction
             //curr = ret.Last();
 
-            return new Tuple<Operand, List<Instruction>>(new Operand(newInst), id.Item2 );
+            return new Tuple<Operand, List<Instruction>>(new Operand(newInst), id.Item2);
         }
 
         public Cfg Computation()
@@ -344,7 +342,7 @@ namespace compiler.frontend
             {
                 // throw away cFG for now
                 //cfg.Insert( FuncDecl() );
-                var func = FuncDecl();
+                Cfg func = FuncDecl();
                 if (func.Root != null)
                 {
                     FunctionsCfgs.Add(func);
@@ -363,13 +361,12 @@ namespace compiler.frontend
             return cfg;
         }
 
-        public Tuple<Operand,  List<Instruction>> Relation()
+        public Tuple<Operand, List<Instruction>> Relation()
         {
-            
-            var leftVal  = Expression();
+            Tuple<Operand, List<Instruction>> leftVal = Expression();
             // copy instructions from first expression
             var instructions = new List<Instruction>(leftVal.Item2);
-            var arg1 = leftVal.Item1;
+            Operand arg1 = leftVal.Item1;
 
             if (!IsRelOp())
             {
@@ -380,11 +377,11 @@ namespace compiler.frontend
 
             Next();
 
-            var rightVal = Expression();
+            Tuple<Operand, List<Instruction>> rightVal = Expression();
 
             // copy instructions from right expression
             instructions.AddRange(rightVal.Item2);
-            var arg2 = rightVal.Item1;
+            Operand arg2 = rightVal.Item1;
 
             //var newOperand = new Operand(instructions);
 
@@ -401,19 +398,19 @@ namespace compiler.frontend
                     branch.Op = IrOps.Bne;
                     break;
                 case Token.NOT_EQUAL:
-                   branch.Op = IrOps.Beq;
+                    branch.Op = IrOps.Beq;
                     break;
                 case Token.LESS:
                     branch.Op = IrOps.Bge;
                     break;
                 case Token.LESS_EQ:
-                   branch.Op = IrOps.Bgt;
+                    branch.Op = IrOps.Bgt;
                     break;
                 case Token.GREATER:
                     branch.Op = IrOps.Ble;
                     break;
                 case Token.GREATER_EQ:
-                   branch.Op = IrOps.Blt;
+                    branch.Op = IrOps.Blt;
                     break;
                 default:
                     FatalError();
@@ -425,7 +422,7 @@ namespace compiler.frontend
 
         public Operand Identifier()
         {
-            var id = Scanner.Id;
+            int id = Scanner.Id;
             GetExpected(Token.IDENTIFIER);
 
             return new Operand(Operand.OpType.Identifier, id);
@@ -433,7 +430,7 @@ namespace compiler.frontend
 
         public void CreateIdentifier()
         {
-            var id = Scanner.Id;
+            int id = Scanner.Id;
             GetExpected(Token.IDENTIFIER);
             Scanner.SymbolTble.InsertAddress(id, NextAddress());
         }
@@ -477,7 +474,7 @@ namespace compiler.frontend
         public int TypeDecl()
         {
             // TODO: determine size of allocation required
-            int size = 4;
+            var size = 4;
             if (Tok == Token.VAR)
             {
                 Next();
@@ -489,7 +486,7 @@ namespace compiler.frontend
 
                 GetExpected(Token.OPEN_BRACKET);
 
-                var n = Num();
+                Operand n = Num();
                 size *= n.Val;
 
                 GetExpected(Token.CLOSE_BRACKET);
@@ -499,7 +496,7 @@ namespace compiler.frontend
                     Next();
 
                     n = Num();
-                    size *= (n.Val);
+                    size *= n.Val;
 
                     GetExpected(Token.CLOSE_BRACKET);
                 }
@@ -525,7 +522,7 @@ namespace compiler.frontend
 
             //TODO: Need a special address thing for functions
             //CreateIdentifier();
-            var id = Identifier();
+            Operand id = Identifier();
             List<Operand> paramList = null;
 
             if (Tok == Token.OPEN_PAREN)
@@ -535,8 +532,8 @@ namespace compiler.frontend
 
             GetExpected(Token.SEMI_COLON);
 
-            var fb = FuncBody();
-            
+            Cfg fb = FuncBody();
+
 
             fb.Name = Scanner.SymbolTble.Symbols[id.IdKey];
 
@@ -614,7 +611,7 @@ namespace compiler.frontend
             cfg.Insert(Statement());
 
             // TODO: fix consolodate()
-           cfg.Root.Consolidate();
+            cfg.Root.Consolidate();
 
             while (Tok == Token.SEMI_COLON)
             {
@@ -641,7 +638,8 @@ namespace compiler.frontend
             }
         }
 
-        public Tuple<Operand, List<Instruction>> MergeTuple(Tuple<Operand, List<Instruction>> a, Tuple<Operand, List<Instruction>> b)
+        public Tuple<Operand, List<Instruction>> MergeTuple(Tuple<Operand, List<Instruction>> a,
+            Tuple<Operand, List<Instruction>> b)
         {
             var inst = new List<Instruction>(a.Item2);
             inst.AddRange(b.Item2);
@@ -653,10 +651,10 @@ namespace compiler.frontend
         {
             GetExpected(Token.CALL);
 
-            var id = Identifier();
-            var instructions = new List<Instruction>() ;
+            Operand id = Identifier();
+            var instructions = new List<Instruction>();
 
-            List<Tuple<Operand, List<Instruction>>> paramList = new List<Tuple<Operand, List<Instruction>>>();
+            var paramList = new List<Tuple<Operand, List<Instruction>>>();
 
             if (Tok == Token.OPEN_PAREN)
             {
@@ -667,7 +665,6 @@ namespace compiler.frontend
                     (Tok == Token.OPEN_PAREN) ||
                     (Tok == Token.CALL))
                 {
-
                     paramList.Add(Expression());
 
                     while (Tok == Token.COMMA)
@@ -677,14 +674,13 @@ namespace compiler.frontend
                     }
 
                     // do something with the param list to push items on stack for call
-
                 }
 
                 GetExpected(Token.CLOSE_PAREN);
                 //TODO: jump to call
             }
 
-            foreach (var item in paramList)
+            foreach (Tuple<Operand, List<Instruction>> item in paramList)
             {
                 instructions.AddRange(item.Item2);
             }
@@ -711,7 +707,7 @@ namespace compiler.frontend
             compBlock.Bb.AddInstructionList(Relation().Item2);
 
             GetExpected(Token.THEN);
-            
+
             ifBlock.Insert(compBlock);
 
             Node trueBlock = StatementSequence().Root;
@@ -734,10 +730,11 @@ namespace compiler.frontend
             GetExpected(Token.FI);
 
             //TODO: remove placeholder instruction and do something smarter
-            joinBlock.Bb.Instructions.Add(new Instruction(IrOps.Phi, new Operand(Operand.OpType.Identifier, 0), new Operand(Operand.OpType.Identifier, 0)));
-            
-            compBlock.Bb.Instructions.Last().Arg2 = new Operand( falseBlock.GetNextInstruction());
-            Node.Leaf( trueBlock).Bb.Instructions.Last().Arg2 = new Operand(joinBlock.Bb.Instructions.First());
+            joinBlock.Bb.Instructions.Add(new Instruction(IrOps.Phi, new Operand(Operand.OpType.Identifier, 0),
+                new Operand(Operand.OpType.Identifier, 0)));
+
+            compBlock.Bb.Instructions.Last().Arg2 = new Operand(falseBlock.GetNextInstruction());
+            Node.Leaf(trueBlock).Bb.Instructions.Last().Arg2 = new Operand(joinBlock.Bb.Instructions.First());
 
             return ifBlock;
         }
@@ -754,7 +751,8 @@ namespace compiler.frontend
             var compBlock = new WhileNode(new BasicBlock("WhileCompareBlock"));
 
             // TODO: Correct placeholder Phi Instruction
-            compBlock.Bb.AddInstruction(new Instruction(IrOps.Phi, new Operand(Operand.OpType.Identifier, 0), new Operand(Operand.OpType.Identifier, 0)));
+            compBlock.Bb.AddInstruction(new Instruction(IrOps.Phi, new Operand(Operand.OpType.Identifier, 0),
+                new Operand(Operand.OpType.Identifier, 0)));
 
             // insert compare block for while stmt
             whileBlock.Insert(compBlock);
@@ -769,9 +767,9 @@ namespace compiler.frontend
             Cfg stmts = StatementSequence();
 
             Node loopBlock = stmts.Root;
-            loopBlock.Bb.AddInstruction( new Instruction(IrOps.Bra, new Operand(compBlock.GetNextInstruction()), null) );
+            loopBlock.Bb.AddInstruction(new Instruction(IrOps.Bra, new Operand(compBlock.GetNextInstruction()), null));
             loopBlock.Consolidate();
-            var last = loopBlock.Leaf();
+            Node last = loopBlock.Leaf();
 
             //TODO: try to refactor so that we don't have to insert on the false branch
             // insert the loop body on the true path
@@ -788,13 +786,14 @@ namespace compiler.frontend
 
 
             //TODO: remove placeholder instruction and do something smarter
-            followBlock.Bb.AddInstruction(new Instruction(IrOps.Phi, new Operand(Operand.OpType.Identifier, 0), new Operand(Operand.OpType.Identifier, 0)));
+            followBlock.Bb.AddInstruction(new Instruction(IrOps.Phi, new Operand(Operand.OpType.Identifier, 0),
+                new Operand(Operand.OpType.Identifier, 0)));
 
             last.GetLastInstruction().Arg2 = new Operand(compBlock.GetNextInstruction());
 
             // TODO: this is straight up wrong. we can leave this alone and fix it in the enclosing scope
             compBlock.Bb.Instructions.Last().Arg2 = new Operand(followBlock.Bb.Instructions.First());
-            
+
             return whileBlock;
         }
 
@@ -810,7 +809,7 @@ namespace compiler.frontend
 
             if ((Tok == Token.IDENTIFIER) || (Tok == Token.NUMBER) || (Tok == Token.OPEN_PAREN) || (Tok == Token.CALL))
             {
-                retStmt =  Expression();
+                retStmt = Expression();
                 instructions = retStmt.Item2;
             }
 
@@ -823,7 +822,7 @@ namespace compiler.frontend
             }
             else
             {
-                retStmt = new Tuple<Operand, List<Instruction>>(new Operand(branchBack), instructions );
+                retStmt = new Tuple<Operand, List<Instruction>>(new Operand(branchBack), instructions);
             }
 
             return retStmt;
@@ -833,7 +832,7 @@ namespace compiler.frontend
         {
             GetExpected(Token.OPEN_PAREN);
 
-            List<Operand> paramList = new List<Operand>();
+            var paramList = new List<Operand>();
 
             if (Tok == Token.IDENTIFIER)
             {

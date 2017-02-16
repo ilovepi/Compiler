@@ -38,13 +38,13 @@ namespace NUnit.Tests.MiddleEnd
             var inst2 = new Instruction(IrOps.Add, new Operand(Operand.OpType.Constant, 05),
                 new Operand(inst1));
 
-            graphCfg.Root.Bb.Instructions.Add(inst1);
-            graphCfg.Root.Bb.Instructions.Add(inst1);
-            graphCfg.Root.Bb.Instructions.Add(inst2);
+            graphCfg.Root.Bb.AddInstruction(inst1);
+            graphCfg.Root.Bb.AddInstruction(inst1);
+            graphCfg.Root.Bb.AddInstruction(inst2);
 
 
             graphCfg.Root.Insert(new Node(new BasicBlock("Child Block")));
-            graphCfg.Root.Child.Bb.Instructions.Add(inst2);
+            graphCfg.Root.Child.Bb.AddInstruction(inst2);
             graphCfg.Root.Insert(new Node(new BasicBlock("Child Block 2")));
             graphCfg.Root.Insert(new Node(new BasicBlock("Child Block 2")));
 

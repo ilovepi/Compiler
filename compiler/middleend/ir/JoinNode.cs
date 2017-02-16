@@ -11,20 +11,7 @@ namespace compiler.middleend.ir
 
         public Node FalseParent { get; set; }
 
-        public void UpdateParent(Node other, bool trueParent)
-        {
-            if (trueParent)
-            {
-                other.Child = this;
-                Parent = other;
-            }
-            else
-            {
-                FalseParent = other;
-                other.Child = this;
-            }
-        }
-
+        
         public override void CheckEnqueue(Cfg cfg)
         {
             cfg.BfsCheckEnqueue(this, Child);
@@ -33,10 +20,7 @@ namespace compiler.middleend.ir
 
         public override void Consolidate()
         {
-            if (ReferenceEquals(this, Child))
-            {
-                throw new Exception("Circular reference in basic block!!");
-            }
+            base.CircularRef(Child);
 
             // consolidate children who exist
             Child?.Consolidate();
