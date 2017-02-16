@@ -44,11 +44,11 @@ namespace NUnit.Tests.MiddleEnd
 
 
             graphCfg.Root.Insert(new Node(new BasicBlock("Child Block")));
-            graphCfg.Root.Child.Bb.AddInstruction(inst2);
-            graphCfg.Root.Insert(new Node(new BasicBlock("Child Block 2")));
-            graphCfg.Root.Insert(new Node(new BasicBlock("Child Block 2")));
+            //graphCfg.Root.Child.Bb.AddInstruction(inst2);
+            //graphCfg.Root.Insert(new Node(new BasicBlock("Child Block 2")));
+            //graphCfg.Root.Insert(new Node(new BasicBlock("Child Block 2")));
 
-            graphCfg.Root.Leaf().Bb.Search(inst1);
+            Assert.NotNull(graphCfg.Root.Leaf().AnchorSearch(inst1));
         }
 
     }

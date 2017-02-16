@@ -220,5 +220,19 @@ namespace compiler.middleend.ir
             return label;
         }
 
+        public virtual Instruction AnchorSearch(Instruction ins)
+        {
+            
+            if (IsRoot())
+            {
+                return Bb.Search(ins);
+            }
+            else
+            {
+                var res = Bb.Search(ins);
+                return res ?? Parent.AnchorSearch(ins);
+            }
+        }
+
     }
 }
