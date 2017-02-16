@@ -64,10 +64,7 @@ namespace compiler.middleend.ir
 
         public override void Consolidate()
         {
-            if (ReferenceEquals(this, Child))
-            {
-                throw new Exception("Circular reference in basic block!!");
-            }
+            base.CircularRef(FalseNode);
 
             // consolidate children who exist
             //Child?.Consolidate();

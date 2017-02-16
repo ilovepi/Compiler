@@ -1,4 +1,6 @@
+using System.IO;
 using compiler.frontend;
+using compiler.middleend.ir;
 using NUnit.Framework;
 
 namespace NUnit.Tests.Frontend
@@ -47,6 +49,20 @@ namespace NUnit.Tests.Frontend
             using (var p = new Parser(filename))
             {
                 p.Parse();
+
+                //using (var file = new StreamWriter("graph.dot"))
+                {
+                    //*
+                    //file.WriteLine("digraph G{\n");
+                    int i = 0;
+                    foreach (Cfg func in p.FunctionsCfgs)
+                    {
+                        func.Sym = p.Scanner.SymbolTble;
+                        func.GenerateDotOutput(i++);
+                      //  file.WriteLine(func.DotOutput);
+                    }
+                  //  file.WriteLine("\n}");
+                }
             }
             // Assert.Fail("Test and class not implemented ...");
         }

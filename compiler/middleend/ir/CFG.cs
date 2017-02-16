@@ -55,11 +55,13 @@ namespace compiler.middleend.ir
             Insert(subtree.Root);
         }
 
+/*
         public Node GetLeaf()
         {
             // TODO: Modify to check visited
             return GetLeaf(Root);
         }
+*/
 
         public Node GetLeaf(Node child)
         {
@@ -85,28 +87,36 @@ namespace compiler.middleend.ir
             }
         }
 
+/*
         private void CheckEnqueue(Node curNode)
         {
             BfsCheckEnqueue(curNode, curNode.Child);
         }
+*/
 
+/*
         private void CheckEnqueue(CompareNode curNode)
         {
             BfsCheckEnqueue(curNode, curNode.Child);
             BfsCheckEnqueue(curNode, curNode.FalseNode);
         }
+*/
 
+/*
         private void CheckEnqueue(JoinNode curNode)
         {
             BfsCheckEnqueue(curNode, curNode.Child);
         }
+*/
 
+/*
         private void CheckEnqueue(WhileNode curNode)
         {
             BfsCheckEnqueue(curNode,  curNode.Child);
             BfsCheckEnqueue(curNode,  curNode.FalseNode);
             //DOTOutput += CurNode.DotId() + " -> " + CurNode.Child.DotId() + "\n";
         }
+*/
 
         public void GenerateDotOutput(int n)
         {

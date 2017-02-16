@@ -39,12 +39,12 @@ namespace compiler.middleend.ir
             Insert(other, true);
         }
 
-        public override List<Node> GetAllChildren()
-        {
-            List<Node> ret = base.GetAllChildren();
-            ret.Add(FalseNode);
-            return ret;
-        }
+//        public override List<Node> GetAllChildren()
+//        {
+//            List<Node> ret = base.GetAllChildren();
+//            ret.Add(FalseNode);
+//            return ret;
+//        }
 
         public override void CheckEnqueue(Cfg cfg)
         {
@@ -54,10 +54,8 @@ namespace compiler.middleend.ir
 
         public override void Consolidate()
         {
-            if (ReferenceEquals(this, Child))
-            {
-                throw new Exception("Circular reference in basic block!!");
-            }
+            base.CircularRef(Child);
+            base.CircularRef(FalseNode);
 
             // consolidate children who exist
             Child?.Consolidate();

@@ -128,11 +128,11 @@ namespace compiler.middleend.ir
         }
         
 
-        public virtual List<Node> GetAllChildren()
-        {
-            var ret = new List<Node> {Child};
-            return ret;
-        }
+//        public virtual List<Node> GetAllChildren()
+//        {
+//            var ret = new List<Node> {Child};
+//            return ret;
+//        }
 
         public virtual void Consolidate()
         {
@@ -141,10 +141,7 @@ namespace compiler.middleend.ir
                 return;
             }
 
-            if (ReferenceEquals(this, Child))
-            {
-                throw new Exception("Circular reference in basic block!!");
-            }
+            CircularRef(Child);
 
             if (Child.GetType() == typeof(Node) )
             {
@@ -158,6 +155,14 @@ namespace compiler.middleend.ir
             else
             {
                 Child.Consolidate();
+            }
+        }
+
+        public void CircularRef(Node childNode)
+        {
+            if (ReferenceEquals(this, childNode))
+            {
+                throw new Exception("Circular reference in basic block!!");
             }
         }
 
