@@ -106,19 +106,24 @@ namespace compiler.frontend
         public Tuple<Operand, List<Instruction>> Designator()
         {
             //public Operand Designator()
-            var id = Identifier();
+            var originalId = Identifier();
+            var id = originalId;
             var instructions = new List<Instruction>();
-            Tuple<Operand, List<Instruction>> ret = new Tuple<Operand, List<Instruction>>(id,instructions);
+            //Tuple<Operand, List<Instruction>> ret = new Tuple<Operand, List<Instruction>>(id,instructions);
 
             // gen load addr of id
             //var baseAddr = new Instruction(IrOps.load, new Operand(Operand.OpType.Identifier, Scanner.Id), null);
-            //ret.Add(baseAddr);
+
             //TODO handle generating array addresses
             while (Tok == Token.OPEN_BRACKET)
             {
                 // load array base address
-               
-              
+
+                var baseAddr = new Instruction(IrOps.load, id, null);
+                instructions.Add(baseAddr);
+                id = new Operand(baseAddr);
+
+
                 GetExpected(Token.OPEN_BRACKET);
 
                 // calulate offset
@@ -130,17 +135,24 @@ namespace compiler.frontend
                 //instructions.Add(new Instruction(IrOps.adda, id,  new Operand(instructions.Last())));
                 instructions.Add(new Instruction(IrOps.adda, id, exp.Item1));
 
+                // Delay the indirect load until the top of the loop so we can do the last
+                // load or store at the reference site.
+
                 //inderect load result of basaddr + offset
-                var addr = new Instruction(IrOps.load, new Operand(instructions.Last()), null);
-                instructions.Add(addr);
+                //baseAddr = new Instruction(IrOps.load, new Operand(instructions.Last()), null);
+                //instructions.Add(baseAddr);
+                //id = new Operand(baseAddr);
+
 
                 //get bracket
                 GetExpected(Token.CLOSE_BRACKET);
+
+                // set the current operand to the last adda inst, so we can get the load right at the end
+                id = new Operand(instructions.Last());
             }
 
-            //return instructions;
-            //return id;
-            return ret;
+            return new Tuple<Operand, List<Instruction>>(id, instructions);
+
         }
 
         public Tuple<Operand, List<Instruction>> Factor()
@@ -156,7 +168,14 @@ namespace compiler.frontend
                     factor = new Tuple<Operand, List<Instruction>>(id, new List<Instruction>() );
                     break;
                 case Token.IDENTIFIER:
-                    return Designator();
+                    var des =  Designator();
+                    instructions.AddRange(des.Item2);
+                    //Operand arg2 = (instructions.Count == 0) ? null : new Operand(instructions.Last())
+                    var baseAddr = new Instruction(IrOps.load, des.Item1, null);
+                    instructions.Add(baseAddr);
+                    id = new Operand(baseAddr);
+                    factor = new Tuple<Operand, List<Instruction>>(id,instructions);
+                    break;
                 case Token.OPEN_PAREN:
                     Next();
                     factor = Expression();
@@ -178,6 +197,7 @@ namespace compiler.frontend
         public Tuple<Operand, List<Instruction>> Term()
         {
             var factor1 = Factor();
+            var id = factor1.Item1;
             var instructions = factor1.Item2;
             //Instruction curr = instructions.Last();
 
@@ -193,19 +213,26 @@ namespace compiler.frontend
                 var factor2 = Factor();
                 instructions.AddRange(factor2.Item2);
 
-                //cache the last instruction
-                //Instruction next = other.Item2.Last();
+                //TODO: find a good way of making this so we can support immediate actions
+                if ((factor2.Item1.Kind == Operand.OpType.Constant) && (factor1.Item1.Kind == Operand.OpType.Constant))
+                {
+                    var arg2 = factor2.Item1.Val;
+                    var arg1 = factor1.Item1.Val;
+                    var res = (op == IrOps.mul) ? (arg1 * arg2) : (arg1 / arg2);
+                    id = new Operand(Operand.OpType.Constant, res);
+                    //var ret = new Tuple<Operand, List<Instruction>>(new Operand(Operand.OpType.Constant, res), new List<Instruction>() );
 
-                // create new instruction
-                var newInst = new Instruction(op, factor1.Item1, factor2.Item1);
+                }
+                else
+                {
+                    var newInst = new Instruction(op, factor1.Item1, factor2.Item1);
 
-                // insert new instruction to instruction list
-                instructions.Add(newInst);
+                    // insert new instruction to instruction list
+                    instructions.Add(newInst);
+                    id = new Operand(newInst);
+                }
 
-                // update current instruction to latest instruction
-                //curr = factor1.Last();
-
-                factor1 = new Tuple<Operand, List<Instruction>>(new Operand(newInst), instructions);
+                factor1 = new Tuple<Operand, List<Instruction>>(id, instructions);
             }
 
             return factor1;
@@ -215,6 +242,7 @@ namespace compiler.frontend
         public Tuple<Operand, List<Instruction> > Expression()
         {
             var term1 = Term();
+            var id = term1.Item1;
             var instructions = term1.Item2;
 
             //Instruction curr = term1.Item2.Last();
@@ -235,16 +263,29 @@ namespace compiler.frontend
 
                 // create new instruction
                 //var newInst = new Instruction(op, new Operand(curr), new Operand(next));
-                var newInst = new Instruction(op, term1.Item1, term2.Item1);
+                instructions.AddRange(term2.Item2);
+
+                if ((term2.Item1.Kind == Operand.OpType.Constant) && (term1.Item1.Kind == Operand.OpType.Constant))
+                {
+                    var arg2 = term2.Item1.Val;
 
 
-                // insert new instruction to instruction list
-                instructions.Add(newInst);
+                    var arg1 = term1.Item1.Val;
+                    var res = (op == IrOps.add) ? (arg1 + arg2) : (arg1 - arg2);
+                    id = new Operand(Operand.OpType.Constant, res);
+                    //var ret = new Tuple<Operand, List<Instruction>>(new Operand(Operand.OpType.Constant, res), new List<Instruction>() );
 
-                // update current instruction to latest instruction
-                //curr = term1.Last();
+                }
+                else
+                {
+                    var newInst = new Instruction(op, id, term2.Item1);
 
-                term1 = new Tuple<Operand, List<Instruction>>(new Operand(newInst), instructions);
+                    // insert new instruction to instruction list
+                    instructions.Add(newInst);
+                    id = new Operand(newInst);
+                }
+
+                term1 = new Tuple<Operand, List<Instruction>>( id, instructions);
             }
 
             return term1;
@@ -272,7 +313,7 @@ namespace compiler.frontend
             //TODO: Fix this!!!!
 
             // create new instruction
-            var newInst = new Instruction(IrOps.move, expValue.Item1, id.Item1);
+            var newInst = new Instruction(IrOps.store, expValue.Item1, id.Item1);
 
             id.Item2.AddRange(expValue.Item2);
 
@@ -759,25 +800,26 @@ namespace compiler.frontend
         {
             GetExpected(Token.RETURN);
 
-            var ret = new List<Instruction>();
+            var instructions = new List<Instruction>();
 
             Tuple<Operand, List<Instruction>> retStmt = null;
 
             if ((Tok == Token.IDENTIFIER) || (Tok == Token.NUMBER) || (Tok == Token.OPEN_PAREN) || (Tok == Token.CALL))
             {
                 retStmt =  Expression();
+                instructions = retStmt.Item2;
             }
 
             //TODO: probably want to make better instruction here, with a real address
-            ret.Add(new Instruction(IrOps.bra, new Operand(Operand.OpType.Register, 0), null));
-
+            var branchBack = new Instruction(IrOps.bra, new Operand(Operand.OpType.Register, 0), null);
+            instructions.Add(branchBack);
             if (retStmt == null)
             {
-                retStmt = new Tuple<Operand, List<Instruction>>(new Operand(ret.Last()), ret);
+                retStmt = new Tuple<Operand, List<Instruction>>(new Operand(instructions.Last()), instructions);
             }
             else
             {
-                retStmt.Item2.AddRange(ret);
+                retStmt = new Tuple<Operand, List<Instruction>>(new Operand(branchBack), instructions );
             }
 
             return retStmt;

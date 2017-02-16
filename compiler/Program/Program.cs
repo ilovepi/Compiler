@@ -9,10 +9,9 @@ namespace Program
         //TODO: adjust main to use the parser when it is complete
         private static void Main(string[] args)
         {
-            using (var p = new Parser(@"../../testdata/test022.txt"))
+            using (var p = new Parser(@"../../testdata/cell.txt"))
             {
                 p.Parse();
-                
 
                 using (var file = new StreamWriter("graph.dot"))
                 {
