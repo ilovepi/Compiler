@@ -49,8 +49,8 @@ namespace compiler.middleend.ir
                     }
             }
 
-
-        public override void InsertJoinTrue(JoinNode other)
+        //TODO: determine if thes are ever called or needed?
+       /* public override void InsertJoinTrue(JoinNode other)
         {
             FalseNode = other;
             other.Parent = this;
@@ -60,7 +60,7 @@ namespace compiler.middleend.ir
         {
             other.FalseParent = this;
             FalseNode = other;
-        }
+        }*/
 
         public override void Consolidate()
         {
