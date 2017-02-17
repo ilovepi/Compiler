@@ -31,17 +31,21 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="nunit.framework, Version=3.0.5813.39031, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
-      <HintPath>..\packages\NUnit.3.0.1\lib\net45\nunit.framework.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="nunit.framework">
+      <HintPath>..\packages\NUnit.3.6.0\lib\net45\nunit.framework.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Frontend\LexerTest.cs" />
     <Compile Include="Frontend\ParserIntegrationTest.cs" />
     <Compile Include="Frontend\ParserUnitTest.cs" />
     <Compile Include="Frontend\SymbolTableTest.cs" />
+    <Compile Include="MiddleEnd\BasicBlockTests.cs" />
+    <Compile Include="MiddleEnd\CfgTests.cs" />
+    <Compile Include="MiddleEnd\InstructionTests.cs" />
+    <Compile Include="MiddleEnd\NodeTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

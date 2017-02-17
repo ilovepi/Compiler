@@ -21,17 +21,6 @@ namespace NUnit.Tests.Frontend
         public Parser Checker { get; set; }
 
         [Test]
-        public void DesignatorBadExpressionTest()
-        {
-            //TODO: add more cases to the test file, and hit them all
-            using (Checker = new Parser(ProgramDir + @"/Frontend/parserdata/BadExpression.txt"))
-            {
-                Checker.Next();
-                Assert.Throws<ParserException>( ()=> Checker.Designator());
-            }
-        }
-
-        [Test]
         public void DesignatorArrayTest()
         {
             //TODO: add more cases to the test file, and hit them all
@@ -43,8 +32,19 @@ namespace NUnit.Tests.Frontend
                 Checker.Designator();
             }
         }
-        
-        
+
+        [Test]
+        public void DesignatorBadExpressionTest()
+        {
+            //TODO: add more cases to the test file, and hit them all
+            using (Checker = new Parser(ProgramDir + @"/Frontend/parserdata/BadExpression.txt"))
+            {
+                Checker.Next();
+                Assert.Throws<ParserException>(() => Checker.Designator());
+            }
+        }
+
+
         [Test]
         public void DesignatorIdOnlyTest()
         {
@@ -77,19 +77,21 @@ namespace NUnit.Tests.Frontend
             Assert.AreEqual(1, Checker.Pos);
             Assert.AreEqual(1, Checker.LineNo);
             Checker.GetExpected(Token.UNKNOWN);
-            Assert.AreEqual(Token.COMMENT, Checker.Tok);
-            Assert.AreEqual(1, Checker.Pos);
-            Assert.AreEqual(2, Checker.LineNo);
-            Checker.GetExpected(Token.COMMENT);
             Assert.AreEqual(Token.MAIN, Checker.Tok);
             Assert.AreEqual(6, Checker.Pos);
+            Assert.AreEqual(2, Checker.LineNo);
+
+            Checker.GetExpected(Token.MAIN);
+            Assert.AreEqual(Token.VAR, Checker.Tok);
+            Assert.AreEqual(5, Checker.Pos);
+            Assert.AreEqual(3, Checker.LineNo);
         }
 
 
         [Test]
         public void GetExpectedThrowsTest()
         {
-            var ex = Assert.Throws<ParserException>(() => Checker.GetExpected(Token.EOF));
+            Assert.Throws<ParserException>(() => Checker.GetExpected(Token.EOF));
         }
 
         //[TearDown]
@@ -106,7 +108,7 @@ namespace NUnit.Tests.Frontend
                 //using (var p = new Parser(ProgramPath)) 
                 //{
                 Checker.Tok = t;
-                var expected = t >= Token.EQUAL && t <= Token.GREATER_EQ;
+                bool expected = (t >= Token.EQUAL) && (t <= Token.GREATER_EQ);
                 Assert.AreEqual(expected, Checker.IsRelOp());
                 //}
             }

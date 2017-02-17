@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.Serialization;
 
 namespace compiler.frontend
 {
@@ -8,19 +7,16 @@ namespace compiler.frontend
     {
         public ParserException()
         {
-            
         }
 
         public ParserException(string message)
             : base(message)
         {
-            
         }
 
         public ParserException(string message, Exception inner)
             : base(message, inner)
         {
-
         }
 
 
@@ -29,6 +25,14 @@ namespace compiler.frontend
             string message = "Error in file: " + file + " at line " + line + ", pos " + pos +
                              "\n\tFound: " + TokenHelper.ToString(found) + " but Expected: " +
                              TokenHelper.ToString(expected);
+            return new ParserException(message);
+        }
+
+
+        public static ParserException CreateParserException(Token found, int line, int pos, string file)
+        {
+            string message = "Error in file: " + file + " at line " + line + ", pos " + pos +
+                             "\n\tFound: " + TokenHelper.ToString(found);
             return new ParserException(message);
         }
     }

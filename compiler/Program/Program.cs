@@ -1,26 +1,42 @@
-﻿using System;
+﻿using System.IO;
 using compiler.frontend;
+using compiler.middleend.ir;
 
 namespace Program
 {
-    class Program
+    internal class Program
     {
         //TODO: adjust main to use the parser when it is complete
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            using (Lexer l = new Lexer(@"../../testdata/big.txt"))
+            using (var p = new Parser(@"../../testdata/test002.txt"))
             {
-                Token t;
-                do
+                p.Parse();
+
+                using (var file = new StreamWriter("graph.dot"))
                 {
-                    t = l.GetNextToken();
-                    Console.WriteLine(TokenHelper.PrintToken(t));
-
-                } while (t != Token.EOF);
-
-                // necessary when testing on windows with visual studio
-                //Console.WriteLine("Press 'enter' to exit ....");
-                //Console.ReadLine();
+                    //*
+                    file.WriteLine("digraph G{\n");                    
+                    int i = 0;
+                    foreach (Cfg func in p.FunctionsCfgs)
+                    {
+                        func.Sym = p.Scanner.SymbolTble;
+                        func.GenerateDotOutput(i++);
+                        file.WriteLine(func.DotOutput);
+                    }
+                    file.WriteLine("\n}");
+                    //*
+                    /*
+                    file.WriteLine("digraph G{\n");
+                    int i = 0;
+                   
+                       p.ProgramCfg.Sym = p.Scanner.SymbolTble;
+                        p.ProgramCfg.GenerateDOTOutput(i++);
+                        file.WriteLine(p.ProgramCfg.DotOutput);
+                   
+                    file.WriteLine("\n}");
+                    */
+                }
             }
         }
     }
