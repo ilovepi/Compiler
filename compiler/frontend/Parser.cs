@@ -310,16 +310,18 @@ namespace compiler.frontend
 
             // create new instruction
             var newInst = new Instruction(IrOps.Store, expValue.Operand, id.Operand);
-            SsaVariable prev = null;
-            
+            Instruction prev = null;
+            string name = Scanner.SymbolTble.Symbols[id.Operand.IdKey];
+
             if (locals.ContainsKey(id.Operand.IdKey))
             {
-                prev = locals[id.Operand.IdKey]    
+                prev = locals[id.Operand.IdKey].Location;
+                
             }
-            
 
+            SsaVariable ssa = new SsaVariable(id.Operand.IdKey, newInst, prev, name);
 
-            SsaVariable ssa = new SsaVariable(id.Operand.IdKey, newInst,);
+            locals[id.Operand.IdKey] = ssa;
 
             id.Instructions.AddRange(expValue.Instructions);
 
@@ -329,7 +331,7 @@ namespace compiler.frontend
             // update current instruction to latest instruction
             //curr = ret.Last();
 
-            return new ParseResult(new Operand(newInst), id.Operand, locals);
+            return new ParseResult(new Operand(newInst),id.Instructions,locals);
         }
 
         public Cfg Computation(VarTbl varTble)
