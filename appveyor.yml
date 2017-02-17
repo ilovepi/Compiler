@@ -18,7 +18,9 @@ test:
   assemblies: '**\NUnit.Tests.dll'
 after_test:
 - ps: "pwd;ls;
+
       .\\packages\\PublishCoverity.0.11.0\\tools\\PublishCoverity.exe compress -o compiler.zip -i cov-int
+      
       .\\packages\\PublishCoverity.0.11.0\\tools\\PublishCoverity.exe publish -z compiler.zip -r ilovepi/compiler -t $env:COVERITY_TOKEN -e $env:APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL
       
       .\\packages\\OpenCover.4.6.519\\tools\\OpenCover.Console.exe -register:user -target:.\\packages\\NUnit.ConsoleRunner.3.6.0\\tools\\nunit3-console.exe \"-targetargs:\"\"NUnit.Tests\\bin\\$env:CONFIGURATION\\NUnit.Tests.dll\"\" \"  -filter:\"+[*]* -[*.Tests]*\"  -output:opencoverCoverage.xml
