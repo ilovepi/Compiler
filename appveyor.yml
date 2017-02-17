@@ -2,6 +2,8 @@ version: 1.1.{build}-{branch}
 configuration: Release
 platform: Any CPU
 environment:
+  COVERITY_TOKEN:
+    secure: vGSuKn5l8Q/EMK/Vq4vX3a5YcyP8p4sazZPfyMaM7DI=
   COVERALLS_REPO_TOKEN:
     secure: VmHA7lmN2tuLuRWIrnvYcZmrops9FgiV9z6QEHF4GVKEY9vj8vFtoen2g5gx1XJ/
 before_build:
@@ -9,13 +11,16 @@ before_build:
     cd compiler
 
     nuget restore
-build:
-  project: compiler/compiler.sln
-  verbosity: normal
+build_script:
+- ps: "cov-build.exe --dir-cov-int msbuild /t:rebuild"
+    
 test:
   assemblies: '**\NUnit.Tests.dll'
 after_test:
 - ps: "pwd;ls;
+      .\\packages\\PublishCoverity.0.11.0\\tools\\PublishCoverity.exe compress -o compiler.zip -i cov-int
+      .\\packages\\PublishCoverity.0.11.0\\tools\\PublishCoverity.exe publish -z compiler.zip -r ilovepi/compiler -t $env:COVERITY_TOKEN
+      
       .\\packages\\OpenCover.4.6.519\\tools\\OpenCover.Console.exe -register:user -target:.\\packages\\NUnit.ConsoleRunner.3.6.0\\tools\\nunit3-console.exe \"-targetargs:\"\"NUnit.Tests\\bin\\$env:CONFIGURATION\\NUnit.Tests.dll\"\" \"  -filter:\"+[*]* -[*.Tests]*\"  -output:opencoverCoverage.xml
 
       $coveralls = (Resolve-Path \".\\packages/coveralls.net.*/tools/csmacnz.coveralls.exe\").ToString()
