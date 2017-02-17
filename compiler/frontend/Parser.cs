@@ -740,6 +740,10 @@ namespace compiler.frontend
                 falseBlock = StatementSequence(falseSsa).Root;
                 Node.Leaf(falseBlock).InsertJoinFalse(joinBlock);
                 falseBlock.Consolidate();
+
+				// The branch location isn't known yet, so delay it
+				trueBlock.Bb.AddInstruction(new Instruction(IrOps.Bra, null, null));
+
             }
 
 
@@ -767,8 +771,14 @@ namespace compiler.frontend
 				throw new Exception("SSA Variable Tables are different sizes. You added something you shouldnt have.");
 			}
 
+			if (joinBlock.Bb.Instructions.Count == 0)
+			{
+				var fakePhi = new Instruction(IrOps.Phi, new Operand(Operand.OpType.Identifier, 0), new Operand(Operand.OpType.Identifier, 0));
+				joinBlock.Bb.Instructions.Add(fakePhi);
+			}
+
             compBlock.GetLastInstruction().Arg2 = new Operand(falseBlock.GetNextInstruction());
-            Node.Leaf(trueBlock).GetLastInstruction().Arg2 = new Operand(joinBlock.Bb.Instructions.First());
+			Node.Leaf(trueBlock).GetLastInstruction().Arg2 = new Operand(joinBlock.GetNextInstruction());
 
             return ifBlock;
         }
