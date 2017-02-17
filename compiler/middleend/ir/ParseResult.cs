@@ -1,37 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+
+using VarTbl = System.Collections.Generic.SortedDictionary<int, compiler.middleend.ir.SsaVariable>;
+
 
 namespace compiler.middleend.ir
 {
-    class ParseResult
+    public class ParseResult
     {
         public Operand Operand { get; set; }
+
         public List<Instruction> Instructions { get; set; }
 
-        public Dictionary<int, SsaVariable> VarTable { get; set; }
+        public VarTbl VarTable { get; set; }
 
         public ParseResult()
         {
             Operand = null;
             Instructions = null;
-            VarTable = new Dictionary<int, SsaVariable>();
+            VarTable = new VarTbl(new VarTbl());
         }
 
-        public ParseResult(Dictionary<int, SsaVariable> symTble )
+        public ParseResult(VarTbl symTble )
         {
             Operand = null;
             Instructions = null;
-            VarTable = new Dictionary<int, SsaVariable>(symTble);
+            VarTable = new VarTbl(symTble);
         }
 
-        public ParseResult(Operand pOperand, List<Instruction> pInstructions, Dictionary<int, SsaVariable> pSymTble)
+        public ParseResult(Operand pOperand, List<Instruction> pInstructions, VarTbl pSymTble)
         {
             Operand = pOperand;
             Instructions = new List<Instruction>(pInstructions);
-            VarTable = new Dictionary<int, SsaVariable>(pSymTble);
+            VarTable = new VarTbl(pSymTble);
         }
 
 
