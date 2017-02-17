@@ -124,12 +124,12 @@ namespace compiler.frontend
 
                 // calulate offset
 
-                ParseResult exp = Expression();
-                instructions.AddRange(exp.Item2);
+                ParseResult exp = Expression(variables);
+                instructions.AddRange(exp.Instructions);
 
                 //add offset to addr of id
                 //instructions.Add(new Instruction(IrOps.adda, id,  new Operand(instructions.Last())));
-                instructions.Add(new Instruction(IrOps.Adda, id, exp.Item1));
+                instructions.Add(new Instruction(IrOps.Adda, id, exp.Operand));
 
                 // Delay the indirect load until the top of the loop so we can do the last
                 // load or store at the reference site.
@@ -349,7 +349,7 @@ namespace compiler.frontend
             {
                 // throw away cFG for now
                 //cfg.Insert( FuncDecl() );
-                Cfg func = FuncDecl();
+                Cfg func = FuncDecl(varTble);
                 if (func.Root != null)
                 {
                     FunctionsCfgs.Add(func);
@@ -359,7 +359,7 @@ namespace compiler.frontend
 
             GetExpected(Token.OPEN_CURL);
 
-            cfg.Insert(StatementSequence());
+            cfg.Insert(StatementSequence(varTble));
 
             GetExpected(Token.CLOSE_CURL);
 
@@ -368,12 +368,12 @@ namespace compiler.frontend
             return cfg;
         }
 
-        public ParseResult Relation()
+        public ParseResult Relation(VarTbl variables)
         {
-            ParseResult leftVal = Expression();
+            ParseResult leftVal = Expression(variables);
             // copy instructions from first expression
-            var instructions = new List<Instruction>(leftVal.Item2);
-            Operand arg1 = leftVal.Item1;
+            var instructions = new List<Instruction>(leftVal.Instructions);
+            Operand arg1 = leftVal.Operand;
 
             if (!IsRelOp())
             {
@@ -384,11 +384,11 @@ namespace compiler.frontend
 
             Next();
 
-            ParseResult rightVal = Expression();
+            ParseResult rightVal = Expression(variables);
 
             // copy instructions from right expression
-            instructions.AddRange(rightVal.Item2);
-            Operand arg2 = rightVal.Item1;
+            instructions.AddRange(rightVal.Instructions);
+            Operand arg2 = rightVal.Operand;
 
             //var newOperand = new Operand(instructions);
 
@@ -424,7 +424,7 @@ namespace compiler.frontend
                     break;
             }
 
-            return new ParseResult(new Operand(branch), instructions);
+            return new ParseResult(new Operand(branch), instructions, variables);
         }
 
         public Operand Identifier()
@@ -520,7 +520,7 @@ namespace compiler.frontend
             return size;
         }
 
-        public Cfg FuncDecl()
+        public Cfg FuncDecl(VarTbl variables)
         {
             var cfg = new Cfg();
 
@@ -543,7 +543,7 @@ namespace compiler.frontend
 
             GetExpected(Token.SEMI_COLON);
 
-            Cfg fb = FuncBody();
+            Cfg fb = FuncBody(variables);
             
             if (fb != null)
             {
@@ -562,7 +562,7 @@ namespace compiler.frontend
             Cfg cfg = null;
             while ((Tok == Token.VAR) || (Tok == Token.ARRAY))
             {
-                VarDecl(ref ssaTable);
+                ssaTable = VarDecl(ssaTable);
             }
 
             GetExpected(Token.OPEN_CURL);
@@ -570,7 +570,7 @@ namespace compiler.frontend
             if ((Tok == Token.LET) || (Tok == Token.CALL) || (Tok == Token.IF)
                 || (Tok == Token.WHILE) || (Tok == Token.RETURN))
             {
-                cfg = StatementSequence();
+                cfg = StatementSequence(ssaTable);
             }
 
             GetExpected(Token.CLOSE_CURL);
@@ -579,7 +579,7 @@ namespace compiler.frontend
         }
 
 
-        public Cfg Statement()
+        public Cfg Statement(VarTbl variables)
         {
             //TODO: CFG has trouble adding to new blocks, or inserting into CFG
             var cfgTemp = new Cfg {Root = new Node(new BasicBlock("StatementBlock"))};
@@ -590,21 +590,21 @@ namespace compiler.frontend
             switch (Tok)
             {
                 case Token.LET:
-                    stmt = Assign();
-                    cfgTemp.Root.Bb.AddInstructionList(stmt.Item2);
+                    stmt = Assign(variables);
+                    cfgTemp.Root.Bb.AddInstructionList(stmt.Instructions);
                     break;
                 case Token.CALL:
-                    stmt = FuncCall();
-                    cfgTemp.Root.Bb.AddInstructionList(stmt.Item2);
+                    stmt = FuncCall(variables);
+                    cfgTemp.Root.Bb.AddInstructionList(stmt.Instructions);
                     //cfgTemp.Root.BB.AddInstructionList(FuncCall());
                     break;
                 case Token.IF:
-                    return IfStmt();
+                    return IfStmt(variables);
                 case Token.WHILE:
-                    return WhileStmt();
+                    return WhileStmt(variables);
                 case Token.RETURN:
-                    stmt = ReturnStmt();
-                    cfgTemp.Root.Bb.AddInstructionList(stmt.Item2);
+                    stmt = ReturnStmt(variables);
+                    cfgTemp.Root.Bb.AddInstructionList(stmt.Instructions);
                     break;
                 default:
                     FatalError();
@@ -615,12 +615,13 @@ namespace compiler.frontend
         }
 
 
-        public Cfg StatementSequence()
+        public Cfg StatementSequence(VarTbl variables)
         {
             var cfg = new Cfg();
             var bb = new BasicBlock("StatSequence");
             cfg.Root = new Node(bb);
-            cfg.Insert(Statement());
+            var stmt = Statement(variables);
+            cfg.Insert(stmt);
 
             // TODO: fix consolodate()
             cfg.Root.Consolidate();
@@ -628,7 +629,8 @@ namespace compiler.frontend
             while (Tok == Token.SEMI_COLON)
             {
                 Next();
-                cfg.Insert(Statement());
+                stmt = Statement(variables);
+                cfg.Insert(stmt);
 
                 cfg.Root.Consolidate();
             }
@@ -649,17 +651,9 @@ namespace compiler.frontend
                 Next();
             }
         }
+        
 
-        public ParseResult MergeTuple(ParseResult a,
-            ParseResult b)
-        {
-            var inst = new List<Instruction>(a.Item2);
-            inst.AddRange(b.Item2);
-            return new ParseResult(b.Item1, inst);
-        }
-
-
-        public ParseResult FuncCall()
+        public ParseResult FuncCall(VarTbl variables)
         {
             GetExpected(Token.CALL);
 
@@ -677,12 +671,12 @@ namespace compiler.frontend
                     (Tok == Token.OPEN_PAREN) ||
                     (Tok == Token.CALL))
                 {
-                    paramList.Add(Expression());
+                    paramList.Add(Expression(variables));
 
                     while (Tok == Token.COMMA)
                     {
                         Next();
-                        paramList.Add(Expression());
+                        paramList.Add(Expression(variables));
                     }
 
                     // do something with the param list to push items on stack for call
@@ -694,7 +688,7 @@ namespace compiler.frontend
 
             foreach (ParseResult item in paramList)
             {
-                instructions.AddRange(item.Item2);
+                instructions.AddRange(item.Instructions);
             }
 
             var call = new Instruction(IrOps.Bra, id, null);
@@ -703,10 +697,10 @@ namespace compiler.frontend
             instructions.Add(call);
 
 
-            return new ParseResult(id, instructions);
+            return new ParseResult(id, instructions, variables);
         }
 
-        public Cfg IfStmt()
+        public Cfg IfStmt(VarTbl variables)
         {
             GetExpected(Token.IF);
             var ifBlock = new Cfg();
@@ -715,14 +709,18 @@ namespace compiler.frontend
             var joinBlock = new JoinNode(new BasicBlock("JoinBlock"));
             Node falseBlock = joinBlock;
 
+            var trueSsa = new VarTbl(variables);
+            var falseSsa = new VarTbl(variables);
+
             // HACK: should we use the operand of the relation?
-            compBlock.Bb.AddInstructionList(Relation().Item2);
+            compBlock.Bb.AddInstructionList(Relation(variables).Instructions);
 
             GetExpected(Token.THEN);
 
             ifBlock.Insert(compBlock);
 
-            Node trueBlock = StatementSequence().Root;
+            // pass in a copy of variables so the original stays pristine
+            Node trueBlock = StatementSequence(trueSsa).Root;
             trueBlock.Consolidate();
 
             compBlock.InsertTrue(trueBlock);
@@ -731,7 +729,7 @@ namespace compiler.frontend
             if (Tok == Token.ELSE)
             {
                 Next();
-                falseBlock = StatementSequence().Root;
+                falseBlock = StatementSequence(falseSsa).Root;
                 Node.Leaf(falseBlock).InsertJoinFalse(joinBlock);
                 falseBlock.Consolidate();
             }
@@ -741,18 +739,29 @@ namespace compiler.frontend
 
             GetExpected(Token.FI);
 
-            //TODO: remove placeholder instruction and do something smarter
-            joinBlock.Bb.Instructions.Add(new Instruction(IrOps.Phi, new Operand(Operand.OpType.Identifier, 0),
-                new Operand(Operand.OpType.Identifier, 0)));
+            // insert Phi instructions where items from true ssa and false ssa are different
+            foreach (var trueVar in trueSsa)
+            {
+                var falseVar = falseSsa[trueVar.Key];
+                if ( falseVar != trueVar.Value)
+                {
+                    var newInst = new Instruction(IrOps.Phi, new Operand(trueVar.Value.Location), new Operand(falseVar));
+                    joinBlock.Bb.Instructions.Add(newInst);
+                }
+                
+            }
 
-            compBlock.Bb.Instructions.Last().Arg2 = new Operand(falseBlock.GetNextInstruction());
-            Node.Leaf(trueBlock).Bb.Instructions.Last().Arg2 = new Operand(joinBlock.Bb.Instructions.First());
+            compBlock.GetLastInstruction().Arg2 = new Operand(falseBlock.GetNextInstruction());
+            Node.Leaf(trueBlock).GetLastInstruction().Arg2 = new Operand(joinBlock.Bb.Instructions.First());
 
             return ifBlock;
         }
 
 
-        public Cfg WhileStmt()
+
+
+
+        public Cfg WhileStmt(VarTbl variables)
         {
             GetExpected(Token.WHILE);
 
@@ -771,12 +780,12 @@ namespace compiler.frontend
 
             // add the relation/branch comparison into the loop header block
             // HACK: should we use the opperand of the relation?
-            compBlock.Bb.AddInstructionList(Relation().Item2);
+            compBlock.Bb.AddInstructionList(Relation(variables).Instructions);
 
             GetExpected(Token.DO);
 
             // prepare basic block for loop body
-            Cfg stmts = StatementSequence();
+            Cfg stmts = StatementSequence(variables);
 
             Node loopBlock = stmts.Root;
             loopBlock.Bb.AddInstruction(new Instruction(IrOps.Bra, new Operand(compBlock.GetNextInstruction()), null));
@@ -811,7 +820,7 @@ namespace compiler.frontend
 
 
         //TODO: Maybe pass in a return address?
-        private ParseResult ReturnStmt()
+        private ParseResult ReturnStmt(VarTbl variables)
         {
             GetExpected(Token.RETURN);
 
@@ -821,8 +830,8 @@ namespace compiler.frontend
 
             if ((Tok == Token.IDENTIFIER) || (Tok == Token.NUMBER) || (Tok == Token.OPEN_PAREN) || (Tok == Token.CALL))
             {
-                retStmt = Expression();
-                instructions = retStmt.Item2;
+                retStmt = Expression(variables);
+                instructions = retStmt.Instructions;
             }
 
             //TODO: probably want to make better instruction here, with a real address
@@ -830,11 +839,11 @@ namespace compiler.frontend
             instructions.Add(branchBack);
             if (retStmt == null)
             {
-                retStmt = new ParseResult(new Operand(instructions.Last()), instructions);
+                retStmt = new ParseResult(new Operand(instructions.Last()), instructions, variables);
             }
             else
             {
-                retStmt = new ParseResult(new Operand(branchBack), instructions);
+                retStmt = new ParseResult(new Operand(branchBack), instructions, variables);
             }
 
             return retStmt;
@@ -871,7 +880,7 @@ namespace compiler.frontend
         public void Parse()
         {
             Next();
-            ProgramCfg = Computation(new Dictionary<int, SsaVariable>());
+            ProgramCfg = Computation(new VarTbl());
             FunctionsCfgs.Add(ProgramCfg);
             ProgramCfg.Name = "Main";
             ProgramCfg.Sym = Scanner.SymbolTble;
