@@ -12,7 +12,7 @@ before_build:
 
     nuget restore
 build_script:
-- ps: "cov-build.exe --dir-cov-int msbuild /t:rebuild"
+- ps: "cov-build.exe --dir cov-int msbuild /t:rebuild"
     
 test:
   assemblies: '**\NUnit.Tests.dll'
