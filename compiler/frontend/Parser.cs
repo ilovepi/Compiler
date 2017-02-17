@@ -775,11 +775,11 @@ namespace compiler.frontend
 			{
 				var fakePhi = new Instruction(IrOps.Phi, new Operand(Operand.OpType.Identifier, 0), new Operand(Operand.OpType.Identifier, 0));
 				joinBlock.Bb.Instructions.Add(fakePhi);
-				Node.Leaf(trueBlock).GetLastInstruction().Arg1 = new Operand(fakePhi);
+				trueBlock.GetLastInstruction().Arg1 = new Operand(fakePhi);
 			}
 
             compBlock.GetLastInstruction().Arg2 = new Operand(falseBlock.GetNextInstruction());
-			Node.Leaf(trueBlock).GetLastInstruction().Arg2 = new Operand(joinBlock.GetNextInstruction());
+			trueBlock.GetLastInstruction().Arg2 = new Operand(joinBlock.GetNextInstruction());
 
             return ifBlock;
         }
