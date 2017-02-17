@@ -533,12 +533,13 @@ namespace compiler.frontend
             GetExpected(Token.SEMI_COLON);
 
             Cfg fb = FuncBody();
-
-
-            fb.Name = Scanner.SymbolTble.Symbols[id.IdKey];
-
-            cfg.Insert(fb);
-            cfg.Name = fb.Name;
+            
+            if (fb != null)
+            {
+                fb.Name = Scanner.SymbolTble.Symbols[id.IdKey];
+                cfg.Insert(fb);
+                cfg.Name = fb.Name;
+            }
 
             GetExpected(Token.SEMI_COLON);
 
