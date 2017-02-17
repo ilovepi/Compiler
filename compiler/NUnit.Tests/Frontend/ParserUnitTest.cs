@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using compiler.frontend;
+using compiler.middleend.ir;
 using NUnit.Framework;
 
 namespace NUnit.Tests.Frontend
@@ -26,10 +28,11 @@ namespace NUnit.Tests.Frontend
             //TODO: add more cases to the test file, and hit them all
             using (Checker = new Parser(ProgramDir + @"/Frontend/parserdata/Array.txt"))
             {
+                var v = new SortedDictionary<int, SsaVariable>();
                 Checker.Next();
-                Checker.Designator();
-                Checker.Designator();
-                Checker.Designator();
+                Checker.Designator(v);
+                Checker.Designator(v);
+                Checker.Designator(v);
             }
         }
 
@@ -40,7 +43,8 @@ namespace NUnit.Tests.Frontend
             using (Checker = new Parser(ProgramDir + @"/Frontend/parserdata/BadExpression.txt"))
             {
                 Checker.Next();
-                Assert.Throws<ParserException>(() => Checker.Designator());
+                var v = new SortedDictionary<int, SsaVariable>();
+                Assert.Throws<ParserException>(() => Checker.Designator(v));
             }
         }
 
@@ -51,8 +55,9 @@ namespace NUnit.Tests.Frontend
             //TODO: add more cases to the test file, and hit them all
             using (Checker = new Parser(ProgramDir + @"/Frontend/parserdata/Identifier.txt"))
             {
+                var v = new SortedDictionary<int, SsaVariable>();
                 Checker.Next();
-                Checker.Designator();
+                Checker.Designator(v);
             }
         }
 
@@ -63,10 +68,11 @@ namespace NUnit.Tests.Frontend
             //TODO: add more cases to the test file, and hit them all
             using (Checker = new Parser(ProgramDir + @"/Frontend/parserdata/MultiDimArray.txt"))
             {
+                var v = new SortedDictionary<int, SsaVariable>();
                 Checker.Next();
-                Checker.Designator();
-                Checker.Designator();
-                Checker.Designator();
+                Checker.Designator(v);
+                Checker.Designator(v);
+                Checker.Designator(v);
             }
         }
 
