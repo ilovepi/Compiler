@@ -131,7 +131,7 @@ namespace compiler.middleend.ir
 
         public string Display(SymbolTable smb)
         {
-            return $"{Num} {Op} {Arg1?.Display(smb)} {Arg2?.Display(smb)}";
+            return $"{Num} {Op} {Arg1.Display(smb)} {Arg2?.Display(smb)}";
         }
 
         
