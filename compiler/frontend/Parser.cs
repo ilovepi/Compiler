@@ -733,16 +733,15 @@ namespace compiler.frontend
 
             compBlock.InsertTrue(trueBlock);
             trueBlock.Leaf().InsertJoinTrue(joinBlock);
-
+			bool elseBranch = false;
             if (Tok == Token.ELSE)
             {
                 Next();
                 falseBlock = StatementSequence(falseSsa).Root;
                 Node.Leaf(falseBlock).InsertJoinFalse(joinBlock);
-                falseBlock.Consolidate();
+				falseBlock.Consolidate();
+				elseBranch = true;
 
-				// The branch location isn't known yet, so delay it
-				trueBlock.Bb.AddInstruction(new Instruction(IrOps.Bra, null, null));
 
             }
 
@@ -777,8 +776,13 @@ namespace compiler.frontend
 				joinBlock.Bb.Instructions.Add(fakePhi);
 			}
 
+			if (elseBranch)
+			{
+				// The branch location isn't known yet, so delay it
+				trueBlock.Bb.AddInstruction(new Instruction(IrOps.Bra, new Operand(joinBlock.GetNextInstruction()), null));
+			}
+
             compBlock.Bb.Instructions.Last().Arg2 = new Operand(falseBlock.GetNextInstruction());
-			trueBlock.Bb.Instructions.Last().Arg1 = new Operand(joinBlock.GetNextInstruction());
 
             return ifBlock;
         }
