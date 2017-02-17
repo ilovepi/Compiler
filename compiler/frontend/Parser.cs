@@ -99,7 +99,7 @@ namespace compiler.frontend
             } while (Tok == Token.COMMENT);
         }
 
-        public ParseResult Designator(VarTbl variables)
+        public ParseResult Designator( ref VarTbl variables)
         {
             //public Operand Designator()
             Operand originalId = Identifier();
@@ -149,11 +149,11 @@ namespace compiler.frontend
 
             if (variables.ContainsKey(id.IdKey))
             {
-                var temp = variables[id.IdKey];
-                if (temp.Location != null)
+				id = new Operand(variables[id.IdKey]);
+                /*if (temp != null)
                 {
-                    id = new Operand(temp.Location);
-                }
+                    id = new Operand(temp);
+                }//*/
             }
 
             return new ParseResult(id, instructions, variables);
@@ -172,7 +172,7 @@ namespace compiler.frontend
                     factor = new ParseResult(id, new List<Instruction>(), variables);
                     break;
                 case Token.IDENTIFIER:
-                    var des = Designator(variables);
+                    var des = Designator(ref variables);
                     instructions.AddRange(des.Instructions);
                     //Operand arg2 = (instructions.Count == 0) ? null : new Operand(instructions.Last())
 
@@ -289,7 +289,7 @@ namespace compiler.frontend
             return term1;
         }
 
-        public ParseResult Assign(VarTbl variables)
+        public ParseResult Assign(ref VarTbl variables)
         {
             //List<Instruction> ret = new List<Instruction>();
 
@@ -298,8 +298,9 @@ namespace compiler.frontend
 
             GetExpected(Token.LET);
 
-            ParseResult id = Designator(variables);
-            var locals = new VarTbl(id.VarTable);
+            ParseResult id = Designator(ref variables);
+			var locals = variables;
+            //var locals = new VarTbl(id.VarTable);
             //Instruction curr = ret.Last();
 
             GetExpected(Token.ASSIGN);
@@ -335,10 +336,10 @@ namespace compiler.frontend
             // insert new instruction to instruction list
             id.Instructions.Add(newInst);
 
-            // update current instruction to latest instruction
-            //curr = ret.Last();
+			// update current instruction to latest instruction
+			//curr = ret.Last();
 
-            return new ParseResult(new Operand(newInst),id.Instructions,locals);
+			return new ParseResult(new Operand(ssa), id.Instructions, locals);
         }
 
         public Cfg Computation(VarTbl varTble)
@@ -367,7 +368,7 @@ namespace compiler.frontend
 
             GetExpected(Token.OPEN_CURL);
 
-            cfg.Insert(StatementSequence(varTble));
+            cfg.Insert(StatementSequence(ref varTble));
 
             GetExpected(Token.CLOSE_CURL);
 
@@ -578,7 +579,7 @@ namespace compiler.frontend
             if ((Tok == Token.LET) || (Tok == Token.CALL) || (Tok == Token.IF)
                 || (Tok == Token.WHILE) || (Tok == Token.RETURN))
             {
-                cfg = StatementSequence(ssaTable);
+                cfg = StatementSequence(ref ssaTable);
             }
 
             GetExpected(Token.CLOSE_CURL);
@@ -587,7 +588,7 @@ namespace compiler.frontend
         }
 
 
-        public Cfg Statement(VarTbl variables)
+        public Cfg Statement(ref VarTbl variables)
         {
             //TODO: CFG has trouble adding to new blocks, or inserting into CFG
             var cfgTemp = new Cfg {Root = new Node(new BasicBlock("StatementBlock"))};
@@ -598,7 +599,8 @@ namespace compiler.frontend
             switch (Tok)
             {
                 case Token.LET:
-                    stmt = Assign(variables);
+                    stmt = Assign(ref variables);
+
                     cfgTemp.Root.Bb.AddInstructionList(stmt.Instructions);
                     break;
                 case Token.CALL:
@@ -623,12 +625,12 @@ namespace compiler.frontend
         }
 
 
-        public Cfg StatementSequence(VarTbl variables)
+        public Cfg StatementSequence(ref VarTbl variables)
         {
             var cfg = new Cfg();
             var bb = new BasicBlock("StatSequence");
             cfg.Root = new Node(bb);
-            var stmt = Statement(variables);
+            var stmt = Statement(ref variables);
             cfg.Insert(stmt);
 
             // TODO: fix consolodate()
@@ -637,7 +639,7 @@ namespace compiler.frontend
             while (Tok == Token.SEMI_COLON)
             {
                 Next();
-                stmt = Statement(variables);
+                stmt = Statement(ref variables);
                 cfg.Insert(stmt);
 
                 cfg.Root.Consolidate();
@@ -728,7 +730,7 @@ namespace compiler.frontend
             ifBlock.Insert(compBlock);
 
             // pass in a copy of variables so the original stays pristine
-            Node trueBlock = StatementSequence(trueSsa).Root;
+            Node trueBlock = StatementSequence(ref trueSsa).Root;
             trueBlock.Consolidate();
 
             compBlock.InsertTrue(trueBlock);
@@ -737,7 +739,7 @@ namespace compiler.frontend
             if (Tok == Token.ELSE)
             {
                 Next();
-                falseBlock = StatementSequence(falseSsa).Root;
+                falseBlock = StatementSequence(ref falseSsa).Root;
                 Node.Leaf(falseBlock).InsertJoinFalse(joinBlock);
 				falseBlock.Consolidate();
 				elseBranch = true;
@@ -815,7 +817,7 @@ namespace compiler.frontend
             GetExpected(Token.DO);
 
             // prepare basic block for loop body
-            Cfg stmts = StatementSequence(variables);
+            Cfg stmts = StatementSequence(ref variables);
 
             Node loopBlock = stmts.Root;
             loopBlock.Bb.AddInstruction(new Instruction(IrOps.Bra, new Operand(compBlock.GetNextInstruction()), null));

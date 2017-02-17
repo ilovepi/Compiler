@@ -9,7 +9,7 @@ namespace Program
         //TODO: adjust main to use the parser when it is complete
         private static void Main(string[] args)
         {
-            using (var p = new Parser(@"../../testdata/test003.txt"))
+            using (var p = new Parser(@"../../testdata/test007.txt"))
             {
                 p.Parse();
 
