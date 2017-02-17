@@ -354,9 +354,10 @@ namespace compiler.frontend
 
             while ((Tok == Token.FUNCTION) || (Tok == Token.PROCEDURE))
             {
+				
                 // throw away cFG for now
                 //cfg.Insert( FuncDecl() );
-                Cfg func = FuncDecl(varTble);
+                Cfg func = FuncDecl(new VarTbl(varTble));
                 if (func.Root != null)
                 {
                     FunctionsCfgs.Add(func);
@@ -754,13 +755,17 @@ namespace compiler.frontend
                 {
                     var newInst = new Instruction(IrOps.Phi, new Operand(trueVar.Value.Location), new Operand(falseVar));
                     joinBlock.Bb.Instructions.Add(newInst);
-                    // Assume trueSsa and falseSsa are both the same size
-                    trueSsa[trueVar.Key]= new SsaVariable()
 
-
-                    //throw exception if size is different
+					// Assume trueSsa and falseSsa are both the same size
+					trueSsa[trueVar.Key].Location = newInst;
                 }
             }
+
+			//throw exception if size is different
+			if (trueSsa.Count != falseSsa.Count)
+			{
+				throw new Exception("SSA Variable Tables are different sizes. You added something you shouldnt have.");
+			}
 
             compBlock.GetLastInstruction().Arg2 = new Operand(falseBlock.GetNextInstruction());
             Node.Leaf(trueBlock).GetLastInstruction().Arg2 = new Operand(joinBlock.Bb.Instructions.First());
@@ -824,7 +829,7 @@ namespace compiler.frontend
             last.GetLastInstruction().Arg2 = new Operand(compBlock.GetNextInstruction());
 
             // TODO: this is straight up wrong. we can leave this alone and fix it in the enclosing scope
-            compBlock.Bb.Instructions.Last().Arg2 = new Operand(followBlock.Bb.Instructions.First());
+			compBlock.GetLastInstruction().Arg2 = new Operand(followBlock.Bb.Instructions.First());
 
             return whileBlock;
         }
