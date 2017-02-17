@@ -754,8 +754,12 @@ namespace compiler.frontend
                 {
                     var newInst = new Instruction(IrOps.Phi, new Operand(trueVar.Value.Location), new Operand(falseVar));
                     joinBlock.Bb.Instructions.Add(newInst);
+                    // Assume trueSsa and falseSsa are both the same size
+                    trueSsa[trueVar.Key]= new SsaVariable()
+
+
+                    //throw exception if size is different
                 }
-                
             }
 
             compBlock.GetLastInstruction().Arg2 = new Operand(falseBlock.GetNextInstruction());
