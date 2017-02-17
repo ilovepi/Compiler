@@ -11,27 +11,27 @@ namespace compiler.middleend.ir
         public Operand Operand { get; set; }
         public List<Instruction> Instructions { get; set; }
 
-        public Dictionary<SsaVariable, Instruction> VarTable { get; set; }
+        public Dictionary<int, SsaVariable> VarTable { get; set; }
 
         public ParseResult()
         {
             Operand = null;
             Instructions = null;
-            VarTable = new Dictionary<SsaVariable, Instruction>();
+            VarTable = new Dictionary<int, SsaVariable>();
         }
 
-        public ParseResult(Dictionary<SsaVariable, Instruction> symTble )
+        public ParseResult(Dictionary<int, SsaVariable> symTble )
         {
             Operand = null;
             Instructions = null;
-            VarTable = new Dictionary<SsaVariable, Instruction>(symTble);
+            VarTable = new Dictionary<int, SsaVariable>(symTble);
         }
 
-        public ParseResult(Operand pOperand, List<Instruction> pInstructions, Dictionary<SsaVariable, Instruction> pSymTble)
+        public ParseResult(Operand pOperand, List<Instruction> pInstructions, Dictionary<int, SsaVariable> pSymTble)
         {
             Operand = pOperand;
             Instructions = new List<Instruction>(pInstructions);
-            VarTable = new Dictionary<SsaVariable, Instruction>(pSymTble);
+            VarTable = new Dictionary<int, SsaVariable>(pSymTble);
         }
 
 
