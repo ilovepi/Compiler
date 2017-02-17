@@ -150,10 +150,13 @@ namespace compiler.frontend
             if (variables.ContainsKey(id.IdKey))
             {
                 var temp = variables[id.IdKey];
-                id = new Operand(temp.Location);
+                if (temp.Location != null)
+                {
+                    id = new Operand(temp.Location);
+                }
             }
 
-            return new ParseResult(id, instructions, VarTable);
+            return new ParseResult(id, instructions, variables);
         }
 
         public ParseResult Factor(VarTbl variables)
@@ -320,6 +323,10 @@ namespace compiler.frontend
             }
 
             SsaVariable ssa = new SsaVariable(id.Operand.IdKey, newInst, prev, name);
+            id.Operand.Inst = newInst;
+            id.Operand.Variable = ssa;
+
+
 
             locals[id.Operand.IdKey] = ssa;
 
