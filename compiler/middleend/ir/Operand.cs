@@ -148,7 +148,8 @@ namespace compiler.middleend.ir
                 case OpType.Identifier:
                     return smb.Symbols[IdKey];
                 case OpType.Instruction:
-                    return "(" + Inst.Num + ")";
+                    var val = (Inst != null) ? Inst.Num.ToString() : "Uninitialized";
+                    return "(" + val + ")";
                 case OpType.Register:
                     return "R" + Val;
             }
