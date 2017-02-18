@@ -99,7 +99,7 @@ namespace compiler.frontend
             } while (Tok == Token.COMMENT);
         }
 
-        public ParseResult Designator( ref VarTbl variables)
+        public ParseResult Designator(VarTbl variables)
         {
             //public Operand Designator()
             Operand originalId = Identifier();
@@ -172,7 +172,7 @@ namespace compiler.frontend
                     factor = new ParseResult(id, new List<Instruction>(), variables);
                     break;
                 case Token.IDENTIFIER:
-                    var des = Designator(ref variables);
+                    var des = Designator(variables);
                     instructions.AddRange(des.Instructions);
                     //Operand arg2 = (instructions.Count == 0) ? null : new Operand(instructions.Last())
 
@@ -298,7 +298,7 @@ namespace compiler.frontend
 
             GetExpected(Token.LET);
 
-            ParseResult id = Designator(ref variables);
+            ParseResult id = Designator( variables);
 			var locals = variables;
             //var locals = new VarTbl(id.VarTable);
             //Instruction curr = ret.Last();
@@ -326,6 +326,8 @@ namespace compiler.frontend
             SsaVariable ssa = new SsaVariable(id.Operand.IdKey, newInst, prev, name);
             id.Operand.Inst = newInst;
             id.Operand.Variable = ssa;
+			var ssaArg = new Operand(ssa);
+			newInst.Arg2.Inst = newInst;
 
 
 
@@ -339,7 +341,7 @@ namespace compiler.frontend
 			// update current instruction to latest instruction
 			//curr = ret.Last();
 
-			return new ParseResult(new Operand(ssa), id.Instructions, locals);
+			return new ParseResult(ssaArg, id.Instructions, locals);
         }
 
         public Cfg Computation(VarTbl varTble)
@@ -600,7 +602,6 @@ namespace compiler.frontend
             {
                 case Token.LET:
                     stmt = Assign(ref variables);
-
                     cfgTemp.Root.Bb.AddInstructionList(stmt.Instructions);
                     break;
                 case Token.CALL:
@@ -743,8 +744,6 @@ namespace compiler.frontend
                 Node.Leaf(falseBlock).InsertJoinFalse(joinBlock);
 				falseBlock.Consolidate();
 				elseBranch = true;
-
-
             }
 
 
@@ -758,11 +757,14 @@ namespace compiler.frontend
                 var falseVar = falseSsa[trueVar.Key];
                 if ( falseVar != trueVar.Value)
                 {
-                    var newInst = new Instruction(IrOps.Phi, new Operand(trueVar.Value.Location), new Operand(falseVar));
+					var newInst = new Instruction(IrOps.Phi, new Operand(trueVar.Value.Location), new Operand(falseVar.Location));
                     joinBlock.Bb.Instructions.Add(newInst);
 
+					var temp = new SsaVariable(variables[trueVar.Key]);
+					temp.Location = newInst;
 					// Assume trueSsa and falseSsa are both the same size
-					trueSsa[trueVar.Key].Location = newInst;
+					variables[trueVar.Key] = temp;
+
                 }
             }
 
@@ -796,6 +798,9 @@ namespace compiler.frontend
         public Cfg WhileStmt(VarTbl variables)
         {
             GetExpected(Token.WHILE);
+
+			var loopSsa = new VarTbl(variables);
+			var followSsa = new VarTbl(variables);
 
             // create cfg
             var whileBlock = new Cfg();
