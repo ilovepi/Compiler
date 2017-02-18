@@ -317,21 +317,28 @@ namespace compiler.frontend
             Instruction prev = null;
             string name = Scanner.SymbolTble.Symbols[id.Operand.IdKey];
 
+            Operand arg;
+
+            // check symbol "tables"
             if (locals.ContainsKey(id.Operand.IdKey))
             {
                 prev = locals[id.Operand.IdKey].Location;
-                
+
+                SsaVariable ssa = new SsaVariable(id.Operand.IdKey, newInst, prev, name);
+                id.Operand.Inst = newInst;
+                id.Operand.Variable = ssa;
+                arg = new Operand(ssa);
+                newInst.Arg2.Inst = newInst;
+
+
+
+                locals[id.Operand.IdKey] = ssa;
             }
-
-            SsaVariable ssa = new SsaVariable(id.Operand.IdKey, newInst, prev, name);
-            id.Operand.Inst = newInst;
-            id.Operand.Variable = ssa;
-			var ssaArg = new Operand(ssa);
-			newInst.Arg2.Inst = newInst;
-
-
-
-            locals[id.Operand.IdKey] = ssa;
+            else
+            {
+                //Otherwise it must be an array
+                arg = new Operand(newInst);
+            }
 
             id.Instructions.AddRange(expValue.Instructions);
 
@@ -341,7 +348,7 @@ namespace compiler.frontend
 			// update current instruction to latest instruction
 			//curr = ret.Last();
 
-			return new ParseResult(ssaArg, id.Instructions, locals);
+			return new ParseResult(arg, id.Instructions, locals);
         }
 
         public Cfg Computation(VarTbl varTble)
@@ -375,6 +382,9 @@ namespace compiler.frontend
             GetExpected(Token.CLOSE_CURL);
 
             GetExpected(Token.EOF);
+            var end = new Instruction(IrOps.End, null, null);
+            end.Arg1 = new Operand(end);
+            cfg.Root.Leaf().Bb.AddInstruction(end);
 
             return cfg;
         }
@@ -754,6 +764,12 @@ namespace compiler.frontend
             // insert Phi instructions where items from true ssa and false ssa are different
             foreach (var trueVar in trueSsa)
             {
+                //throw exception if size is different
+                if ( (trueSsa.Count != falseSsa.Count) || (trueSsa.Count != variables.Count))
+                {
+                    throw new Exception("SSA Variable Tables are different sizes. You added something you shouldnt have.");
+                }
+
                 var falseVar = falseSsa[trueVar.Key];
                 if ( falseVar != trueVar.Value)
                 {
@@ -768,11 +784,7 @@ namespace compiler.frontend
                 }
             }
 
-			//throw exception if size is different
-			if (trueSsa.Count != falseSsa.Count)
-			{
-				throw new Exception("SSA Variable Tables are different sizes. You added something you shouldnt have.");
-			}
+			
 
 			if (joinBlock.Bb.Instructions.Count == 0)
 			{
@@ -825,9 +837,9 @@ namespace compiler.frontend
             Cfg stmts = StatementSequence(ref variables);
 
             Node loopBlock = stmts.Root;
-            loopBlock.Bb.AddInstruction(new Instruction(IrOps.Bra, new Operand(compBlock.GetNextInstruction()), null));
             loopBlock.Consolidate();
             Node last = loopBlock.Leaf();
+            last.Bb.AddInstruction(new Instruction(IrOps.Bra, new Operand(compBlock.GetNextInstruction()), null));
 
             //TODO: try to refactor so that we don't have to insert on the false branch
             // insert the loop body on the true path
