@@ -49,6 +49,7 @@ namespace compiler.middleend.ir
 
         public Operand(SsaVariable ssa)
         {
+			Kind = OpType.Variable;
             Variable = ssa;
             IdKey = Variable.UuId;
         }
