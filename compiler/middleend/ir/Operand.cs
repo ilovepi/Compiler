@@ -49,6 +49,7 @@ namespace compiler.middleend.ir
 
         public Operand(SsaVariable ssa)
         {
+			Kind = OpType.Variable;
             Variable = ssa;
             IdKey = Variable.UuId;
         }
@@ -138,12 +139,17 @@ namespace compiler.middleend.ir
 
             switch (Kind)
             {
+				case OpType.Function:
+					return "func-" + IdKey;
+				case OpType.Variable:
+					return "(" + Variable.Name + Variable.Location?.Num + ")";
                 case OpType.Constant:
                     return "#" + Val;
                 case OpType.Identifier:
                     return smb.Symbols[IdKey];
                 case OpType.Instruction:
-                    return "(" + Inst.Num + ")";
+                    var val = (Inst != null) ? Inst.Num.ToString() : "Uninitialized";
+                    return "(" + val + ")";
                 case OpType.Register:
                     return "R" + Val;
             }

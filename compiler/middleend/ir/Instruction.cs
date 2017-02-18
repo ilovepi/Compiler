@@ -11,6 +11,22 @@ namespace compiler.middleend.ir
         /// </summary>
         public static int InstructionCounter;
 
+		public Instruction(Instruction other)
+		{
+			if (other != null)
+			{
+				Num = other.Num;
+				Arg1 = other.Arg1;
+				Arg2 = other.Arg2;
+				LiveRange = other.LiveRange;
+
+				Prev = other.Prev;
+				Next = other.Next;
+				Search = other.Search;
+			}
+		}
+
+
         public Instruction(IrOps pOp, Operand pArg1, Operand pArg2)
         {
             InstructionCounter++;

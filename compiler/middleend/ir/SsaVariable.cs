@@ -11,6 +11,14 @@ namespace compiler.middleend.ir
             UuId = 0;
         }
 
+		public SsaVariable(SsaVariable other)
+		{
+			Name = other.Name;
+			Prev = other.Prev;
+			Location = new Instruction(other.Location);
+			UuId = other.UuId;
+		}
+
         public SsaVariable(int puuid, Instruction plocation, Instruction pPrev, string pName)
         {
             Name = pName;
