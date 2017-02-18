@@ -139,6 +139,10 @@ namespace compiler.middleend.ir
 
             switch (Kind)
             {
+				case OpType.Function:
+					return "func-" + IdKey;
+				case OpType.Variable:
+					return "(" + Variable.Location.Num + ")";
                 case OpType.Constant:
                     return "#" + Val;
                 case OpType.Identifier:
