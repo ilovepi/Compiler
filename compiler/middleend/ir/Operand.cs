@@ -142,7 +142,7 @@ namespace compiler.middleend.ir
 				case OpType.Function:
 					return "func-" + IdKey;
 				case OpType.Variable:
-					return "(" + Variable.Location.Num + ")";
+					return "(" + Variable.Location?.Num + ")";
                 case OpType.Constant:
                     return "#" + Val;
                 case OpType.Identifier:
