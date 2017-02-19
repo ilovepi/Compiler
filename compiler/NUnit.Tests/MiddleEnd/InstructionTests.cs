@@ -15,7 +15,7 @@ namespace NUnit.Tests.MiddleEnd
             var inst2 = new Instruction(IrOps.Add, new Operand(Operand.OpType.Constant, 05),
                 new Operand(inst1));
 
-            Assert.AreEqual( inst2.Num.ToString() + " Add #5 (" + inst1.Num.ToString() + ")",inst2.ToString());
+            Assert.AreEqual( inst2.Num.ToString() + ": Add #5 (" + inst1.Num.ToString() + ")",inst2.ToString());
 
 
             
