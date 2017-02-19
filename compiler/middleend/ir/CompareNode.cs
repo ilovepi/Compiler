@@ -13,6 +13,7 @@ namespace compiler.middleend.ir
 
 
         public Node FalseNode { get; set; }
+		public JoinNode Join { get; set; }
 
 
         public void Insert(Node other, bool trueChild)

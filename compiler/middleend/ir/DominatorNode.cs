@@ -10,6 +10,9 @@ namespace compiler.middleend.ir
         public List<DominatorNode> Children;
 
 
+		public SortedSet<Node> Visited;
+
+
         /// <summary>
         ///     constructor
         /// </summary>
@@ -69,5 +72,59 @@ namespace compiler.middleend.ir
         {
             return Children.Remove(other);
         }
+
+
+		public DomTree convertCfg(Cfg controlFlow)
+		{
+			Visited = new SortedSet<Node>();
+			DomTree d = new DomTree();
+			d.Root = convertNode(controlFlow.Root);
+
+			return d;
+			
+		}
+
+		public DominatorNode convertNode(Node n)
+		{
+			DominatorNode d = new DominatorNode(n.Bb);
+			d.testInsert(n.Child);
+
+			return d;
+		}
+
+
+		public void testInsert(Node n)
+		{
+			if (!Visited.Contains(n))
+			{
+				Visited.Add(n);
+				InsertChild(convertNode(n.Child));
+			}
+		}
+
+		public DominatorNode convertNode(CompareNode n)
+		{
+			DominatorNode d = new DominatorNode(n.Bb);
+			d.testInsert(n.Join);
+			d.testInsert(n.Child);
+			d.testInsert(n.FalseNode);
+
+			foreach (var child in Children)
+			{
+				child.Parent = this;
+			}
+
+			return d;
+		}
+
+		public DominatorNode convertNode(WhileNode n)
+		{
+			DominatorNode d = new DominatorNode(n.Bb);
+			d.testInsert(n.FalseNode);
+			d.testInsert(n.Child);
+
+			return d;
+		}
+
     }
 }
