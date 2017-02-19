@@ -10,7 +10,7 @@ namespace compiler.middleend.ir
         public List<DominatorNode> Children;
 
 
-		public SortedSet<Node> Visited;
+		public static SortedSet<Node> Visited;
 
 
         /// <summary>
