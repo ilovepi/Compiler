@@ -11,6 +11,23 @@ namespace compiler.middleend.ir
         /// </summary>
         public static int InstructionCounter;
 
+		public Instruction(Instruction other)
+		{
+			if (other != null)
+			{
+				Num = other.Num;
+			    Op = other.Op;
+				Arg1 = other.Arg1;
+				Arg2 = other.Arg2;
+				LiveRange = other.LiveRange;
+
+				Prev = other.Prev;
+				Next = other.Next;
+				Search = other.Search;
+			}
+		}
+
+
         public Instruction(IrOps pOp, Operand pArg1, Operand pArg2)
         {
             InstructionCounter++;
@@ -131,7 +148,7 @@ namespace compiler.middleend.ir
 
         public string Display(SymbolTable smb)
         {
-            return $"{Num} {Op} {Arg1.Display(smb)} {Arg2?.Display(smb)}";
+            return $"{Num}: {Op} {Arg1.Display(smb)} {Arg2?.Display(smb)}";
         }
 
         
@@ -140,11 +157,11 @@ namespace compiler.middleend.ir
             // TODO: determine if we can replace this exception with a runtime check or fix for the general case
             try
             {
-                return "" + Num + " " + Op + " " + Arg1 + " " + Arg2;
+                return "" + Num + ": " + Op + " " + Arg1 + " " + Arg2;
             }
             catch (Exception e)
             {
-                return "" + Num + " " + Op + " " + Arg1;
+                return "" + Num + ": " + Op + " " + Arg1;
             }
         }
 

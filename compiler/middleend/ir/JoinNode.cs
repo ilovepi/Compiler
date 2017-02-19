@@ -7,6 +7,7 @@ namespace compiler.middleend.ir
     {
         public JoinNode(BasicBlock pBb) : base(pBb, NodeTypes.JoinB)
         {
+            Colorname = "coral";
             FalseParent = null;
         }
 

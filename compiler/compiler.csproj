@@ -58,6 +58,7 @@
     <Compile Include="middleend\ir\IrOps.cs" />
     <Compile Include="middleend\ir\JoinNode.cs" />
     <Compile Include="middleend\ir\Operand.cs" />
+    <Compile Include="middleend\ir\ParseResult.cs" />
     <Compile Include="middleend\ir\SsaVariable.cs" />
     <Compile Include="middleend\ir\WhileNode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

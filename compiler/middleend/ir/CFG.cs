@@ -129,11 +129,11 @@ namespace compiler.middleend.ir
             while (_q.Count > 0)
             {
                 Node current = _q.Dequeue();
-                DotOutput += current.DotId() + "[label=\"{" + current.DotLabel(Sym) + "}\"]\n";
+                DotOutput += current.DotId() + "[label=\"{" + current.DotLabel(Sym) + "\\l}\",fillcolor=" + current.Colorname + "]\n";
                 current.CheckEnqueue(this);
             }
 
-            DotOutput = "subgraph cluster_" +n+" {\nlabel = \"" + Name + "\";\n node[style=filled,shape=record]\n"  +  DotOutput + "}";
+            DotOutput = "subgraph cluster_" + n +" {\nlabel = \"" + Name + "\";\n node[style=filled,shape=record]\n"  +  DotOutput + "}";
         }
     }
 }

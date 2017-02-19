@@ -20,6 +20,8 @@ namespace compiler.middleend.ir
 
         public int BlockNumber;
 
+        public string Colorname = "khaki";
+
         /// <summary>
         ///     Constructor
         /// </summary>
@@ -211,10 +213,11 @@ namespace compiler.middleend.ir
         public string DotLabel(SymbolTable pSymbolTable)
         {
             string label = Bb.Name;
+            int slot = 0;
 
             foreach (Instruction inst in Bb.Instructions)
             {
-                label += " | " + inst.Display(pSymbolTable);
+                label += " \\l| <i"+ (slot++)  +">" + inst.Display(pSymbolTable);
             }
 
             return label;
