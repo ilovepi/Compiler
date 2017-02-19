@@ -154,15 +154,7 @@ namespace compiler.middleend.ir
         
         public override string ToString()
         {
-            // TODO: determine if we can replace this exception with a runtime check or fix for the general case
-            try
-            {
-                return "" + Num + ": " + Op + " " + Arg1 + " " + Arg2;
-            }
-            catch (Exception e)
-            {
-                return "" + Num + ": " + Op + " " + Arg1;
-            }
+            return "" + Num + ": " + Op + " " + Arg1 + " " + Arg2;
         }
 
     }

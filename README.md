@@ -15,4 +15,4 @@ Simple Compiler for Testing Algorithms and Implementations
 </a>
 
 [] (#Coveralls)
-[![Coverage Status](https://coveralls.io/repos/github/ilovepi/Compiler/badge.svg)](https://coveralls.io/github/ilovepi/Compiler)
+[![Coverage Status](https://coveralls.io/repos/github/ilovepi/Compiler/badge.svg?branch=master)](https://coveralls.io/github/ilovepi/Compiler?branch=master)
