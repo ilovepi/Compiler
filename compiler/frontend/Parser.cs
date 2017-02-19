@@ -784,8 +784,6 @@ namespace compiler.frontend
                 }
             }
 
-			
-
 			if (joinBlock.Bb.Instructions.Count == 0)
 			{
 				var fakePhi = new Instruction(IrOps.Phi, new Operand(Operand.OpType.Identifier, 0), new Operand(Operand.OpType.Identifier, 0));
@@ -802,10 +800,7 @@ namespace compiler.frontend
 
             return ifBlock;
         }
-
-
-
-
+        
 
         public Cfg WhileStmt(VarTbl variables)
         {
@@ -818,7 +813,7 @@ namespace compiler.frontend
             var whileBlock = new Cfg();
 
             //crate compare block/loop header block
-            var compBlock = new WhileNode(new BasicBlock("WhileCompareBlock"));
+            var compBlock = new WhileNode(new BasicBlock("LoopHeader"));
             /*
             // TODO: Correct placeholder Phi Instruction
             compBlock.Bb.AddInstruction(new Instruction(IrOps.Phi, new Operand(Operand.OpType.Identifier, 0),
@@ -851,6 +846,7 @@ namespace compiler.frontend
             GetExpected(Token.OD);
 
             var followBlock = new Node(new BasicBlock("FollowBlock"));
+            followBlock.Colorname = "palegreen";
 
             compBlock.InsertFalse(followBlock);
 
@@ -884,7 +880,12 @@ namespace compiler.frontend
             followBlock.Bb.AddInstruction(new Instruction(IrOps.Phi, new Operand(Operand.OpType.Identifier, 0),
                 new Operand(Operand.OpType.Identifier, 0)));
 
-            last.Bb.Instructions.Last().Arg2 = new Operand(compBlock.GetNextInstruction());
+            var inst = last.Bb.Instructions.Last();
+
+            if (inst.Op != IrOps.Bra)
+            {
+                inst.Arg2 = new Operand(compBlock.GetNextInstruction());
+            }
 
             // TODO: this is straight up wrong. we can leave this alone and fix it in the enclosing scope
 			compBlock.Bb.Instructions.Last().Arg2 = new Operand(followBlock.Bb.Instructions.First());

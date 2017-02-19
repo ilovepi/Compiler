@@ -7,6 +7,7 @@ namespace compiler.middleend.ir
     {
         public CompareNode(BasicBlock pBb) : base(pBb, NodeTypes.CompareB)
         {
+            Colorname = "cornflowerblue";
             FalseNode = null;
         }
 

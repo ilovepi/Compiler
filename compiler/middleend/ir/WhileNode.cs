@@ -8,6 +8,7 @@ namespace compiler.middleend.ir
         //todo: rightnow we insert on the false node, but we need to fix that
         public WhileNode(BasicBlock pBb) : base(pBb)
         {
+            Colorname = "turquoise";
             NodeType = NodeTypes.WhileB;
             FalseNode = null;
             LoopParent = null;
