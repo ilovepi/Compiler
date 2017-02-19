@@ -1,6 +1,6 @@
 ﻿namespace compiler.middleend.ir
 {
-    internal class DomTree
+    public class DomTree
     {
         public DomTree()
         {

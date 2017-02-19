@@ -2,7 +2,7 @@
 
 namespace compiler.middleend.ir
 {
-    internal class DominatorNode
+    public class DominatorNode
     {
         /// <summary>
         ///     The Nodes which this basic block directly dominates

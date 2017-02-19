@@ -17,6 +17,7 @@ namespace compiler.frontend
             Tok = Token.UNKNOWN;
             Scanner = new Lexer(_filename);
             ProgramCfg = new Cfg();
+			Dom = new DomTree();
             FunctionsCfgs = new List<Cfg>();
             VarTable = new VarTbl();
         }
@@ -32,6 +33,8 @@ namespace compiler.frontend
         public int CurrAddress { get; set; }
 
         public VarTbl VarTable { get; set; }
+
+		public DomTree Dom { get; set; }
 
 
         /// <summary>
