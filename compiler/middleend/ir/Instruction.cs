@@ -16,6 +16,7 @@ namespace compiler.middleend.ir
 			if (other != null)
 			{
 				Num = other.Num;
+			    Op = other.Op;
 				Arg1 = other.Arg1;
 				Arg2 = other.Arg2;
 				LiveRange = other.LiveRange;
