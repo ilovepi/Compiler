@@ -9,7 +9,9 @@ namespace compiler.middleend.ir
         /// </summary>
         public List<DominatorNode> Children;
 
-
+		/// <summary>
+		/// The Global set of visited nodes
+		/// </summary>
 		public static SortedSet<Node> Visited;
 
 
