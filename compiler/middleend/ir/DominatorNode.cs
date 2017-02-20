@@ -94,7 +94,10 @@ namespace compiler.middleend.ir
 		}
 
 	
-
+		/// <summary>
+		/// Inserts a node if it isn't null
+		/// </summary>
+		/// <param name="n">A child of the current node</param>
 		public void testInsert(Node n)
 		{
 			if (n == null)
@@ -106,9 +109,6 @@ namespace compiler.middleend.ir
 				InsertChild(n.convertNode());
 			}
 		}
-
-
-
 
 
 		public string printGraphNode(SymbolTable Sym)

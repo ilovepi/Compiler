@@ -59,6 +59,9 @@ namespace NUnit.Tests.Frontend
                     {
                         func.Sym = p.Scanner.SymbolTble;
                         func.GenerateDotOutput(i++);
+						var d = DominatorNode.convertCfg(func);
+						var l = d.printTreeGraph(i++, func.Sym);
+
                       //  file.WriteLine(func.DotOutput);
                     }
                   //  file.WriteLine("\n}");
