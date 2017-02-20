@@ -1,8 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+
+using compiler.frontend;
+using System;
 
 namespace compiler.middleend.ir
 {
-    public class DominatorNode
+	public class DominatorNode : IEquatable<DominatorNode>
     {
         /// <summary>
         ///     The Nodes which this basic block directly dominates
@@ -12,7 +16,7 @@ namespace compiler.middleend.ir
 		/// <summary>
 		/// The Global set of visited nodes
 		/// </summary>
-		public static SortedSet<Node> Visited;
+		public static HashSet<Node> Visited;
 
 
         /// <summary>
@@ -25,6 +29,9 @@ namespace compiler.middleend.ir
             Parent = null;
             Children = new List<DominatorNode>();
         }
+
+
+		public string Colorname;
 
         /// <summary>
         ///     The basic block of the node
@@ -76,57 +83,106 @@ namespace compiler.middleend.ir
         }
 
 
-		public DomTree convertCfg(Cfg controlFlow)
+		public static DomTree convertCfg(Cfg controlFlow)
 		{
-			Visited = new SortedSet<Node>();
+			Visited = new HashSet<Node>();
 			DomTree d = new DomTree();
-			d.Root = convertNode(controlFlow.Root);
-
-			return d;
-			
-		}
-
-		public DominatorNode convertNode(Node n)
-		{
-			DominatorNode d = new DominatorNode(n.Bb);
-			d.testInsert(n.Child);
+			d.Root = controlFlow.Root.convertNode();
+			d.Name = controlFlow.Name;
 
 			return d;
 		}
 
+	
 
 		public void testInsert(Node n)
 		{
+			if (n == null)
+				return;
+			
 			if (!Visited.Contains(n))
 			{
 				Visited.Add(n);
-				InsertChild(convertNode(n.Child));
+				InsertChild(n.convertNode());
 			}
 		}
 
-		public DominatorNode convertNode(CompareNode n)
+
+
+
+
+		public string printGraphNode(SymbolTable Sym)
 		{
-			DominatorNode d = new DominatorNode(n.Bb);
-			d.testInsert(n.Join);
-			d.testInsert(n.Child);
-			d.testInsert(n.FalseNode);
+			string local = string.Empty;
+
+			local += DotId() + "[label=\"{" + DotLabel(Sym) + "\\l}\",fillcolor=" + Colorname + "]\n";
+			foreach (var child in Children)
+			{
+				local += DotId() + "->" + child.DotId() + "\n";
+			}
+
 
 			foreach (var child in Children)
 			{
-				child.Parent = this;
+				local += child.printGraphNode(Sym);
 			}
 
-			return d;
+			return local;
+
 		}
 
-		public DominatorNode convertNode(WhileNode n)
+		public string DotId()
 		{
-			DominatorNode d = new DominatorNode(n.Bb);
-			d.testInsert(n.FalseNode);
-			d.testInsert(n.Child);
-
-			return d;
+			string ret = Bb.Name;
+			if(Bb.Instructions.Count != 0)
+				ret += Bb.Instructions.First().Num;
+			return ret;
 		}
 
-    }
+		public string DotLabel(SymbolTable pSymbolTable)
+		{
+			string label = Bb.Name;
+			int slot = 0;
+
+			foreach (Instruction inst in Bb.Instructions)
+			{
+				label += " \\l| <i" + (slot++) + ">" + inst.Display(pSymbolTable);
+			}
+
+			return label;
+		}
+
+		public bool Equals(DominatorNode other)
+		{
+			if (ReferenceEquals(null, other))
+			{
+				return false;
+			}
+
+			if (ReferenceEquals(this, other))
+			{
+				return true;
+			}
+
+			if (other.Children.Count != Children.Count)
+			{
+				return false;
+			}
+
+			if (Bb != other.Bb)
+			{
+				return false;
+			}
+
+			for (int i = 0; i < Children.Count; i++)
+			{
+				if (Children[i] != other.Children[i])
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+	}
 }

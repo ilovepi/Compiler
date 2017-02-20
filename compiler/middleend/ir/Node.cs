@@ -235,7 +235,20 @@ namespace compiler.middleend.ir
                 var res = Bb.Search(ins);
                 return res ?? Parent.AnchorSearch(ins);
             }
+
+
         }
+
+
+		public virtual DominatorNode convertNode()
+		{
+			DominatorNode d = new DominatorNode(Bb);
+			d.testInsert(Child);
+			d.Colorname = Colorname;
+
+			return d;
+		}
+
 
     }
 }
