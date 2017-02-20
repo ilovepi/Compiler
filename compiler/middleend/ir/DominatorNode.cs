@@ -1,13 +1,22 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+
+using compiler.frontend;
+using System;
 
 namespace compiler.middleend.ir
 {
-    internal class DominatorNode
+	public class DominatorNode : IEquatable<DominatorNode>
     {
         /// <summary>
         ///     The Nodes which this basic block directly dominates
         /// </summary>
         public List<DominatorNode> Children;
+
+		/// <summary>
+		/// The Global set of visited nodes
+		/// </summary>
+		public static HashSet<Node> Visited;
 
 
         /// <summary>
@@ -20,6 +29,9 @@ namespace compiler.middleend.ir
             Parent = null;
             Children = new List<DominatorNode>();
         }
+
+
+		public string Colorname;
 
         /// <summary>
         ///     The basic block of the node
@@ -69,5 +81,108 @@ namespace compiler.middleend.ir
         {
             return Children.Remove(other);
         }
-    }
+
+
+		public static DomTree convertCfg(Cfg controlFlow)
+		{
+			Visited = new HashSet<Node>();
+			DomTree d = new DomTree();
+			d.Root = controlFlow.Root.convertNode();
+			d.Name = controlFlow.Name;
+
+			return d;
+		}
+
+	
+
+		public void testInsert(Node n)
+		{
+			if (n == null)
+				return;
+			
+			if (!Visited.Contains(n))
+			{
+				Visited.Add(n);
+				InsertChild(n.convertNode());
+			}
+		}
+
+
+
+
+
+		public string printGraphNode(SymbolTable Sym)
+		{
+			string local = string.Empty;
+
+			local += DotId() + "[label=\"{" + DotLabel(Sym) + "\\l}\",fillcolor=" + Colorname + "]\n";
+			foreach (var child in Children)
+			{
+				local += DotId() + "->" + child.DotId() + "\n";
+			}
+
+
+			foreach (var child in Children)
+			{
+				local += child.printGraphNode(Sym);
+			}
+
+			return local;
+
+		}
+
+		public string DotId()
+		{
+			string ret = Bb.Name;
+			if(Bb.Instructions.Count != 0)
+				ret += Bb.Instructions.First().Num;
+			return ret;
+		}
+
+		public string DotLabel(SymbolTable pSymbolTable)
+		{
+			string label = Bb.Name;
+			int slot = 0;
+
+			foreach (Instruction inst in Bb.Instructions)
+			{
+				label += " \\l| <i" + (slot++) + ">" + inst.Display(pSymbolTable);
+			}
+
+			return label;
+		}
+
+		public bool Equals(DominatorNode other)
+		{
+			if (ReferenceEquals(null, other))
+			{
+				return false;
+			}
+
+			if (ReferenceEquals(this, other))
+			{
+				return true;
+			}
+
+			if (other.Children.Count != Children.Count)
+			{
+				return false;
+			}
+
+			if (Bb != other.Bb)
+			{
+				return false;
+			}
+
+			for (int i = 0; i < Children.Count; i++)
+			{
+				if (Children[i] != other.Children[i])
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+	}
 }

@@ -94,5 +94,16 @@ namespace compiler.middleend.ir
             }
             return ret;
         }
+
+
+		public override DominatorNode convertNode()
+		{
+			DominatorNode d = new DominatorNode(Bb);
+			d.testInsert(FalseNode);
+			d.testInsert(Child);
+			d.Colorname = Colorname;
+
+			return d;
+		}
     }
 }

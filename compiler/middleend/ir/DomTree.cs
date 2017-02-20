@@ -1,13 +1,17 @@
-﻿namespace compiler.middleend.ir
+﻿using compiler.frontend;
+namespace compiler.middleend.ir
 {
-    internal class DomTree
+    public class DomTree
     {
         public DomTree()
         {
             Root = null;
         }
 
+		public string GraphOutput;
+		public string Name;
         public DominatorNode Root { get; set; }
+
 
 
         public void RecursiveDfs(DominatorNode curNode)
@@ -29,5 +33,17 @@
                 RecursiveDfs(Root);
             }
         }
+
+
+		public string printTreeGraph(int n, SymbolTable Sym)
+		{
+			GraphOutput = string.Empty;
+			GraphOutput += Root?.printGraphNode(Sym);
+
+			GraphOutput = "subgraph cluster_" + n + " {\nlabel = \"" + Name + "\";\n node[style=filled,shape=record]\n" + GraphOutput + "}";
+
+			return GraphOutput;
+		}
+
     }
 }

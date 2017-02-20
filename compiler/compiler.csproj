@@ -69,6 +69,7 @@
     <Compile Include="middleend\ir\Anchor.cs" />
     <Compile Include="middleend\ir\Node.cs" />
     <Compile Include="middleend\ir\CFG.cs" />
+    <Compile Include="middleend\ir\ParseTree.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="backend\" />

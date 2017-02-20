@@ -13,6 +13,7 @@ namespace compiler.middleend.ir
 
 
         public Node FalseNode { get; set; }
+		public JoinNode Join { get; set; }
 
 
         public void Insert(Node other, bool trueChild)
@@ -62,5 +63,22 @@ namespace compiler.middleend.ir
             Child?.Consolidate();
             FalseNode?.Consolidate();
         }
+
+
+		public override DominatorNode convertNode()
+		{
+			DominatorNode d = new DominatorNode(Bb);
+			d.testInsert(Join);
+			d.testInsert(Child);
+			d.testInsert(FalseNode);
+			d.Colorname = Colorname;
+
+			foreach (var child in d.Children)
+			{
+				child.Parent = d;
+			}
+
+			return d;
+		}
     }
 }

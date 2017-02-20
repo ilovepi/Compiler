@@ -17,6 +17,7 @@ namespace compiler.frontend
             Tok = Token.UNKNOWN;
             Scanner = new Lexer(_filename);
             ProgramCfg = new Cfg();
+			Dom = new DomTree();
             FunctionsCfgs = new List<Cfg>();
             VarTable = new VarTbl();
         }
@@ -32,6 +33,8 @@ namespace compiler.frontend
         public int CurrAddress { get; set; }
 
         public VarTbl VarTable { get; set; }
+
+		public DomTree Dom { get; set; }
 
 
         /// <summary>
@@ -638,13 +641,15 @@ namespace compiler.frontend
 
         public Cfg StatementSequence(ref VarTbl variables)
         {
+			
             var cfg = new Cfg();
+			var dom = new DomTree();
+			ParseTree p = new ParseTree(cfg, dom);
             var bb = new BasicBlock("StatSequence");
             cfg.Root = new Node(bb);
             var stmt = Statement(ref variables);
             cfg.Insert(stmt);
-
-            // TODO: fix consolodate()
+            
             cfg.Root.Consolidate();
 
             while (Tok == Token.SEMI_COLON)
@@ -655,6 +660,8 @@ namespace compiler.frontend
 
                 cfg.Root.Consolidate();
             }
+
+
 
             return cfg;
         }
@@ -729,6 +736,7 @@ namespace compiler.frontend
 
             var joinBlock = new JoinNode(new BasicBlock("JoinBlock"));
             Node falseBlock = joinBlock;
+			compBlock.Join = joinBlock;
 
             var trueSsa = new VarTbl(variables);
             var falseSsa = new VarTbl(variables);

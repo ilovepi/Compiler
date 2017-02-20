@@ -184,6 +184,7 @@ namespace NUnit.Tests.MiddleEnd
         {
             var n = new WhileNode(new BasicBlock("BB"));
             var i = n.GetLastInstruction();
+			Assert.Null(i);
             n.Insert(new WhileNode(new BasicBlock("BB")));
             i = n.GetLastInstruction();
             n.Bb.AddInstruction(new Instruction(IrOps.Add, null, null));

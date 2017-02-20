@@ -9,7 +9,7 @@ namespace Program
         //TODO: adjust main to use the parser when it is complete
         private static void Main(string[] args)
         {
-            using (var p = new Parser(@"../../testdata/test027.txt"))
+            using (var p = new Parser(@"../../testdata/test003.txt"))
             {
                 p.Parse();
 
@@ -25,6 +25,20 @@ namespace Program
                     }
                     file.WriteLine("\n}");
                 }
+
+				using (var file = new StreamWriter("Dominator.dot"))
+				{
+					file.WriteLine("digraph Dom{\n");
+					int i = 0;
+					foreach (Cfg func in p.FunctionsCfgs)
+					{
+						func.Sym = p.Scanner.SymbolTble;
+						var d = DominatorNode.convertCfg(func);
+
+						file.WriteLine(d.printTreeGraph(i++, func.Sym));
+					}
+					file.WriteLine("\n}");
+				}
             }
         }
     }

@@ -15,8 +15,11 @@ Program/bin/Debug/graph.dot: solution
 	./Program.exe; \
 	popd
 
-graph: Program/bin/Debug/graph.dot
+cfg: Program/bin/Debug/graph.dot
 	xdot ./Program/bin/Debug/graph.dot
+
+dom: Program/bin/Debug/graph.dot
+	xdot ./Program/bin/Debug/Dominator.dot
 
 clean:
 	xbuild /t:clean
