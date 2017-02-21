@@ -65,10 +65,6 @@ namespace NUnit.Tests.MiddleEnd
         }
 
 
-       
-
-
-
         [Test]
         public void ConsolidateTest()
         {
@@ -183,6 +179,7 @@ namespace NUnit.Tests.MiddleEnd
         public void WhileNodeTest()
         {
             var n = new WhileNode(new BasicBlock("BB"));
+			Assert.AreEqual(n, n.Leaf());
             var i = n.GetLastInstruction();
 			Assert.Null(i);
             n.Insert(new WhileNode(new BasicBlock("BB")));
@@ -193,13 +190,6 @@ namespace NUnit.Tests.MiddleEnd
             n.FalseNode = null;
             i = n.GetLastInstruction();
             n.Consolidate();
-
         }
-
-
-
-
-
-
     }
 }

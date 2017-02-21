@@ -294,31 +294,22 @@ namespace compiler.frontend
 
         public ParseResult Assign(ref VarTbl variables)
         {
-            //List<Instruction> ret = new List<Instruction>();
-
-            //TODO: assign must use SSA, so our designator *MUST* give us access to an SSA variable
-
-
             GetExpected(Token.LET);
 
             ParseResult id = Designator( variables);
 			var locals = variables;
-            //var locals = new VarTbl(id.VarTable);
-            //Instruction curr = ret.Last();
 
             GetExpected(Token.ASSIGN);
 
-            //ret.AddRange(Expression());
-            //Instruction next = ret.Last();
-
             ParseResult expValue = Expression(locals);
-
-            //TODO: Fix this!!!!
 
             // create new instruction
             var newInst = new Instruction(IrOps.Store, expValue.Operand, id.Operand);
             Instruction prev = null;
             string name = Scanner.SymbolTble.Symbols[id.Operand.IdKey];
+
+
+			id.Instructions.AddRange(expValue.Instructions);
 
             Operand arg;
 
@@ -330,12 +321,16 @@ namespace compiler.frontend
                 SsaVariable ssa = new SsaVariable(id.Operand.IdKey, newInst, prev, name);
                 id.Operand.Inst = newInst;
                 id.Operand.Variable = ssa;
-                arg = new Operand(ssa);
+               
                 newInst.Arg2.Inst = newInst;
 
-
+				// try to use ssa value
+				ssa.Value = newInst.Arg1;
 
                 locals[id.Operand.IdKey] = ssa;
+				//arg = new Operand(ssa);
+				arg = ssa.Value;
+
             }
             else
             {
@@ -343,13 +338,8 @@ namespace compiler.frontend
                 arg = new Operand(newInst);
             }
 
-            id.Instructions.AddRange(expValue.Instructions);
-
             // insert new instruction to instruction list
             id.Instructions.Add(newInst);
-
-			// update current instruction to latest instruction
-			//curr = ret.Last();
 
 			return new ParseResult(arg, id.Instructions, locals);
         }
@@ -367,15 +357,11 @@ namespace compiler.frontend
 
             while ((Tok == Token.FUNCTION) || (Tok == Token.PROCEDURE))
             {
-				
-                // throw away cFG for now
-                //cfg.Insert( FuncDecl() );
                 Cfg func = FuncDecl(new VarTbl(varTble));
                 if (func.Root != null)
                 {
                     FunctionsCfgs.Add(func);
                 }
-                //FuncDecl();
             }
 
             GetExpected(Token.OPEN_CURL);

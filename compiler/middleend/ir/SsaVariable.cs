@@ -8,6 +8,7 @@ namespace compiler.middleend.ir
             Name = null;
             Prev = null;
             Location = null;
+			Value = null;
             UuId = 0;
         }
 
@@ -16,6 +17,7 @@ namespace compiler.middleend.ir
 			Name = other.Name;
 			Prev = other.Prev;
 			Location = new Instruction(other.Location);
+			Value = other.Value;
 			UuId = other.UuId;
 		}
 
@@ -38,9 +40,11 @@ namespace compiler.middleend.ir
 
         public string Name { get; set; }
 
+		public Operand Value { get; set; }
+
         public override string ToString()
         {
-            return Name + Location.Num;
+            return Name + Location.Num + "=" + Value;
         }
     }
 }

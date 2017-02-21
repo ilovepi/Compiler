@@ -90,7 +90,7 @@ namespace compiler.middleend.ir
                 {
                     return null;
                 }
-                return Bb.Instructions.Last();
+                ret = Bb.Instructions.Last();
             }
             return ret;
         }
