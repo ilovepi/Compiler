@@ -643,8 +643,6 @@ namespace compiler.frontend
         {
 			
             var cfg = new Cfg();
-			var dom = new DomTree();
-			ParseTree p = new ParseTree(cfg, dom);
             var bb = new BasicBlock("StatSequence");
             cfg.Root = new Node(bb);
             var stmt = Statement(ref variables);
