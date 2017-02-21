@@ -3,6 +3,8 @@ using System.Linq;
 
 using compiler.frontend;
 using System;
+using System.Xml.Xsl.Runtime;
+using System.Runtime.CompilerServices;
 
 namespace compiler.middleend.ir
 {
@@ -83,6 +85,11 @@ namespace compiler.middleend.ir
         }
 
 
+		/// <summary>
+		/// Creates a Dominator Tree from a Control Flow Graph
+		/// </summary>
+		/// <returns>A new Dominator tree for the CFG</returns>
+		/// <param name="controlFlow">Control flow graph.</param>
 		public static DomTree convertCfg(Cfg controlFlow)
 		{
 			Visited = new HashSet<Node>();
@@ -128,8 +135,49 @@ namespace compiler.middleend.ir
 			}
 
 			return local;
-
 		}
+
+
+		public void walk(Action<Action<DominatorNode>, DominatorNode> traversal, Action<DominatorNode> visitor)
+		{
+			traversal(visitor, this);
+		}
+
+		public static void StaticPreOrder(Action<DominatorNode> visitor, DominatorNode n)
+		{
+			visitor(n);
+			foreach (var child in n.Children)
+			{
+				StaticPreOrder(visitor, child);
+			}
+		}
+
+
+		public static void StaticPostOrder(Action<DominatorNode> visitor, DominatorNode n)
+		{
+			
+			foreach (var child in n.Children)
+			{
+				StaticPostOrder(visitor, child);
+			}
+
+			visitor(n);
+		}
+
+
+
+		public void Preorder(Action<DominatorNode> visitor)
+		{
+			visitor(this);
+
+			foreach (var child in Children)
+			{
+				child.Preorder(visitor);
+			}
+			
+		}
+
+
 
 		public string DotId()
 		{
