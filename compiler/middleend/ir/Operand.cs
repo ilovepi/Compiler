@@ -52,6 +52,7 @@ namespace compiler.middleend.ir
 			Kind = OpType.Variable;
             Variable = ssa;
             IdKey = Variable.UuId;
+
         }
 
 

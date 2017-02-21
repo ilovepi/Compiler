@@ -22,6 +22,8 @@ namespace compiler.frontend
             VarTable = new VarTbl();
         }
 
+		public bool CopyPropagationEnabled = true;
+
         public Token Tok { get; set; }
 
         public Lexer Scanner { get; set; }
@@ -177,11 +179,18 @@ namespace compiler.frontend
                 case Token.IDENTIFIER:
                     var des = Designator(variables);
                     instructions.AddRange(des.Instructions);
-                    //Operand arg2 = (instructions.Count == 0) ? null : new Operand(instructions.Last())
+					//Operand arg2 = (instructions.Count == 0) ? null : new Operand(instructions.Last())
+					if (CopyPropagationEnabled &&  des.Operand.Kind == Operand.OpType.Variable)
+					{
+						id = new Operand(des.Operand.Variable.Location);
 
-                    var baseAddr = new Instruction(IrOps.Load, des.Operand, null);
-                    instructions.Add(baseAddr);
-                    id = new Operand(baseAddr);
+					}
+					else
+					{
+						var baseAddr = new Instruction(IrOps.Load, des.Operand, null);
+						instructions.Add(baseAddr);
+						id = new Operand(baseAddr);
+					}
                     factor = new ParseResult(id, instructions, des.VarTable);
                     break;
                 case Token.OPEN_PAREN:
@@ -221,20 +230,19 @@ namespace compiler.frontend
                 // add instructions for the next factor
                 ParseResult factor2 = Factor(locals);
                 instructions.AddRange(factor2.Instructions);
-
-                //TODO: find a good way of making this so we can support immediate actions
+               
                 Operand id;
-                if ((factor2.Operand.Kind == Operand.OpType.Constant) && (factor1.Operand.Kind == Operand.OpType.Constant))
-                {
-                    int arg2 = factor2.Operand.Val;
-                    int arg1 = factor1.Operand.Val;
-                    int res = op == IrOps.Mul ? arg1 * arg2 : arg1 / arg2;
-                    id = new Operand(Operand.OpType.Constant, res);
-                    //var ret = new ParseResult(new Operand(Operand.OpType.Constant, res), new List<Instruction>() );
-                }
-                else
-                {
-                    var newInst = new Instruction(op, factor1.Operand, factor2.Operand);
+				if ((factor2.Operand.Kind == Operand.OpType.Constant) && (factor1.Operand.Kind == Operand.OpType.Constant))
+				{
+					int arg2 = factor2.Operand.Val;
+					int arg1 = factor1.Operand.Val;
+					int res = op == IrOps.Mul ? arg1 * arg2 : arg1 / arg2;
+					id = new Operand(Operand.OpType.Constant, res);
+					//var ret = new ParseResult(new Operand(Operand.OpType.Constant, res), new List<Instruction>() );
+				}
+				else
+				{
+					var newInst = new Instruction(op, factor1.Operand, factor2.Operand);
 
                     // insert new instruction to instruction list
                     instructions.Add(newInst);
@@ -853,14 +861,20 @@ namespace compiler.frontend
                     throw new Exception("SSA Variable Tables are different sizes. You added something you shouldnt have.");
                 }
 
+				// TODO: clean up variables effected by phi function in looop header
+
                 var headerVar = headerSsa[loopVar.Key];
                 if (headerVar != loopVar.Value)
                 {
                     var newInst = new Instruction(IrOps.Phi, new Operand(loopVar.Value.Location), new Operand(headerVar.Location));
                     compBlock.Bb.Instructions.Insert(0,newInst);
 
+					//var c = fixLoopPhi(compBlock, loopVar.Value.Location, headerVar.Location, newInst);
+
                     var temp = new SsaVariable(variables[loopVar.Key]);
                     temp.Location = newInst;
+					//temp.Location = c;
+
                     // Assume trueSsa and falseSsa are both the same size
                     variables[loopVar.Key] = temp;
 
@@ -884,6 +898,48 @@ namespace compiler.frontend
 
             return whileBlock;
         }
+
+		// TODO: Loops must have the instructions referenced in their phi's updated
+		public Instruction fixLoopPhi(WhileNode header, Instruction start, Instruction end, Instruction phi)
+		{
+			//try to update all refs to the old instruction at once by mutating the pointed to object
+
+			var temp = new Instruction(start);
+
+			var searchRes = findInstruction(start, header.Parent);
+
+			searchRes.Item1.Instructions[searchRes.Item2] = temp;
+
+			start.Num = phi.Num;
+			start.Arg1 = phi.Arg1;
+			start.Arg2 = phi.Arg2;
+			start.Op = phi.Op;
+
+			return start;
+
+		}
+
+		public Tuple<BasicBlock, int> findInstruction(Instruction inst, Node n)
+		{
+			if(n == null)
+				return null;
+
+			var instList = n.Bb.Instructions;
+
+			for (int i = 0; i < instList.Count; i++)
+			{
+
+			
+				if (inst == instList[i])
+				{
+					return new Tuple<BasicBlock, int>(n.Bb, i);
+				}
+
+			}
+
+			return findInstruction(inst, n.Parent);
+
+		}
 
 
         //TODO: Maybe pass in a return address?
