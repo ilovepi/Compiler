@@ -165,20 +165,25 @@ namespace compiler.middleend.ir
 		}
 
 
-
+		/// <summary>
+		/// Preorder the specified visitor.
+		/// </summary>
+		/// <returns>The preorder.</returns>
+		/// <param name="visitor">Visitor.</param>
 		public void Preorder(Action<DominatorNode> visitor)
 		{
 			visitor(this);
-
 			foreach (var child in Children)
 			{
 				child.Preorder(visitor);
 			}
-			
 		}
 
 
-
+		/// <summary>
+		/// Dots the identifier.
+		/// </summary>
+		/// <returns>The identifier.</returns>
 		public string DotId()
 		{
 			string ret = Bb.Name;
