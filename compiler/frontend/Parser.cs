@@ -155,6 +155,7 @@ namespace compiler.frontend
             if (variables.ContainsKey(id.IdKey))
             {
 				id = new Operand(variables[id.IdKey]);
+				//id = variables[id.IdKey].Value
                 /*if (temp != null)
                 {
                     id = new Operand(temp);
@@ -186,9 +187,8 @@ namespace compiler.frontend
 						if ( (id.Inst != null) &&  (id.Inst.Op == IrOps.Store))
 						{
 							id = new Operand(id.Inst.Arg2.Variable.Location);
-							id = id.Inst.Arg2;
+							id = new Operand(id.Inst.Arg2.Inst);
 						}
-
 					}
 					else
 					{
