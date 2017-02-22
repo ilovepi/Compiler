@@ -183,6 +183,11 @@ namespace compiler.frontend
 					if (CopyPropagationEnabled &&  des.Operand.Kind == Operand.OpType.Variable)
 					{
 						id = new Operand(des.Operand.Variable.Location);
+						if ( (id.Inst != null) &&  (id.Inst.Op == IrOps.Store))
+						{
+							id = new Operand(id.Inst.Arg2.Variable.Location);
+							id = id.Inst.Arg2;
+						}
 
 					}
 					else
@@ -336,8 +341,8 @@ namespace compiler.frontend
 				ssa.Value = newInst.Arg1;
 
                 locals[id.Operand.IdKey] = ssa;
-				//arg = new Operand(ssa);
-				arg = ssa.Value;
+				arg = new Operand(ssa);
+				//arg = ssa.Value;
 
             }
             else
