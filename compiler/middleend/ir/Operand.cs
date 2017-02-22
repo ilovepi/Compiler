@@ -126,7 +126,8 @@ namespace compiler.middleend.ir
                 case OpType.Constant:
                     return "#" + Val;
                 case OpType.Instruction:
-                    return "(" + Inst.Num + ")";
+					var s = Inst?.Num.ToString() ?? ".unknown";
+                    return "(" + s + ")";
                 case OpType.Register:
                     return "R" + Val;
                 default:
