@@ -1006,7 +1006,7 @@ namespace compiler.frontend
 
 		    if (a.Kind == Operand.OpType.Variable)
 			{
-				if (a.Variable.Location.Num == l.Inst?.Num)
+				if (a.Variable.Location.Num == (l.Inst?.Num ?? 0) )
 				{
 				    return true;
 				}

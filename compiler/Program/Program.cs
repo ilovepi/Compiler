@@ -1,7 +1,7 @@
 ﻿using System.IO;
-using compiler;
 using compiler.frontend;
 using compiler.middleend.ir;
+using compiler.middleend.optimization;
 
 namespace Program
 {
@@ -10,7 +10,7 @@ namespace Program
         //TODO: adjust main to use the parser when it is complete
         private static void Main(string[] args)
         {
-            using (var p = new Parser(@"../../testdata/test017.txt"))
+            using (var p = new Parser(@"../../testdata/test024.txt"))
             {
                 p.Parse();
                 
@@ -21,7 +21,7 @@ namespace Program
                     int i = 0;
                     foreach (Cfg func in p.FunctionsCfgs)
                     {
-                        CopyPropagation.Propagate(func.Root);
+                        //CopyPropagation.Propagate(func.Root);
                         func.Sym = p.Scanner.SymbolTble;
                         func.GenerateDotOutput(i++);
                         file.WriteLine(func.DotOutput);

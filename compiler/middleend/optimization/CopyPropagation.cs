@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using compiler.middleend.ir;
-namespace compiler
+
+namespace compiler.middleend.optimization
 {
 	public class CopyPropagation
 	{
@@ -44,7 +44,7 @@ namespace compiler
 	            }
 	            else
 	            {
-                    if (instruction.Arg1.Kind == Operand.OpType.Variable)
+                    if (instruction.Arg1?.Kind == Operand.OpType.Variable)
                     {
                         instruction.Arg1 = instruction.Arg1.Variable.Value.OpenOperand();
                     }
