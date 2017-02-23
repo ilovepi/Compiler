@@ -175,6 +175,13 @@ namespace compiler.middleend.ir
 
         public Operand OpenOperand()
         {
+            if (Kind == OpType.Instruction && Inst.Op == IrOps.Store)
+            {
+                if (Inst.Arg2 == Inst.Arg2.Inst.Arg2)
+                    return Inst.Arg1;
+               return Inst.Arg2?.OpenOperand() ?? this;
+            }
+
             return Kind == OpType.Variable ? Variable.Value.OpenOperand() : this;
         }
 

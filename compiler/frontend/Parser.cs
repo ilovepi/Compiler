@@ -21,11 +21,7 @@ namespace compiler.frontend
 			Dom = new DomTree();
             FunctionsCfgs = new List<Cfg>();
             VarTable = new VarTbl();
-            fake = new Instruction(IrOps.Phi, new Operand(Operand.OpType.Identifier, 0),
-                new Operand(Operand.OpType.Identifier, 0));
         }
-
-        private Instruction fake;
 
 
         public bool CopyPropagationEnabled = true;
@@ -795,7 +791,7 @@ namespace compiler.frontend
                 var falseVar = falseSsa[trueVar.Key];
                 if ( falseVar != trueVar.Value)
                 {
-					var newInst = new Instruction(IrOps.Phi, new Operand(trueVar.Value.Location), new Operand(falseVar.Location));
+					var newInst = new Instruction(IrOps.Phi, trueVar.Value.Value,  falseVar?.Value ?? new Operand(falseVar.Location)) ;
                     joinBlock.Bb.Instructions.Add(newInst);
 
 					var temp = new SsaVariable(variables[trueVar.Key]);
@@ -888,7 +884,7 @@ namespace compiler.frontend
                 var headerVar = headerSsa[loopVar.Key];
                 if (headerVar != loopVar.Value)
                 {
-                    var newInst = new Instruction(IrOps.Phi, new Operand(loopVar.Value.Location), new Operand(headerVar.Location));
+                    var newInst = new Instruction(IrOps.Phi, loopVar.Value.Value, headerVar?.Value ?? new Operand(headerVar.Location));
                     compBlock.Bb.Instructions.Insert(0,newInst);
 
 					fixLoopPhi(loopBlock, newInst);
@@ -905,7 +901,8 @@ namespace compiler.frontend
 
 
             //TODO: remove placeholder instruction and do something smarter
-            followBlock.Bb.AddInstruction(fake);
+            followBlock.Bb.AddInstruction(new Instruction(IrOps.Phi, new Operand(Operand.OpType.Identifier, 0),
+                new Operand(Operand.OpType.Identifier, 0)));
 
             var inst = last.Bb.Instructions.Last();
 

@@ -30,9 +30,8 @@ namespace compiler.middleend.ir
 
         public Instruction(IrOps pOp, Operand pArg1, Operand pArg2)
         {
-            
-            Num = InstructionCounter;
             InstructionCounter++;
+            Num = InstructionCounter;
 
             Op = pOp;
             Arg1 = pArg1;
@@ -143,15 +142,12 @@ namespace compiler.middleend.ir
         {
             return !Equals(left, right);
         }
-
-
-
+        
 
         public string Display(SymbolTable smb)
         {
-            return $"{Num}: {Op} {Arg1.Display(smb)} {Arg2?.Display(smb)}";
+            return $"{Num}: {Op} {Arg1?.Display(smb)} {Arg2?.Display(smb)}";
         }
-
         
         public override string ToString()
         {
