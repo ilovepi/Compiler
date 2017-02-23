@@ -939,7 +939,7 @@ namespace compiler.frontend
 			// loop through instructions looking for places to replace ref with phi instructions
 			foreach (var inst in n.Bb.Instructions)
 			{
-				if (inst != phi)
+				if (inst.Num != phi.Num)
 				{
 					if ( (CheckOperand(inst.Arg1, phi.Arg1)) || (CheckOperand(inst.Arg1, phi.Arg2)) )
 					{
@@ -991,14 +991,21 @@ namespace compiler.frontend
 		public bool CheckOperand(Operand a, Operand l)
 		{
 			if (a == l)
-				return true;
-			if (a == null) 
-				return false;
-			
-			if (a.Kind == Operand.OpType.Variable)
 			{
-				if (a.Variable.Location == l.Inst)
-					return true;
+			    return true;
+			}
+
+		    if (a == null)
+		    {
+		        return false;
+		    }
+
+		    if (a.Kind == Operand.OpType.Variable)
+			{
+				if (a.Variable.Location.Num == l.Inst?.Num)
+				{
+				    return true;
+				}
 			}
 			return false;
 		}

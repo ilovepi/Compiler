@@ -3,12 +3,10 @@ using System.Linq;
 
 using compiler.frontend;
 using System;
-using System.Xml.Xsl.Runtime;
-using System.Runtime.CompilerServices;
 
 namespace compiler.middleend.ir
 {
-	public class DominatorNode : IEquatable<DominatorNode>
+    public class DominatorNode : IEquatable<DominatorNode>
     {
         /// <summary>
         ///     The Nodes which this basic block directly dominates

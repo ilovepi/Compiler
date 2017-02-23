@@ -79,7 +79,7 @@ namespace compiler.middleend.ir
             {
                 return true;
             }
-            return (Kind == other.Kind) && (Val == other.Val) && (IdKey == other.IdKey) && Equals(Inst, other.Inst);
+            return (Kind == other.Kind) && (Val == other.Val) && (IdKey == other.IdKey) && Equals(Inst?.Num, other.Inst?.Num);
         }
 
         public override bool Equals(object obj)
