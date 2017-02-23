@@ -70,6 +70,7 @@
     <Compile Include="middleend\ir\Node.cs" />
     <Compile Include="middleend\ir\CFG.cs" />
     <Compile Include="middleend\ir\ParseTree.cs" />
+    <Compile Include="middleend\optimization\CopyPropagation.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="backend\" />

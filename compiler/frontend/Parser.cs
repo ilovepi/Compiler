@@ -4,6 +4,7 @@ using System.Linq;
 using compiler.middleend.ir;
 
 using VarTbl = System.Collections.Generic.SortedDictionary<int, compiler.middleend.ir.SsaVariable>;
+using System.Security.Cryptography.X509Certificates;
 
 namespace compiler.frontend
 {
@@ -188,11 +189,11 @@ namespace compiler.frontend
 						{
 
 							// TODO: please solve how to do copy propagatin -- next 3 lines
-							id = new Operand(id.Inst.Arg2.Variable.Location); // doesn't propagate to original value 
+							//id = new Operand(id.Inst.Arg2.Variable.Location); // doesn't propagate to original value 
 							//id = id.Inst.Arg2.Variable.Value;
 							//id = id.Inst.Arg2.Variable.Location.Arg2.Variable.Value; // kills references to aliased variables
 
-
+							id = new Operand(id.Inst.Arg2.Variable);
 						}
 					}
 					else
@@ -348,7 +349,7 @@ namespace compiler.frontend
 
 				if (CopyPropagationEnabled && ( ssa.Value.Kind == Operand.OpType.Constant) )
 				{
-					ssa.Value = new Operand(ssa.Location);
+					//ssa.Value = new Operand(ssa.Location);
 				}
 
                 locals[id.Operand.IdKey] = ssa;
@@ -930,22 +931,37 @@ namespace compiler.frontend
 			{
 				return;
 			}
-			else // recursive case
-			{
-				visited.Add(n);
-			}
 
+
+			// recursive case
+			visited.Add(n);
 
 			// loop through instructions looking for places to replace ref with phi instructions
 			foreach (var inst in n.Bb.Instructions)
 			{
 				if (inst != phi)
 				{
-
-					// check arg 1 of the isntruction
-					if (inst.Arg1 == phi.Arg1 || inst.Arg1 == phi.Arg2)
+					if ( (CheckOperand(inst.Arg1, phi.Arg1)) || (CheckOperand(inst.Arg1, phi.Arg2)) )
 					{
 						inst.Arg1 = new Operand(phi);
+					}
+
+					if ( (CheckOperand(inst.Arg2, phi.Arg1)) || (CheckOperand(inst.Arg2, phi.Arg2)))
+					{
+						inst.Arg2 = new Operand(phi);
+					}
+					    /*
+
+					// check arg 1 of the isntruction
+						if (inst.Arg1 == phi.Arg1 || inst.Arg1 == phi.Arg2)
+					{
+						inst.Arg1 = new Operand(phi);
+					}
+					else if (inst.Arg1.Kind == Operand.OpType.Variable)
+					{
+						if( (inst.Arg1.Variable.Value == phi.Arg1.Variable.Value) ||(inst.Arg1.Variable.Value == phi.Arg2.Variable.Value) )
+							inst.Arg1 = new Operand(phi);
+						
 					}
 
 					//check arg 2
@@ -953,6 +969,14 @@ namespace compiler.frontend
 					{
 						inst.Arg2 = new Operand(phi);
 					}
+					else if ((inst.Arg2 != null)  && (inst.Arg2.Kind == Operand.OpType.Variable) )
+					{
+						if ((inst.Arg2.Variable.Value == phi.Arg1) || (inst.Arg2.Variable.Value == phi.Arg2))
+							inst.Arg2 = new Operand(phi);
+
+					}
+					    */
+
 				}
 
 			}
@@ -964,7 +988,20 @@ namespace compiler.frontend
 			}
 		}
 
-
+		public bool CheckOperand(Operand a, Operand l)
+		{
+			if (a == l)
+				return true;
+			if (a == null) 
+				return false;
+			
+			if (a.Kind == Operand.OpType.Variable)
+			{
+				if (a.Variable.Location == l.Inst)
+					return true;
+			}
+			return false;
+		}
 
 
 		public Tuple<BasicBlock, int> findInstruction(Instruction inst, Node n)
