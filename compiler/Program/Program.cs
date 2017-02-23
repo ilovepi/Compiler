@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using compiler;
 using compiler.frontend;
 using compiler.middleend.ir;
 
@@ -12,6 +13,7 @@ namespace Program
             using (var p = new Parser(@"../../testdata/test014.txt"))
             {
                 p.Parse();
+                
 
                 using (var file = new StreamWriter("graph.dot"))
                 {
@@ -19,6 +21,7 @@ namespace Program
                     int i = 0;
                     foreach (Cfg func in p.FunctionsCfgs)
                     {
+                        //CopyPropagation.Propagate(func.Root);
                         func.Sym = p.Scanner.SymbolTble;
                         func.GenerateDotOutput(i++);
                         file.WriteLine(func.DotOutput);

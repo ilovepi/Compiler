@@ -88,14 +88,17 @@ namespace compiler.middleend.ir
             {
                 return false;
             }
+
             if (ReferenceEquals(this, obj))
             {
                 return true;
             }
+
             if (obj.GetType() != GetType())
             {
                 return false;
             }
+
             return Equals((Operand) obj);
         }
 
@@ -167,6 +170,12 @@ namespace compiler.middleend.ir
                     return "R" + Val;
             }
             return "ERROR!!!";
+        }
+
+
+        public Operand OpenOperand()
+        {
+            return Kind == OpType.Variable ? Variable.Value.OpenOperand() : this;
         }
 
 

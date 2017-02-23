@@ -30,8 +30,9 @@ namespace compiler.middleend.ir
 
         public Instruction(IrOps pOp, Operand pArg1, Operand pArg2)
         {
-            InstructionCounter++;
+            
             Num = InstructionCounter;
+            InstructionCounter++;
 
             Op = pOp;
             Arg1 = pArg1;

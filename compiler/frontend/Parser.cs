@@ -21,9 +21,14 @@ namespace compiler.frontend
 			Dom = new DomTree();
             FunctionsCfgs = new List<Cfg>();
             VarTable = new VarTbl();
+            fake = new Instruction(IrOps.Phi, new Operand(Operand.OpType.Identifier, 0),
+                new Operand(Operand.OpType.Identifier, 0));
         }
 
-		public bool CopyPropagationEnabled = true;
+        private Instruction fake;
+
+
+        public bool CopyPropagationEnabled = true;
 
         public Token Tok { get; set; }
 
@@ -344,7 +349,7 @@ namespace compiler.frontend
                 newInst.Arg2.Inst = newInst;
 
 				// try to use ssa value
-				ssa.Value = newInst.Arg1;
+				ssa.Value = newInst.Arg1.OpenOperand();
 
 
 				if (CopyPropagationEnabled && ( ssa.Value.Kind == Operand.OpType.Constant) )
@@ -900,8 +905,7 @@ namespace compiler.frontend
 
 
             //TODO: remove placeholder instruction and do something smarter
-            followBlock.Bb.AddInstruction(new Instruction(IrOps.Phi, new Operand(Operand.OpType.Identifier, 0),
-                new Operand(Operand.OpType.Identifier, 0)));
+            followBlock.Bb.AddInstruction(fake);
 
             var inst = last.Bb.Instructions.Last();
 
