@@ -349,7 +349,7 @@ namespace compiler.frontend
 
 				if (CopyPropagationEnabled && ( ssa.Value.Kind == Operand.OpType.Constant) )
 				{
-					//ssa.Value = new Operand(ssa.Location);
+					ssa.Value = new Operand(ssa.Location);
 				}
 
                 locals[id.Operand.IdKey] = ssa;
@@ -948,7 +948,10 @@ namespace compiler.frontend
 
 					if ( (CheckOperand(inst.Arg2, phi.Arg1)) || (CheckOperand(inst.Arg2, phi.Arg2)))
 					{
-						inst.Arg2 = new Operand(phi);
+					    if (inst.Op != IrOps.Store)
+					    {
+					        inst.Arg2 = new Operand(phi);
+					    }
 					}
 					    /*
 
