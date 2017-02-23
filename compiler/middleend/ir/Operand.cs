@@ -99,6 +99,17 @@ namespace compiler.middleend.ir
             return Equals((Operand) obj);
         }
 
+		public static bool operator ==(Operand left, Operand right)
+		{
+			return Equals(left, right);
+		}
+
+		public static bool operator !=(Operand left, Operand right)
+		{
+			return !Equals(left, right);
+		}
+
+
         public override int GetHashCode()
         {
             unchecked

@@ -186,8 +186,13 @@ namespace compiler.frontend
 						id = new Operand(des.Operand.Variable.Location);
 						if ( (id.Inst != null) &&  (id.Inst.Op == IrOps.Store))
 						{
-							id = new Operand(id.Inst.Arg2.Variable.Location);
-							id = new Operand(id.Inst.Arg2.Inst);
+
+							// TODO: please solve how to do copy propagatin -- next 3 lines
+							id = new Operand(id.Inst.Arg2.Variable.Location); // doesn't propagate to original value 
+							//id = id.Inst.Arg2.Variable.Value;
+							//id = id.Inst.Arg2.Variable.Location.Arg2.Variable.Value; // kills references to aliased variables
+
+
 						}
 					}
 					else
@@ -340,9 +345,15 @@ namespace compiler.frontend
 				// try to use ssa value
 				ssa.Value = newInst.Arg1;
 
+
+				if (CopyPropagationEnabled && ( ssa.Value.Kind == Operand.OpType.Constant) )
+				{
+					ssa.Value = new Operand(ssa.Location);
+				}
+
                 locals[id.Operand.IdKey] = ssa;
-				arg = new Operand(ssa);
-				//arg = ssa.Value;
+				//arg = new Operand(ssa);
+				arg = ssa.Value;
 
             }
             else
@@ -841,7 +852,7 @@ namespace compiler.frontend
             Node last = loopBlock.Leaf();
             last.Bb.AddInstruction(new Instruction(IrOps.Bra, new Operand(compBlock.GetNextInstruction()), null));
 
-            //TODO: try to refactor so that we don't have to insert on the false branch
+            
             // insert the loop body on the true path
             compBlock.InsertTrue(loopBlock);
 
@@ -874,7 +885,7 @@ namespace compiler.frontend
                     var newInst = new Instruction(IrOps.Phi, new Operand(loopVar.Value.Location), new Operand(headerVar.Location));
                     compBlock.Bb.Instructions.Insert(0,newInst);
 
-					//var c = fixLoopPhi(compBlock, loopVar.Value.Location, headerVar.Location, newInst);
+					fixLoopPhi(loopBlock, newInst);
 
                     var temp = new SsaVariable(variables[loopVar.Key]);
                     temp.Location = newInst;
@@ -905,24 +916,56 @@ namespace compiler.frontend
         }
 
 		// TODO: Loops must have the instructions referenced in their phi's updated
-		public Instruction fixLoopPhi(WhileNode header, Instruction start, Instruction end, Instruction phi)
+		public void fixLoopPhi(Node n, Instruction phi)
 		{
-			//try to update all refs to the old instruction at once by mutating the pointed to object
-
-			var temp = new Instruction(start);
-
-			var searchRes = findInstruction(start, header.Parent);
-
-			searchRes.Item1.Instructions[searchRes.Item2] = temp;
-
-			start.Num = phi.Num;
-			start.Arg1 = phi.Arg1;
-			start.Arg2 = phi.Arg2;
-			start.Op = phi.Op;
-
-			return start;
-
+			var visited = new HashSet<Node>();
+			loopFix(n,phi, visited);
 		}
+
+
+		public void loopFix(Node n, Instruction phi, HashSet<Node> visited)
+		{
+			// base case
+			if (visited.Contains(n) || n == null)
+			{
+				return;
+			}
+			else // recursive case
+			{
+				visited.Add(n);
+			}
+
+
+			// loop through instructions looking for places to replace ref with phi instructions
+			foreach (var inst in n.Bb.Instructions)
+			{
+				if (inst != phi)
+				{
+
+					// check arg 1 of the isntruction
+					if (inst.Arg1 == phi.Arg1 || inst.Arg1 == phi.Arg2)
+					{
+						inst.Arg1 = new Operand(phi);
+					}
+
+					//check arg 2
+					if (inst.Arg2 == phi.Arg1 || inst.Arg2 == phi.Arg2)
+					{
+						inst.Arg2 = new Operand(phi);
+					}
+				}
+
+			}
+
+			var children = n.GetAllChildren();
+			foreach (var child in children)
+			{
+				loopFix(child, phi, visited);
+			}
+		}
+
+
+
 
 		public Tuple<BasicBlock, int> findInstruction(Instruction inst, Node n)
 		{

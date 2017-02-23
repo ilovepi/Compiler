@@ -130,11 +130,11 @@ namespace compiler.middleend.ir
         }
         
 
-//        public virtual List<Node> GetAllChildren()
-//        {
-//            var ret = new List<Node> {Child};
-//            return ret;
-//        }
+        public virtual List<Node> GetAllChildren()
+        {
+            var ret = new List<Node> {Child};
+            return ret;
+        }
 
         public virtual void Consolidate()
         {
