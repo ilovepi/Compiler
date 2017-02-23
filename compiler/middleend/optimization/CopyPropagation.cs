@@ -9,22 +9,22 @@ namespace compiler.middleend.optimization
 		{
 		}
 
-	    private static HashSet<Node> visited = null;
+	    private static HashSet<Node> _visited = null;
 
 		public static void Propagate(Node root)
 		{
-            visited = new HashSet<Node>();
+            _visited = new HashSet<Node>();
 		    PropagateValues(root);
 		}
 
 	    private static void PropagateValues(Node root )
 	    {
-	        if ( (root == null) || visited.Contains(root) )
+	        if ( (root == null) || _visited.Contains(root) )
 	        {
 	            return;
 	        }
 
-	        visited.Add(root);
+	        _visited.Add(root);
             
 	        foreach (var instruction in root.Bb.Instructions)
 	        {

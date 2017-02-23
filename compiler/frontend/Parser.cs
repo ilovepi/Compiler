@@ -345,8 +345,8 @@ namespace compiler.frontend
                 newInst.Arg2.Inst = newInst;
 
 				// try to use ssa value
+                //ssa.Value = newInst.Arg1;
 				ssa.Value = newInst.Arg1.OpenOperand();
-
 
 				if (CopyPropagationEnabled && ( ssa.Value.Kind == Operand.OpType.Constant) )
 				{
@@ -884,7 +884,8 @@ namespace compiler.frontend
                 var headerVar = headerSsa[loopVar.Key];
                 if (headerVar != loopVar.Value)
                 {
-                    var newInst = new Instruction(IrOps.Phi, loopVar.Value.Value, headerVar?.Value ?? new Operand(headerVar.Location));
+                    var newInst = new Instruction(IrOps.Phi, new Operand(loopVar.Value.Location), new Operand(headerVar.Location));
+                    //var newInst = new Instruction(IrOps.Phi, loopVar.Value.Value, headerVar?.Value ?? new Operand(headerVar.Location));
                     compBlock.Bb.Instructions.Insert(0,newInst);
 
 					fixLoopPhi(loopBlock, newInst);
@@ -921,11 +922,11 @@ namespace compiler.frontend
 		public void fixLoopPhi(Node n, Instruction phi)
 		{
 			var visited = new HashSet<Node>();
-			loopFix(n,phi, visited);
+			LoopFix(n,phi, visited);
 		}
 
 
-		public void loopFix(Node n, Instruction phi, HashSet<Node> visited)
+		public void LoopFix(Node n, Instruction phi, HashSet<Node> visited)
 		{
 			// base case
 			if (visited.Contains(n) || n == null)
@@ -933,14 +934,13 @@ namespace compiler.frontend
 				return;
 			}
 
-
 			// recursive case
 			visited.Add(n);
 
 			// loop through instructions looking for places to replace ref with phi instructions
 			foreach (var inst in n.Bb.Instructions)
 			{
-				if (inst.Num != phi.Num)
+				if (inst.Op != IrOps.Phi  && inst.Num != phi.Num)
 				{
 					if ( (CheckOperand(inst.Arg1, phi.Arg1)) || (CheckOperand(inst.Arg1, phi.Arg2)) )
 					{
@@ -954,33 +954,6 @@ namespace compiler.frontend
 					        inst.Arg2 = new Operand(phi);
 					    }
 					}
-					    /*
-
-					// check arg 1 of the isntruction
-						if (inst.Arg1 == phi.Arg1 || inst.Arg1 == phi.Arg2)
-					{
-						inst.Arg1 = new Operand(phi);
-					}
-					else if (inst.Arg1.Kind == Operand.OpType.Variable)
-					{
-						if( (inst.Arg1.Variable.Value == phi.Arg1.Variable.Value) ||(inst.Arg1.Variable.Value == phi.Arg2.Variable.Value) )
-							inst.Arg1 = new Operand(phi);
-						
-					}
-
-					//check arg 2
-					if (inst.Arg2 == phi.Arg1 || inst.Arg2 == phi.Arg2)
-					{
-						inst.Arg2 = new Operand(phi);
-					}
-					else if ((inst.Arg2 != null)  && (inst.Arg2.Kind == Operand.OpType.Variable) )
-					{
-						if ((inst.Arg2.Variable.Value == phi.Arg1) || (inst.Arg2.Variable.Value == phi.Arg2))
-							inst.Arg2 = new Operand(phi);
-
-					}
-					    */
-
 				}
 
 			}
@@ -988,25 +961,25 @@ namespace compiler.frontend
 			var children = n.GetAllChildren();
 			foreach (var child in children)
 			{
-				loopFix(child, phi, visited);
+				LoopFix(child, phi, visited);
 			}
 		}
 
-		public bool CheckOperand(Operand a, Operand l)
+		public bool CheckOperand(Operand checkedOp, Operand phiArg)
 		{
-			if (a == l)
+			if (checkedOp == phiArg)
 			{
 			    return true;
 			}
 
-		    if (a == null)
+		    if (checkedOp == null)
 		    {
 		        return false;
 		    }
 
-		    if (a.Kind == Operand.OpType.Variable)
+		    if (checkedOp.Kind == Operand.OpType.Variable)
 			{
-				if (a.Variable.Location.Num == (l.Inst?.Num ?? 0) )
+				if (checkedOp.Variable.Location == phiArg?.Inst )
 				{
 				    return true;
 				}
@@ -1015,7 +988,7 @@ namespace compiler.frontend
 		}
 
 
-		public Tuple<BasicBlock, int> findInstruction(Instruction inst, Node n)
+		public Tuple<BasicBlock, int> FindInstruction(Instruction inst, Node n)
 		{
 			if(n == null)
 				return null;
@@ -1033,7 +1006,7 @@ namespace compiler.frontend
 
 			}
 
-			return findInstruction(inst, n.Parent);
+			return FindInstruction(inst, n.Parent);
 
 		}
 
