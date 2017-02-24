@@ -817,11 +817,14 @@ namespace compiler.frontend
                     var newInst = new Instruction(IrOps.Phi, trueVar.Value.Value, falseVar?.Value ?? new Operand(falseVar.Location));
                     //var newInst = new Instruction(IrOps.Phi, new Operand(trueVar.Value.Location), new Operand(falseVar.Location));
 
+                    // handle these commented out lines in the constructor for instruction
+                    //trueVar.Value.Location.Uses.Add(newInst.Arg1);
+                    //falseVar.Location.Uses.Add(newInst.Arg2);
+
                     phiList.Add(newInst);
                     if (isLoop)
                     {
                         FixLoopPhi(phiBlock.Child, newInst);
-
                     }
 
                     // use object initializer

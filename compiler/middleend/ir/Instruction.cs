@@ -24,6 +24,7 @@ namespace compiler.middleend.ir
 				Prev = other.Prev;
 				Next = other.Next;
 				Search = other.Search;
+			    Uses = other.Uses;
 			}
 		}
 
@@ -37,12 +38,41 @@ namespace compiler.middleend.ir
             Arg1 = pArg1;
             Arg2 = pArg2;
 
+            AddRefs();
+
             LiveRange = new HashSet<Instruction>();
 
             Prev = null;
             Next = null;
             Search = null;
+            Uses = new List<Operand>();
         }
+
+
+        private void AddRefs()
+        {
+            AddInstructionRef(Arg1);
+            AddInstructionRef(Arg2);
+        }
+
+        public void AddInstructionRef(Operand op)
+        {
+            if (op == null)
+            {
+                return;
+            }
+
+            if (op.Kind == Operand.OpType.Instruction)
+            {
+                op.Inst.Uses.Add(op);
+            }
+            else if (op.Kind == Operand.OpType.Variable)
+            {
+                op.Variable.Location.Uses.Add(op);
+            }
+        }
+
+        public List<Operand> Uses { get; set; }
 
         /// <summary>
         ///     The Instruction number
