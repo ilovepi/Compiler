@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using compiler.frontend;
+using NUnit.Framework.Constraints;
 
 namespace compiler.middleend.ir
 {
@@ -64,11 +65,11 @@ namespace compiler.middleend.ir
 
             if (op.Kind == Operand.OpType.Instruction)
             {
-                op.Inst.Uses.Add(op);
+                op.Inst?.Uses.Add(op);
             }
             else if (op.Kind == Operand.OpType.Variable)
             {
-                op.Variable.Location.Uses.Add(op);
+                op.Variable.Location?.Uses.Add(op);
             }
         }
 
@@ -190,6 +191,22 @@ namespace compiler.middleend.ir
         public override string ToString()
         {
             return "" + Num + ": " + Op + " " + Arg1 + " " + Arg2;
+        }
+
+
+        public void ReplaceInst(Instruction newInst)
+        {
+
+            foreach (Operand operand in Uses)
+            {
+                // TODO: this may need to be verified
+                operand.Inst = newInst;
+            }
+        }
+
+        public bool ExactMatch(Instruction other)
+        {
+            return (other.Num == Num) && (Equals(other));
         }
 
     }

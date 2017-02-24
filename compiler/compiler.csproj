@@ -61,6 +61,7 @@
     <Compile Include="middleend\ir\ParseResult.cs" />
     <Compile Include="middleend\ir\SsaVariable.cs" />
     <Compile Include="middleend\ir\WhileNode.cs" />
+    <Compile Include="middleend\optimization\CsElimination.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="frontend\SymbolTable.cs" />
     <Compile Include="frontend\Result.cs" />

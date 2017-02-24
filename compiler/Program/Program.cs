@@ -10,7 +10,7 @@ namespace Program
         //TODO: adjust main to use the parser when it is complete
         private static void Main(string[] args)
         {
-            using (var p = new Parser(@"../../testdata/test024.txt"))
+            using (var p = new Parser(@"../../testdata/test025.txt"))
             {
                 p.Parse();
                 
@@ -22,6 +22,7 @@ namespace Program
                     foreach (Cfg func in p.FunctionsCfgs)
                     {
                         CopyPropagation.Propagate(func.Root);
+                        CsElimination.Eliminate(func.Root);
                         func.Sym = p.Scanner.SymbolTble;
                         func.GenerateDotOutput(i++);
                         file.WriteLine(func.DotOutput);

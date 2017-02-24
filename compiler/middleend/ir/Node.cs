@@ -225,7 +225,6 @@ namespace compiler.middleend.ir
 
         public virtual Instruction AnchorSearch(Instruction ins)
         {
-            
             if (IsRoot())
             {
                 return Bb.Search(ins);
@@ -235,9 +234,8 @@ namespace compiler.middleend.ir
                 var res = Bb.Search(ins);
                 return res ?? Parent.AnchorSearch(ins);
             }
-
-
         }
+
 
 
 		public virtual DominatorNode convertNode()

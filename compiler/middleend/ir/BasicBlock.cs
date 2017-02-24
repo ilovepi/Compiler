@@ -29,7 +29,7 @@ namespace compiler.middleend.ir
         public void AddInstruction(Instruction ins)
         {
             Instructions.Add(ins);
-            AnchorBlock.Insert(ins);
+            //AnchorBlock.Insert(ins);
         }
 
 
@@ -45,7 +45,7 @@ namespace compiler.middleend.ir
         public void InsertInstruction(int index, Instruction ins)
         {
             Instructions.Insert(index, ins);
-            AnchorBlock.Insert(ins);
+            //AnchorBlock.Insert(ins);
         }
 
         public void InsertInstructionList(int index, List<Instruction> insList)
@@ -57,16 +57,29 @@ namespace compiler.middleend.ir
         }
 
 
-
         public Instruction Search(Instruction ins)
         {
+            //TODO: also check for correct type of search instruction -- like a store can't be replaced with somthing else
+            switch (ins.Op)
+            {
+                case IrOps.Store:
+                case IrOps.Phi:
+                    return null;
+            }
+
             List<Instruction> instList = AnchorBlock.FindOpChain(ins.Op);
 
             if (instList != null)
             {
-                foreach (Instruction item in instList)
+                foreach (Instruction item in Enumerable.Reverse(instList))
                 {
-                    if (item.Equals(ins))
+                    // TODO: insert kill instructions after we see a load or a phi? cant remember
+                    if (item.Op == IrOps.Kill) // <------ this should have an aditional check right?
+                    {
+                        return null;
+                    }
+
+                    if (item.Equals(ins) && (item.Num != ins.Num))
                     {
                         return item;
                     }

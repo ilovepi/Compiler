@@ -29,12 +29,12 @@ namespace compiler.middleend.ir
         }
 
 
-        public override Instruction AnchorSearch(Instruction ins)
+        public override Instruction AnchorSearch(Instruction goal)
         {
             Instruction trueBranch = null;
             Instruction falseBranch = null;
 
-            var res = Bb.Search(ins);
+            var res = Bb.Search(goal);
 
             if (res != null)
                 return res;
@@ -42,12 +42,12 @@ namespace compiler.middleend.ir
 
             if (Parent != null)
             {
-                trueBranch = Parent.AnchorSearch(ins);
+                trueBranch = Parent.AnchorSearch(goal);
             }
 
             if (FalseParent != null)
             {
-                falseBranch = FalseParent.AnchorSearch(ins);
+                falseBranch = FalseParent.AnchorSearch(goal);
             }
 
             if (falseBranch == trueBranch)

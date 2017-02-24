@@ -152,7 +152,6 @@ namespace compiler.middleend.ir
 
         public string Display(SymbolTable smb)
         {
-
             switch (Kind)
             {
 				case OpType.Function:
