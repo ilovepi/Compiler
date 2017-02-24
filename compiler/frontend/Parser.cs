@@ -779,30 +779,9 @@ namespace compiler.frontend
 
             GetExpected(Token.FI);
 
-            // insert Phi instructions where items from true ssa and false ssa are different
-            foreach (var trueVar in trueSsa)
-            {
-                //throw exception if size is different
-                if ( (trueSsa.Count != falseSsa.Count) || (trueSsa.Count != variables.Count))
-                {
-                    throw new Exception("SSA Variable Tables are different sizes. You added something you shouldnt have.");
-                }
+            AddPhiInstructions(variables, trueSsa, falseSsa, joinBlock, false);
 
-                var falseVar = falseSsa[trueVar.Key];
-                if ( falseVar != trueVar.Value)
-                {
-					var newInst = new Instruction(IrOps.Phi, trueVar.Value.Value,  falseVar?.Value ?? new Operand(falseVar.Location)) ;
-                    joinBlock.Bb.Instructions.Add(newInst);
-
-					var temp = new SsaVariable(variables[trueVar.Key]);
-					temp.Location = newInst;
-					// Assume trueSsa and falseSsa are both the same size
-					variables[trueVar.Key] = temp;
-
-                }
-            }
-
-			if (joinBlock.Bb.Instructions.Count == 0)
+            if (joinBlock.Bb.Instructions.Count == 0)
 			{
 				var fakePhi = new Instruction(IrOps.Phi, new Operand(Operand.OpType.Identifier, 0), new Operand(Operand.OpType.Identifier, 0));
 				joinBlock.Bb.Instructions.Add(fakePhi);
@@ -818,7 +797,47 @@ namespace compiler.frontend
 
             return ifBlock;
         }
-        
+
+        private static void AddPhiInstructions(VarTbl variables, VarTbl trueSsa, VarTbl falseSsa, Node phiBlock, bool isLoop)
+        {
+            var phiList = new List<Instruction>();
+            // insert Phi instructions where items from true ssa and false ssa are different
+            foreach (var trueVar in trueSsa)
+            {
+                //throw exception if size is different
+                if ((trueSsa.Count != falseSsa.Count) || (trueSsa.Count != variables.Count))
+                {
+                    throw new Exception("SSA Variable Tables are different sizes. You added something you shouldnt have.");
+                }
+
+                var falseVar = falseSsa[trueVar.Key];
+                if (falseVar != trueVar.Value)
+                {
+                    // This top construction seems to be correct, and should give the best answer, but doesnt
+                    var newInst = new Instruction(IrOps.Phi, trueVar.Value.Value, falseVar?.Value ?? new Operand(falseVar.Location));
+                    //var newInst = new Instruction(IrOps.Phi, new Operand(trueVar.Value.Location), new Operand(falseVar.Location));
+
+                    phiList.Add(newInst);
+                    if (isLoop)
+                    {
+                        FixLoopPhi(phiBlock.Child, newInst);
+
+                    }
+
+                    // use object initializer
+                    var temp = new SsaVariable(variables[trueVar.Key])
+                    {
+                        Location = newInst,
+                        Value = new Operand(newInst)
+                    };
+
+                    // Assume trueSsa and falseSsa are both the same size
+                    variables[trueVar.Key] = temp;
+                }
+            }
+            phiBlock.Bb.InsertInstructionList(0,phiList);
+        }
+
 
         public Cfg WhileStmt(VarTbl variables)
         {
@@ -832,11 +851,7 @@ namespace compiler.frontend
 
             //crate compare block/loop header block
             var compBlock = new WhileNode(new BasicBlock("LoopHeader"));
-            /*
-            // TODO: Correct placeholder Phi Instruction
-            compBlock.Bb.AddInstruction(new Instruction(IrOps.Phi, new Operand(Operand.OpType.Identifier, 0),
-                new Operand(Operand.OpType.Identifier, 0)));
-                */
+
             // insert compare block for while stmt
             whileBlock.Insert(compBlock);
 
@@ -851,10 +866,10 @@ namespace compiler.frontend
 
             Node loopBlock = stmts.Root;
             loopBlock.Consolidate();
+
             Node last = loopBlock.Leaf();
             last.Bb.AddInstruction(new Instruction(IrOps.Bra, new Operand(compBlock.GetNextInstruction()), null));
 
-            
             // insert the loop body on the true path
             compBlock.InsertTrue(loopBlock);
 
@@ -868,38 +883,7 @@ namespace compiler.frontend
 
             compBlock.InsertFalse(followBlock);
 
-
-
-            // insert Phi instructions where items from true ssa and false ssa are different
-            foreach (var loopVar in loopSsa)
-            {
-                //throw exception if size is different
-                if ((loopSsa.Count != headerSsa.Count) || (loopSsa.Count != variables.Count))
-                {
-                    throw new Exception("SSA Variable Tables are different sizes. You added something you shouldnt have.");
-                }
-
-				// TODO: clean up variables effected by phi function in looop header
-
-                var headerVar = headerSsa[loopVar.Key];
-                if (headerVar != loopVar.Value)
-                {
-                    var newInst = new Instruction(IrOps.Phi, new Operand(loopVar.Value.Location), new Operand(headerVar.Location));
-                    //var newInst = new Instruction(IrOps.Phi, loopVar.Value.Value, headerVar?.Value ?? new Operand(headerVar.Location));
-                    compBlock.Bb.Instructions.Insert(0,newInst);
-
-					fixLoopPhi(loopBlock, newInst);
-
-                    var temp = new SsaVariable(variables[loopVar.Key]);
-                    temp.Location = newInst;
-					//temp.Location = c;
-
-                    // Assume trueSsa and falseSsa are both the same size
-                    variables[loopVar.Key] = temp;
-
-                }
-            }
-
+            AddPhiInstructions(variables, loopSsa, headerSsa, compBlock, true);
 
             //TODO: remove placeholder instruction and do something smarter
             followBlock.Bb.AddInstruction(new Instruction(IrOps.Phi, new Operand(Operand.OpType.Identifier, 0),
@@ -919,14 +903,14 @@ namespace compiler.frontend
         }
 
 		// TODO: Loops must have the instructions referenced in their phi's updated
-		public void fixLoopPhi(Node n, Instruction phi)
+		public static void FixLoopPhi(Node n, Instruction phi)
 		{
 			var visited = new HashSet<Node>();
 			LoopFix(n,phi, visited);
 		}
 
 
-		public void LoopFix(Node n, Instruction phi, HashSet<Node> visited)
+		public static void LoopFix(Node n, Instruction phi, HashSet<Node> visited)
 		{
 			// base case
 			if (visited.Contains(n) || n == null)
@@ -965,7 +949,7 @@ namespace compiler.frontend
 			}
 		}
 
-		public bool CheckOperand(Operand checkedOp, Operand phiArg)
+		public static bool CheckOperand(Operand checkedOp, Operand phiArg)
 		{
 			if (checkedOp == phiArg)
 			{
