@@ -5,6 +5,8 @@ var a, b, c, d;
 	let a <- call InputNum( );
 	call OutputNum( a );
 	call OutputNewLine( );
+	let b <- 10;
+	let c <- 5;
 	
 	while b > c do
 		let d <- call InputNum( );

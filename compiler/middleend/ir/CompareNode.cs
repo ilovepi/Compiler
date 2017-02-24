@@ -41,12 +41,12 @@ namespace compiler.middleend.ir
             Insert(other, true);
         }
 
-//        public override List<Node> GetAllChildren()
-//        {
-//            List<Node> ret = base.GetAllChildren();
-//            ret.Add(FalseNode);
-//            return ret;
-//        }
+        public override List<Node> GetAllChildren()
+        {
+            List<Node> ret = base.GetAllChildren();
+            ret.Add(FalseNode);
+            return ret;
+        }
 
         public override void CheckEnqueue(Cfg cfg)
         {

@@ -52,6 +52,7 @@ namespace compiler.middleend.ir
 			Kind = OpType.Variable;
             Variable = ssa;
             IdKey = Variable.UuId;
+
         }
 
 
@@ -78,7 +79,7 @@ namespace compiler.middleend.ir
             {
                 return true;
             }
-            return (Kind == other.Kind) && (Val == other.Val) && (IdKey == other.IdKey) && Equals(Inst, other.Inst);
+            return (Kind == other.Kind) && (Val == other.Val) && (IdKey == other.IdKey) && Equals(Inst?.Num, other.Inst?.Num);
         }
 
         public override bool Equals(object obj)
@@ -87,16 +88,30 @@ namespace compiler.middleend.ir
             {
                 return false;
             }
+
             if (ReferenceEquals(this, obj))
             {
                 return true;
             }
+
             if (obj.GetType() != GetType())
             {
                 return false;
             }
+
             return Equals((Operand) obj);
         }
+
+		public static bool operator ==(Operand left, Operand right)
+		{
+			return Equals(left, right);
+		}
+
+		public static bool operator !=(Operand left, Operand right)
+		{
+			return !Equals(left, right);
+		}
+
 
         public override int GetHashCode()
         {
@@ -121,11 +136,12 @@ namespace compiler.middleend.ir
                 case OpType.Function:
                     return "func-" + IdKey;
                 case OpType.Variable:
-                    return "(" + Variable.Location.Num + ")";
+                    return "(" + Variable + ")";
                 case OpType.Constant:
                     return "#" + Val;
                 case OpType.Instruction:
-                    return "(" + Inst.Num + ")";
+					var s = Inst?.Num.ToString() ?? ".unknown";
+                    return "(" + s + ")";
                 case OpType.Register:
                     return "R" + Val;
                 default:
@@ -142,7 +158,7 @@ namespace compiler.middleend.ir
 				case OpType.Function:
 					return "func-" + IdKey;
 				case OpType.Variable:
-					return "(" + Variable.Name + Variable.Location?.Num + ")";
+					return "(" + Variable + ")";
                 case OpType.Constant:
                     return "#" + Val;
                 case OpType.Identifier:
@@ -154,6 +170,30 @@ namespace compiler.middleend.ir
                     return "R" + Val;
             }
             return "ERROR!!!";
+        }
+
+
+        public Operand OpenOperand()
+        {
+            if (Inst != null &&  Kind == OpType.Instruction)
+            {
+                if (Inst.Op == IrOps.Store)
+                {
+                    if (Inst.Arg2 == Inst.Arg2.Inst.Arg2)
+                        return Inst.Arg1;
+                    return Inst.Arg2?.OpenOperand() ?? this;
+                }
+
+                if (Inst.Op == IrOps.Phi)
+                {
+                    return this;
+
+                }
+            }
+
+
+
+            return Kind == OpType.Variable ? Variable.Value.OpenOperand() : this;
         }
 
 

@@ -142,16 +142,21 @@ namespace compiler.middleend.ir
         {
             return !Equals(left, right);
         }
-
-
-
+        
 
         public string Display(SymbolTable smb)
         {
-            return $"{Num}: {Op} {Arg1.Display(smb)} {Arg2?.Display(smb)}";
+            var a1 = DisplayArg(smb, Arg1);
+            // unconditionalbranches don't have a second arg, so they shouldn't print
+            var a2 = (Op != IrOps.Bra && Op != IrOps.End) ? DisplayArg(smb, Arg2) : string.Empty;
+            return $"{Num}: {Op} {a1} {a2}";
         }
 
-        
+        private static string DisplayArg(SymbolTable smb, Operand arg)
+        {
+            return arg?.Display(smb) ?? "Uninitialized";
+        }
+
         public override string ToString()
         {
             return "" + Num + ": " + Op + " " + Arg1 + " " + Arg2;

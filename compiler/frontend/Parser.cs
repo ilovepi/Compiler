@@ -4,6 +4,7 @@ using System.Linq;
 using compiler.middleend.ir;
 
 using VarTbl = System.Collections.Generic.SortedDictionary<int, compiler.middleend.ir.SsaVariable>;
+using System.Security.Cryptography.X509Certificates;
 
 namespace compiler.frontend
 {
@@ -21,6 +22,9 @@ namespace compiler.frontend
             FunctionsCfgs = new List<Cfg>();
             VarTable = new VarTbl();
         }
+
+
+        public bool CopyPropagationEnabled = true;
 
         public Token Tok { get; set; }
 
@@ -153,6 +157,7 @@ namespace compiler.frontend
             if (variables.ContainsKey(id.IdKey))
             {
 				id = new Operand(variables[id.IdKey]);
+				//id = variables[id.IdKey].Value
                 /*if (temp != null)
                 {
                     id = new Operand(temp);
@@ -177,11 +182,27 @@ namespace compiler.frontend
                 case Token.IDENTIFIER:
                     var des = Designator(variables);
                     instructions.AddRange(des.Instructions);
-                    //Operand arg2 = (instructions.Count == 0) ? null : new Operand(instructions.Last())
+					//Operand arg2 = (instructions.Count == 0) ? null : new Operand(instructions.Last())
+					if (CopyPropagationEnabled &&  des.Operand.Kind == Operand.OpType.Variable)
+					{
+						id = new Operand(des.Operand.Variable.Location);
+						if ( (id.Inst != null) &&  (id.Inst.Op == IrOps.Store))
+						{
 
-                    var baseAddr = new Instruction(IrOps.Load, des.Operand, null);
-                    instructions.Add(baseAddr);
-                    id = new Operand(baseAddr);
+							// TODO: please solve how to do copy propagatin -- next 3 lines
+							//id = new Operand(id.Inst.Arg2.Variable.Location); // doesn't propagate to original value 
+							//id = id.Inst.Arg2.Variable.Value;
+							//id = id.Inst.Arg2.Variable.Location.Arg2.Variable.Value; // kills references to aliased variables
+
+							id = new Operand(id.Inst.Arg2.Variable);
+						}
+					}
+					else
+					{
+						var baseAddr = new Instruction(IrOps.Load, des.Operand, null);
+						instructions.Add(baseAddr);
+						id = new Operand(baseAddr);
+					}
                     factor = new ParseResult(id, instructions, des.VarTable);
                     break;
                 case Token.OPEN_PAREN:
@@ -221,20 +242,19 @@ namespace compiler.frontend
                 // add instructions for the next factor
                 ParseResult factor2 = Factor(locals);
                 instructions.AddRange(factor2.Instructions);
-
-                //TODO: find a good way of making this so we can support immediate actions
+               
                 Operand id;
-                if ((factor2.Operand.Kind == Operand.OpType.Constant) && (factor1.Operand.Kind == Operand.OpType.Constant))
-                {
-                    int arg2 = factor2.Operand.Val;
-                    int arg1 = factor1.Operand.Val;
-                    int res = op == IrOps.Mul ? arg1 * arg2 : arg1 / arg2;
-                    id = new Operand(Operand.OpType.Constant, res);
-                    //var ret = new ParseResult(new Operand(Operand.OpType.Constant, res), new List<Instruction>() );
-                }
-                else
-                {
-                    var newInst = new Instruction(op, factor1.Operand, factor2.Operand);
+				if ((factor2.Operand.Kind == Operand.OpType.Constant) && (factor1.Operand.Kind == Operand.OpType.Constant))
+				{
+					int arg2 = factor2.Operand.Val;
+					int arg1 = factor1.Operand.Val;
+					int res = op == IrOps.Mul ? arg1 * arg2 : arg1 / arg2;
+					id = new Operand(Operand.OpType.Constant, res);
+					//var ret = new ParseResult(new Operand(Operand.OpType.Constant, res), new List<Instruction>() );
+				}
+				else
+				{
+					var newInst = new Instruction(op, factor1.Operand, factor2.Operand);
 
                     // insert new instruction to instruction list
                     instructions.Add(newInst);
@@ -294,31 +314,22 @@ namespace compiler.frontend
 
         public ParseResult Assign(ref VarTbl variables)
         {
-            //List<Instruction> ret = new List<Instruction>();
-
-            //TODO: assign must use SSA, so our designator *MUST* give us access to an SSA variable
-
-
             GetExpected(Token.LET);
 
             ParseResult id = Designator( variables);
 			var locals = variables;
-            //var locals = new VarTbl(id.VarTable);
-            //Instruction curr = ret.Last();
 
             GetExpected(Token.ASSIGN);
 
-            //ret.AddRange(Expression());
-            //Instruction next = ret.Last();
-
             ParseResult expValue = Expression(locals);
-
-            //TODO: Fix this!!!!
 
             // create new instruction
             var newInst = new Instruction(IrOps.Store, expValue.Operand, id.Operand);
             Instruction prev = null;
             string name = Scanner.SymbolTble.Symbols[id.Operand.IdKey];
+
+
+			id.Instructions.AddRange(expValue.Instructions);
 
             Operand arg;
 
@@ -330,12 +341,22 @@ namespace compiler.frontend
                 SsaVariable ssa = new SsaVariable(id.Operand.IdKey, newInst, prev, name);
                 id.Operand.Inst = newInst;
                 id.Operand.Variable = ssa;
-                arg = new Operand(ssa);
+               
                 newInst.Arg2.Inst = newInst;
 
+				// try to use ssa value
+                //ssa.Value = newInst.Arg1;
+				ssa.Value = newInst.Arg1.OpenOperand();
 
+				if (CopyPropagationEnabled && ( ssa.Value.Kind == Operand.OpType.Constant) )
+				{
+					ssa.Value = new Operand(ssa.Location);
+				}
 
                 locals[id.Operand.IdKey] = ssa;
+				//arg = new Operand(ssa);
+				arg = ssa.Value;
+
             }
             else
             {
@@ -343,13 +364,8 @@ namespace compiler.frontend
                 arg = new Operand(newInst);
             }
 
-            id.Instructions.AddRange(expValue.Instructions);
-
             // insert new instruction to instruction list
             id.Instructions.Add(newInst);
-
-			// update current instruction to latest instruction
-			//curr = ret.Last();
 
 			return new ParseResult(arg, id.Instructions, locals);
         }
@@ -367,15 +383,11 @@ namespace compiler.frontend
 
             while ((Tok == Token.FUNCTION) || (Tok == Token.PROCEDURE))
             {
-				
-                // throw away cFG for now
-                //cfg.Insert( FuncDecl() );
                 Cfg func = FuncDecl(new VarTbl(varTble));
                 if (func.Root != null)
                 {
                     FunctionsCfgs.Add(func);
                 }
-                //FuncDecl();
             }
 
             GetExpected(Token.OPEN_CURL);
@@ -643,8 +655,6 @@ namespace compiler.frontend
         {
 			
             var cfg = new Cfg();
-			var dom = new DomTree();
-			ParseTree p = new ParseTree(cfg, dom);
             var bb = new BasicBlock("StatSequence");
             cfg.Root = new Node(bb);
             var stmt = Statement(ref variables);
@@ -769,30 +779,9 @@ namespace compiler.frontend
 
             GetExpected(Token.FI);
 
-            // insert Phi instructions where items from true ssa and false ssa are different
-            foreach (var trueVar in trueSsa)
-            {
-                //throw exception if size is different
-                if ( (trueSsa.Count != falseSsa.Count) || (trueSsa.Count != variables.Count))
-                {
-                    throw new Exception("SSA Variable Tables are different sizes. You added something you shouldnt have.");
-                }
+            AddPhiInstructions(variables, trueSsa, falseSsa, joinBlock, false);
 
-                var falseVar = falseSsa[trueVar.Key];
-                if ( falseVar != trueVar.Value)
-                {
-					var newInst = new Instruction(IrOps.Phi, new Operand(trueVar.Value.Location), new Operand(falseVar.Location));
-                    joinBlock.Bb.Instructions.Add(newInst);
-
-					var temp = new SsaVariable(variables[trueVar.Key]);
-					temp.Location = newInst;
-					// Assume trueSsa and falseSsa are both the same size
-					variables[trueVar.Key] = temp;
-
-                }
-            }
-
-			if (joinBlock.Bb.Instructions.Count == 0)
+            if (joinBlock.Bb.Instructions.Count == 0)
 			{
 				var fakePhi = new Instruction(IrOps.Phi, new Operand(Operand.OpType.Identifier, 0), new Operand(Operand.OpType.Identifier, 0));
 				joinBlock.Bb.Instructions.Add(fakePhi);
@@ -808,7 +797,47 @@ namespace compiler.frontend
 
             return ifBlock;
         }
-        
+
+        private static void AddPhiInstructions(VarTbl variables, VarTbl trueSsa, VarTbl falseSsa, Node phiBlock, bool isLoop)
+        {
+            var phiList = new List<Instruction>();
+            // insert Phi instructions where items from true ssa and false ssa are different
+            foreach (var trueVar in trueSsa)
+            {
+                //throw exception if size is different
+                if ((trueSsa.Count != falseSsa.Count) || (trueSsa.Count != variables.Count))
+                {
+                    throw new Exception("SSA Variable Tables are different sizes. You added something you shouldnt have.");
+                }
+
+                var falseVar = falseSsa[trueVar.Key];
+                if (falseVar != trueVar.Value)
+                {
+                    // This top construction seems to be correct, and should give the best answer, but doesnt
+                    var newInst = new Instruction(IrOps.Phi, trueVar.Value.Value, falseVar?.Value ?? new Operand(falseVar.Location));
+                    //var newInst = new Instruction(IrOps.Phi, new Operand(trueVar.Value.Location), new Operand(falseVar.Location));
+
+                    phiList.Add(newInst);
+                    if (isLoop)
+                    {
+                        FixLoopPhi(phiBlock.Child, newInst);
+
+                    }
+
+                    // use object initializer
+                    var temp = new SsaVariable(variables[trueVar.Key])
+                    {
+                        Location = newInst,
+                        Value = new Operand(newInst)
+                    };
+
+                    // Assume trueSsa and falseSsa are both the same size
+                    variables[trueVar.Key] = temp;
+                }
+            }
+            phiBlock.Bb.InsertInstructionList(0,phiList);
+        }
+
 
         public Cfg WhileStmt(VarTbl variables)
         {
@@ -822,11 +851,7 @@ namespace compiler.frontend
 
             //crate compare block/loop header block
             var compBlock = new WhileNode(new BasicBlock("LoopHeader"));
-            /*
-            // TODO: Correct placeholder Phi Instruction
-            compBlock.Bb.AddInstruction(new Instruction(IrOps.Phi, new Operand(Operand.OpType.Identifier, 0),
-                new Operand(Operand.OpType.Identifier, 0)));
-                */
+
             // insert compare block for while stmt
             whileBlock.Insert(compBlock);
 
@@ -841,10 +866,10 @@ namespace compiler.frontend
 
             Node loopBlock = stmts.Root;
             loopBlock.Consolidate();
+
             Node last = loopBlock.Leaf();
             last.Bb.AddInstruction(new Instruction(IrOps.Bra, new Operand(compBlock.GetNextInstruction()), null));
 
-            //TODO: try to refactor so that we don't have to insert on the false branch
             // insert the loop body on the true path
             compBlock.InsertTrue(loopBlock);
 
@@ -858,31 +883,7 @@ namespace compiler.frontend
 
             compBlock.InsertFalse(followBlock);
 
-
-
-            // insert Phi instructions where items from true ssa and false ssa are different
-            foreach (var loopVar in loopSsa)
-            {
-                //throw exception if size is different
-                if ((loopSsa.Count != headerSsa.Count) || (loopSsa.Count != variables.Count))
-                {
-                    throw new Exception("SSA Variable Tables are different sizes. You added something you shouldnt have.");
-                }
-
-                var headerVar = headerSsa[loopVar.Key];
-                if (headerVar != loopVar.Value)
-                {
-                    var newInst = new Instruction(IrOps.Phi, new Operand(loopVar.Value.Location), new Operand(headerVar.Location));
-                    compBlock.Bb.Instructions.Insert(0,newInst);
-
-                    var temp = new SsaVariable(variables[loopVar.Key]);
-                    temp.Location = newInst;
-                    // Assume trueSsa and falseSsa are both the same size
-                    variables[loopVar.Key] = temp;
-
-                }
-            }
-
+            AddPhiInstructions(variables, loopSsa, headerSsa, compBlock, true);
 
             //TODO: remove placeholder instruction and do something smarter
             followBlock.Bb.AddInstruction(new Instruction(IrOps.Phi, new Operand(Operand.OpType.Identifier, 0),
@@ -900,6 +901,98 @@ namespace compiler.frontend
 
             return whileBlock;
         }
+
+		// TODO: Loops must have the instructions referenced in their phi's updated
+		public static void FixLoopPhi(Node n, Instruction phi)
+		{
+			var visited = new HashSet<Node>();
+			LoopFix(n,phi, visited);
+		}
+
+
+		public static void LoopFix(Node n, Instruction phi, HashSet<Node> visited)
+		{
+			// base case
+			if (visited.Contains(n) || n == null)
+			{
+				return;
+			}
+
+			// recursive case
+			visited.Add(n);
+
+			// loop through instructions looking for places to replace ref with phi instructions
+			foreach (var inst in n.Bb.Instructions)
+			{
+				if (inst.Num != phi.Num)
+				{
+					if ( (CheckOperand(inst.Arg1, phi.Arg1)) || (CheckOperand(inst.Arg1, phi.Arg2)) )
+					{
+						inst.Arg1 = new Operand(phi);
+					}
+
+					if ( (CheckOperand(inst.Arg2, phi.Arg1)) || (CheckOperand(inst.Arg2, phi.Arg2)))
+					{
+					    if (inst.Op != IrOps.Store)
+					    {
+					        inst.Arg2 = new Operand(phi);
+					    }
+					}
+				}
+
+			}
+
+			var children = n.GetAllChildren();
+			foreach (var child in children)
+			{
+				LoopFix(child, phi, visited);
+			}
+		}
+
+		public static bool CheckOperand(Operand checkedOp, Operand phiArg)
+		{
+			if (checkedOp == phiArg)
+			{
+			    return true;
+			}
+
+		    if (checkedOp == null)
+		    {
+		        return false;
+		    }
+
+		    if (checkedOp.Kind == Operand.OpType.Variable)
+			{
+				if (checkedOp.Variable.Location == phiArg?.Inst )
+				{
+				    return true;
+				}
+			}
+			return false;
+		}
+
+
+		public Tuple<BasicBlock, int> FindInstruction(Instruction inst, Node n)
+		{
+			if(n == null)
+				return null;
+
+			var instList = n.Bb.Instructions;
+
+			for (int i = 0; i < instList.Count; i++)
+			{
+
+			
+				if (inst == instList[i])
+				{
+					return new Tuple<BasicBlock, int>(n.Bb, i);
+				}
+
+			}
+
+			return FindInstruction(inst, n.Parent);
+
+		}
 
 
         //TODO: Maybe pass in a return address?

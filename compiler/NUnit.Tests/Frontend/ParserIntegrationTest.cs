@@ -1,7 +1,10 @@
+using System;
 using System.IO;
 using compiler.frontend;
 using compiler.middleend.ir;
 using NUnit.Framework;
+using System.Linq;
+
 
 namespace NUnit.Tests.Frontend
 {
@@ -46,28 +49,24 @@ namespace NUnit.Tests.Frontend
         {
             string filename = TestContext.CurrentContext.TestDirectory + pFilename;
 
-            using (var p = new Parser(filename))
-            {
-                p.Parse();
+			using (var p = new Parser(filename))
+			{
+				p.Parse();
 
-                //using (var file = new StreamWriter("graph.dot"))
-                {
-                    //*
-                    //file.WriteLine("digraph G{\n");
-                    int i = 0;
-                    foreach (Cfg func in p.FunctionsCfgs)
-                    {
-                        func.Sym = p.Scanner.SymbolTble;
-                        func.GenerateDotOutput(i++);
-						var d = DominatorNode.convertCfg(func);
-						var l = d.printTreeGraph(i++, func.Sym);
-
-                      //  file.WriteLine(func.DotOutput);
-                    }
-                  //  file.WriteLine("\n}");
-                }
-            }
-            // Assert.Fail("Test and class not implemented ...");
+				int i = 0;
+				foreach (Cfg func in p.FunctionsCfgs)
+				{
+					func.Sym = p.Scanner.SymbolTble;
+					func.GenerateDotOutput(i++);
+					var d = DominatorNode.convertCfg(func);
+					var l = d.printTreeGraph(i++, func.Sym);
+					if (l.Length == 0)
+					{
+						throw new Exception("Dominator Tree failed to Generate");
+					}
+				}
+			}
+                  
         }
     }
 }
