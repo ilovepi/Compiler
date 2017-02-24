@@ -174,7 +174,7 @@ namespace compiler.middleend.ir
 
         public Operand OpenOperand()
         {
-            if (Inst != null &&  Kind == OpType.Instruction)
+            if ((Inst != null) &&  (Kind == OpType.Instruction))
             {
                 if (Inst.Op == IrOps.Store)
                 {

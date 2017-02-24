@@ -48,8 +48,8 @@ namespace compiler.middleend.optimization
             // can't mutate a list while we're iterating through it so delay removal till here
             foreach (Instruction instruction in removalList)
             {
+                //root.Bb.AnchorBlock.FindOpChain(instruction.Op).RemoveAll(instruction.ExactMatch);
                 root.Bb.Instructions.RemoveAll(instruction.ExactMatch);
-                root.Bb.AnchorBlock.FindOpChain(instruction.Op).RemoveAll(instruction.ExactMatch);
             }
 
 

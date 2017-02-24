@@ -196,7 +196,6 @@ namespace compiler.middleend.ir
 
         public void ReplaceInst(Instruction newInst)
         {
-
             foreach (Operand operand in Uses)
             {
                 // TODO: this may need to be verified

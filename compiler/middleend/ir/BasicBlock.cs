@@ -79,7 +79,7 @@ namespace compiler.middleend.ir
                         return null;
                     }
 
-                    if (item.Equals(ins) && (item.Num != ins.Num))
+                    if (item.Equals(ins) )
                     {
                         return item;
                     }

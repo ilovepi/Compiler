@@ -4,6 +4,7 @@ using compiler.frontend;
 using compiler.middleend.ir;
 using NUnit.Framework;
 using System.Linq;
+using compiler.middleend.optimization;
 
 
 namespace NUnit.Tests.Frontend
@@ -57,7 +58,9 @@ namespace NUnit.Tests.Frontend
 				foreach (Cfg func in p.FunctionsCfgs)
 				{
 					func.Sym = p.Scanner.SymbolTble;
-					func.GenerateDotOutput(i++);
+                    CopyPropagation.Propagate(func.Root);
+                    CsElimination.Eliminate(func.Root);
+                    func.GenerateDotOutput(i++);
 					var d = DominatorNode.convertCfg(func);
 					var l = d.printTreeGraph(i++, func.Sym);
 					if (l.Length == 0)
