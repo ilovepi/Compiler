@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using compiler.middleend.ir;
+using compiler.middleend.optimization;
 
 namespace NUnit.Tests.MiddleEnd
 {
@@ -44,7 +45,10 @@ namespace NUnit.Tests.MiddleEnd
 
 
             graphCfg.Root.Insert(new Node(new BasicBlock("Child Block")));
-            //graphCfg.Root.Child.Bb.AddInstruction(inst2);
+            graphCfg.Root.Child.Bb.AddInstruction(inst2);
+            CsElimination.Eliminate(graphCfg.Root);
+
+
             //graphCfg.Root.Insert(new Node(new BasicBlock("Child Block 2")));
             //graphCfg.Root.Insert(new Node(new BasicBlock("Child Block 2")));
 

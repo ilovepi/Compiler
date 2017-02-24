@@ -37,7 +37,7 @@ namespace compiler.middleend.ir
         {
             foreach (List<Instruction> sublist in Oplist)
             {
-                if (sublist.Count >0 && sublist.First().Op == key)
+                if ((sublist.Count > 0) && (sublist.First().Op == key))
                 {
                     return sublist;
                 }
