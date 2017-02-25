@@ -5,10 +5,6 @@ namespace compiler.middleend.optimization
 {
 	public class CopyPropagation
 	{
-		public CopyPropagation()
-		{
-		}
-
 	    private static HashSet<Node> _visited = null;
 
 		public static void Propagate(Node root)
