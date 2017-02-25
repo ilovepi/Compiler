@@ -22,7 +22,7 @@ namespace Program
                     foreach (Cfg func in p.FunctionsCfgs)
                     {
                         CopyPropagation.Propagate(func.Root);
-                        //CsElimination.Eliminate(func.Root);
+                        CsElimination.Eliminate(func.Root);
                         func.Sym = p.Scanner.SymbolTble;
                         func.GenerateDotOutput(i++);
                         file.WriteLine(func.DotOutput);
@@ -38,7 +38,6 @@ namespace Program
 					{
 						func.Sym = p.Scanner.SymbolTble;
 						var d = DominatorNode.convertCfg(func);
-
 						file.WriteLine(d.printTreeGraph(i++, func.Sym));
 					}
 					file.WriteLine("\n}");

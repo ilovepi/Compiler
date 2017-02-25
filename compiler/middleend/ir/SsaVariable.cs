@@ -3,15 +3,7 @@ namespace compiler.middleend.ir
 {
     public class SsaVariable
     {
-        public SsaVariable()
-        {
-            Name = null;
-            Prev = null;
-            Location = null;
-			Value = null;
-            UuId = 0;
-        }
-
+       
 		public SsaVariable(SsaVariable other)
 		{
 			Name = other.Name;
