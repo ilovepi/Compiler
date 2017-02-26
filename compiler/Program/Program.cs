@@ -38,7 +38,6 @@ namespace Program
 					{
 						func.Sym = p.Scanner.SymbolTble;
 						var d = DominatorNode.convertCfg(func);
-
 						file.WriteLine(d.printTreeGraph(i++, func.Sym));
 					}
 					file.WriteLine("\n}");
