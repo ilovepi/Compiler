@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-
 using VarTbl = System.Collections.Generic.SortedDictionary<int, compiler.middleend.ir.SsaVariable>;
 
 
@@ -7,12 +6,6 @@ namespace compiler.middleend.ir
 {
     public class ParseResult
     {
-        public Operand Operand { get; set; }
-
-        public List<Instruction> Instructions { get; set; }
-
-        public VarTbl VarTable { get; set; }
-
         public ParseResult()
         {
             Operand = null;
@@ -20,7 +13,7 @@ namespace compiler.middleend.ir
             VarTable = new VarTbl(new VarTbl());
         }
 
-        public ParseResult(VarTbl symTble )
+        public ParseResult(VarTbl symTble)
         {
             Operand = null;
             Instructions = null;
@@ -34,6 +27,10 @@ namespace compiler.middleend.ir
             VarTable = new VarTbl(pSymTble);
         }
 
+        public Operand Operand { get; set; }
 
+        public List<Instruction> Instructions { get; set; }
+
+        public VarTbl VarTable { get; set; }
     }
 }
