@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using compiler.frontend;
 
 namespace compiler.middleend.ir
@@ -11,21 +12,22 @@ namespace compiler.middleend.ir
         /// </summary>
         public static int InstructionCounter;
 
-		public Instruction(Instruction other)
-		{
-			if (other != null)
-			{
-				Num = other.Num;
-			    Op = other.Op;
-				Arg1 = other.Arg1;
-				Arg2 = other.Arg2;
-				LiveRange = other.LiveRange;
+        public Instruction(Instruction other)
+        {
+            if (other != null)
+            {
+                Num = other.Num;
+                Op = other.Op;
+                Arg1 = other.Arg1;
+                Arg2 = other.Arg2;
+                LiveRange = other.LiveRange;
 
-				Prev = other.Prev;
-				Next = other.Next;
-				Search = other.Search;
-			}
-		}
+                Prev = other.Prev;
+                Next = other.Next;
+                Search = other.Search;
+                Uses = other.Uses;
+            }
+        }
 
 
         public Instruction(IrOps pOp, Operand pArg1, Operand pArg2)
@@ -37,12 +39,17 @@ namespace compiler.middleend.ir
             Arg1 = pArg1;
             Arg2 = pArg2;
 
+            AddRefs();
+
             LiveRange = new HashSet<Instruction>();
 
             Prev = null;
             Next = null;
             Search = null;
+            Uses = new List<Operand>();
         }
+
+        public List<Operand> Uses { get; set; }
 
         /// <summary>
         ///     The Instruction number
@@ -71,12 +78,12 @@ namespace compiler.middleend.ir
         /// <summary>
         ///     Linked list pointer to the previous instruction
         /// </summary>
-        private Instruction Prev { get; set; }
+        private Instruction Prev { get; }
 
         /// <summary>
         ///     Linked list pointer to the next instruction
         /// </summary>
-        private Instruction Next { get; set; }
+        private Instruction Next { get; }
 
         /// <summary>
         ///     Pointer to the next Instruction of the same type (op)
@@ -101,6 +108,30 @@ namespace compiler.middleend.ir
                 return true;
             }
             return (Op == other.Op) && Equals(Arg1, other.Arg1) && Equals(Arg2, other.Arg2);
+        }
+
+
+        private void AddRefs()
+        {
+            AddInstructionRef(Arg1);
+            AddInstructionRef(Arg2);
+        }
+
+        public void AddInstructionRef(Operand op)
+        {
+            if (op == null)
+            {
+                return;
+            }
+
+            if (op.Kind == Operand.OpType.Instruction)
+            {
+                op.Inst?.Uses.Add(op);
+            }
+            else if (op.Kind == Operand.OpType.Variable)
+            {
+                op.Variable.Location?.Uses.Add(op);
+            }
         }
 
         public override bool Equals(object obj)
@@ -144,18 +175,37 @@ namespace compiler.middleend.ir
         }
 
 
-
-
         public string Display(SymbolTable smb)
         {
-            return $"{Num}: {Op} {Arg1.Display(smb)} {Arg2?.Display(smb)}";
+            string a1 = DisplayArg(smb, Arg1);
+            // unconditionalbranches don't have a second arg, so they shouldn't print
+            string a2 = (Op != IrOps.Bra) && ((Op != IrOps.End) && (Op != IrOps.Load)) ? DisplayArg(smb, Arg2) : string.Empty;
+            return $"{Num}: {Op} {a1} {a2}";
         }
 
-        
+        private static string DisplayArg(SymbolTable smb, Operand arg)
+        {
+            return arg?.Display(smb) ?? "Uninitialized Arg";
+        }
+
         public override string ToString()
         {
             return "" + Num + ": " + Op + " " + Arg1 + " " + Arg2;
         }
 
+
+        public void ReplaceInst(Instruction newInst)
+        {
+            foreach (Operand operand in Uses)
+            {
+                // TODO: this may need to be verified
+                operand.Inst = newInst;
+            }
+        }
+
+        public bool ExactMatch(Instruction other)
+        {
+            return (other.Num == Num) && Equals(other);
+        }
     }
 }

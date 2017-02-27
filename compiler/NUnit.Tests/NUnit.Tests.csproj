@@ -39,7 +39,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Frontend\LexerTest.cs" />
-    <Compile Include="Frontend\ParserIntegrationTest.cs" />
+    <Compile Include="IntegrationTest.cs" />
     <Compile Include="Frontend\ParserUnitTest.cs" />
     <Compile Include="Frontend\SymbolTableTest.cs" />
     <Compile Include="MiddleEnd\BasicBlockTests.cs" />

@@ -19,7 +19,7 @@ namespace NUnit.Tests.Frontend
             Table = null;
         }
 
-        public SymbolTable Table { get; set; }
+        private SymbolTable Table { get; set; }
 
 
         [Test]

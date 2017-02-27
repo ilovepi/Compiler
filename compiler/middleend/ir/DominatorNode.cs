@@ -1,22 +1,24 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-
 using compiler.frontend;
-using System;
 
 namespace compiler.middleend.ir
 {
     public class DominatorNode : IEquatable<DominatorNode>
     {
         /// <summary>
+        ///     The Global set of visited nodes
+        /// </summary>
+        public static HashSet<Node> Visited;
+
+        /// <summary>
         ///     The Nodes which this basic block directly dominates
         /// </summary>
         public List<DominatorNode> Children;
 
-		/// <summary>
-		/// The Global set of visited nodes
-		/// </summary>
-		public static HashSet<Node> Visited;
+
+        public string Colorname;
 
 
         /// <summary>
@@ -30,9 +32,6 @@ namespace compiler.middleend.ir
             Children = new List<DominatorNode>();
         }
 
-
-		public string Colorname;
-
         /// <summary>
         ///     The basic block of the node
         /// </summary>
@@ -42,6 +41,39 @@ namespace compiler.middleend.ir
         ///     The parent of this node
         /// </summary>
         public DominatorNode Parent { get; set; }
+
+        public bool Equals(DominatorNode other)
+        {
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            if (other.Children.Count != Children.Count)
+            {
+                return false;
+            }
+
+            if (Bb != other.Bb)
+            {
+                return false;
+            }
+
+            for (var i = 0; i < Children.Count; i++)
+            {
+                if (Children[i] != other.Children[i])
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
 
 
         /// <summary>
@@ -83,157 +115,129 @@ namespace compiler.middleend.ir
         }
 
 
-		/// <summary>
-		/// Creates a Dominator Tree from a Control Flow Graph
-		/// </summary>
-		/// <returns>A new Dominator tree for the CFG</returns>
-		/// <param name="controlFlow">Control flow graph.</param>
-		public static DomTree convertCfg(Cfg controlFlow)
-		{
-			Visited = new HashSet<Node>();
-			DomTree d = new DomTree();
-			d.Root = controlFlow.Root.convertNode();
-			d.Name = controlFlow.Name;
+        /// <summary>
+        ///     Creates a Dominator Tree from a Control Flow Graph
+        /// </summary>
+        /// <returns>A new Dominator tree for the CFG</returns>
+        /// <param name="controlFlow">Control flow graph.</param>
+        public static DomTree ConvertCfg(Cfg controlFlow)
+        {
+            Visited = new HashSet<Node>();
+            var d = new DomTree
+            {
+                Root = controlFlow.Root.ConvertNode(),
+                Name = controlFlow.Name
+            };
 
-			return d;
-		}
-
-	
-		/// <summary>
-		/// Inserts a node if it isn't null
-		/// </summary>
-		/// <param name="n">A child of the current node</param>
-		public void testInsert(Node n)
-		{
-			if (n == null)
-				return;
-			
-			if (!Visited.Contains(n))
-			{
-				Visited.Add(n);
-				InsertChild(n.convertNode());
-			}
-		}
+            return d;
+        }
 
 
-		public string printGraphNode(SymbolTable Sym)
-		{
-			string local = string.Empty;
+        /// <summary>
+        ///     Inserts a node if it isn't null
+        /// </summary>
+        /// <param name="n">A child of the current node</param>
+        public void TestInsert(Node n)
+        {
+            if (n == null)
+            {
+                return;
+            }
 
-			local += DotId() + "[label=\"{" + DotLabel(Sym) + "\\l}\",fillcolor=" + Colorname + "]\n";
-			foreach (var child in Children)
-			{
-				local += DotId() + "->" + child.DotId() + "\n";
-			}
-
-
-			foreach (var child in Children)
-			{
-				local += child.printGraphNode(Sym);
-			}
-
-			return local;
-		}
-
-
-		public void walk(Action<Action<DominatorNode>, DominatorNode> traversal, Action<DominatorNode> visitor)
-		{
-			traversal(visitor, this);
-		}
-
-		public static void StaticPreOrder(Action<DominatorNode> visitor, DominatorNode n)
-		{
-			visitor(n);
-			foreach (var child in n.Children)
-			{
-				StaticPreOrder(visitor, child);
-			}
-		}
+            if (!Visited.Contains(n))
+            {
+                Visited.Add(n);
+                InsertChild(n.ConvertNode());
+            }
+        }
 
 
-		public static void StaticPostOrder(Action<DominatorNode> visitor, DominatorNode n)
-		{
-			
-			foreach (var child in n.Children)
-			{
-				StaticPostOrder(visitor, child);
-			}
+        public string PrintGraphNode(SymbolTable Sym)
+        {
+            string local = string.Empty;
 
-			visitor(n);
-		}
-
-
-		/// <summary>
-		/// Preorder the specified visitor.
-		/// </summary>
-		/// <returns>The preorder.</returns>
-		/// <param name="visitor">Visitor.</param>
-		public void Preorder(Action<DominatorNode> visitor)
-		{
-			visitor(this);
-			foreach (var child in Children)
-			{
-				child.Preorder(visitor);
-			}
-		}
+            local += DotId() + "[label=\"{" + DotLabel(Sym) + "\\l}\",fillcolor=" + Colorname + "]\n";
+            foreach (DominatorNode child in Children)
+            {
+                local += DotId() + "->" + child.DotId() + "\n";
+            }
 
 
-		/// <summary>
-		/// Dots the identifier.
-		/// </summary>
-		/// <returns>The identifier.</returns>
-		public string DotId()
-		{
-			string ret = Bb.Name;
-			if(Bb.Instructions.Count != 0)
-				ret += Bb.Instructions.First().Num;
-			return ret;
-		}
+            foreach (DominatorNode child in Children)
+            {
+                local += child.PrintGraphNode(Sym);
+            }
 
-		public string DotLabel(SymbolTable pSymbolTable)
-		{
-			string label = Bb.Name;
-			int slot = 0;
+            return local;
+        }
 
-			foreach (Instruction inst in Bb.Instructions)
-			{
-				label += " \\l| <i" + (slot++) + ">" + inst.Display(pSymbolTable);
-			}
 
-			return label;
-		}
+        public void Walk(Action<Action<DominatorNode>, DominatorNode> traversal, Action<DominatorNode> visitor)
+        {
+            traversal(visitor, this);
+        }
 
-		public bool Equals(DominatorNode other)
-		{
-			if (ReferenceEquals(null, other))
-			{
-				return false;
-			}
+        public static void StaticPreOrder(Action<DominatorNode> visitor, DominatorNode n)
+        {
+            visitor(n);
+            foreach (DominatorNode child in n.Children)
+            {
+                StaticPreOrder(visitor, child);
+            }
+        }
 
-			if (ReferenceEquals(this, other))
-			{
-				return true;
-			}
 
-			if (other.Children.Count != Children.Count)
-			{
-				return false;
-			}
+        public static void StaticPostOrder(Action<DominatorNode> visitor, DominatorNode n)
+        {
+            foreach (DominatorNode child in n.Children)
+            {
+                StaticPostOrder(visitor, child);
+            }
 
-			if (Bb != other.Bb)
-			{
-				return false;
-			}
+            visitor(n);
+        }
 
-			for (int i = 0; i < Children.Count; i++)
-			{
-				if (Children[i] != other.Children[i])
-				{
-					return false;
-				}
-			}
 
-			return true;
-		}
-	}
+        /// <summary>
+        ///     Preorder the specified visitor.
+        /// </summary>
+        /// <returns>The preorder.</returns>
+        /// <param name="visitor">Visitor.</param>
+        public void Preorder(Action<DominatorNode> visitor)
+        {
+            visitor(this);
+            foreach (DominatorNode child in Children)
+            {
+                child.Preorder(visitor);
+            }
+        }
+
+
+        /// <summary>
+        ///     Dots the identifier.
+        /// </summary>
+        /// <returns>The identifier.</returns>
+        public string DotId()
+        {
+            string ret = Bb.Name;
+            if (Bb.Instructions.Count != 0)
+            {
+                ret += Bb.Instructions.First().Num;
+            }
+            return ret;
+        }
+
+        public string DotLabel(SymbolTable pSymbolTable)
+        {
+            string label = Bb.Name;
+            var slot = 0;
+
+            foreach (Instruction inst in Bb.Instructions)
+            {
+                label += " \\l| <i" + slot++ + ">" + inst.Display(pSymbolTable);
+            }
+
+            return label;
+        }
+    }
 }

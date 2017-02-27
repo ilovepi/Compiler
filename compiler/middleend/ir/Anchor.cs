@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace compiler.middleend.ir
 {
@@ -36,7 +37,7 @@ namespace compiler.middleend.ir
         {
             foreach (List<Instruction> sublist in Oplist)
             {
-                if (sublist[0].Op == key)
+                if ((sublist.Count > 0) && (sublist.First().Op == key))
                 {
                     return sublist;
                 }

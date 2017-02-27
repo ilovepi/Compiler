@@ -1,15 +1,10 @@
-using System;
-using System.IO;
-using compiler.frontend;
-using compiler.middleend.ir;
+using compiler;
 using NUnit.Framework;
-using System.Linq;
 
-
-namespace NUnit.Tests.Frontend
+namespace NUnit.Tests
 {
     [TestFixture]
-    public class ParserIntegrationTest
+    public class IntegrationTest
     {
         [TestCase(@"/Frontend/testdata/test001.txt")]
         [TestCase(@"/Frontend/testdata/test002.txt")]
@@ -48,25 +43,7 @@ namespace NUnit.Tests.Frontend
         public void TokenizingTest(string pFilename)
         {
             string filename = TestContext.CurrentContext.TestDirectory + pFilename;
-
-			using (var p = new Parser(filename))
-			{
-				p.Parse();
-
-				int i = 0;
-				foreach (Cfg func in p.FunctionsCfgs)
-				{
-					func.Sym = p.Scanner.SymbolTble;
-					func.GenerateDotOutput(i++);
-					var d = DominatorNode.convertCfg(func);
-					var l = d.printTreeGraph(i++, func.Sym);
-					if (l.Length == 0)
-					{
-						throw new Exception("Dominator Tree failed to Generate");
-					}
-				}
-			}
-                  
+            Compiler.TestRun(filename);
         }
     }
 }

@@ -23,7 +23,9 @@
         Bgt,
         Read,
         Write,
-        WriteNl
+        WriteNl,
+        Kill,
+        Ssa
     }
 
 

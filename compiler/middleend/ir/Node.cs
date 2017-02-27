@@ -128,7 +128,7 @@ namespace compiler.middleend.ir
             }
             return Child.Leaf();
         }
-        
+
 
         public virtual List<Node> GetAllChildren()
         {
@@ -145,7 +145,7 @@ namespace compiler.middleend.ir
 
             CircularRef(Child);
 
-            if (Child.GetType() == typeof(Node) )
+            if (Child.GetType() == typeof(Node))
             {
                 Bb.AddInstructionList(Child.Bb.Instructions);
 
@@ -193,7 +193,7 @@ namespace compiler.middleend.ir
                 }
                 return Bb.Instructions.Last();
             }
-            var ret = Child.GetLastInstruction();
+            Instruction ret = Child.GetLastInstruction();
             if (ret == null)
             {
                 if (Bb.Instructions.Count == 0)
@@ -213,11 +213,11 @@ namespace compiler.middleend.ir
         public string DotLabel(SymbolTable pSymbolTable)
         {
             string label = Bb.Name;
-            int slot = 0;
+            var slot = 0;
 
             foreach (Instruction inst in Bb.Instructions)
             {
-                label += " \\l| <i"+ (slot++)  +">" + inst.Display(pSymbolTable);
+                label += " \\l| <i" + slot++ + ">" + inst.Display(pSymbolTable);
             }
 
             return label;
@@ -225,30 +225,21 @@ namespace compiler.middleend.ir
 
         public virtual Instruction AnchorSearch(Instruction ins)
         {
-            
             if (IsRoot())
             {
                 return Bb.Search(ins);
             }
-            else
-            {
-                var res = Bb.Search(ins);
-                return res ?? Parent.AnchorSearch(ins);
-            }
-
-
+            Instruction res = Bb.Search(ins);
+            return res ?? Parent.AnchorSearch(ins);
         }
 
 
-		public virtual DominatorNode convertNode()
-		{
-			DominatorNode d = new DominatorNode(Bb);
-			d.testInsert(Child);
-			d.Colorname = Colorname;
-
-			return d;
-		}
-
-
+        public virtual DominatorNode ConvertNode()
+        {
+            var d = new DominatorNode(Bb);
+            d.TestInsert(Child);
+            d.Colorname = Colorname;
+            return d;
+        }
     }
 }
