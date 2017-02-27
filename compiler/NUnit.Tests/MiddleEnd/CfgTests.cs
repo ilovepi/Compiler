@@ -7,14 +7,14 @@ namespace NUnit.Tests.MiddleEnd
     [TestFixture]
     public class CfgTests
     {
+        private Cfg TestCfg { get; set; }
+
         [SetUp]
         public void Init()
         {
             TestCfg = new Cfg(new SymbolTable());
         }
-
-        public Cfg TestCfg { get; set; }
-
+        
         [Test]
         public void TestMethod()
         {

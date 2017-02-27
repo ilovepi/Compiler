@@ -19,11 +19,11 @@ namespace NUnit.Tests.MiddleEnd
             Inst3 = new Instruction(IrOps.Bra, new Operand(Inst1), null);
         }
 
-        public Instruction Inst1 { get; set; }
+        private Instruction Inst1 { get; set; }
 
-        public Instruction Inst2 { get; set; }
+        private Instruction Inst2 { get; set; }
 
-        public Instruction Inst3 { get; set; }
+        private Instruction Inst3 { get; set; }
 
         [Test]
         public void EqualsNotEqualTest()

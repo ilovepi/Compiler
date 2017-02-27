@@ -9,20 +9,17 @@ namespace compiler.frontend
     public class Parser : IDisposable
     {
         private readonly string _filename;
-
-
-        public bool CopyPropagationEnabled;
+        private readonly bool _copyPropagationEnabled;
 
         public Parser(string pFileName, bool pCopyPropEnabled)
         {
             _filename = pFileName;
+            _copyPropagationEnabled = pCopyPropEnabled;
             Tok = Token.UNKNOWN;
             Scanner = new Lexer(_filename);
             ProgramCfg = new Cfg();
-            Dom = new DomTree();
             FunctionsCfgs = new List<Cfg>();
             VarTable = new VarTbl();
-            CopyPropagationEnabled = pCopyPropEnabled;
         }
 
         public Token Tok { get; set; }
@@ -36,8 +33,6 @@ namespace compiler.frontend
         public int CurrAddress { get; set; }
 
         public VarTbl VarTable { get; set; }
-
-        public DomTree Dom { get; set; }
 
 
         /// <summary>
@@ -91,7 +86,7 @@ namespace compiler.frontend
             }
         }
 
-        public void FatalError()
+        private void FatalError()
         {
             throw ParserException.CreateParserException(Tok, LineNo, Pos, _filename);
         }
@@ -165,7 +160,7 @@ namespace compiler.frontend
             return new ParseResult(id, instructions, variables);
         }
 
-        public ParseResult Factor(VarTbl variables)
+        private ParseResult Factor(VarTbl variables)
         {
             ParseResult factor;
             var instructions = new List<Instruction>();
@@ -181,12 +176,12 @@ namespace compiler.frontend
                     ParseResult des = Designator(variables);
                     instructions.AddRange(des.Instructions);
                     //Operand arg2 = (instructions.Count == 0) ? null : new Operand(instructions.Last())
-                    if (CopyPropagationEnabled && (des.Operand.Kind == Operand.OpType.Variable))
+                    if (_copyPropagationEnabled && (des.Operand.Kind == Operand.OpType.Variable))
                     {
                         id = new Operand(des.Operand.Variable.Location);
                         if ((id.Inst != null) && (id.Inst.Op == IrOps.Store))
                         {
-                            // TODO: please solve how to do copy propagatin -- next 3 lines
+                            // TODO: please solve how to do copy propagation -- next 3 lines
                             //id = new Operand(id.Inst.Arg2.Variable.Location); // doesn't propagate to original value 
                             //id = id.Inst.Arg2.Variable.Value;
                             //id = id.Inst.Arg2.Variable.Location.Arg2.Variable.Value; // kills references to aliased variables
@@ -221,7 +216,7 @@ namespace compiler.frontend
         }
 
 
-        public ParseResult Term(VarTbl variables)
+        private ParseResult Term(VarTbl variables)
         {
             ParseResult factor1 = Factor(variables);
             List<Instruction> instructions = factor1.Instructions;
@@ -266,7 +261,7 @@ namespace compiler.frontend
         }
 
 
-        public ParseResult Expression(VarTbl variables)
+        private ParseResult Expression(VarTbl variables)
         {
             ParseResult term1 = Term(variables);
             Operand id = term1.Operand;
@@ -310,7 +305,7 @@ namespace compiler.frontend
             return term1;
         }
 
-        public ParseResult Assign(ref VarTbl variables)
+        private ParseResult Assign(ref VarTbl variables)
         {
             GetExpected(Token.LET);
 
@@ -347,7 +342,7 @@ namespace compiler.frontend
                 //ssa.Value = newInst.Arg1;
                 ssa.Value = newInst.Arg1.OpenOperand();
 
-                if (CopyPropagationEnabled && (ssa.Value.Kind == Operand.OpType.Constant))
+                if (_copyPropagationEnabled && (ssa.Value.Kind == Operand.OpType.Constant))
                 {
                     ssa.Value = new Operand(ssa.Location);
                 }
@@ -368,7 +363,7 @@ namespace compiler.frontend
             return new ParseResult(arg, id.Instructions, locals);
         }
 
-        public Cfg Computation(VarTbl varTble)
+        private Cfg Computation(VarTbl varTble)
         {
             GetExpected(Token.MAIN);
 
@@ -402,7 +397,7 @@ namespace compiler.frontend
             return cfg;
         }
 
-        public ParseResult Relation(VarTbl variables)
+        private ParseResult Relation(VarTbl variables)
         {
             ParseResult leftVal = Expression(variables);
             // copy instructions from first expression
@@ -461,7 +456,7 @@ namespace compiler.frontend
             return new ParseResult(new Operand(branch), instructions, variables);
         }
 
-        public Operand Identifier()
+        private Operand Identifier()
         {
             int id = Scanner.Id;
             GetExpected(Token.IDENTIFIER);
@@ -477,13 +472,13 @@ namespace compiler.frontend
         }
 
 
-        public int NextAddress()
+        private int NextAddress()
         {
             //TODO: implement this function
             return 0;
         }
 
-        public Operand Num()
+        private Operand Num()
         {
             GetExpected(Token.NUMBER);
 
@@ -492,7 +487,7 @@ namespace compiler.frontend
         }
 
 
-        public VarTbl VarDecl(VarTbl varTble)
+        private VarTbl VarDecl(VarTbl varTble)
         {
             // TODO: allocate variables here
             int size = TypeDecl();
@@ -516,7 +511,7 @@ namespace compiler.frontend
             return varTble;
         }
 
-        public int TypeDecl()
+        private int TypeDecl()
         {
             // TODO: determine size of allocation required
             var size = 4;
@@ -554,7 +549,7 @@ namespace compiler.frontend
             return size;
         }
 
-        public Cfg FuncDecl(VarTbl variables)
+        private Cfg FuncDecl(VarTbl variables)
         {
             var cfg = new Cfg();
 
@@ -591,7 +586,7 @@ namespace compiler.frontend
             return cfg;
         }
 
-        public Cfg FuncBody(VarTbl ssaTable)
+        private Cfg FuncBody(VarTbl ssaTable)
         {
             Cfg cfg = null;
             while ((Tok == Token.VAR) || (Tok == Token.ARRAY))
@@ -613,7 +608,7 @@ namespace compiler.frontend
         }
 
 
-        public Cfg Statement(ref VarTbl variables)
+        private Cfg Statement(ref VarTbl variables)
         {
             //TODO: CFG has trouble adding to new blocks, or inserting into CFG
             var cfgTemp = new Cfg {Root = new Node(new BasicBlock("StatementBlock"))};
@@ -649,7 +644,7 @@ namespace compiler.frontend
         }
 
 
-        public Cfg StatementSequence(ref VarTbl variables)
+        private Cfg StatementSequence(ref VarTbl variables)
         {
             var cfg = new Cfg();
             var bb = new BasicBlock("StatSequence");
@@ -687,7 +682,7 @@ namespace compiler.frontend
         }
 
 
-        public ParseResult FuncCall(VarTbl variables)
+        private ParseResult FuncCall(VarTbl variables)
         {
             GetExpected(Token.CALL);
 
@@ -734,7 +729,7 @@ namespace compiler.frontend
             return new ParseResult(id, instructions, variables);
         }
 
-        public Cfg IfStmt(VarTbl variables)
+        private Cfg IfStmt(VarTbl variables)
         {
             GetExpected(Token.IF);
             var ifBlock = new Cfg();
@@ -842,7 +837,7 @@ namespace compiler.frontend
         }
 
 
-        public Cfg WhileStmt(VarTbl variables)
+        private Cfg WhileStmt(VarTbl variables)
         {
             GetExpected(Token.WHILE);
 
@@ -905,14 +900,14 @@ namespace compiler.frontend
         }
 
         // TODO: Loops must have the instructions referenced in their phi's updated
-        public static void FixLoopPhi(Node n, Instruction phi)
+        private static void FixLoopPhi(Node n, Instruction phi)
         {
             var visited = new HashSet<Node>();
             LoopFix(n, phi, visited);
         }
 
 
-        public static void LoopFix(Node n, Instruction phi, HashSet<Node> visited)
+        private static void LoopFix(Node n, Instruction phi, HashSet<Node> visited)
         {
             // base case
             if (visited.Contains(n) || (n == null))
@@ -950,7 +945,7 @@ namespace compiler.frontend
             }
         }
 
-        public static bool CheckOperand(Operand checkedOp, Operand phiArg)
+        private static bool CheckOperand(Operand checkedOp, Operand phiArg)
         {
             if (checkedOp == phiArg)
             {
@@ -1024,7 +1019,7 @@ namespace compiler.frontend
             return retStmt;
         }
 
-        public List<Operand> FormalParams()
+        private List<Operand> FormalParams()
         {
             GetExpected(Token.OPEN_PAREN);
 
