@@ -201,7 +201,25 @@ namespace compiler.middleend.ir
                 // TODO: this may need to be verified
                 operand.Inst = newInst;
             }
+
+			// clear all references just incase we need to fix this in Dead Code Elimination
+			Uses.Clear();
         }
+
+		public void FoldConst(int val)
+		{
+			foreach (Operand operand in Uses)
+			{
+				// TODO: this may need to be verified
+				operand.Inst = null;
+				operand.Val = val;
+				operand.Kind = Operand.OpType.Constant;
+				operand.Variable = null;
+			}
+
+			// clear all references just incase we need to fix this in Dead Code Elimination
+			Uses.Clear();
+		}
 
         public bool ExactMatch(Instruction other)
         {

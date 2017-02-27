@@ -90,6 +90,7 @@ namespace compiler
                 if (Opts.CopyProp)
                 {
                     CopyPropagation.Propagate(func.ControlFlowGraph.Root);
+					CopyPropagation.ConstantFolding(func.ControlFlowGraph.Root);
                 }
 
                 //Common Sub Expression Elimination
