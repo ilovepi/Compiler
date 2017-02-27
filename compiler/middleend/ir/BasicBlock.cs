@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization.Formatters;
 
 namespace compiler.middleend.ir
 {
@@ -33,7 +32,6 @@ namespace compiler.middleend.ir
         }
 
 
-
         public void AddInstructionList(List<Instruction> insList)
         {
             foreach (Instruction instruction in insList)
@@ -50,7 +48,7 @@ namespace compiler.middleend.ir
 
         public void InsertInstructionList(int index, List<Instruction> insList)
         {
-            foreach (Instruction instruction in Enumerable.Reverse( insList) )
+            foreach (Instruction instruction in Enumerable.Reverse(insList))
             {
                 InsertInstruction(index, instruction);
             }
@@ -79,7 +77,7 @@ namespace compiler.middleend.ir
                         return null;
                     }
 
-                    if (item.Equals(ins) )
+                    if (item.Equals(ins))
                     {
                         return item;
                     }

@@ -1,17 +1,18 @@
 ﻿using compiler.frontend;
+
 namespace compiler.middleend.ir
 {
     public class DomTree
     {
+        public string GraphOutput;
+        public string Name;
+
         public DomTree()
         {
             Root = null;
         }
 
-		public string GraphOutput;
-		public string Name;
         public DominatorNode Root { get; set; }
-
 
 
         public void RecursiveDfs(DominatorNode curNode)
@@ -35,15 +36,15 @@ namespace compiler.middleend.ir
         }
 
 
-		public string printTreeGraph(int n, SymbolTable Sym)
-		{
-			GraphOutput = string.Empty;
-			GraphOutput += Root?.printGraphNode(Sym);
+        public string PrintTreeGraph(int n, SymbolTable Sym)
+        {
+            GraphOutput = string.Empty;
+            GraphOutput += Root?.PrintGraphNode(Sym);
 
-			GraphOutput = "subgraph cluster_" + n + " {\nlabel = \"" + Name + "\";\n node[style=filled,shape=record]\n" + GraphOutput + "}";
+            GraphOutput = "subgraph cluster_" + n + " {\nlabel = \"" + Name + "\";\n node[style=filled,shape=record]\n" +
+                          GraphOutput + "}";
 
-			return GraphOutput;
-		}
-
+            return GraphOutput;
+        }
     }
 }

@@ -14,7 +14,7 @@ namespace NUnit.Tests.Frontend
         {
             ProgramDir = TestContext.CurrentContext.TestDirectory;
             ProgramPath = ProgramDir + @"/Frontend/testdata/test001.txt";
-            Checker = new Parser(ProgramPath);
+            Checker = new Parser(ProgramPath, true);
         }
 
         public string ProgramPath { get; private set; }
@@ -26,13 +26,13 @@ namespace NUnit.Tests.Frontend
         public void DesignatorArrayTest()
         {
             //TODO: add more cases to the test file, and hit them all
-            using (Checker = new Parser(ProgramDir + @"/Frontend/parserdata/Array.txt"))
+            using (Checker = new Parser(ProgramDir + @"/Frontend/parserdata/Array.txt", true))
             {
                 var v = new SortedDictionary<int, SsaVariable>();
                 Checker.Next();
-                Checker.Designator( v);
-                Checker.Designator( v);
-                Checker.Designator( v);
+                Checker.Designator(v);
+                Checker.Designator(v);
+                Checker.Designator(v);
             }
         }
 
@@ -40,11 +40,11 @@ namespace NUnit.Tests.Frontend
         public void DesignatorBadExpressionTest()
         {
             //TODO: add more cases to the test file, and hit them all
-            using (Checker = new Parser(ProgramDir + @"/Frontend/parserdata/BadExpression.txt"))
+            using (Checker = new Parser(ProgramDir + @"/Frontend/parserdata/BadExpression.txt", true))
             {
                 Checker.Next();
                 var v = new SortedDictionary<int, SsaVariable>();
-                Assert.Throws<ParserException>(() => Checker.Designator( v));
+                Assert.Throws<ParserException>(() => Checker.Designator(v));
             }
         }
 
@@ -53,11 +53,11 @@ namespace NUnit.Tests.Frontend
         public void DesignatorIdOnlyTest()
         {
             //TODO: add more cases to the test file, and hit them all
-            using (Checker = new Parser(ProgramDir + @"/Frontend/parserdata/Identifier.txt"))
+            using (Checker = new Parser(ProgramDir + @"/Frontend/parserdata/Identifier.txt", true))
             {
                 var v = new SortedDictionary<int, SsaVariable>();
                 Checker.Next();
-                Checker.Designator( v);
+                Checker.Designator(v);
             }
         }
 
@@ -66,13 +66,13 @@ namespace NUnit.Tests.Frontend
         public void DesignatorMultiDimensionalArrayTest()
         {
             //TODO: add more cases to the test file, and hit them all
-            using (Checker = new Parser(ProgramDir + @"/Frontend/parserdata/MultiDimArray.txt"))
+            using (Checker = new Parser(ProgramDir + @"/Frontend/parserdata/MultiDimArray.txt", true))
             {
                 var v = new SortedDictionary<int, SsaVariable>();
                 Checker.Next();
-                Checker.Designator( v);
-                Checker.Designator( v);
-                Checker.Designator( v);
+                Checker.Designator(v);
+                Checker.Designator(v);
+                Checker.Designator(v);
             }
         }
 
@@ -129,7 +129,7 @@ namespace NUnit.Tests.Frontend
             GC.Collect();
             GC.WaitForPendingFinalizers();
 
-            using (Checker = new Parser(ProgramPath))
+            using (Checker = new Parser(ProgramPath, true))
             {
                 Assert.AreEqual(1, Checker.Scanner.LineNo);
             }

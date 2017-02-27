@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace compiler.middleend.ir
 {
@@ -13,7 +12,7 @@ namespace compiler.middleend.ir
 
 
         public Node FalseNode { get; set; }
-		public JoinNode Join { get; set; }
+        public JoinNode Join { get; set; }
 
 
         public void Insert(Node other, bool trueChild)
@@ -30,7 +29,7 @@ namespace compiler.middleend.ir
             }
         }
 
-      
+
         public void InsertFalse(Node other)
         {
             Insert(other, false);
@@ -56,8 +55,8 @@ namespace compiler.middleend.ir
 
         public override void Consolidate()
         {
-            base.CircularRef(Child);
-            base.CircularRef(FalseNode);
+            CircularRef(Child);
+            CircularRef(FalseNode);
 
             // consolidate children who exist
             Child?.Consolidate();
@@ -65,20 +64,20 @@ namespace compiler.middleend.ir
         }
 
 
-		public override DominatorNode convertNode()
-		{
-			DominatorNode d = new DominatorNode(Bb);
-			d.testInsert(Join);
-			d.testInsert(Child);
-			d.testInsert(FalseNode);
-			d.Colorname = Colorname;
+        public override DominatorNode ConvertNode()
+        {
+            var d = new DominatorNode(Bb);
+            d.TestInsert(Join);
+            d.TestInsert(Child);
+            d.TestInsert(FalseNode);
+            d.Colorname = Colorname;
 
-			foreach (var child in d.Children)
-			{
-				child.Parent = d;
-			}
+            foreach (DominatorNode child in d.Children)
+            {
+                child.Parent = d;
+            }
 
-			return d;
-		}
+            return d;
+        }
     }
 }

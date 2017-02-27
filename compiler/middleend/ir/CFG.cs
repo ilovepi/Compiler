@@ -1,25 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using compiler.frontend;
 
 namespace compiler.middleend.ir
 {
     public class Cfg
     {
+        private Queue<Node> _q = new Queue<Node>();
+        private HashSet<Node> _visited = new HashSet<Node>();
         // TODO: create visitor function that recursively clears 'visited' flags
 
         //TODO: create BFS method to walk the CFG
 
         // External data for BFS
         //private int BlockCount = 0;
-        public string DotOutput = String.Empty;
-        private Queue<Node> _q = new Queue<Node>();
-        private HashSet<Node> _visited = new HashSet<Node>();
+        public string DotOutput = string.Empty;
 
-        public SymbolTable Sym { get; set; }
-
-        public string Name { get; set; }
-        
 
         // may not need these
         //public Node Curr { get; set; }
@@ -35,6 +30,10 @@ namespace compiler.middleend.ir
             Sym = pSymbolTable;
             Root = null;
         }
+
+        public SymbolTable Sym { get; set; }
+
+        public string Name { get; set; }
 
         public Node Root { get; set; }
 
@@ -129,11 +128,13 @@ namespace compiler.middleend.ir
             while (_q.Count > 0)
             {
                 Node current = _q.Dequeue();
-                DotOutput += current.DotId() + "[label=\"{" + current.DotLabel(Sym) + "\\l}\",fillcolor=" + current.Colorname + "]\n";
+                DotOutput += current.DotId() + "[label=\"{" + current.DotLabel(Sym) + "\\l}\",fillcolor=" +
+                             current.Colorname + "]\n";
                 current.CheckEnqueue(this);
             }
 
-            DotOutput = "subgraph cluster_" + n +" {\nlabel = \"" + Name + "\";\n node[style=filled,shape=record]\n"  +  DotOutput + "}";
+            DotOutput = "subgraph cluster_" + n + " {\nlabel = \"" + Name + "\";\n node[style=filled,shape=record]\n" +
+                        DotOutput + "}";
         }
     }
 }

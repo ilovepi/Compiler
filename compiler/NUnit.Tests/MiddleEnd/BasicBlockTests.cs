@@ -1,20 +1,19 @@
-﻿using NUnit.Framework;
-using compiler.middleend.ir;
+﻿using compiler.middleend.ir;
 using compiler.middleend.optimization;
+using NUnit.Framework;
 
 namespace NUnit.Tests.MiddleEnd
 {
     [TestFixture]
     public class BasicBlockTests
     {
-
-        public BasicBlock Block { get; set; }
-
         [SetUp]
         public void Init()
         {
             Block = new BasicBlock();
         }
+
+        public BasicBlock Block { get; set; }
 
         [Test]
         public void ConstructorTest()
@@ -25,14 +24,11 @@ namespace NUnit.Tests.MiddleEnd
         }
 
 
-
-
         [Test]
         public void SearchTest()
         {
-            Cfg graphCfg = new Cfg();
-            
-            graphCfg.Root = new Node(new BasicBlock("MyBlock"));
+            var graphCfg = new Cfg {Root = new Node(new BasicBlock("MyBlock"))};
+
             var inst1 = new Instruction(IrOps.Add, new Operand(Operand.OpType.Constant, 10),
                 new Operand(Operand.OpType.Identifier, 10));
 
@@ -54,6 +50,5 @@ namespace NUnit.Tests.MiddleEnd
 
             Assert.NotNull(graphCfg.Root.Leaf().AnchorSearch(inst1));
         }
-
     }
 }

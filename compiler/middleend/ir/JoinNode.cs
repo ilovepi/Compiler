@@ -1,7 +1,4 @@
-﻿using System;
-using NUnit.Framework.Constraints;
-
-namespace compiler.middleend.ir
+﻿namespace compiler.middleend.ir
 {
     public class JoinNode : Node
     {
@@ -13,7 +10,7 @@ namespace compiler.middleend.ir
 
         public Node FalseParent { get; set; }
 
-        
+
         public override void CheckEnqueue(Cfg cfg)
         {
             cfg.BfsCheckEnqueue(this, Child);
@@ -22,7 +19,7 @@ namespace compiler.middleend.ir
 
         public override void Consolidate()
         {
-            base.CircularRef(Child);
+            CircularRef(Child);
 
             // consolidate children who exist
             Child?.Consolidate();
@@ -34,10 +31,12 @@ namespace compiler.middleend.ir
             Instruction trueBranch = null;
             Instruction falseBranch = null;
 
-            var res = Bb.Search(goal);
+            Instruction res = Bb.Search(goal);
 
             if (res != null)
+            {
                 return res;
+            }
 
 
             if (Parent != null)
@@ -51,16 +50,11 @@ namespace compiler.middleend.ir
             }
 
             if (falseBranch == trueBranch)
-                return trueBranch;
-            else
             {
-                //TODO: this is wrong we need to figure out how to do this for a join block.
-                return falseBranch;
+                return trueBranch;
             }
-            
-           
+            //TODO: this is wrong we need to figure out how to do this for a join block.
+            return falseBranch;
         }
-
-
     }
 }

@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
 using compiler.middleend.ir;
-using NUnit.Framework;
 
 namespace compiler.middleend.optimization
 {
@@ -9,24 +7,26 @@ namespace compiler.middleend.optimization
     {
         public static void Eliminate(Node root)
         {
-            HashSet<Node> visited = new HashSet<Node>();
+            var visited = new HashSet<Node>();
             Eliminate(root, visited);
         }
 
 
         public static void Eliminate(Node root, HashSet<Node> visited)
         {
-            if (root == null || visited.Contains(root))
+            if ((root == null) || visited.Contains(root))
+            {
                 return;
+            }
 
             visited.Add(root);
-            List<Instruction> removalList = new List<Instruction>();
+            var removalList = new List<Instruction>();
 
             foreach (Instruction bbInstruction in root.Bb.Instructions)
             {
                 if (bbInstruction.Op != IrOps.Phi)
                 {
-                    var predecessor = root.AnchorSearch(bbInstruction);
+                    Instruction predecessor = root.AnchorSearch(bbInstruction);
 
                     if (predecessor != null)
                     {
@@ -53,14 +53,11 @@ namespace compiler.middleend.optimization
             }
 
 
-            var children = root.GetAllChildren();
+            List<Node> children = root.GetAllChildren();
             foreach (Node child in children)
             {
                 Eliminate(child, visited);
             }
         }
     }
-
-
-
 }

@@ -1,5 +1,4 @@
-﻿
-using System.Linq;
+﻿using System.Linq;
 
 namespace compiler.middleend.ir
 {
@@ -96,14 +95,14 @@ namespace compiler.middleend.ir
         }
 
 
-		public override DominatorNode convertNode()
-		{
-			DominatorNode d = new DominatorNode(Bb);
-			d.testInsert(FalseNode);
-			d.testInsert(Child);
-			d.Colorname = Colorname;
+        public override DominatorNode ConvertNode()
+        {
+            var d = new DominatorNode(Bb);
+            d.TestInsert(FalseNode);
+            d.TestInsert(Child);
+            d.Colorname = Colorname;
 
-			return d;
-		}
+            return d;
+        }
     }
 }

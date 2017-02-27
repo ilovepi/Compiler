@@ -1,17 +1,15 @@
-﻿
-namespace compiler.middleend.ir
+﻿namespace compiler.middleend.ir
 {
     public class SsaVariable
     {
-       
-		public SsaVariable(SsaVariable other)
-		{
-			Name = other.Name;
-			Prev = other.Prev;
-			Location = new Instruction(other.Location);
-			Value = other.Value;
-			UuId = other.UuId;
-		}
+        public SsaVariable(SsaVariable other)
+        {
+            Name = other.Name;
+            Prev = other.Prev;
+            Location = new Instruction(other.Location);
+            Value = other.Value;
+            UuId = other.UuId;
+        }
 
         public SsaVariable(int puuid, Instruction plocation, Instruction pPrev, string pName)
         {
@@ -32,7 +30,7 @@ namespace compiler.middleend.ir
 
         public string Name { get; set; }
 
-		public Operand Value { get; set; }
+        public Operand Value { get; set; }
 
         public override string ToString()
         {

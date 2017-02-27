@@ -5,10 +5,10 @@ namespace compiler.frontend
     [Serializable]
     public class ParserException : Exception
     {
-		public ParserException(string message)
-			: base(message)
-		{
-		}
+        public ParserException(string message)
+            : base(message)
+        {
+        }
 
         public static ParserException CreateParserException(Token expected, Token found, int line, int pos, string file)
         {
