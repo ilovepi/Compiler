@@ -15,6 +15,7 @@ namespace compiler.frontend
         {
             _filename = pFileName;
             _copyPropagationEnabled = pCopyPropEnabled;
+
             Tok = Token.UNKNOWN;
             Scanner = new Lexer(_filename);
             ProgramCfg = new Cfg();

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using compiler.frontend;
 
 namespace compiler.middleend.ir
@@ -178,13 +179,13 @@ namespace compiler.middleend.ir
         {
             string a1 = DisplayArg(smb, Arg1);
             // unconditionalbranches don't have a second arg, so they shouldn't print
-            string a2 = (Op != IrOps.Bra) && (Op != IrOps.End) ? DisplayArg(smb, Arg2) : string.Empty;
+            string a2 = (Op != IrOps.Bra) && ((Op != IrOps.End) && (Op != IrOps.Load)) ? DisplayArg(smb, Arg2) : string.Empty;
             return $"{Num}: {Op} {a1} {a2}";
         }
 
         private static string DisplayArg(SymbolTable smb, Operand arg)
         {
-            return arg?.Display(smb) ?? "Uninitialized";
+            return arg?.Display(smb) ?? "Uninitialized Arg";
         }
 
         public override string ToString()

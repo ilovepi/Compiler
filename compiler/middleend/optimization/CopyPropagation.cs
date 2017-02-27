@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using compiler.middleend.ir;
 
 namespace compiler.middleend.optimization
@@ -41,6 +42,18 @@ namespace compiler.middleend.optimization
             {
                 PropagateValues(child);
             }
+        }
+
+        public static void ConstantFolding(Node root)
+        {
+            _visited = new HashSet<Node>();
+            FoldValues(root, _visited);
+        }
+
+
+        private static void FoldValues(Node root, HashSet<Node> visited)
+        {
+            
         }
     }
 }
