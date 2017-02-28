@@ -61,14 +61,19 @@ namespace compiler.middleend.optimization
 			visited.Add(root);
 			var removalList = new List<Instruction>();
 
-			foreach (Instruction bbInstruction in root.Bb.Instructions)
+			for (int i = 0; i < root.Bb.Instructions.Count; i++)
 			{
+				var bbInstruction = root.Bb.Instructions[i];
 				if (bbInstruction.Op != IrOps.Phi)
 				{
 					if ((bbInstruction.Arg1.Kind == Operand.OpType.Constant) && (bbInstruction.Arg2?.Kind == Operand.OpType.Constant))
 					{
 						FoldValue(bbInstruction, removalList);
-					}	
+					}
+				}
+				else if (bbInstruction.Op == IrOps.Cmp)
+				{
+					FoldComparison();
 				}
 			}
 
@@ -89,8 +94,6 @@ namespace compiler.middleend.optimization
 
 
 
-
-
 		private static void FoldValue(Instruction inst, List<Instruction> removalList)
 		{
 			int result;
@@ -108,9 +111,6 @@ namespace compiler.middleend.optimization
 				case IrOps.Div:
 					result = inst.Arg1.Val / inst.Arg2.Val;
 					break;
-				case IrOps.Cmp:
-					FoldComparison();
-					return;
 				default:
 					return;
 			}
@@ -122,8 +122,7 @@ namespace compiler.middleend.optimization
 
 		public static void FoldComparison()
 		{
-
-
+			
 		}
 
 

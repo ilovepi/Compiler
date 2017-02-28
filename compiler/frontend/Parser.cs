@@ -319,7 +319,7 @@ namespace compiler.frontend
 
             // create new instruction
             // TODO: decide if this is ssa, and change irops.store to irops.ssa
-            var newInst = new Instruction(IrOps.Store, expValue.Operand, id.Operand);
+            Instruction newInst = new Instruction(IrOps.Store, expValue.Operand, id.Operand);
             Instruction prev = null;
             string name = Scanner.SymbolTble.Symbols[id.Operand.IdKey];
 
