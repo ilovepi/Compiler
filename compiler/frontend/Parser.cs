@@ -180,7 +180,7 @@ namespace compiler.frontend
                     if (_copyPropagationEnabled && (des.Operand.Kind == Operand.OpType.Variable))
                     {
                         id = new Operand(des.Operand.Variable.Location);
-                        if ((id.Inst != null) && (id.Inst.Op == IrOps.Store))
+						if ((id.Inst != null) && (id.Inst.Op == IrOps.Ssa))
                         {
                             // TODO: please solve how to do copy propagation -- next 3 lines
                             //id = new Operand(id.Inst.Arg2.Variable.Location); // doesn't propagate to original value 
@@ -338,6 +338,7 @@ namespace compiler.frontend
                 id.Operand.Variable = ssa;
 
                 newInst.Arg2.Inst = newInst;
+				newInst.Op = IrOps.Ssa;
 
                 // try to use ssa value
                 //ssa.Value = newInst.Arg1;
@@ -931,7 +932,7 @@ namespace compiler.frontend
 
                     if (CheckOperand(inst.Arg2, phi.Arg1) || CheckOperand(inst.Arg2, phi.Arg2))
                     {
-                        if (inst.Op != IrOps.Store)
+						if (inst.Op != IrOps.Ssa)
                         {
                             inst.Arg2 = new Operand(phi);
                         }

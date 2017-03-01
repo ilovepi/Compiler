@@ -30,7 +30,7 @@ namespace compiler.middleend.optimization
                     instruction.Arg1 = instruction.Arg1.Variable.Value.OpenOperand();
                 }
 
-                if ((instruction.Arg2?.Kind == Operand.OpType.Variable) && (instruction.Op != IrOps.Store))
+				if ((instruction.Arg2?.Kind == Operand.OpType.Variable) && (instruction.Op != IrOps.Ssa))
                 {
                     instruction.Arg2 = instruction.Arg2.Variable.Value.OpenOperand();
                 }

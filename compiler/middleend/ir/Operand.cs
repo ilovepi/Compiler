@@ -176,7 +176,7 @@ namespace compiler.middleend.ir
         {
             if ((Inst != null) && (Kind == OpType.Instruction))
             {
-                if (Inst.Op == IrOps.Store)
+				if (Inst.Op == IrOps.Ssa)
                 {
                     if (Inst.Arg2 == Inst.Arg2.Inst.Arg2)
                     {
