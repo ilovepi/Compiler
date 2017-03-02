@@ -8,7 +8,7 @@ namespace compiler
 {
 	public class LiveRanges
 	{
-		public static HashSet<Instruction> populateRanges(DominatorNode d, HashSet<Instruction> liveRange)
+		public static HashSet<Instruction> PopulateRanges(DominatorNode d, HashSet<Instruction> liveRange)
 		{
 			var live = new HashSet<Instruction>(liveRange);
 
@@ -57,12 +57,12 @@ namespace compiler
 			{
 				if (firstRange == null)
 				{
-					firstRange = populateRanges(child, liveRange);
+					firstRange = PopulateRanges(child, liveRange);
 				}
 				else
 				{
 					singlebeBlock = false;
-					newRange.Union(populateRanges(child,firstRange));
+					newRange.Union(PopulateRanges(child,firstRange));
 				}
 
 			}
@@ -70,7 +70,7 @@ namespace compiler
 			if (singlebeBlock)
 				newRange = firstRange;
 
-			return populateRanges(d, newRange);
+			return PopulateRanges(d, newRange);
 		}
 
 		public static void GenerateRanges(DomTree tree)

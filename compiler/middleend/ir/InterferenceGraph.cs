@@ -43,6 +43,7 @@ namespace compiler.middleend.ir
 
 		}
 
+        // TODO: make the nodes searchable by instruction -- maybe a SortedDictionary?
 		public HashSet<GraphNode> Graph { get; }
 
 		public InterferenceGraph()
