@@ -2,34 +2,69 @@
 using System.Collections.Generic;
 using System.Linq;
 
+//using EdgeList = System.Collections.Generic.SortedDictionary<compiler.middleend.ir.Instruction, compiler.middleend.ir.InterferenceGraph.GraphNode>;
+
+
+using EdgeList = System.Collections.Generic.HashSet<compiler.middleend.ir.InterferenceGraph.GraphNode>;
+
+
 namespace compiler.middleend.ir
 {
+	
 	public class InterferenceGraph
 	{
-		public struct GraphNode
+		public class GraphNode
 		{
-			public HashSet<GraphNode> edges;
+			public EdgeList edges;
 			public Instruction inst;
+
+			public GraphNode(Instruction pInst)
+			{
+				inst = pInst;
+				edges = new EdgeList();
+			}
+
+			public GraphNode(Instruction pInst, EdgeList e)
+			{
+				inst = pInst;
+				edges = new EdgeList(e);
+			}
+
+			public GraphNode(GraphNode n)
+			{
+				inst = n.inst;
+				edges = new EdgeList(n.edges);
+			}
+
+			public override int GetHashCode()
+			{
+				return inst.GetHashCode();
+			}
+
 		}
 
-		HashSet<GraphNode> graph;
+		public HashSet<GraphNode> Graph { get; }
 
 		public InterferenceGraph()
 		{
-			graph = new HashSet<GraphNode>();
+			Graph = new HashSet<GraphNode>();
 		}
 
 		public void AddNode(GraphNode n)
 		{
-			graph.Union(new HashSet<GraphNode>() { n });
+			Graph.UnionWith(new HashSet<GraphNode>() { n });
 		}
 
 		public void AddEdge(GraphNode a, GraphNode b)
 		{
-			if (graph.Contains(a) && graph.Contains(b))
+			if (Graph.Contains(a) && Graph.Contains(b))
 			{
-				a.edges.Add(b);
-				b.edges.Add(a);
+				 a.edges.UnionWith(new EdgeList() {  b  });
+				//var temp = a.edges.Union(new EdgeList() { { b.inst, b } });
+				//temp.GetEnumerator();
+				//a.edges = temp;
+				b.edges.UnionWith(new EdgeList() {  a  });
+				//b.edges.Union(new EdgeList() { { a.inst, a } });
 			}
 			else
 			{
@@ -39,16 +74,18 @@ namespace compiler.middleend.ir
 
 		public void RemoveNode(GraphNode n)
 		{
-			if (graph.Contains(n))
+			if (Graph.Contains(n))
 			{
 				// remove all edges from adjacent nodes
 				foreach (var edge in n.edges)
 				{
 					edge.edges.Remove(n);
+					//edge.Value.edges.Remove(n.inst);
+				
 				}
 
 				// remove node from graph
-				graph.Remove(n);
+				Graph.Remove(n);
 			}
 			else
 			{

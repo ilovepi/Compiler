@@ -25,10 +25,22 @@ namespace compiler
 				}
 
 				// add this isntructions operands to the live range
-				inst.LiveRange.Union(live);
+				inst.LiveRange.UnionWith(live);
 
-				//remove this instruction from the live range
-				inst.LiveRange.Remove(inst);
+				if (inst.LiveRange.Contains(inst))
+				{
+					foreach (var item in inst.LiveRange)
+					{
+						InterferenceGraph.GraphNode temp = new InterferenceGraph.GraphNode();
+
+					}
+					d.Bb.Graph.AddNode();
+
+					//remove this instruction from the live range
+					inst.LiveRange.Remove(inst);
+				}
+				
+					
 			}
 
 			return live;

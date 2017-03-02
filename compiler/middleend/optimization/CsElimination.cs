@@ -50,6 +50,9 @@ namespace compiler.middleend.optimization
             {
                 //root.Bb.AnchorBlock.FindOpChain(instruction.Op).RemoveAll(instruction.ExactMatch);
                 root.Bb.Instructions.RemoveAll(instruction.ExactMatch);
+
+				//rely on using instruction hashkey for removing a particular instruction
+				root.Bb.Graph.RemoveNode(new InterferenceGraph.GraphNode(instruction));
             }
 
 
