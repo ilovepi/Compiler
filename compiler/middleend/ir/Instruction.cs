@@ -200,6 +200,7 @@ namespace compiler.middleend.ir
             {
                 // TODO: this may need to be verified
                 operand.Inst = newInst;
+				newInst.Uses.Add(new Operand(this));
             }
 
 			// clear all references just incase we need to fix this in Dead Code Elimination

@@ -111,6 +111,10 @@ namespace compiler
                 {
                     throw new NotImplementedException();
                 }
+
+
+				LiveRanges.GenerateRanges(func.DominatorTree);
+
             }
         }
 

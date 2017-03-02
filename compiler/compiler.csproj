@@ -74,6 +74,8 @@
     <Compile Include="middleend\ir\CFG.cs" />
     <Compile Include="middleend\ir\ParseTree.cs" />
     <Compile Include="middleend\optimization\CopyPropagation.cs" />
+    <Compile Include="middleend\optimization\LiveRanges.cs" />
+    <Compile Include="middleend\optimization\InterferenceGraph.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="backend\" />
