@@ -1,20 +1,61 @@
 ﻿using System;
-using NUnit.Framework;
-using System.Xml.Xsl.Runtime;
-using compiler.middleend.ir;
 using System.Collections.Generic;
-namespace compiler
+using System.Linq;
+
+namespace compiler.middleend.ir
 {
 	public class InterferenceGraph
 	{
-		struct Node
+		public struct GraphNode
 		{
-			HashSet<Node> edges;
-			Instruction inst;
+			public HashSet<GraphNode> edges;
+			public Instruction inst;
 		}
+
+		HashSet<GraphNode> graph;
 
 		public InterferenceGraph()
 		{
+			graph = new HashSet<GraphNode>();
 		}
+
+		public void AddNode(GraphNode n)
+		{
+			graph.Union(new HashSet<GraphNode>() { n });
+		}
+
+		public void AddEdge(GraphNode a, GraphNode b)
+		{
+			if (graph.Contains(a) && graph.Contains(b))
+			{
+				a.edges.Add(b);
+				b.edges.Add(a);
+			}
+			else
+			{
+				throw new Exception("Interference Graph Edges can only exist between two nodes in the graph");
+			}
+		}
+
+		public void RemoveNode(GraphNode n)
+		{
+			if (graph.Contains(n))
+			{
+				// remove all edges from adjacent nodes
+				foreach (var edge in n.edges)
+				{
+					edge.edges.Remove(n);
+				}
+
+				// remove node from graph
+				graph.Remove(n);
+			}
+			else
+			{
+				throw new Exception("Interference Graph Does not contain Node:" + n.inst);
+			}
+		}
+
+
 	}
 }
