@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using QuickGraph.Graphviz;
 
 namespace compiler.middleend.ir
 {
@@ -32,7 +33,7 @@ namespace compiler.middleend.ir
 		public void AddInstruction(Instruction instruction)
         {
             Instructions.Add(instruction);
-			Graph.AddNode(new InterferenceGraph.GraphNode(instruction));
+			Graph.AddVertex(instruction);
             //AnchorBlock.Insert(ins);
         }
 
@@ -42,12 +43,14 @@ namespace compiler.middleend.ir
             foreach (Instruction instruction in insList)
             {
                 AddInstruction(instruction);
+				Graph.AddVertex(instruction);
             }
         }
 
         public void InsertInstruction(int index, Instruction ins)
         {
             Instructions.Insert(index, ins);
+			Graph.AddVertex(ins);
             //AnchorBlock.Insert(ins);
         }
 
@@ -91,5 +94,10 @@ namespace compiler.middleend.ir
 
             return null;
         }
+
+		public string PrintInterference()
+		{
+			return Graph.ToGraphviz() + "\n\n";
+		}
     }
 }

@@ -4,6 +4,9 @@ using System.Linq;
 using compiler.middleend.ir;
 using NUnit.Framework;
 using System.Collections.Generic;
+
+
+
 namespace compiler
 {
 	public class LiveRanges
@@ -29,19 +32,14 @@ namespace compiler
 
 				if (inst.LiveRange.Contains(inst))
 				{
-					foreach (var item in inst.LiveRange)
-					{
-						InterferenceGraph.GraphNode temp = new InterferenceGraph.GraphNode();
-
-					}
-					d.Bb.Graph.AddNode();
-
 					//remove this instruction from the live range
 					inst.LiveRange.Remove(inst);
 				}
-				
-					
 			}
+
+			d.Bb.Graph.AddInterferenceEdges(d.Bb);
+
+			//d.Bb.Graph
 
 			return live;
 		}

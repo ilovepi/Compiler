@@ -1,4 +1,5 @@
 ﻿using compiler.frontend;
+using NUnit.Framework;
 
 namespace compiler.middleend.ir
 {
@@ -46,5 +47,11 @@ namespace compiler.middleend.ir
 
             return GraphOutput;
         }
+
+		public string PrintInterference()
+		{
+			return Root.PrintInterference();
+		}
+
     }
 }

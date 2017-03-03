@@ -60,6 +60,13 @@ namespace compiler
                 file.WriteLine(GenDomGraphString());
                 file.WriteLine("}");
             }
+
+			using (var file = new StreamWriter(Opts.DomFilename+".interference"))
+			{
+				//file.WriteLine("digraph Dom{\n");
+				file.WriteLine(GenInterferenceGraphString());
+				//file.WriteLine("}");
+			}
         }
 
         
@@ -68,6 +75,11 @@ namespace compiler
             var i = 0;
             return FuncList.Aggregate(string.Empty, (current, func) => current + (func.DominatorTree.PrintTreeGraph(i++, func.ControlFlowGraph.Sym) + "\n"));
         }
+
+		private string GenInterferenceGraphString()
+		{
+			return FuncList.Aggregate(string.Empty, (current, func) => current + (func.DominatorTree.PrintInterference() + "\n"));
+		}
 
         private string GenControlGraphString()
         {

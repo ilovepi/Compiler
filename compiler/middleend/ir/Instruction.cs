@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using compiler.frontend;
+using compiler.midleend.ir;
 
 namespace compiler.middleend.ir
 {
@@ -95,6 +96,8 @@ namespace compiler.middleend.ir
         ///     The set of live ranges used in liveness analysis
         /// </summary>
         public HashSet<Instruction> LiveRange { get; set; }
+
+		public Register Reg { get; set; }
 
 
         public bool Equals(Instruction other)
