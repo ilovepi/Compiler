@@ -257,17 +257,7 @@ namespace compiler.middleend.ir
             return label;
         }
 
-		public string PrintInterference()
-		{
-			string s = Bb.PrintInterference();
-
-			foreach (DominatorNode child in Children)
-			{
-				s += child.PrintInterference();
-			}
-
-			return s;
-		}
+		
 
     }
 }

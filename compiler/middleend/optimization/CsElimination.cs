@@ -52,7 +52,7 @@ namespace compiler.middleend.optimization
                 root.Bb.Instructions.RemoveAll(instruction.ExactMatch);
 
 				//rely on using instruction hashkey for removing a particular instruction
-				root.Bb.Graph.RemoveVertex(instruction);
+				//root.Bb.Graph.RemoveVertex(instruction);
             }
 
 

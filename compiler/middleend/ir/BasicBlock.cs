@@ -11,7 +11,7 @@ namespace compiler.middleend.ir
         {
             Instructions = new List<Instruction>();
             AnchorBlock = new Anchor();
-			Graph = new InterferenceGraph();
+			//Graph = new InterferenceGraph();
         }
 
         public BasicBlock(string pName)
@@ -19,7 +19,7 @@ namespace compiler.middleend.ir
             Instructions = new List<Instruction>();
             Name = pName;
             AnchorBlock = new Anchor();
-			Graph = new InterferenceGraph();
+			//Graph = new InterferenceGraph();
         }
 
         public string Name { get; }
@@ -27,13 +27,13 @@ namespace compiler.middleend.ir
 
         public Anchor AnchorBlock { get; set; }
 
-		public InterferenceGraph Graph { get; set; }
+		//public InterferenceGraph Graph { get; set; }
 
 
 		public void AddInstruction(Instruction instruction)
         {
             Instructions.Add(instruction);
-			Graph.AddVertex(instruction);
+			//Graph.AddVertex(instruction);
             //AnchorBlock.Insert(ins);
         }
 
@@ -43,14 +43,14 @@ namespace compiler.middleend.ir
             foreach (Instruction instruction in insList)
             {
                 AddInstruction(instruction);
-				Graph.AddVertex(instruction);
+				//Graph.AddVertex(instruction);
             }
         }
 
         public void InsertInstruction(int index, Instruction ins)
         {
             Instructions.Insert(index, ins);
-			Graph.AddVertex(ins);
+			//Graph.AddVertex(ins);
             //AnchorBlock.Insert(ins);
         }
 
@@ -94,10 +94,5 @@ namespace compiler.middleend.ir
 
             return null;
         }
-
-		public string PrintInterference()
-		{
-			return Graph.ToGraphviz() + "\n\n";
-		}
     }
 }

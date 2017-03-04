@@ -120,7 +120,7 @@ namespace compiler.middleend.ir
                 var hashCode = (int) Kind;
                 hashCode = (hashCode * 397) ^ Val;
                 hashCode = (hashCode * 397) ^ IdKey;
-                int? i = (hashCode * 397) ^ Inst?.GetHashCode();
+                int? i = (hashCode * 397) ^ Inst?.Num.GetHashCode();
                 if (i != null)
                 {
                     hashCode = (int) i;

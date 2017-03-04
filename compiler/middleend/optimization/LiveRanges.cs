@@ -11,12 +11,15 @@ namespace compiler
 {
 	public class LiveRanges
 	{
-		public static HashSet<Instruction> PopulateRanges(DominatorNode d, HashSet<Instruction> liveRange)
+		public static HashSet<Instruction> PopulateRanges(DominatorNode d, HashSet<Instruction> liveRange, InterferenceGraph intGraph)
 		{
 			var live = new HashSet<Instruction>(liveRange);
 
 			foreach (var inst in Enumerable.Reverse(d.Bb.Instructions))
 			{
+                if(inst.Op == IrOps.End)
+                    continue;
+
 				if (inst.Arg1.Kind == Operand.OpType.Instruction)
 				{
 					live.Add(inst.Arg1.Inst);
@@ -37,15 +40,13 @@ namespace compiler
 				}
 			}
 
-			d.Bb.Graph.AddInterferenceEdges(d.Bb);
-
-			//d.Bb.Graph
+			intGraph.AddInterferenceEdges(d.Bb);
 
 			return live;
 		}
 
 
-		public static HashSet<Instruction> GenerateRanges(DominatorNode d, HashSet<Instruction> liveRange)
+		public static HashSet<Instruction> GenerateRanges(DominatorNode d, HashSet<Instruction> liveRange, InterferenceGraph intGraph)
 		{
 
 			HashSet<Instruction> firstRange = null;
@@ -55,27 +56,30 @@ namespace compiler
 			{
 				if (firstRange == null)
 				{
-					firstRange = PopulateRanges(child, liveRange);
+					firstRange = PopulateRanges(child, liveRange, intGraph);
 				}
 				else
 				{
 					singlebeBlock = false;
-					newRange.Union(PopulateRanges(child,firstRange));
+					newRange.UnionWith(PopulateRanges(child,firstRange, intGraph));
 				}
 
 			}
 
-			if (singlebeBlock)
-				newRange = firstRange;
+			if (singlebeBlock && (firstRange != null ))
+			{
+			    newRange = firstRange;
+			}
 
-			return PopulateRanges(d, newRange);
+		    return PopulateRanges(d, newRange, intGraph);
 		}
 
 		public static void GenerateRanges(DomTree tree)
 		{
 			HashSet<Instruction> liveRange = new HashSet<Instruction>();
+            tree.intGraph = new InterferenceGraph();
 
-			GenerateRanges(tree.Root, liveRange);
+			GenerateRanges(tree.Root, liveRange, tree.intGraph);
 		}
 
 	}

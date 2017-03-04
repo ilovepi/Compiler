@@ -8,7 +8,7 @@ namespace Program
         private static void Main(string[] args)
         {
             //TODO: Be sure to address options parsing
-            Compiler.DefaultRun(@"../../testdata/test007.txt");
+            Compiler.DefaultRun(@"../../testdata/test002.txt");
         }
     }
 }

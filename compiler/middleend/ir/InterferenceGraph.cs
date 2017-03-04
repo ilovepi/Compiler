@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Diagnostics;
 using QuickGraph;
 using System.Linq;
 using System.Linq.Expressions;
@@ -13,6 +13,7 @@ using NUnit.Framework.Internal.Commands;
 using compiler.midleend.ir;
 using System.Runtime.InteropServices;
 using QuickGraph.Graphviz;
+using QuickGraph.Graphviz.Dot;
 
 
 namespace compiler.middleend.ir
@@ -33,12 +34,15 @@ namespace compiler.middleend.ir
 			{
 				foreach (var item in instruction.LiveRange)
 				{
-					AddVerticesAndEdge(new Edge<Instruction>(instruction, item));
+				    if (item != null)
+				    {
+				        AddVerticesAndEdge(new Edge<Instruction>(instruction, item));
+				    }
 				}
 			}
 		}
 
-		public void color()
+		public void Color()
 		{
 			// if we have enough registers, allocate all results to a register
 			if (VertexCount < 28)
@@ -51,5 +55,5 @@ namespace compiler.middleend.ir
 
 		}
 
-	}
+    }
 }
