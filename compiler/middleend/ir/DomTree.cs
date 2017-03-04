@@ -61,9 +61,8 @@ namespace compiler.middleend.ir
 
             graphViz.FormatVertex += FormatVertex;
             graphViz.FormatEdge += FormatEdge;
-            graphViz.Generate(new FileDotEngine(), "InterferenceGraph.dot");
-
-            return intGraph.ToGraphviz();
+            return graphViz.Generate(new FileDotEngine(), Name + "-InterferenceGraph.dot");
+            //return intGraph.ToGraphviz();
         }
 
 
@@ -96,11 +95,12 @@ namespace compiler.middleend.ir
                 string output = outputFileName;
                 System.IO.File.WriteAllText(output, dot);
 
-                ProcessStartInfo startInfo = new ProcessStartInfo();
+                /*ProcessStartInfo startInfo = new ProcessStartInfo();
                 startInfo.FileName = @"C:\Program Files (x86)\Graphviz2.38\bin\dot.exe";
-                startInfo.Arguments = @"dot -Tgif graph.dot -o graph.png";
+                startInfo.Arguments = @"dot -Tsvg graph.dot -o graph.svg";
 
                 Process.Start(startInfo);
+                */
                 return output;
             }
         }

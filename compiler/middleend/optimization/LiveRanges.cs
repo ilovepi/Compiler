@@ -18,9 +18,11 @@ namespace compiler
 			foreach (var inst in Enumerable.Reverse(d.Bb.Instructions))
 			{
                 if(inst.Op == IrOps.End)
+                {
                     continue;
+                }
 
-				if (inst.Arg1.Kind == Operand.OpType.Instruction)
+			    if (inst.Arg1.Kind == Operand.OpType.Instruction)
 				{
 					live.Add(inst.Arg1.Inst);
 				}
