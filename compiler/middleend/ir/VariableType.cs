@@ -30,7 +30,7 @@ using System;
 
 namespace compiler.middleend.ir
 {
-    public class Variable
+    public class VariableType
     {
         public const int Dword = 4;
 
@@ -46,8 +46,23 @@ namespace compiler.middleend.ir
 
         public int Address { get; set; }
 
+
+        public VariableType() { }
+
         // constructor for normal variables
-        public Variable(string pName, int pId, int pOffset)
+        public VariableType( int pId, int pOffset)
+        {
+            Name = String.Empty;
+            Id = pId;
+            Offset = pOffset;
+            IsArray = false;
+            Size = 1;
+            Address = 0;
+        }
+
+
+        // constructor for normal variables
+        public VariableType(string pName, int pId, int pOffset)
         {
             Name = pName;
             Id = pId;
@@ -57,23 +72,12 @@ namespace compiler.middleend.ir
             Address = 0;
         }
 
-        //constructor for arrays
-        public Variable(string pName, int pId, int pOffset, int size)
+        public VariableType(string pName, int pId, int pOffset, int size, bool pIsArray)
         {
             Name = pName;
             Id = pId;
             Offset = pOffset;
-            IsArray = true;
-            Size = size;
-            Address = 0;
-        }
-
-        public Variable(string pName, int pId, int pOffset, int size, bool pIsAray)
-        {
-            Name = pName;
-            Id = pId;
-            Offset = pOffset;
-            IsArray = pIsAray;
+            IsArray = pIsArray;
             Size = size;
             Address = 0;
         }

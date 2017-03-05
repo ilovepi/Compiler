@@ -31,6 +31,10 @@ namespace compiler.middleend.ir
             Root = null;
         }
 
+        public List<VariableType> Parameters;
+        public List<VariableType> Globals;
+        public List<VariableType> Locals;
+
         public SymbolTable Sym { get; set; }
 
         public string Name { get; set; }

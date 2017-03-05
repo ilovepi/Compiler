@@ -496,12 +496,15 @@ namespace compiler.frontend
         private VarTbl VarDecl(VarTbl varTble)
         {
             // TODO: allocate variables here
-            int size = TypeDecl();
+            var varTypee = TypeDecl();
+            var localTbl = new VarTbl();
 
             // TODO: this is where we need to set variable addresses
             //CreateIdentifier();
             Operand id = Identifier();
-            varTble.Add(id.IdKey, new SsaVariable(id.IdKey, null, null, Scanner.SymbolTble.Symbols[id.IdKey]));
+            localTbl.Add(id.IdKey, new SsaVariable(id.IdKey, null, null, Scanner.SymbolTble.Symbols[id.IdKey]));
+
+
 
             while (Tok == Token.COMMA)
             {
@@ -509,50 +512,54 @@ namespace compiler.frontend
 
                 //CreateIdentifier();
                 id = Identifier();
-                varTble.Add(id.IdKey, new SsaVariable(id.IdKey, null, null, Scanner.SymbolTble.Symbols[id.IdKey]));
+                localTbl.Add(id.IdKey, new SsaVariable(id.IdKey, null, null, Scanner.SymbolTble.Symbols[id.IdKey]));
             }
 
             GetExpected(Token.SEMI_COLON);
 
+            foreach (var ssaVariable in localTbl)
+            {
+                varTble.Add(ssaVariable.Key, ssaVariable.Value);
+            }
+           
             return varTble;
         }
 
-        private int TypeDecl()
+        private VariableType TypeDecl()
         {
-            // TODO: determine size of allocation required
-            var size = 4;
+            VariableType newVar = null;
+            
             if (Tok == Token.VAR)
             {
                 Next();
-                //size = 4;
+                newVar= new VariableType();
             }
             else if (Tok == Token.ARRAY)
             {
                 Next();
-
-                GetExpected(Token.OPEN_BRACKET);
-
-                Operand n = Num();
-                size *= n.Val;
-
-                GetExpected(Token.CLOSE_BRACKET);
-
+                List<int> dims = new List<int>();
                 while (Tok == Token.OPEN_BRACKET)
                 {
                     Next();
 
-                    n = Num();
-                    size *= n.Val;
+                    int size = Num().Val;
+                    if (size < 0)
+                    {
+                        throw new ParserException("Array Dimensions must be greater than zero");
+                    }
+                    dims.Add(size);
 
                     GetExpected(Token.CLOSE_BRACKET);
                 }
+
+                newVar = new ArrayType(dims);
             }
             else
             {
                 // TODO: replace
-                FatalError();
+                FatalError();  
             }
-            return size;
+            return newVar;
         }
 
         private Cfg FuncDecl(VarTbl variables)

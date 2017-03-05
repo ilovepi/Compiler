@@ -66,6 +66,7 @@
     <Compile Include="frontend\Parser.cs" />
     <Compile Include="frontend\ParserException.cs" />
     <Compile Include="frontend\Token.cs" />
+    <Compile Include="middleend\ir\ArrayType.cs" />
     <Compile Include="middleend\ir\DomTree.cs" />
     <Compile Include="middleend\ir\DominatorNode.cs" />
     <Compile Include="middleend\ir\CompareNode.cs" />
@@ -74,7 +75,7 @@
     <Compile Include="middleend\ir\Operand.cs" />
     <Compile Include="middleend\ir\ParseResult.cs" />
     <Compile Include="middleend\ir\SsaVariable.cs" />
-    <Compile Include="middleend\ir\Variable.cs" />
+    <Compile Include="middleend\ir\VariableType.cs" />
     <Compile Include="middleend\ir\WhileNode.cs" />
     <Compile Include="middleend\optimization\CsElimination.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
