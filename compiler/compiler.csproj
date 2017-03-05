@@ -74,6 +74,7 @@
     <Compile Include="middleend\ir\Operand.cs" />
     <Compile Include="middleend\ir\ParseResult.cs" />
     <Compile Include="middleend\ir\SsaVariable.cs" />
+    <Compile Include="middleend\ir\Variable.cs" />
     <Compile Include="middleend\ir\WhileNode.cs" />
     <Compile Include="middleend\optimization\CsElimination.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
