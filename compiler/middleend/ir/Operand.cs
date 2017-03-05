@@ -63,6 +63,8 @@ namespace compiler.middleend.ir
 
         public int IdKey { get; set; }
 
+        public string Name { get; set; }
+
         public SsaVariable Variable { get; set; }
 
 
@@ -144,6 +146,8 @@ namespace compiler.middleend.ir
                     return "(" + s + ")";
                 case OpType.Register:
                     return "R" + Val;
+                case OpType.Identifier:
+                    return Name;
                 default:
                     return "ERROR!!!";
             }

@@ -74,8 +74,7 @@ namespace compiler.middleend.ir
             e.VertexFormatter.Shape = GraphvizVertexShape.Circle;
 
             e.VertexFormatter.BottomLabel = e.Vertex.ToString();
-
-
+            
             //e.VertexFormatter.StrokeColor = GraphvizColor.Black;
             //e.VertexFormatter.Font = new GraphvizFont("Calibri", 11);
         }

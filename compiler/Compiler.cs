@@ -111,12 +111,12 @@ namespace compiler
                     CsElimination.Eliminate(func.ControlFlowGraph.Root);
                 }
 
+
                 // Reevaluation
                 if (Opts.DeadCode)
                 {
                     throw new NotImplementedException();
                 }
-
 
                 // Pruning
                 if (Opts.PruneCfg)
@@ -124,6 +124,7 @@ namespace compiler
                     throw new NotImplementedException();
                 }
 
+                func.ControlFlowGraph.InsertBranches();
 
 				LiveRanges.GenerateRanges(func.DominatorTree);
 

@@ -86,36 +86,13 @@ namespace compiler.middleend.ir
             }
         }
 
-/*
-        private void CheckEnqueue(Node curNode)
+        public void InsertBranches()
         {
-            BfsCheckEnqueue(curNode, curNode.Child);
+            var visited = new HashSet<Node>();
+            Root.InsertBranches(visited);
         }
-*/
 
-/*
-        private void CheckEnqueue(CompareNode curNode)
-        {
-            BfsCheckEnqueue(curNode, curNode.Child);
-            BfsCheckEnqueue(curNode, curNode.FalseNode);
-        }
-*/
 
-/*
-        private void CheckEnqueue(JoinNode curNode)
-        {
-            BfsCheckEnqueue(curNode, curNode.Child);
-        }
-*/
-
-/*
-        private void CheckEnqueue(WhileNode curNode)
-        {
-            BfsCheckEnqueue(curNode,  curNode.Child);
-            BfsCheckEnqueue(curNode,  curNode.FalseNode);
-            //DOTOutput += CurNode.DotId() + " -> " + CurNode.Child.DotId() + "\n";
-        }
-*/
 
         public void GenerateDotOutput(int n)
         {

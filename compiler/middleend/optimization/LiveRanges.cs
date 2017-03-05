@@ -17,12 +17,20 @@ namespace compiler
 
 			foreach (var inst in Enumerable.Reverse(d.Bb.Instructions))
 			{
-                if(inst.Op == IrOps.End)
+                switch (inst.Op)
                 {
-                    continue;
+                    case IrOps.End:
+                    case IrOps.Bra:
+                    case IrOps.Bne:
+                    case IrOps.Beq:
+                    case IrOps.Ble:
+                    case IrOps.Blt:
+                    case IrOps.Bge:
+                    case IrOps.Bgt:
+                        continue;
                 }
 
-			    if (inst.Arg1.Kind == Operand.OpType.Instruction)
+			    if (inst.Arg1?.Kind == Operand.OpType.Instruction)
 				{
 					live.Add(inst.Arg1.Inst);
 				}
@@ -58,12 +66,12 @@ namespace compiler
 			{
 				if (firstRange == null)
 				{
-					firstRange = PopulateRanges(child, liveRange, intGraph);
+					firstRange = GenerateRanges(child, liveRange, intGraph);
 				}
 				else
 				{
 					singlebeBlock = false;
-					newRange.UnionWith(PopulateRanges(child,firstRange, intGraph));
+					newRange.UnionWith(GenerateRanges(child,firstRange, intGraph));
 				}
 
 			}

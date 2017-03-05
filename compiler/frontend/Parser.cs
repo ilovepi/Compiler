@@ -23,6 +23,8 @@ namespace compiler.frontend
             VarTable = new VarTbl();
         }
 
+        private bool insertBranches = false;
+
         public Token Tok { get; set; }
 
         public Lexer Scanner { get; set; }
@@ -463,7 +465,9 @@ namespace compiler.frontend
             int id = Scanner.Id;
             GetExpected(Token.IDENTIFIER);
 
-            return new Operand(Operand.OpType.Identifier, id);
+            var op = new Operand(Operand.OpType.Identifier, id);
+            op.Name = Scanner.SymbolTble.Symbols[id];
+            return op;
         }
 
         public void CreateIdentifier()
@@ -774,21 +778,25 @@ namespace compiler.frontend
 
             AddPhiInstructions(variables, trueSsa, falseSsa, joinBlock, false);
 
-            if (joinBlock.Bb.Instructions.Count == 0)
+            if (insertBranches)
             {
-                var fakePhi = new Instruction(IrOps.Phi, new Operand(Operand.OpType.Identifier, 0),
-                    new Operand(Operand.OpType.Identifier, 0));
-                joinBlock.Bb.Instructions.Add(fakePhi);
+                if (joinBlock.Bb.Instructions.Count == 0)
+                {
+                    var fakePhi = new Instruction(IrOps.Phi, new Operand(Operand.OpType.Identifier, 0),
+                        new Operand(Operand.OpType.Identifier, 0));
+                    joinBlock.Bb.Instructions.Add(fakePhi);
+                }
+
+                if (elseBranch)
+                {
+                    // The branch location isn't known yet, so delay it
+                    trueBlock.Bb.AddInstruction(new Instruction(IrOps.Bra, new Operand(joinBlock.GetNextInstruction()),
+                        null));
+                }
+
+
+                compBlock.Bb.Instructions.Last().Arg2 = new Operand(falseBlock.GetNextInstruction());
             }
-
-            if (elseBranch)
-            {
-                // The branch location isn't known yet, so delay it
-                trueBlock.Bb.AddInstruction(new Instruction(IrOps.Bra, new Operand(joinBlock.GetNextInstruction()), null));
-            }
-
-            compBlock.Bb.Instructions.Last().Arg2 = new Operand(falseBlock.GetNextInstruction());
-
             return ifBlock;
         }
 
@@ -812,12 +820,7 @@ namespace compiler.frontend
                     // This top construction seems to be correct, and should give the best answer, but doesnt
                     var newInst = new Instruction(IrOps.Phi, trueVar.Value.Value,
                         falseVar?.Value ?? new Operand(falseVar.Location));
-                    //var newInst = new Instruction(IrOps.Phi, new Operand(trueVar.Value.Location), new Operand(falseVar.Location));
-
-                    // handle these commented out lines in the constructor for instruction
-                    //trueVar.Value.Location.Uses.Add(newInst.Arg1);
-                    //falseVar.Location.Uses.Add(newInst.Arg2);
-
+                    
                     phiList.Add(newInst);
                     if (isLoop)
                     {
@@ -856,7 +859,6 @@ namespace compiler.frontend
             whileBlock.Insert(compBlock);
 
             // add the relation/branch comparison into the loop header block
-            // HACK: should we use the opperand of the relation?
             compBlock.Bb.AddInstructionList(Relation(headerSsa).Instructions);
 
             GetExpected(Token.DO);
@@ -884,20 +886,23 @@ namespace compiler.frontend
 
             AddPhiInstructions(variables, loopSsa, headerSsa, compBlock, true);
 
-            //TODO: remove placeholder instruction and do something smarter
-            followBlock.Bb.AddInstruction(new Instruction(IrOps.Phi, new Operand(Operand.OpType.Identifier, 0),
-                new Operand(Operand.OpType.Identifier, 0)));
-
-            Instruction inst = last.Bb.Instructions.Last();
-
-            if (inst.Op != IrOps.Bra)
+            if (insertBranches)
             {
-                inst.Arg2 = new Operand(compBlock.GetNextInstruction());
+                //TODO: remove placeholder instruction and do something smarter
+                followBlock.Bb.AddInstruction(new Instruction(IrOps.Phi, new Operand(Operand.OpType.Identifier, 0),
+                    new Operand(Operand.OpType.Identifier, 0)));
+
+                Instruction inst = last.Bb.Instructions.Last();
+
+                if (inst.Op != IrOps.Bra)
+                {
+                    inst.Arg2 = new Operand(compBlock.GetNextInstruction());
+                }
+
+
+                // TODO: this is straight up wrong. we can leave this alone and fix it in the enclosing scope
+                compBlock.Bb.Instructions.Last().Arg2 = new Operand(followBlock.Bb.Instructions.First());
             }
-
-            // TODO: this is straight up wrong. we can leave this alone and fix it in the enclosing scope
-            compBlock.Bb.Instructions.Last().Arg2 = new Operand(followBlock.Bb.Instructions.First());
-
             return whileBlock;
         }
 

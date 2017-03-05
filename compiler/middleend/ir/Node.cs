@@ -241,5 +241,18 @@ namespace compiler.middleend.ir
             d.Colorname = Colorname;
             return d;
         }
+
+
+        public virtual void InsertBranches(HashSet<Node> visited )
+        {
+            if (!visited.Contains(this))
+            {
+                visited.Add(this);
+                foreach (Node child in GetAllChildren())
+                {
+                    child?.InsertBranches(visited);
+                }
+            }
+        }
     }
 }

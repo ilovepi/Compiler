@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace compiler.middleend.ir
 {
@@ -103,6 +104,23 @@ namespace compiler.middleend.ir
             d.Colorname = Colorname;
 
             return d;
+        }
+
+
+        public override void InsertBranches(HashSet<Node> visited)
+        {
+            if (!visited.Contains(this))
+            {
+                visited.Add(this);
+
+                Bb.AddInstruction(new Instruction(IrOps.Bra, new Operand(FalseNode.GetNextInstruction()), null));
+                LoopParent.Bb.Instructions.Last().Arg1.Inst = Bb.Instructions.First();
+                foreach (Node child in GetAllChildren())
+                {
+                    child?.InsertBranches(visited);
+                }
+            }
+
         }
     }
 }
