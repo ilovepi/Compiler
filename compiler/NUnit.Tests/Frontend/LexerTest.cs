@@ -217,31 +217,25 @@ namespace NUnit.Tests.Frontend
         {
             Lex = new Lexer(TestContext.CurrentContext.TestDirectory + @"/Frontend/testdata/test001.txt");
 
-            bool increasing;
             Token t;
             int currLine;
-            int prevLine;
             int curPos;
-            int prevPos;
             do
             {
-                prevPos = Lex.Position;
-                prevLine = Lex.LineNo;
+                int prevPos = Lex.Position;
+                int prevLine = Lex.LineNo;
 
                 t = Lex.GetNextToken();
 
                 curPos = Lex.Position;
                 currLine = Lex.LineNo;
 
-                if (currLine > prevLine)
-                {
-                    increasing = false;
-                }
-                else
-                {
-                    increasing = true;
-                }
 
+                // if the current line is greater, then we've wrapped, and the 
+                // current position is no longer guranteed to remain increasing
+                bool wrappedLine = currLine > prevLine;
+
+                // the position should increment except if we're at the end of a file
                 if (prevPos == curPos)
                 {
                     if (t != Token.EOF)
@@ -251,8 +245,10 @@ namespace NUnit.Tests.Frontend
                 }
                 else
                 {
+                    // if we've wrapped a line, expect the next line position to be
+                    // less than the current position
                     Assert.AreNotEqual(prevPos, curPos);
-                    if (increasing)
+                    if (!wrappedLine)
                     {
                         Assert.Less(prevPos, curPos);
                     }
@@ -274,7 +270,7 @@ namespace NUnit.Tests.Frontend
             Lex = new Lexer(TestContext.CurrentContext.TestDirectory + @"/Frontend/testdata/LexerTest1.txt");
 
             // Exact string contents of LExerTest1.txt without the '.'
-            var str = "Read some characters";
+            const string str = "Read some characters";
 
             foreach (char c in str)
             {
