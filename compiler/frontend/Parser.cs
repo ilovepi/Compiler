@@ -95,6 +95,11 @@ namespace compiler.frontend
             throw ParserException.CreateParserException(Tok, LineNo, Pos, _filename);
         }
 
+        private void FatalError(string msg)
+        {
+            throw ParserException.CreateParserException(msg, LineNo, Pos, _filename);
+        }
+
         public void Next()
         {
             do
@@ -109,21 +114,12 @@ namespace compiler.frontend
             Operand originalId = Identifier();
             Operand id = originalId;
             var instructions = new List<Instruction>();
-            //ParseResult ret = new ParseResult(id,instructions);
-
-            // gen load addr of id
-            //var baseAddr = new Instruction(IrOps.load, new Operand(Operand.OpType.Identifier, Scanner.Id), null);
-
 
             if (variables.ContainsKey(id.IdKey))
             {
                 var cached = variables[id.IdKey];
-                //if(!cached.Identity.IsArray)
-                {
-                    id = new Operand(variables[id.IdKey]);
-                }
+                id = new Operand(variables[id.IdKey]);
             }
-
 
 
             List<Operand> indiciesList = new List<Operand>();
@@ -201,9 +197,6 @@ namespace compiler.frontend
             {
                 id = new Operand(instructions.Last());
             }
-
-
-           
 
             return new ParseResult(id, instructions, variables);
         }
@@ -1153,15 +1146,18 @@ namespace compiler.frontend
 
         private void CreateParameter(List<VariableType> paramList, VarTbl varTble)
         {
-            
             var id = Identifier();
             string name = Scanner.SymbolTble.Symbols[id.IdKey];
             VariableType newVar = new VariableType(name, id.IdKey);
             paramList.Add(newVar);
-            
-            var ssa = new SsaVariable(id.IdKey, null, null, name, newVar);
-            varTble.Add(id.IdKey, ssa);
 
+            var ssa = new SsaVariable(id.IdKey, null, null, name, newVar);
+            if (varTble.ContainsKey(id.IdKey))
+            {
+                FatalError("Naming conflict with Global Variable:" + id.Name);
+            }
+            varTble.Add(id.IdKey, ssa);
+            
         }
 
 

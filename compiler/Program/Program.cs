@@ -1,4 +1,6 @@
-﻿using compiler;
+﻿using System;
+using System.Net.Configuration;
+using compiler;
 
 namespace Program
 {
@@ -7,8 +9,16 @@ namespace Program
         //TODO: adjust main to use the parser when it is complete
         private static void Main(string[] args)
         {
-            //TODO: Be sure to address options parsing
-            Compiler.DefaultRun(@"../../testdata/test002.txt");
+            try
+            {
+                //TODO: Be sure to address options parsing
+                Compiler.DefaultRun(@"../../testdata/test002.txt");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.ReadLine();
+            }
         }
     }
 }
