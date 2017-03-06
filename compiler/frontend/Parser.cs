@@ -642,8 +642,6 @@ namespace compiler.frontend
                     cfg.Root.Bb.AddInstruction(loadInst);
                     temp.Value = new Operand(loadInst);
 
-
-
                     var ssa = new SsaVariable(temp.UuId, loadInst, null, temp.Name);
                     ssa.Identity = parameter;
                     temp.Value.Inst = loadInst;
@@ -652,8 +650,6 @@ namespace compiler.frontend
                     ssa.Value = new Operand(loadInst);
 
                     //loadInst.Arg1 = ssa.Value;
-
-
 
                     variables[parameter.Id] = ssa;
                     //arg = new Operand(ssa);
@@ -809,6 +805,17 @@ namespace compiler.frontend
                 //TODO: jump to call
             }
 
+			foreach (var func in FunctionsCfgs)
+			{
+				if (func.Name == id.Name)
+				{
+					if (func.Parameters.Count != paramList.Count)
+					{
+						FatalError("Function '" + func.Name + "' takes " + func.Parameters.Count +" parameters, but " + paramList.Count+ " were provided.");
+					}
+				}
+			}
+
             foreach (ParseResult item in paramList)
             {
                 instructions.AddRange(item.Instructions);
@@ -818,7 +825,6 @@ namespace compiler.frontend
             id = new Operand(call);
 
             instructions.Add(call);
-
 
             return new ParseResult(id, instructions, variables);
         }
