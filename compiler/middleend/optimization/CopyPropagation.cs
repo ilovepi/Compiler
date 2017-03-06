@@ -27,7 +27,8 @@ namespace compiler.middleend.optimization
             {
                 if (instruction.Arg1?.Kind == Operand.OpType.Variable)
                 {
-                    instruction.Arg1 = instruction.Arg1.Variable.Value.OpenOperand();
+                    instruction.Arg1 = instruction.Arg1.OpenOperand();
+                    //instruction.Arg1 = instruction.Arg1.Variable.Value.OpenOperand();
                 }
 
 				if ((instruction.Arg2?.Kind == Operand.OpType.Variable) && (instruction.Op != IrOps.Ssa))
@@ -64,7 +65,7 @@ namespace compiler.middleend.optimization
 			for (int i = 0; i < root.Bb.Instructions.Count; i++)
 			{
 				var bbInstruction = root.Bb.Instructions[i];
-				if (bbInstruction.Op != IrOps.Phi)
+				if ((bbInstruction.Op != IrOps.Phi) &&(bbInstruction.Op != IrOps.Load))
 				{
 					if ((bbInstruction.Arg1.Kind == Operand.OpType.Constant) && (bbInstruction.Arg2?.Kind == Operand.OpType.Constant))
 					{

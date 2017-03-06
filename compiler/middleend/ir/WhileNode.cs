@@ -122,5 +122,41 @@ namespace compiler.middleend.ir
             }
 
         }
+
+
+
+        public override Instruction AnchorSearch(Instruction goal, bool alternate)
+        {
+            Instruction trueBranch = null;
+            Instruction falseBranch = null;
+
+            Instruction res = Bb.Search(goal);
+
+            if (res != null)
+            {
+                return res;
+            }
+
+
+            if (Parent != null)
+            {
+                trueBranch = Parent.AnchorSearch(goal);
+            }
+
+            if (LoopParent != null)
+            {
+                falseBranch = LoopParent.AnchorSearch(goal);
+            }
+
+            if (falseBranch.ExactMatch(trueBranch))
+            {
+                return trueBranch;
+            }
+
+            //TODO: this is wrong we need to figure out how to do this for a join block.
+            return null;
+        }
     }
 }
+
+

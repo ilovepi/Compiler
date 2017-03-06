@@ -22,26 +22,32 @@ namespace compiler.middleend.optimization
             visited.Add(root);
             var removalList = new List<Instruction>();
 
+            var delayed = new List<Instruction>();
+
             foreach (Instruction bbInstruction in root.Bb.Instructions)
             {
-                if (bbInstruction.Op != IrOps.Phi)
+                if ((bbInstruction.Op != IrOps.Phi) )
                 {
-                    Instruction predecessor = root.AnchorSearch(bbInstruction);
+                    if (bbInstruction.Op == IrOps.Load)
+                    {
+                        //TODO fix cse for loop headers
 
-                    if (predecessor != null)
-                    {
-                        // thi check is probably redundant now that we're rebuilding the search structure
-                        if (predecessor.Num != bbInstruction.Num)
+                        if (root.GetType() == typeof(WhileNode))
                         {
-                            // delay removal from list -- because c# says so
-                            bbInstruction.ReplaceInst(predecessor);
-                            removalList.Add(bbInstruction);
+                            // determine if we can replace it later
+                            delayed.Add(bbInstruction);
+                            continue;
                         }
+                        //continue;
                     }
-                    else
+                    else if(bbInstruction.Op == IrOps.Store)
                     {
-                        root.Bb.AnchorBlock.Insert(bbInstruction);
+                        // insert kill instruction for all loads
+                        root.Bb.AnchorBlock.InsertKill(bbInstruction.Arg2);
+                        
                     }
+
+                    EliminateInternal(root, bbInstruction, removalList, false);
                 }
             }
 
@@ -60,6 +66,42 @@ namespace compiler.middleend.optimization
             foreach (Node child in children)
             {
                 Eliminate(child, visited);
+            }
+
+            // TODO: fix loop cse
+            foreach (Instruction instruction in delayed)
+            {
+                EliminateInternal(root,instruction,removalList, true);
+            }
+        }
+
+        private static void EliminateInternal(Node root, Instruction bbInstruction, List<Instruction> removalList, bool alternate)
+        {
+            
+            Instruction predecessor;
+            if (alternate)
+            {
+                predecessor = root.AnchorSearch(bbInstruction, alternate);
+            }
+            else
+            {
+                predecessor = root.AnchorSearch(bbInstruction);
+            }
+
+
+            if (predecessor != null)
+            {
+                // thi check is probably redundant now that we're rebuilding the search structure
+                if (predecessor.Num != bbInstruction.Num)
+                {
+                    // delay removal from list -- because c# says so
+                    bbInstruction.ReplaceInst(predecessor);
+                    removalList.Add(bbInstruction);
+                }
+            }
+            else
+            {
+                root.Bb.AnchorBlock.Insert(bbInstruction);
             }
         }
     }

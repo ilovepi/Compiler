@@ -87,9 +87,9 @@ namespace compiler
 		public static void GenerateRanges(DomTree tree)
 		{
 			HashSet<Instruction> liveRange = new HashSet<Instruction>();
-            tree.intGraph = new InterferenceGraph();
+            tree.IntGraph = new InterferenceGraph();
 
-			GenerateRanges(tree.Root, liveRange, tree.intGraph);
+			GenerateRanges(tree.Root, liveRange, tree.IntGraph);
 		}
 
 	}

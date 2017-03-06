@@ -196,7 +196,7 @@ namespace compiler.middleend.ir
             }
 
 
-            return Kind == OpType.Variable ? Variable.Value.OpenOperand() : this;
+            return Kind == OpType.Variable ? Variable.Value?.OpenOperand() ?? this : this;
         }
     }
 }

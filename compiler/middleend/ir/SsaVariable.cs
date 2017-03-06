@@ -9,6 +9,7 @@
             Location = new Instruction(other.Location);
             Value = other.Value;
             UuId = other.UuId;
+            Identity = other.Identity;
         }
 
         public SsaVariable(int puuid, Instruction plocation, Instruction pPrev, string pName)
@@ -18,6 +19,17 @@
             Location = plocation;
             UuId = puuid;
         }
+
+        public SsaVariable(int puuid, Instruction plocation, Instruction pPrev, string pName, VariableType variable)
+        {
+            Identity = variable;
+            Name = pName;
+            Prev = pPrev;
+            Location = plocation;
+            UuId = puuid;
+        }
+
+        public VariableType Identity { get; set; }
 
         public int UuId { get; set; }
 
@@ -34,7 +46,8 @@
 
         public override string ToString()
         {
-            return Name + Location.Num + "=" + Value;
+            return Name + Location?.Num + "=" + Value;
         }
+
     }
 }

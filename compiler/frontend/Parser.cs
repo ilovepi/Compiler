@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using compiler.middleend.ir;
+using QuickGraph.Serialization;
 using VarTbl = System.Collections.Generic.SortedDictionary<int, compiler.middleend.ir.SsaVariable>;
 
 namespace compiler.frontend
@@ -113,55 +114,101 @@ namespace compiler.frontend
             // gen load addr of id
             //var baseAddr = new Instruction(IrOps.load, new Operand(Operand.OpType.Identifier, Scanner.Id), null);
 
+
+            if (variables.ContainsKey(id.IdKey))
+            {
+                var cached = variables[id.IdKey];
+                //if(!cached.Identity.IsArray)
+                {
+                    id = new Operand(variables[id.IdKey]);
+                }
+            }
+
+
+
+            List<Operand> indiciesList = new List<Operand>();
+            int arrayCount = 0;
+            ArrayType ary = null;
             //TODO handle generating array addresses
             while (Tok == Token.OPEN_BRACKET)
             {
-                // load array base address
+                // throw error if the variable isn't an array
+                if (!id.Variable.Identity.IsArray)
+                {
+                    FatalError();
+                }
 
-                var baseAddr = new Instruction(IrOps.Load, id, null);
-                instructions.Add(baseAddr);
-                id = new Operand(baseAddr);
-
+                if (ary == null)
+                {
+                    ary = (ArrayType) id.Variable.Identity;
+                }
 
                 GetExpected(Token.OPEN_BRACKET);
+
+               
 
                 // calulate offset
 
                 ParseResult exp = Expression(variables);
                 instructions.AddRange(exp.Instructions);
 
-                //add offset to addr of id
-                //instructions.Add(new Instruction(IrOps.adda, id,  new Operand(instructions.Last())));
-                instructions.Add(new Instruction(IrOps.Adda, id, exp.Operand));
+                // if we arn't the last index, generate a multiply
+                if (arrayCount < (ary.Dimensions.Count))
+                {
+                    int offset = 1;
+                    for (int i = arrayCount + 1; i < ary.Dimensions.Count; i++)
+                    {
+                        offset *= ary.Dimensions[i];
+                    }
 
-                // Delay the indirect load until the top of the loop so we can do the last
-                // load or store at the reference site.
-
-                //inderect load result of basaddr + offset
-                //baseAddr = new Instruction(IrOps.load, new Operand(instructions.Last()), null);
-                //instructions.Add(baseAddr);
-                //id = new Operand(baseAddr);
+                    var mulInst = new Instruction(IrOps.Mul, exp.Operand, new Operand(Operand.OpType.Constant, offset));
+                    instructions.Add(mulInst);
+                    exp.Operand = new Operand(mulInst);
 
 
+                    if (arrayCount != 0)
+                    {
+                        var addInst = new Instruction(IrOps.Add, indiciesList.Last(), exp.Operand);
+                        instructions.Add(addInst);
+                        var addOp = new Operand(addInst);
+                        indiciesList.Add(addOp);
+                        exp.Operand = addOp;
+                        if (arrayCount == (ary.Dimensions.Count - 1))
+                        {
+                            instructions.Add(new Instruction(IrOps.Adda, id, exp.Operand));
+                        }
+
+                    }
+                    else
+                    {
+                        if (arrayCount == (ary.Dimensions.Count - 1))
+                        {
+                            instructions.Add(new Instruction(IrOps.Adda, id, exp.Operand));
+                        }
+                        indiciesList.Add(exp.Operand);
+                    }
+                }
+                
+                
+                
                 //get bracket
                 GetExpected(Token.CLOSE_BRACKET);
+                arrayCount++;
+                
+            }
 
-                // set the current operand to the last adda inst, so we can get the load/store right at the end
+            if (arrayCount > 0)
+            {
                 id = new Operand(instructions.Last());
             }
 
-            if (variables.ContainsKey(id.IdKey))
-            {
-                id = new Operand(variables[id.IdKey]);
-                //id = variables[id.IdKey].Value
-                /*if (temp != null)
-                {
-                    id = new Operand(temp);
-                }//*/
-            }
+
+           
 
             return new ParseResult(id, instructions, variables);
         }
+
+        
 
         private ParseResult Factor(VarTbl variables)
         {
@@ -184,17 +231,14 @@ namespace compiler.frontend
                         id = new Operand(des.Operand.Variable.Location);
 						if ((id.Inst != null) && (id.Inst.Op == IrOps.Ssa))
                         {
-                            // TODO: please solve how to do copy propagation -- next 3 lines
-                            //id = new Operand(id.Inst.Arg2.Variable.Location); // doesn't propagate to original value 
-                            //id = id.Inst.Arg2.Variable.Value;
-                            //id = id.Inst.Arg2.Variable.Location.Arg2.Variable.Value; // kills references to aliased variables
-
                             id = new Operand(id.Inst.Arg2.Variable);
                         }
                     }
                     else
                     {
+                        //TODO: determine how to reinstate loads for parameters
                         var baseAddr = new Instruction(IrOps.Load, des.Operand, null);
+                        //baseAddr.Arg1.Variable.Identity;
                         instructions.Add(baseAddr);
                         id = new Operand(baseAddr);
                     }
@@ -322,6 +366,7 @@ namespace compiler.frontend
             // create new instruction
             // TODO: decide if this is ssa, and change irops.store to irops.ssa
             Instruction newInst = new Instruction(IrOps.Store, expValue.Operand, id.Operand);
+            
             Instruction prev = null;
             string name = Scanner.SymbolTble.Symbols[id.Operand.IdKey];
 
@@ -336,6 +381,7 @@ namespace compiler.frontend
                 prev = locals[id.Operand.IdKey].Location;
 
                 var ssa = new SsaVariable(id.Operand.IdKey, newInst, prev, name);
+                ssa.Identity = id.VarTable[id.Operand.IdKey].Identity;
                 id.Operand.Inst = newInst;
                 id.Operand.Variable = ssa;
 
@@ -359,6 +405,7 @@ namespace compiler.frontend
             {
                 //Otherwise it must be an array
                 arg = new Operand(newInst);
+
             }
 
             // insert new instruction to instruction list
@@ -375,12 +422,13 @@ namespace compiler.frontend
 
             while ((Tok == Token.VAR) || (Tok == Token.ARRAY))
             {
-                varTble = VarDecl(varTble);
+               cfg.Globals = VarDecl(varTble);
             }
 
             while ((Tok == Token.FUNCTION) || (Tok == Token.PROCEDURE))
             {
                 Cfg func = FuncDecl(new VarTbl(varTble));
+                func.Globals = cfg.Globals;
                 if (func.Root != null)
                 {
                     FunctionsCfgs.Add(func);
@@ -394,6 +442,7 @@ namespace compiler.frontend
             GetExpected(Token.CLOSE_CURL);
 
             GetExpected(Token.EOF);
+
             var end = new Instruction(IrOps.End, null, null);
             end.Arg1 = new Operand(end);
             cfg.Root.Leaf().Bb.AddInstruction(end);
@@ -465,8 +514,10 @@ namespace compiler.frontend
             int id = Scanner.Id;
             GetExpected(Token.IDENTIFIER);
 
-            var op = new Operand(Operand.OpType.Identifier, id);
-            op.Name = Scanner.SymbolTble.Symbols[id];
+            var op = new Operand(Operand.OpType.Identifier, id)
+            {
+                Name = Scanner.SymbolTble.Symbols[id]
+            };
             return op;
         }
 
@@ -493,36 +544,42 @@ namespace compiler.frontend
         }
 
 
-        private VarTbl VarDecl(VarTbl varTble)
+        public List<VariableType> VarDecl(VarTbl varTble)
         {
             // TODO: allocate variables here
-            var varTypee = TypeDecl();
-            var localTbl = new VarTbl();
+            var varType = TypeDecl();
+            var variableList = new List<VariableType>();
 
             // TODO: this is where we need to set variable addresses
             //CreateIdentifier();
-            Operand id = Identifier();
-            localTbl.Add(id.IdKey, new SsaVariable(id.IdKey, null, null, Scanner.SymbolTble.Symbols[id.IdKey]));
-
-
+            CreateIdentifier(varTble, varType, variableList);
 
             while (Tok == Token.COMMA)
             {
                 Next();
 
                 //CreateIdentifier();
-                id = Identifier();
-                localTbl.Add(id.IdKey, new SsaVariable(id.IdKey, null, null, Scanner.SymbolTble.Symbols[id.IdKey]));
+                CreateIdentifier(varTble, varType, variableList);
             }
 
             GetExpected(Token.SEMI_COLON);
-
-            foreach (var ssaVariable in localTbl)
-            {
-                varTble.Add(ssaVariable.Key, ssaVariable.Value);
-            }
            
-            return varTble;
+            return variableList;
+        }
+
+        private void CreateIdentifier(VarTbl varTble, VariableType varType, List<VariableType> VariableList)
+        {
+            Operand id = Identifier();
+            string name = Scanner.SymbolTble.Symbols[id.IdKey];
+            
+            var temp = varType.Clone();
+            temp.Name = name;
+            temp.Id = id.IdKey;
+            temp.Offset = VariableType.CurrOffset;
+            VariableType.CurrOffset += varType.Size;
+            VariableList.Add(temp);
+            var ssa = new SsaVariable(id.IdKey, null, null, name, temp);
+            varTble.Add(id.IdKey, ssa);
         }
 
         private VariableType TypeDecl()
@@ -565,6 +622,7 @@ namespace compiler.frontend
         private Cfg FuncDecl(VarTbl variables)
         {
             var cfg = new Cfg();
+            
 
             if ((Tok != Token.FUNCTION) && (Tok != Token.PROCEDURE))
             {
@@ -576,11 +634,40 @@ namespace compiler.frontend
             //TODO: Need a special address thing for functions
             //CreateIdentifier();
             Operand id = Identifier();
-            List<Operand> paramList = null;
 
             if (Tok == Token.OPEN_PAREN)
             {
-                paramList = FormalParams();
+                cfg.Parameters = FormalParams(variables);
+                cfg.Root = new Node(new BasicBlock("Prologue"));
+
+                //*
+                foreach (VariableType parameter in cfg.Parameters)
+                {
+                    var temp = variables[parameter.Id];
+
+                    var loadInst = new Instruction(IrOps.Load, new Operand(Operand.OpType.Identifier, parameter.Id), null);
+                    cfg.Root.Bb.AddInstruction(loadInst);
+                    temp.Value = new Operand(loadInst);
+
+
+
+                    var ssa = new SsaVariable(temp.UuId, loadInst, null, temp.Name);
+                    ssa.Identity = parameter;
+                    temp.Value.Inst = loadInst;
+                    temp.Value.Variable = ssa;
+
+                    ssa.Value = new Operand(loadInst);
+
+                    //loadInst.Arg1 = ssa.Value;
+
+
+
+                    variables[parameter.Id] = ssa;
+                    //arg = new Operand(ssa);
+                    
+                }
+                //*/
+
             }
 
             GetExpected(Token.SEMI_COLON);
@@ -592,6 +679,7 @@ namespace compiler.frontend
                 fb.Name = Scanner.SymbolTble.Symbols[id.IdKey];
                 cfg.Insert(fb);
                 cfg.Name = fb.Name;
+                cfg.Locals = fb.Locals;
             }
 
             GetExpected(Token.SEMI_COLON);
@@ -601,10 +689,10 @@ namespace compiler.frontend
 
         private Cfg FuncBody(VarTbl ssaTable)
         {
-            Cfg cfg = null;
+            Cfg cfg = new Cfg {Locals = new List<VariableType>()};
             while ((Tok == Token.VAR) || (Tok == Token.ARRAY))
             {
-                ssaTable = VarDecl(ssaTable);
+                cfg.Locals.AddRange(VarDecl(ssaTable));
             }
 
             GetExpected(Token.OPEN_CURL);
@@ -612,7 +700,7 @@ namespace compiler.frontend
             if ((Tok == Token.LET) || (Tok == Token.CALL) || (Tok == Token.IF)
                 || (Tok == Token.WHILE) || (Tok == Token.RETURN))
             {
-                cfg = StatementSequence(ref ssaTable);
+                cfg.Insert(StatementSequence(ref ssaTable));
             }
 
             GetExpected(Token.CLOSE_CURL);
@@ -827,7 +915,9 @@ namespace compiler.frontend
                     // This top construction seems to be correct, and should give the best answer, but doesnt
                     var newInst = new Instruction(IrOps.Phi, trueVar.Value.Value,
                         falseVar?.Value ?? new Operand(falseVar.Location));
-                    
+
+                    newInst.VArId = trueVar.Value.Identity;
+
                     phiList.Add(newInst);
                     if (isLoop)
                     {
@@ -1033,17 +1123,18 @@ namespace compiler.frontend
             return retStmt;
         }
 
-        private List<Operand> FormalParams()
+        private List<VariableType> FormalParams(VarTbl varTble)
         {
             GetExpected(Token.OPEN_PAREN);
 
-            var paramList = new List<Operand>();
+            var paramList = new List<VariableType>();
 
             if (Tok == Token.IDENTIFIER)
             {
                 //TODO: handle parameters????
-                // CreateIdentifier();
-                paramList.Add(Identifier());
+                 //CreateIdentifier();
+
+                CreateParameter(paramList, varTble);
 
                 while (Tok == Token.COMMA)
                 {
@@ -1051,13 +1142,26 @@ namespace compiler.frontend
 
                     //not sure this is correct per above
                     //CreateIdentifier();
-                    paramList.Add(Identifier());
+                    CreateParameter(paramList, varTble);
                 }
             }
 
             GetExpected(Token.CLOSE_PAREN);
 
             return paramList;
+        }
+
+        private void CreateParameter(List<VariableType> paramList, VarTbl varTble)
+        {
+            
+            var id = Identifier();
+            string name = Scanner.SymbolTble.Symbols[id.IdKey];
+            VariableType newVar = new VariableType(name, id.IdKey);
+            paramList.Add(newVar);
+            
+            var ssa = new SsaVariable(id.IdKey, null, null, name, newVar);
+            varTble.Add(id.IdKey, ssa);
+
         }
 
 

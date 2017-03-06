@@ -50,6 +50,8 @@ namespace compiler.middleend.ir
             Uses = new List<Operand>();
         }
 
+        public VariableType VArId { get; set; }
+
         public List<Operand> Uses { get; set; }
 
         /// <summary>
@@ -227,7 +229,8 @@ namespace compiler.middleend.ir
 
         public bool ExactMatch(Instruction other)
         {
-            return (other.Num == Num) && Equals(other);
+
+            return  (other?.Num == Num) && Equals(other);
         }
     }
 }

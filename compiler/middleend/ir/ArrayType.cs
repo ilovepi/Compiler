@@ -56,5 +56,10 @@ namespace compiler.middleend.ir
                 Size *= dimension;
             }
         }
+
+        public override VariableType Clone()
+        {
+            return  new ArrayType(Name, Id, Offset, Dimensions, IsArray);
+        }
     }
 }

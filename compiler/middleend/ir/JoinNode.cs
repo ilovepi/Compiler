@@ -53,8 +53,43 @@
             {
                 return trueBranch;
             }
+
+
             //TODO: this is wrong we need to figure out how to do this for a join block.
-            return falseBranch;
+            return null;
         }
+        public override Instruction AnchorSearch(Instruction goal, bool alternate)
+        {
+            Instruction trueBranch = null;
+            Instruction falseBranch = null;
+
+            Instruction res = Bb.Search(goal);
+
+            if (res != null)
+            {
+                return res;
+            }
+
+
+            if (Parent != null)
+            {
+                trueBranch = Parent.AnchorSearch(goal, alternate);
+            }
+
+            if (FalseParent != null)
+            {
+                falseBranch = FalseParent.AnchorSearch(goal, alternate);
+            }
+
+            if (falseBranch == trueBranch)
+            {
+                return trueBranch;
+            }
+
+
+            //TODO: this is wrong we need to figure out how to do this for a join block.
+            return null;
+        }
+
     }
 }

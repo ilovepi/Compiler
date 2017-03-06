@@ -80,9 +80,12 @@ namespace compiler.middleend.ir
                 foreach (Instruction item in Enumerable.Reverse(instList))
                 {
                     // TODO: insert kill instructions after we see a load or a phi? cant remember
-                    if (item.Op == IrOps.Kill) // <------ this should have an aditional check right?
+                    if ((item.Op == IrOps.Kill) && (ins.Op == IrOps.Load))
                     {
-                        return null;
+                       if (ins.VArId == item.VArId)
+                        {
+                            return ins;
+                        }
                     }
 
                     if (item.Equals(ins))

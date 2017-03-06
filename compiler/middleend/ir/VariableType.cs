@@ -32,6 +32,8 @@ namespace compiler.middleend.ir
 {
     public class VariableType
     {
+        public static int CurrOffset = 0;
+
         public const int Dword = 4;
 
         public string Name { get; set; }
@@ -45,7 +47,6 @@ namespace compiler.middleend.ir
         public int Offset { get; set; }
 
         public int Address { get; set; }
-
 
         public VariableType() { }
 
@@ -72,6 +73,18 @@ namespace compiler.middleend.ir
             Address = 0;
         }
 
+        // constructor for normal variables
+        public VariableType(string pName, int pId)
+        {
+            Name = pName;
+            Id = pId;
+            IsArray = false;
+            Offset = CurrOffset;
+            Size = 1;
+            CurrOffset += Size;
+            Address = 0;
+        }
+
         public VariableType(string pName, int pId, int pOffset, int size, bool pIsArray)
         {
             Name = pName;
@@ -80,6 +93,11 @@ namespace compiler.middleend.ir
             IsArray = pIsArray;
             Size = size;
             Address = 0;
+        }
+
+        public virtual VariableType Clone()
+        {
+            return new VariableType(Name, Id, Offset, Size, IsArray);
         }
 
 

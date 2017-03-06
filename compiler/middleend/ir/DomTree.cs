@@ -11,7 +11,7 @@ namespace compiler.middleend.ir
     {
         public string GraphOutput;
         public string Name;
-        public InterferenceGraph intGraph { get; set; }
+        public InterferenceGraph IntGraph { get; set; }
 
         public DomTree()
         {
@@ -56,7 +56,7 @@ namespace compiler.middleend.ir
         public string PrintInterference()
         {
 
-            var temp = intGraph.Edges.ToAdjacencyGraph<Instruction, Edge<Instruction>>();
+            var temp = IntGraph.Edges.ToAdjacencyGraph<Instruction, Edge<Instruction>>();
             var graphViz = new GraphvizAlgorithm<Instruction, Edge<Instruction>>(temp, @".", GraphvizImageType.Gif);
 
             graphViz.FormatVertex += FormatVertex;
