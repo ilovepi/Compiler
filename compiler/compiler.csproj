@@ -46,6 +46,18 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="QuickGraph.Data">
+      <HintPath>packages\QuickGraphPCL.3.6.61114.2\lib\net40-client\QuickGraph.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="QuickGraph">
+      <HintPath>packages\QuickGraphPCL.3.6.61114.2\lib\net40-client\QuickGraph.dll</HintPath>
+    </Reference>
+    <Reference Include="QuickGraph.Graphviz">
+      <HintPath>packages\QuickGraphPCL.3.6.61114.2\lib\net40-client\QuickGraph.Graphviz.dll</HintPath>
+    </Reference>
+    <Reference Include="QuickGraph.Serialization">
+      <HintPath>packages\QuickGraphPCL.3.6.61114.2\lib\net40-client\QuickGraph.Serialization.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Compiler.cs" />
@@ -54,6 +66,7 @@
     <Compile Include="frontend\Parser.cs" />
     <Compile Include="frontend\ParserException.cs" />
     <Compile Include="frontend\Token.cs" />
+    <Compile Include="middleend\ir\ArrayType.cs" />
     <Compile Include="middleend\ir\DomTree.cs" />
     <Compile Include="middleend\ir\DominatorNode.cs" />
     <Compile Include="middleend\ir\CompareNode.cs" />
@@ -62,6 +75,7 @@
     <Compile Include="middleend\ir\Operand.cs" />
     <Compile Include="middleend\ir\ParseResult.cs" />
     <Compile Include="middleend\ir\SsaVariable.cs" />
+    <Compile Include="middleend\ir\VariableType.cs" />
     <Compile Include="middleend\ir\WhileNode.cs" />
     <Compile Include="middleend\optimization\CsElimination.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -74,6 +88,9 @@
     <Compile Include="middleend\ir\CFG.cs" />
     <Compile Include="middleend\ir\ParseTree.cs" />
     <Compile Include="middleend\optimization\CopyPropagation.cs" />
+    <Compile Include="middleend\optimization\LiveRanges.cs" />
+    <Compile Include="middleend\ir\InterferenceGraph.cs" />
+    <Compile Include="middleend\ir\Register.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="backend\" />

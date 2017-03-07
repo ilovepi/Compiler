@@ -45,5 +45,20 @@ namespace compiler.middleend.ir
 
             return null;
         }
+
+        public void InsertKill(Operand target)
+        {
+            var chain = FindOpChain(IrOps.Load);
+            // if the op never existed, add it
+            if (chain == null)
+            {
+                chain = new List<Instruction>();
+                Oplist.Add(chain);
+            }
+
+            chain.Add(new Instruction(IrOps.Kill, target, null));
+           
+
+        }
     }
 }

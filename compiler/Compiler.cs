@@ -60,6 +60,13 @@ namespace compiler
                 file.WriteLine(GenDomGraphString());
                 file.WriteLine("}");
             }
+
+			using (var file = new StreamWriter(Opts.DomFilename+".interference"))
+			{
+				//file.WriteLine("digraph Dom{\n");
+				file.WriteLine(GenInterferenceGraphString());
+				//file.WriteLine("}");
+			}
         }
 
         
@@ -68,6 +75,11 @@ namespace compiler
             var i = 0;
             return FuncList.Aggregate(string.Empty, (current, func) => current + (func.DominatorTree.PrintTreeGraph(i++, func.ControlFlowGraph.Sym) + "\n"));
         }
+
+		private string GenInterferenceGraphString()
+		{
+			return FuncList.Aggregate(string.Empty, (current, func) => current + (func.DominatorTree.PrintInterference() + "\n"));
+		}
 
         private string GenControlGraphString()
         {
@@ -90,6 +102,7 @@ namespace compiler
                 if (Opts.CopyProp)
                 {
                     CopyPropagation.Propagate(func.ControlFlowGraph.Root);
+					CopyPropagation.ConstantFolding(func.ControlFlowGraph.Root);
                 }
 
                 //Common Sub Expression Elimination
@@ -98,18 +111,23 @@ namespace compiler
                     CsElimination.Eliminate(func.ControlFlowGraph.Root);
                 }
 
+
                 // Reevaluation
                 if (Opts.DeadCode)
                 {
                     throw new NotImplementedException();
                 }
 
-
                 // Pruning
                 if (Opts.PruneCfg)
                 {
                     throw new NotImplementedException();
                 }
+
+                func.ControlFlowGraph.InsertBranches();
+
+				LiveRanges.GenerateRanges(func.DominatorTree);
+
             }
         }
 

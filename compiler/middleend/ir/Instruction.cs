@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using compiler.frontend;
+using compiler.midleend.ir;
 
 namespace compiler.middleend.ir
 {
@@ -49,6 +50,8 @@ namespace compiler.middleend.ir
             Uses = new List<Operand>();
         }
 
+        public VariableType VArId { get; set; }
+
         public List<Operand> Uses { get; set; }
 
         /// <summary>
@@ -95,6 +98,8 @@ namespace compiler.middleend.ir
         ///     The set of live ranges used in liveness analysis
         /// </summary>
         public HashSet<Instruction> LiveRange { get; set; }
+
+		public Register Reg { get; set; }
 
 
         public bool Equals(Instruction other)
@@ -200,12 +205,32 @@ namespace compiler.middleend.ir
             {
                 // TODO: this may need to be verified
                 operand.Inst = newInst;
+				newInst.Uses.Add(new Operand(this));
             }
+
+			// clear all references just incase we need to fix this in Dead Code Elimination
+			Uses.Clear();
         }
+
+		public void FoldConst(int val)
+		{
+			foreach (Operand operand in Uses)
+			{
+				// TODO: this may need to be verified
+				operand.Inst = null;
+				operand.Val = val;
+				operand.Kind = Operand.OpType.Constant;
+				operand.Variable = null;
+			}
+
+			// clear all references just incase we need to fix this in Dead Code Elimination
+			Uses.Clear();
+		}
 
         public bool ExactMatch(Instruction other)
         {
-            return (other.Num == Num) && Equals(other);
+
+            return  (other?.Num == Num) && Equals(other);
         }
     }
 }

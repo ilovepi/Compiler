@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace compiler.middleend.ir
 {
@@ -78,6 +79,18 @@ namespace compiler.middleend.ir
             }
 
             return d;
+        }
+
+        public override void InsertBranches(HashSet<Node> visited )
+        {
+            if (!visited.Contains(this))
+            {
+                visited.Add(this);
+                Bb.Instructions.Last().Arg2 = new Operand(FalseNode.GetNextInstruction());
+                this.Join.Parent.Bb.AddInstruction(new Instruction(IrOps.Bra,
+                    new Operand(this.Join.GetNextInstruction()), null));
+                base.InsertBranches(visited);
+            }
         }
     }
 }

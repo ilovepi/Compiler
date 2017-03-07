@@ -30,6 +30,7 @@ namespace NUnit.Tests.Frontend
             {
                 var v = new SortedDictionary<int, SsaVariable>();
                 Checker.Next();
+                Checker.VarDecl(v);
                 Checker.Designator(v);
                 Checker.Designator(v);
                 Checker.Designator(v);
@@ -44,6 +45,7 @@ namespace NUnit.Tests.Frontend
             {
                 Checker.Next();
                 var v = new SortedDictionary<int, SsaVariable>();
+                Checker.VarDecl(v);
                 Assert.Throws<ParserException>(() => Checker.Designator(v));
             }
         }
@@ -70,6 +72,7 @@ namespace NUnit.Tests.Frontend
             {
                 var v = new SortedDictionary<int, SsaVariable>();
                 Checker.Next();
+                Checker.VarDecl(v);
                 Checker.Designator(v);
                 Checker.Designator(v);
                 Checker.Designator(v);

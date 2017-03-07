@@ -63,6 +63,8 @@ namespace compiler.middleend.ir
 
         public int IdKey { get; set; }
 
+        public string Name { get; set; }
+
         public SsaVariable Variable { get; set; }
 
 
@@ -120,7 +122,7 @@ namespace compiler.middleend.ir
                 var hashCode = (int) Kind;
                 hashCode = (hashCode * 397) ^ Val;
                 hashCode = (hashCode * 397) ^ IdKey;
-                int? i = (hashCode * 397) ^ Inst?.GetHashCode();
+                int? i = (hashCode * 397) ^ Inst?.Num.GetHashCode();
                 if (i != null)
                 {
                     hashCode = (int) i;
@@ -144,6 +146,8 @@ namespace compiler.middleend.ir
                     return "(" + s + ")";
                 case OpType.Register:
                     return "R" + Val;
+                case OpType.Identifier:
+                    return Name;
                 default:
                     return "ERROR!!!";
             }
@@ -176,7 +180,7 @@ namespace compiler.middleend.ir
         {
             if ((Inst != null) && (Kind == OpType.Instruction))
             {
-                if (Inst.Op == IrOps.Store)
+				if (Inst.Op == IrOps.Ssa)
                 {
                     if (Inst.Arg2 == Inst.Arg2.Inst.Arg2)
                     {
@@ -192,7 +196,7 @@ namespace compiler.middleend.ir
             }
 
 
-            return Kind == OpType.Variable ? Variable.Value.OpenOperand() : this;
+            return Kind == OpType.Variable ? Variable.Value?.OpenOperand() ?? this : this;
         }
     }
 }

@@ -1,6 +1,6 @@
 //Simple parsing test
 main 
-var x, y;
+var x, y,z;
 {
     let x <- 51; 
     let y <- 2 * x;

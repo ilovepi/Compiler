@@ -225,12 +225,24 @@ namespace compiler.middleend.ir
 
         public virtual Instruction AnchorSearch(Instruction ins)
         {
+            Instruction res = Bb.Search(ins);
             if (IsRoot())
             {
-                return Bb.Search(ins);
+                return res;
             }
-            Instruction res = Bb.Search(ins);
+            
             return res ?? Parent.AnchorSearch(ins);
+        }
+
+        public virtual Instruction AnchorSearch(Instruction ins, bool alternate)
+        {
+            Instruction res = Bb.Search(ins);
+            if (IsRoot())
+            {
+                return res;
+            }
+
+            return res ?? Parent.AnchorSearch(ins, alternate);
         }
 
 
@@ -240,6 +252,19 @@ namespace compiler.middleend.ir
             d.TestInsert(Child);
             d.Colorname = Colorname;
             return d;
+        }
+
+
+        public virtual void InsertBranches(HashSet<Node> visited )
+        {
+            if (!visited.Contains(this))
+            {
+                visited.Add(this);
+                foreach (Node child in GetAllChildren())
+                {
+                    child?.InsertBranches(visited);
+                }
+            }
         }
     }
 }

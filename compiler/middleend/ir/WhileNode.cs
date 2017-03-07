@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace compiler.middleend.ir
 {
@@ -104,5 +105,58 @@ namespace compiler.middleend.ir
 
             return d;
         }
+
+
+        public override void InsertBranches(HashSet<Node> visited)
+        {
+            if (!visited.Contains(this))
+            {
+                visited.Add(this);
+
+                Bb.AddInstruction(new Instruction(IrOps.Bra, new Operand(FalseNode.GetNextInstruction()), null));
+                LoopParent.Bb.Instructions.Last().Arg1.Inst = Bb.Instructions.First();
+                foreach (Node child in GetAllChildren())
+                {
+                    child?.InsertBranches(visited);
+                }
+            }
+
+        }
+
+
+
+        public override Instruction AnchorSearch(Instruction goal, bool alternate)
+        {
+            Instruction trueBranch = null;
+            Instruction falseBranch = null;
+
+            Instruction res = Bb.Search(goal);
+
+            if (res != null)
+            {
+                return res;
+            }
+
+
+            if (Parent != null)
+            {
+                trueBranch = Parent.AnchorSearch(goal);
+            }
+
+            if (LoopParent != null)
+            {
+                falseBranch = LoopParent.AnchorSearch(goal);
+            }
+
+            if (falseBranch.ExactMatch(trueBranch))
+            {
+                return trueBranch;
+            }
+
+            //TODO: this is wrong we need to figure out how to do this for a join block.
+            return null;
+        }
     }
 }
+
+

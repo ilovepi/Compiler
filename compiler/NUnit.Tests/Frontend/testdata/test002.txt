@@ -16,7 +16,7 @@ var i, d;
 	return d
 };
 
-procedure bar( x, z );
+procedure bar(r,n );
 var i, j, e;
 {
 	let i <- 0;
