@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
 using compiler.middleend.ir;
@@ -396,8 +397,17 @@ namespace compiler.frontend
             }
             else
             {
+
                 //Otherwise it must be an array
                 arg = new Operand(newInst);
+
+                if ((newInst.Arg2.Kind == Operand.OpType.Instruction) && (newInst.Arg2.Inst.Op == IrOps.Adda))
+                {
+                    var temp = newInst.Arg2.Inst;
+                    id.Instructions.Remove(temp);
+                    id.Instructions.Add(temp);
+                }
+
 
             }
 
