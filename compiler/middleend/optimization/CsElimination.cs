@@ -26,14 +26,16 @@ namespace compiler.middleend.optimization
 
             foreach (Instruction bbInstruction in root.Bb.Instructions)
             {
-                if ((bbInstruction.Op != IrOps.Phi) || (false && bbInstruction.Op == IrOps.Adda) )
+                if ((bbInstruction.Op != IrOps.Phi) || (bbInstruction.Op == IrOps.Adda) )
                 {
                     if (bbInstruction.Op == IrOps.Load)
                     {
-                        if (false && bbInstruction.Arg1.Kind == Operand.OpType.Instruction)
+                        if ( bbInstruction.Arg1.Kind == Operand.OpType.Instruction)
                         {
                             if(bbInstruction.Arg1.Inst.Op == IrOps.Adda)
+                            {
                                 continue;
+                            }
                         }
                         //TODO fix cse for loop headers
 
