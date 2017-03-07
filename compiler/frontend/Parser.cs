@@ -422,10 +422,7 @@ namespace compiler.frontend
             {
                 Cfg func = FuncDecl(new VarTbl(varTble));
                 func.Globals = cfg.Globals;
-                if (func.Root != null)
-                {
-                    FunctionsCfgs.Add(func);
-                }
+                
             }
 
             GetExpected(Token.OPEN_CURL);
@@ -614,7 +611,9 @@ namespace compiler.frontend
 
         private Cfg FuncDecl(VarTbl variables)
         {
-            var cfg = new Cfg();
+            var cfg = new Cfg {Parameters = new List<VariableType>()};
+
+            FunctionsCfgs.Add(cfg);
             
 
             if ((Tok != Token.FUNCTION) && (Tok != Token.PROCEDURE))
