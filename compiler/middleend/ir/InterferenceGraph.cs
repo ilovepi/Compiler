@@ -135,8 +135,11 @@ namespace compiler.middleend.ir
 	            }
 
                 // All coloring stack values should be assigned a color
-	            Debug.Assert(GraphColors.ContainsKey(curInstr), "Did not color colorable reg.");
-	        }
+                if (!GraphColors.ContainsKey(curInstr))
+                {
+                    throw new Exception("Did not color colorable reg.");
+                }
+            }
 	    }
 
 	}
