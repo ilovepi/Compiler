@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Configuration;
 using compiler;
+using compiler.frontend;
 
 namespace Program
 {
@@ -12,9 +13,9 @@ namespace Program
             try
             {
                 //TODO: Be sure to address options parsing
-                Compiler.DefaultRun(@"../../testdata/test002.txt");
+                Compiler.DefaultRun(@"../../testdata/test003.txt");
             }
-            catch (Exception e)
+            catch (ParserException e)
             {
                 Console.WriteLine(e.Message);
                 Console.ReadLine();
