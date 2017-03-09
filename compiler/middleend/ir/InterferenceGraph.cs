@@ -1,19 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using QuickGraph;
+﻿using QuickGraph;
 using System.Linq;
-using System.Linq.Expressions;
 
 //using EdgeList = System.Collections.Generic.SortedDictionary<compiler.middleend.ir.Instruction, compiler.middleend.ir.InterferenceGraph.GraphNode>;
-
-
 //using EdgeList = System.Collections.Generic.HashSet<compiler.middleend.ir.InterferenceGraph.GraphNode>;
-using NUnit.Framework.Internal.Commands;
-using compiler.midleend.ir;
-using System.Runtime.InteropServices;
-using QuickGraph.Graphviz;
-using QuickGraph.Graphviz.Dot;
 
 
 namespace compiler.middleend.ir
@@ -44,11 +33,16 @@ namespace compiler.middleend.ir
 
 		public void Color()
 		{
+
+
+            
 			// if we have enough registers, allocate all results to a register
 			if (VertexCount < 28)
 			{ 
 			
 			}
+
+
 
 			// otherwise color each register
 			var highest = this.Vertices.OrderByDescending(item => AdjacentDegree(item)).First();
