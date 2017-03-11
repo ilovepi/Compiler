@@ -50,9 +50,13 @@ namespace compiler.middleend.ir
             Uses = new List<Operand>();
         }
 
+        public uint Offset;
+
         public VariableType VArId { get; set; }
 
         public List<Operand> Uses { get; set; }
+
+        public string Colorname;
 
         /// <summary>
         ///     The Instruction number
