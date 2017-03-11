@@ -58,6 +58,7 @@
             //TODO: this is wrong we need to figure out how to do this for a join block.
             return null;
         }
+
         public override Instruction AnchorSearch(Instruction goal, bool alternate)
         {
             Instruction trueBranch = null;
@@ -90,6 +91,5 @@
             //TODO: this is wrong we need to figure out how to do this for a join block.
             return null;
         }
-
     }
 }

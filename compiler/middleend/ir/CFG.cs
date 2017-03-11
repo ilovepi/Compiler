@@ -14,6 +14,10 @@ namespace compiler.middleend.ir
         // External data for BFS
         //private int BlockCount = 0;
         public string DotOutput = string.Empty;
+        public List<VariableType> Globals;
+        public List<VariableType> Locals;
+
+        public List<VariableType> Parameters;
 
 
         // may not need these
@@ -30,10 +34,6 @@ namespace compiler.middleend.ir
             Sym = pSymbolTable;
             Root = null;
         }
-
-        public List<VariableType> Parameters;
-        public List<VariableType> Globals;
-        public List<VariableType> Locals;
 
         public SymbolTable Sym { get; set; }
 
@@ -95,7 +95,6 @@ namespace compiler.middleend.ir
             var visited = new HashSet<Node>();
             Root.InsertBranches(visited);
         }
-
 
 
         public void GenerateDotOutput(int n)

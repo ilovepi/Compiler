@@ -1,6 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.IO;
 using compiler.frontend;
-using NUnit.Framework;
 using QuickGraph;
 using QuickGraph.Graphviz;
 using QuickGraph.Graphviz.Dot;
@@ -11,12 +10,13 @@ namespace compiler.middleend.ir
     {
         public string GraphOutput;
         public string Name;
-        public InterferenceGraph IntGraph { get; set; }
 
         public DomTree()
         {
             Root = null;
         }
+
+        public InterferenceGraph IntGraph { get; set; }
 
         public DominatorNode Root { get; set; }
 
@@ -55,8 +55,8 @@ namespace compiler.middleend.ir
 
         public string PrintInterference()
         {
-
-            var temp = IntGraph.Edges.ToAdjacencyGraph<Instruction, Edge<Instruction>>();
+            AdjacencyGraph<Instruction, Edge<Instruction>> temp =
+                IntGraph.Edges.ToAdjacencyGraph<Instruction, Edge<Instruction>>();
             var graphViz = new GraphvizAlgorithm<Instruction, Edge<Instruction>>(temp, @".", GraphvizImageType.Gif);
 
             graphViz.FormatVertex += FormatVertex;
@@ -66,22 +66,20 @@ namespace compiler.middleend.ir
         }
 
 
-
-
         private static void FormatVertex(object sender, FormatVertexEventArgs<Instruction> e)
         {
             e.VertexFormatter.Label = e.Vertex.ToString();
             e.VertexFormatter.Shape = GraphvizVertexShape.Circle;
 
             e.VertexFormatter.BottomLabel = e.Vertex.ToString();
-            
+
             //e.VertexFormatter.StrokeColor = GraphvizColor.Black;
             //e.VertexFormatter.Font = new GraphvizFont("Calibri", 11);
         }
 
         private static void FormatEdge(object sender, FormatEdgeEventArgs<Instruction, Edge<Instruction>> e)
         {
-           // e.EdgeFormatter.Font = new GraphvizFont("Calibri", 8);
+            // e.EdgeFormatter.Font = new GraphvizFont("Calibri", 8);
             e.EdgeFormatter.FontGraphvizColor = GraphvizColor.Black;
             e.EdgeFormatter.StrokeGraphvizColor = GraphvizColor.Black;
         }
@@ -92,7 +90,7 @@ namespace compiler.middleend.ir
             public string Run(GraphvizImageType imageType, string dot, string outputFileName)
             {
                 string output = outputFileName;
-                System.IO.File.WriteAllText(output, dot);
+                File.WriteAllText(output, dot);
 
                 /*ProcessStartInfo startInfo = new ProcessStartInfo();
                 startInfo.FileName = @"C:\Program Files (x86)\Graphviz2.38\bin\dot.exe";
@@ -103,7 +101,5 @@ namespace compiler.middleend.ir
                 return output;
             }
         }
-
     }
-
 }

@@ -230,7 +230,7 @@ namespace compiler.middleend.ir
             {
                 return res;
             }
-            
+
             return res ?? Parent.AnchorSearch(ins);
         }
 
@@ -255,7 +255,7 @@ namespace compiler.middleend.ir
         }
 
 
-        public virtual void InsertBranches(HashSet<Node> visited )
+        public virtual void InsertBranches(HashSet<Node> visited)
         {
             if (!visited.Contains(this))
             {

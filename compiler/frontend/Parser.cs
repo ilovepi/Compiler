@@ -807,7 +807,7 @@ namespace compiler.frontend
                         paramList.Add(Expression(variables));
                     }
 
-                    // TODO: do something with the param list to push items on stack for call
+                    // do something with the param list to push items on stack for call
                 }
 
                 GetExpected(Token.CLOSE_PAREN);

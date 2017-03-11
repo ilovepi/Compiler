@@ -213,21 +213,19 @@ namespace compiler.middleend.ir
         }
 
 
-
-		/// <summary>
-		///     PostOrder the specified visitor.
-		/// </summary>
-		/// <returns>The Postorder.</returns>
-		/// <param name="visitor">Visitor.</param>
-		public void Postorder(Action<DominatorNode> visitor)
-		{
-			
-			foreach (DominatorNode child in Children)
-			{
-				child.Preorder(visitor);
-			}
-			visitor(this);
-		}
+        /// <summary>
+        ///     PostOrder the specified visitor.
+        /// </summary>
+        /// <returns>The Postorder.</returns>
+        /// <param name="visitor">Visitor.</param>
+        public void Postorder(Action<DominatorNode> visitor)
+        {
+            foreach (DominatorNode child in Children)
+            {
+                child.Preorder(visitor);
+            }
+            visitor(this);
+        }
 
 
         /// <summary>
@@ -256,8 +254,5 @@ namespace compiler.middleend.ir
 
             return label;
         }
-
-		
-
     }
 }

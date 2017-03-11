@@ -31,6 +31,5 @@ namespace compiler.frontend
 
             return new ParserException(message);
         }
-
     }
 }

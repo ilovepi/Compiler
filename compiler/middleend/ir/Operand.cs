@@ -167,7 +167,7 @@ namespace compiler.middleend.ir
                 case OpType.Identifier:
                     return smb.Symbols[IdKey];
                 case OpType.Instruction:
-                    string val = (Inst != null) ? Inst.Num.ToString() : "Uninitialized";
+                    string val = Inst != null ? Inst.Num.ToString() : "Uninitialized";
                     return "(" + val + ")";
                 case OpType.Register:
                     return "R" + Val;
@@ -180,7 +180,7 @@ namespace compiler.middleend.ir
         {
             if ((Inst != null) && (Kind == OpType.Instruction))
             {
-				if (Inst.Op == IrOps.Ssa)
+                if (Inst.Op == IrOps.Ssa)
                 {
                     if (Inst.Arg2 == Inst.Arg2.Inst.Arg2)
                     {
