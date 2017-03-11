@@ -11,11 +11,11 @@ namespace NUnit.Tests.MiddleEnd
     [TestFixture]
     public class DominatorNodeTests
     {
-        private DominatorNode d;
+        private DominatorNode _d;
         [SetUp]
         public void Init()
         {
-            d  = new DominatorNode(new BasicBlock("poo"));
+            _d  = new DominatorNode(new BasicBlock("poo"));
 
         }
 
@@ -23,29 +23,29 @@ namespace NUnit.Tests.MiddleEnd
         public void TestEquals()
         {
            
-            Assert.True(d.Equals(d));
-            Assert.False(d.Equals(null));
-            var e = new DominatorNode(d.Bb);
-            Assert.True(d.Equals(e));
-            d.Children.Add(e);
-            Assert.False(d.Equals(e));
+            Assert.True(_d.Equals(_d));
+            Assert.False(_d.Equals(null));
+            var e = new DominatorNode(_d.Bb);
+            Assert.True(_d.Equals(e));
+            _d.Children.Add(e);
+            Assert.False(_d.Equals(e));
 
-            d.RemoveChild(e);
+            _d.RemoveChild(e);
             e.Bb = null;
-            Assert.False(d.Equals(e));
-            d.InsertChild(e);
+            Assert.False(_d.Equals(e));
+            _d.InsertChild(e);
             e.Bb = new BasicBlock("This");
-            Assert.False(d.Equals(e));
+            Assert.False(_d.Equals(e));
 
-            d = new DominatorNode(new BasicBlock("poo"));
-            e = new DominatorNode(d.Bb);
-            d.InsertChild(new DominatorNode(new BasicBlock("that")));
-            e.Children.Add(d.Children.First());
-            Assert.True(d.Equals(e));
+            _d = new DominatorNode(new BasicBlock("poo"));
+            e = new DominatorNode(_d.Bb);
+            _d.InsertChild(new DominatorNode(new BasicBlock("that")));
+            e.Children.Add(_d.Children.First());
+            Assert.True(_d.Equals(e));
 
             e.Children.Clear();
             e.InsertChild(new DominatorNode(new BasicBlock("the other thing")));
-            Assert.False(d.Equals(e));
+            Assert.False(_d.Equals(e));
 
         }
 
@@ -54,10 +54,10 @@ namespace NUnit.Tests.MiddleEnd
         [Test]
         public void TestIsRoot()
         {
-            Assert.True(d.IsRoot());
+            Assert.True(_d.IsRoot());
             var e = new DominatorNode(new BasicBlock("poo"));
-            e.InsertChild(d);
-            Assert.False(d.IsRoot());
+            e.InsertChild(_d);
+            Assert.False(_d.IsRoot());
             
         }
     }

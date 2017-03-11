@@ -28,8 +28,10 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using compiler.backend;
 
 namespace compiler.middleend.ir
 {
@@ -37,6 +39,10 @@ namespace compiler.middleend.ir
     {
         public ParseTree Tree { get; set; }
         public List<Instruction> FuncBody { get; set; }
+
+        public List<DlxInstruction> MachineBody { get; set; }
+
+
 
         public string Name { get; set; }
 
@@ -61,6 +67,7 @@ namespace compiler.middleend.ir
 
             FuncBody = GetInstructions(parseTree.DominatorTree.Root);
 
+            TransformDlx();
             // Scale number of vars by size of int;
             //FrameSize *= 4;
         }
@@ -106,5 +113,62 @@ namespace compiler.middleend.ir
 
             return myInstructions;
         }
+
+
+        private void TransformDlx()
+        {
+            MachineBody = new List<DlxInstruction>();
+            foreach (Instruction instruction in FuncBody)
+            {
+                try
+                {
+                    var dlx = new DlxInstruction(instruction);
+                    MachineBody.Add(dlx);
+                }
+                catch (ArgumentOutOfRangeException e)
+                {
+                    // consider emiting a debugging statement here
+                    //throw e;
+                }
+            }
+
+
+
+
+        }
+
+
+
+        public string DotLabel()
+        {
+            string label = Name;
+            var slot = 0;
+            foreach (var inst in MachineBody)
+            {
+                label += " \\l| <i" + slot++ + ">" + inst;
+            }
+
+            return label;
+        }
+
+
+        public string PrintGraphNode()
+        {
+            string local = string.Empty;
+            local += Name + "[label=\"{" + DotLabel() + "\\l}\",fillcolor=" + "khaki" + "]\n";
+                
+            return local;
+        }
+
+
+        public string PrintFunction(int n)
+        {
+            string graphOutput = "subgraph cluster_" + n + " {\nlabel = \"" + Name + "\";\n node[style=filled,shape=record]\n" +
+                                 PrintGraphNode() + "}";
+
+            return graphOutput;
+        }
+
+
     }
 }

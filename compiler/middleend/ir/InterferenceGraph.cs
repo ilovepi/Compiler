@@ -15,20 +15,20 @@ namespace compiler.middleend.ir
         }
 
         // # of available registers
-        private const int REGISTER_COUNT = 28;
+        private const int RegisterCount = 28;
 
         // Generic copy of this graph (for mutation), built alongside Interference Graph
-        private UndirectedGraph<Instruction, Edge<Instruction>> copy =
+        private UndirectedGraph<Instruction, Edge<Instruction>> _copy =
             new UndirectedGraph<Instruction, Edge<Instruction>>();
 
         // Colored and spilled instructions
         public Dictionary<Instruction, int> GraphColors = new Dictionary<Instruction, int>();
-        public List<Instruction> spilledInstr = new List<Instruction>();
+        public List<Instruction> SpilledInstr = new List<Instruction>();
 
         public InterferenceGraph(BasicBlock block)
         {
             AddVertexRange(block.Instructions);
-            copy.AddVertexRange(block.Instructions);
+            _copy.AddVertexRange(block.Instructions);
 
             AddInterferenceEdges(block);
 
@@ -44,13 +44,13 @@ namespace compiler.middleend.ir
                     if (item != null)
                     {
                         AddVerticesAndEdge(new Edge<Instruction>(instruction, item));
-                        copy.AddVerticesAndEdge(new Edge<Instruction>(instruction, item));
+                        _copy.AddVerticesAndEdge(new Edge<Instruction>(instruction, item));
                     }
                 }
             }
         }
 
-        private Stack<Instruction> coloringStack = new Stack<Instruction>();
+        private Stack<Instruction> _coloringStack = new Stack<Instruction>();
 
         private void ColorRecursive(UndirectedGraph<Instruction, Edge<Instruction>> curGraph)
         {
@@ -67,10 +67,10 @@ namespace compiler.middleend.ir
             foreach (var vertex in curGraph.Vertices.OrderByDescending(item => AdjacentDegree(item)))
             {
                 // Pick a node with fewer neighbors than the max
-                if (AdjacentDegree(vertex) < REGISTER_COUNT)
+                if (AdjacentDegree(vertex) < RegisterCount)
                 {
                     // Put that node on the coloring stack and remove it from graph
-                    coloringStack.Push(vertex);
+                    _coloringStack.Push(vertex);
                     curGraph.RemoveVertex(vertex);
                     spill = false;
                     continue;
@@ -83,7 +83,7 @@ namespace compiler.middleend.ir
                 // By default, spills the instruction with the most dependencies
                 // TODO: Maybe come up with a better spilling heuristic
                 var highest = curGraph.Vertices.OrderByDescending(item => AdjacentDegree(item)).First();
-                spilledInstr.Add(highest);
+                SpilledInstr.Add(highest);
                 curGraph.RemoveVertex(highest);
             }
 
@@ -97,7 +97,7 @@ namespace compiler.middleend.ir
             List<Instruction> spilledInstr = new List<Instruction>();
 
             // Call recursive coloring fxn with the mutable copy
-            ColorRecursive(copy);
+            ColorRecursive(_copy);
 
             // Until there are no more instructions to be colored...
             while (coloringStack.Count != 0)
@@ -116,7 +116,7 @@ namespace compiler.middleend.ir
                 }
 
                 // ... and give it a different one.
-                for (int reg = 1; reg <= REGISTER_COUNT; reg++)
+                for (int reg = 1; reg <= RegisterCount; reg++)
                 {
                     if (!neighborRegs.Contains(reg))
                     {

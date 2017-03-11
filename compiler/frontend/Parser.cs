@@ -25,7 +25,7 @@ namespace compiler.frontend
             VarTable = new VarTbl();
         }
 
-        private bool insertBranches = false;
+        private bool _insertBranches = false;
 
         public Token Tok { get; set; }
 
@@ -561,7 +561,7 @@ namespace compiler.frontend
             return variableList;
         }
 
-        private void CreateIdentifier(VarTbl varTble, VariableType varType, List<VariableType> VariableList)
+        private void CreateIdentifier(VarTbl varTble, VariableType varType, List<VariableType> variableList)
         {
             Operand id = Identifier();
             string name = Scanner.SymbolTble.Symbols[id.IdKey];
@@ -571,7 +571,7 @@ namespace compiler.frontend
             temp.Id = id.IdKey;
             temp.Offset = VariableType.CurrOffset;
             VariableType.CurrOffset += varType.Size;
-            VariableList.Add(temp);
+            variableList.Add(temp);
             var ssa = new SsaVariable(id.IdKey, null, null, name, temp);
             varTble.Add(id.IdKey, ssa);
         }
@@ -824,11 +824,26 @@ namespace compiler.frontend
                 instructions.AddRange(item.Instructions);
             }
 
-            var call = new Instruction(IrOps.Bra, id, null);
+            Instruction call;
+            if (id.Name == "InputNum")
+            {
+                call = new Instruction(IrOps.Read, id, null);
+            }
+            else if (id.Name == "OutputNum")
+            {
+                call = new Instruction(IrOps.Write, paramList.First().Operand, id);
+            }
+            else if (id.Name == "OutputNewLine")
+            {
+                call = new Instruction(IrOps.WriteNl, id, null);
+            }
+            else
+            {
+                call = new Instruction(IrOps.Bra, id, null);
+            }
+
             id = new Operand(call);
-
             instructions.Add(call);
-
             return new ParseResult(id, instructions, variables);
         }
 
@@ -875,7 +890,7 @@ namespace compiler.frontend
 
             AddPhiInstructions(variables, trueSsa, falseSsa, joinBlock, false);
 
-            if (insertBranches)
+            if (_insertBranches)
             {
                 if (joinBlock.Bb.Instructions.Count == 0)
                 {
@@ -985,7 +1000,7 @@ namespace compiler.frontend
 
             AddPhiInstructions(variables, loopSsa, headerSsa, compBlock, true);
 
-            if (insertBranches)
+            if (_insertBranches)
             {
                 //TODO: remove placeholder instruction and do something smarter
                 followBlock.Bb.AddInstruction(new Instruction(IrOps.Phi, new Operand(Operand.OpType.Identifier, 0),

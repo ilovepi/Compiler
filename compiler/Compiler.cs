@@ -12,6 +12,8 @@ namespace compiler
     {
         public List<ParseTree> FuncList;
 
+        public List<FunctionBuilder> DlxFunctions { get; set; }
+
 
         public Compiler(CompilerOptions pOptions)
         {
@@ -76,25 +78,58 @@ namespace compiler
 
             }
 
+            using (var file = new StreamWriter(Opts.DomFilename + ".dlx"))
+            {
+
+                file.WriteLine("digraph DlxCode{\n");
+                file.WriteLine(GenDlxGraphString());
+                file.WriteLine("}");
+
+            }
+
+        }
+
+        private string GenDlxGraphString()
+        {
+            string ret = string.Empty;
+            var i = 0;
+            return DlxFunctions.Aggregate(ret, (current, functionBuilder) => current + (functionBuilder.PrintFunction(i++) + "\n"));
         }
 
         private string GenInstructionListGraphString()
         {
-            List<ParseTree> bodyList = new List<ParseTree>();
+            List<ParseTree> straightFuncs = GenStraightLineFunctions();
+            var i = 0;
+            return straightFuncs.Aggregate(string.Empty,
+                (current, func) => current + (func.DominatorTree.PrintTreeGraph(i++, func.ControlFlowGraph.Sym) + "\n"));
+        }
+
+        private List<ParseTree> GenStraightLineFunctions()
+        {
+            var straightFuncList = new List<ParseTree>();
+            PopulateDlxFunc();
+            foreach (var dlxFunc in DlxFunctions)
+            {
+                DomTree dom = new DomTree();
+                dom.Root = new DominatorNode(new BasicBlock("StatSequence"));
+                dom.Root.Bb.Instructions = dlxFunc.FuncBody;
+                straightFuncList.Add(new ParseTree(dlxFunc.Tree.ControlFlowGraph, dom));
+                dom.Name = dlxFunc.Tree.ControlFlowGraph.Name;
+                dom.Root.Colorname = dlxFunc.Tree.ControlFlowGraph.Root.Colorname;
+            }
+            return straightFuncList;
+        }
+
+
+
+        private void PopulateDlxFunc()
+        {
+            DlxFunctions = new List<FunctionBuilder>();
             foreach (ParseTree parseTree in FuncList)
             {
-                FunctionBuilder fs = new FunctionBuilder(parseTree);
-                DomTree d = new DomTree();
-                d.Root = new DominatorNode(new BasicBlock("StatSequence"));
-                d.Root.Bb.Instructions = fs.FuncBody;
-                bodyList.Add(new ParseTree(parseTree.ControlFlowGraph,d));
-                d.Name = parseTree.ControlFlowGraph.Name;
-                d.Root.Colorname = parseTree.ControlFlowGraph.Root.Colorname;
+                FunctionBuilder newFunction = new FunctionBuilder(parseTree);
+                DlxFunctions.Add(newFunction);
             }
-
-            var i = 0;
-            return bodyList.Aggregate(string.Empty,
-                (current, func) => current + (func.DominatorTree.PrintTreeGraph(i++, func.ControlFlowGraph.Sym) + "\n"));
         }
 
         private string GenDomGraphString()
@@ -196,6 +231,8 @@ namespace compiler
             InstructionScheduling();
 
             //lower representation to machine code
+            GenStraightLineFunctions();
+
 
             throw new NotImplementedException();
         }
