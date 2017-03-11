@@ -191,10 +191,11 @@ namespace compiler.backend
             }
             else
             {
-                Op = opCode;
-                B= (uint)arg1.Val;
+                Op = arg2.Kind == Operand.OpType.Constant ? opCode + 16 : opCode;
+                B = (uint)arg1.Val;
                 C = (uint)arg2.Val;
             }
+           
 
         }
 
