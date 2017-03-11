@@ -72,6 +72,7 @@
     <Compile Include="middleend\ir\DomTree.cs" />
     <Compile Include="middleend\ir\DominatorNode.cs" />
     <Compile Include="middleend\ir\CompareNode.cs" />
+    <Compile Include="middleend\ir\FunctionBuilder.cs" />
     <Compile Include="middleend\ir\IrOps.cs" />
     <Compile Include="middleend\ir\JoinNode.cs" />
     <Compile Include="backend\OpCodes.cs" />

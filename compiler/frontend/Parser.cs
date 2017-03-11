@@ -414,6 +414,9 @@ namespace compiler.frontend
             GetExpected(Token.MAIN);
 
             var cfg = new Cfg();
+            cfg.Locals = new List<VariableType>();
+            cfg.Globals = new List<VariableType>();
+            cfg.Parameters = new List<VariableType>();
 
             while ((Tok == Token.VAR) || (Tok == Token.ARRAY))
             {

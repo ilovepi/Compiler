@@ -50,6 +50,8 @@ namespace compiler.middleend.ir
             Uses = new List<Operand>();
         }
 
+        public int Offset;
+
         public VariableType VArId { get; set; }
 
         public List<Operand> Uses { get; set; }

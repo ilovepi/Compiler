@@ -66,8 +66,36 @@ namespace compiler
                 file.WriteLine(GenInterferenceGraphString());
                 //file.WriteLine("}");
             }
+
+            using (var file = new StreamWriter(Opts.DomFilename + ".code"))
+            {
+
+                file.WriteLine("digraph Dom{\n");
+                file.WriteLine(GenInstructionListGraphString());
+                file.WriteLine("}");
+
+            }
+
         }
 
+        private string GenInstructionListGraphString()
+        {
+            List<ParseTree> bodyList = new List<ParseTree>();
+            foreach (ParseTree parseTree in FuncList)
+            {
+                FunctionBuilder fs = new FunctionBuilder(parseTree);
+                DomTree d = new DomTree();
+                d.Root = new DominatorNode(new BasicBlock("StatSequence"));
+                d.Root.Bb.Instructions = fs.FuncBody;
+                bodyList.Add(new ParseTree(parseTree.ControlFlowGraph,d));
+                d.Name = parseTree.ControlFlowGraph.Name;
+                d.Root.Colorname = parseTree.ControlFlowGraph.Root.Colorname;
+            }
+
+            var i = 0;
+            return bodyList.Aggregate(string.Empty,
+                (current, func) => current + (func.DominatorTree.PrintTreeGraph(i++, func.ControlFlowGraph.Sym) + "\n"));
+        }
 
         private string GenDomGraphString()
         {
