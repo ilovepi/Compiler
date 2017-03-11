@@ -1,18 +1,16 @@
-﻿using System;
-using NUnit.Framework.Constraints;
-
-namespace compiler.middleend.ir
+﻿namespace compiler.middleend.ir
 {
     public class JoinNode : Node
     {
         public JoinNode(BasicBlock pBb) : base(pBb, NodeTypes.JoinB)
         {
+            Colorname = "coral";
             FalseParent = null;
         }
 
         public Node FalseParent { get; set; }
 
-        
+
         public override void CheckEnqueue(Cfg cfg)
         {
             cfg.BfsCheckEnqueue(this, Child);
@@ -21,45 +19,77 @@ namespace compiler.middleend.ir
 
         public override void Consolidate()
         {
-            base.CircularRef(Child);
+            CircularRef(Child);
 
             // consolidate children who exist
             Child?.Consolidate();
         }
 
 
-        public override Instruction AnchorSearch(Instruction ins)
+        public override Instruction AnchorSearch(Instruction goal)
         {
             Instruction trueBranch = null;
             Instruction falseBranch = null;
 
-            var res = Bb.Search(ins);
+            Instruction res = Bb.Search(goal);
 
             if (res != null)
+            {
                 return res;
+            }
 
 
             if (Parent != null)
             {
-                trueBranch = Parent.AnchorSearch(ins);
+                trueBranch = Parent.AnchorSearch(goal);
             }
 
             if (FalseParent != null)
             {
-                falseBranch = FalseParent.AnchorSearch(ins);
+                falseBranch = FalseParent.AnchorSearch(goal);
             }
 
             if (falseBranch == trueBranch)
-                return trueBranch;
-            else
             {
-                //TODO: this is wrong we need to figure out how to do this for a join block.
-                return falseBranch;
+                return trueBranch;
             }
-            
-           
+
+
+            //TODO: this is wrong we need to figure out how to do this for a join block.
+            return null;
         }
 
+        public override Instruction AnchorSearch(Instruction goal, bool alternate)
+        {
+            Instruction trueBranch = null;
+            Instruction falseBranch = null;
 
+            Instruction res = Bb.Search(goal);
+
+            if (res != null)
+            {
+                return res;
+            }
+
+
+            if (Parent != null)
+            {
+                trueBranch = Parent.AnchorSearch(goal, alternate);
+            }
+
+            if (FalseParent != null)
+            {
+                falseBranch = FalseParent.AnchorSearch(goal, alternate);
+            }
+
+            if (falseBranch == trueBranch)
+            {
+                return trueBranch;
+            }
+
+
+            //TODO: this is wrong we need to figure out how to do this for a join block.
+            return null;
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace compiler.middleend.ir
 {
@@ -36,13 +37,26 @@ namespace compiler.middleend.ir
         {
             foreach (List<Instruction> sublist in Oplist)
             {
-                if (sublist[0].Op == key)
+                if ((sublist.Count > 0) && (sublist.First().Op == key))
                 {
                     return sublist;
                 }
             }
 
             return null;
+        }
+
+        public void InsertKill(Operand target)
+        {
+            var chain = FindOpChain(IrOps.Load);
+            // if the op never existed, add it
+            if (chain == null)
+            {
+                chain = new List<Instruction>();
+                Oplist.Add(chain);
+            }
+
+            chain.Add(new Instruction(IrOps.Kill, target, null));
         }
     }
 }

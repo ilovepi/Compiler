@@ -49,6 +49,7 @@ namespace compiler.middleend.ir
 
         public Operand(SsaVariable ssa)
         {
+            Kind = OpType.Variable;
             Variable = ssa;
             IdKey = Variable.UuId;
         }
@@ -61,6 +62,8 @@ namespace compiler.middleend.ir
 
 
         public int IdKey { get; set; }
+
+        public string Name { get; set; }
 
         public SsaVariable Variable { get; set; }
 
@@ -77,7 +80,8 @@ namespace compiler.middleend.ir
             {
                 return true;
             }
-            return (Kind == other.Kind) && (Val == other.Val) && (IdKey == other.IdKey) && Equals(Inst, other.Inst);
+            return (Kind == other.Kind) && (Val == other.Val) && (IdKey == other.IdKey) &&
+                   Equals(Inst?.Num, other.Inst?.Num);
         }
 
         public override bool Equals(object obj)
@@ -86,16 +90,30 @@ namespace compiler.middleend.ir
             {
                 return false;
             }
+
             if (ReferenceEquals(this, obj))
             {
                 return true;
             }
+
             if (obj.GetType() != GetType())
             {
                 return false;
             }
+
             return Equals((Operand) obj);
         }
+
+        public static bool operator ==(Operand left, Operand right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(Operand left, Operand right)
+        {
+            return !Equals(left, right);
+        }
+
 
         public override int GetHashCode()
         {
@@ -104,7 +122,7 @@ namespace compiler.middleend.ir
                 var hashCode = (int) Kind;
                 hashCode = (hashCode * 397) ^ Val;
                 hashCode = (hashCode * 397) ^ IdKey;
-                int? i = (hashCode * 397) ^ Inst?.GetHashCode();
+                int? i = (hashCode * 397) ^ Inst?.Num.GetHashCode();
                 if (i != null)
                 {
                     hashCode = (int) i;
@@ -120,13 +138,16 @@ namespace compiler.middleend.ir
                 case OpType.Function:
                     return "func-" + IdKey;
                 case OpType.Variable:
-                    return "(" + Variable.Location.Num + ")";
+                    return "(" + Variable + ")";
                 case OpType.Constant:
                     return "#" + Val;
                 case OpType.Instruction:
-                    return "(" + Inst.Num + ")";
+                    string s = Inst?.Num.ToString() ?? ".unknown";
+                    return "(" + s + ")";
                 case OpType.Register:
                     return "R" + Val;
+                case OpType.Identifier:
+                    return Name;
                 default:
                     return "ERROR!!!";
             }
@@ -135,15 +156,19 @@ namespace compiler.middleend.ir
 
         public string Display(SymbolTable smb)
         {
-
             switch (Kind)
             {
+                case OpType.Function:
+                    return "func-" + IdKey;
+                case OpType.Variable:
+                    return "(" + Variable + ")";
                 case OpType.Constant:
                     return "#" + Val;
                 case OpType.Identifier:
                     return smb.Symbols[IdKey];
                 case OpType.Instruction:
-                    return "(" + Inst.Num + ")";
+                    string val = Inst != null ? Inst.Num.ToString() : "Uninitialized";
+                    return "(" + val + ")";
                 case OpType.Register:
                     return "R" + Val;
             }
@@ -151,5 +176,27 @@ namespace compiler.middleend.ir
         }
 
 
+        public Operand OpenOperand()
+        {
+            if ((Inst != null) && (Kind == OpType.Instruction))
+            {
+                if (Inst.Op == IrOps.Ssa)
+                {
+                    if (Inst.Arg2 == Inst.Arg2.Inst.Arg2)
+                    {
+                        return Inst.Arg1;
+                    }
+                    return Inst.Arg2?.OpenOperand() ?? this;
+                }
+
+                if (Inst.Op == IrOps.Phi)
+                {
+                    return this;
+                }
+            }
+
+
+            return Kind == OpType.Variable ? Variable.Value?.OpenOperand() ?? this : this;
+        }
     }
 }

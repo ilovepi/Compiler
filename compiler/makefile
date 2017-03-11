@@ -3,8 +3,10 @@ SHELL = /bin/bash -e
 
 all: solution tests
 
-solution:
-	xbuild /p:TargetFrameworkVersion="v4.5"  /p:Configuration=Debug compiler.sln
+solution: Program/bin/Debug/Program.exe
+
+Program/bin/Debug/Program.exe:
+	xbuild  /p:Configuration=Debug compiler.sln
 
 tests: solution
 	mono ./packages/NUnit.ConsoleRunner.3.6.0/tools/nunit3-console.exe NUnit.Tests/bin/Debug/NUnit.Tests.dll
@@ -15,8 +17,11 @@ Program/bin/Debug/graph.dot: solution
 	./Program.exe; \
 	popd
 
-graph: Program/bin/Debug/graph.dot
+cfg: Program/bin/Debug/graph.dot
 	xdot ./Program/bin/Debug/graph.dot
+
+dom: Program/bin/Debug/graph.dot
+	xdot ./Program/bin/Debug/Dominator.dot
 
 clean:
 	xbuild /t:clean

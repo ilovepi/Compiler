@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace compiler.middleend.ir
 {
@@ -7,11 +7,13 @@ namespace compiler.middleend.ir
     {
         public CompareNode(BasicBlock pBb) : base(pBb, NodeTypes.CompareB)
         {
+            Colorname = "cornflowerblue";
             FalseNode = null;
         }
 
 
         public Node FalseNode { get; set; }
+        public JoinNode Join { get; set; }
 
 
         public void Insert(Node other, bool trueChild)
@@ -28,7 +30,7 @@ namespace compiler.middleend.ir
             }
         }
 
-      
+
         public void InsertFalse(Node other)
         {
             Insert(other, false);
@@ -39,12 +41,12 @@ namespace compiler.middleend.ir
             Insert(other, true);
         }
 
-//        public override List<Node> GetAllChildren()
-//        {
-//            List<Node> ret = base.GetAllChildren();
-//            ret.Add(FalseNode);
-//            return ret;
-//        }
+        public override List<Node> GetAllChildren()
+        {
+            List<Node> ret = base.GetAllChildren();
+            ret.Add(FalseNode);
+            return ret;
+        }
 
         public override void CheckEnqueue(Cfg cfg)
         {
@@ -54,12 +56,42 @@ namespace compiler.middleend.ir
 
         public override void Consolidate()
         {
-            base.CircularRef(Child);
-            base.CircularRef(FalseNode);
+            CircularRef(Child);
+            CircularRef(FalseNode);
 
             // consolidate children who exist
             Child?.Consolidate();
             FalseNode?.Consolidate();
+        }
+
+
+        public override DominatorNode ConvertNode()
+        {
+            var d = new DominatorNode(Bb);
+            d.TestInsert(Join);
+            d.TestInsert(Child);
+            d.TestInsert(FalseNode);
+            d.Colorname = Colorname;
+
+            foreach (DominatorNode child in d.Children)
+            {
+                child.Parent = d;
+            }
+
+            return d;
+        }
+
+        public override void InsertBranches(HashSet<Node> visited)
+        {
+            if (!visited.Contains(this))
+            {
+               // visited.Add(this);
+                Bb.Instructions.Last().Arg2 = new Operand(FalseNode.GetNextInstruction());
+                Join.Parent.Bb.AddInstruction(new Instruction(IrOps.Bra,
+                    new Operand(Join.GetNextInstruction()), null));
+                FalseNode.InsertBranches(visited);
+                Child.InsertBranches(visited);
+            }
         }
     }
 }

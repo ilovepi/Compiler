@@ -1,17 +1,15 @@
-using System.IO;
+using compiler;
 using compiler.frontend;
-using compiler.middleend.ir;
 using NUnit.Framework;
 
-namespace NUnit.Tests.Frontend
+namespace NUnit.Tests
 {
     [TestFixture]
-    public class ParserIntegrationTest
+    public class IntegrationTest
     {
         [TestCase(@"/Frontend/testdata/test001.txt")]
         [TestCase(@"/Frontend/testdata/test002.txt")]
         [TestCase(@"/Frontend/testdata/test003.txt")]
-        [TestCase(@"/Frontend/testdata/test004.txt")]
         [TestCase(@"/Frontend/testdata/test005.txt")]
         [TestCase(@"/Frontend/testdata/test006.txt")]
         [TestCase(@"/Frontend/testdata/test007.txt")]
@@ -45,26 +43,14 @@ namespace NUnit.Tests.Frontend
         public void TokenizingTest(string pFilename)
         {
             string filename = TestContext.CurrentContext.TestDirectory + pFilename;
+            Compiler.TestRun(filename);
+        }
 
-            using (var p = new Parser(filename))
-            {
-                p.Parse();
-
-                //using (var file = new StreamWriter("graph.dot"))
-                {
-                    //*
-                    //file.WriteLine("digraph G{\n");
-                    int i = 0;
-                    foreach (Cfg func in p.FunctionsCfgs)
-                    {
-                        func.Sym = p.Scanner.SymbolTble;
-                        func.GenerateDotOutput(i++);
-                      //  file.WriteLine(func.DotOutput);
-                    }
-                  //  file.WriteLine("\n}");
-                }
-            }
-            // Assert.Fail("Test and class not implemented ...");
+        [TestCase(@"/Frontend/testdata/test004.txt")]
+        public void ParsingErrorTest(string pFilename)
+        {
+            string filename = TestContext.CurrentContext.TestDirectory + pFilename;
+            Assert.Throws<ParserException>(() => Compiler.TestRun(filename));
         }
     }
 }
