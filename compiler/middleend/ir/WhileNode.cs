@@ -120,9 +120,7 @@ namespace compiler.middleend.ir
                     child?.InsertBranches(visited);
                 }
             }
-
         }
-
 
 
         public override Instruction AnchorSearch(Instruction goal, bool alternate)
@@ -158,5 +156,3 @@ namespace compiler.middleend.ir
         }
     }
 }
-
-

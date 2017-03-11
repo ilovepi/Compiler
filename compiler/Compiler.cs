@@ -10,7 +10,6 @@ namespace compiler
 {
     public class Compiler
     {
-       
         public List<ParseTree> FuncList;
 
 
@@ -61,25 +60,27 @@ namespace compiler
                 file.WriteLine("}");
             }
 
-			using (var file = new StreamWriter(Opts.DomFilename+".interference"))
-			{
-				//file.WriteLine("digraph Dom{\n");
-				file.WriteLine(GenInterferenceGraphString());
-				//file.WriteLine("}");
-			}
+            using (var file = new StreamWriter(Opts.DomFilename + ".interference"))
+            {
+                //file.WriteLine("digraph Dom{\n");
+                file.WriteLine(GenInterferenceGraphString());
+                //file.WriteLine("}");
+            }
         }
 
-        
+
         private string GenDomGraphString()
         {
             var i = 0;
-            return FuncList.Aggregate(string.Empty, (current, func) => current + (func.DominatorTree.PrintTreeGraph(i++, func.ControlFlowGraph.Sym) + "\n"));
+            return FuncList.Aggregate(string.Empty,
+                (current, func) => current + (func.DominatorTree.PrintTreeGraph(i++, func.ControlFlowGraph.Sym) + "\n"));
         }
 
-		private string GenInterferenceGraphString()
-		{
-			return FuncList.Aggregate(string.Empty, (current, func) => current + (func.DominatorTree.PrintInterference() + "\n"));
-		}
+        private string GenInterferenceGraphString()
+        {
+            return FuncList.Aggregate(string.Empty,
+                (current, func) => current + (func.DominatorTree.PrintInterference() + "\n"));
+        }
 
         private string GenControlGraphString()
         {
@@ -102,7 +103,7 @@ namespace compiler
                 if (Opts.CopyProp)
                 {
                     CopyPropagation.Propagate(func.ControlFlowGraph.Root);
-					CopyPropagation.ConstantFolding(func.ControlFlowGraph.Root);
+                    CopyPropagation.ConstantFolding(func.ControlFlowGraph.Root);
                 }
 
                 //Common Sub Expression Elimination
@@ -126,8 +127,7 @@ namespace compiler
 
                 func.ControlFlowGraph.InsertBranches();
 
-				LiveRanges.GenerateRanges(func.DominatorTree);
-
+                LiveRanges.GenerateRanges(func.DominatorTree);
             }
         }
 
@@ -183,7 +183,7 @@ namespace compiler
             GenControlGraphString();
             GenDomGraphString();
         }
-        
+
 
         private static CompilerOptions DefaultOpts(string pFilename)
         {
@@ -214,7 +214,6 @@ namespace compiler
             c.Parse();
             c.Optimize();
             c.GenerateOutput();
-
         }
 
         public static void TestRun(string pFilename)

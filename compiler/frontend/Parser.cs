@@ -142,7 +142,6 @@ namespace compiler.frontend
 
                 GetExpected(Token.OPEN_BRACKET);
 
-               
 
                 // calulate offset
 
@@ -174,7 +173,6 @@ namespace compiler.frontend
                         {
                             instructions.Add(new Instruction(IrOps.Adda, id, exp.Operand));
                         }
-
                     }
                     else
                     {
@@ -185,13 +183,11 @@ namespace compiler.frontend
                         indiciesList.Add(exp.Operand);
                     }
                 }
-                
-                
-                
+
+
                 //get bracket
                 GetExpected(Token.CLOSE_BRACKET);
                 arrayCount++;
-                
             }
 
             if (arrayCount > 0)
@@ -202,7 +198,6 @@ namespace compiler.frontend
             return new ParseResult(id, instructions, variables);
         }
 
-        
 
         private ParseResult Factor(VarTbl variables)
         {
@@ -223,7 +218,7 @@ namespace compiler.frontend
                     if (_copyPropagationEnabled && (des.Operand.Kind == Operand.OpType.Variable))
                     {
                         id = new Operand(des.Operand.Variable.Location);
-						if ((id.Inst != null) && (id.Inst.Op == IrOps.Ssa))
+                        if ((id.Inst != null) && (id.Inst.Op == IrOps.Ssa))
                         {
                             id = new Operand(id.Inst.Arg2.Variable);
                         }
@@ -360,7 +355,7 @@ namespace compiler.frontend
             // create new instruction
             // TODO: decide if this is ssa, and change irops.store to irops.ssa
             Instruction newInst = new Instruction(IrOps.Store, expValue.Operand, id.Operand);
-            
+
             Instruction prev = null;
             string name = Scanner.SymbolTble.Symbols[id.Operand.IdKey];
 
@@ -380,7 +375,7 @@ namespace compiler.frontend
                 id.Operand.Variable = ssa;
 
                 newInst.Arg2.Inst = newInst;
-				newInst.Op = IrOps.Ssa;
+                newInst.Op = IrOps.Ssa;
 
                 // try to use ssa value
                 //ssa.Value = newInst.Arg1;
@@ -397,7 +392,6 @@ namespace compiler.frontend
             }
             else
             {
-
                 //Otherwise it must be an array
                 arg = new Operand(newInst);
 
@@ -407,8 +401,6 @@ namespace compiler.frontend
                     id.Instructions.Remove(temp);
                     id.Instructions.Add(temp);
                 }
-
-
             }
 
             // insert new instruction to instruction list
@@ -425,14 +417,13 @@ namespace compiler.frontend
 
             while ((Tok == Token.VAR) || (Tok == Token.ARRAY))
             {
-               cfg.Globals = VarDecl(varTble);
+                cfg.Globals = VarDecl(varTble);
             }
 
             while ((Tok == Token.FUNCTION) || (Tok == Token.PROCEDURE))
             {
                 Cfg func = FuncDecl(new VarTbl(varTble));
                 func.Globals = cfg.Globals;
-                
             }
 
             GetExpected(Token.OPEN_CURL);
@@ -563,7 +554,7 @@ namespace compiler.frontend
             }
 
             GetExpected(Token.SEMI_COLON);
-           
+
             return variableList;
         }
 
@@ -571,7 +562,7 @@ namespace compiler.frontend
         {
             Operand id = Identifier();
             string name = Scanner.SymbolTble.Symbols[id.IdKey];
-            
+
             var temp = varType.Clone();
             temp.Name = name;
             temp.Id = id.IdKey;
@@ -585,11 +576,11 @@ namespace compiler.frontend
         private VariableType TypeDecl()
         {
             VariableType newVar = null;
-            
+
             if (Tok == Token.VAR)
             {
                 Next();
-                newVar= new VariableType();
+                newVar = new VariableType();
             }
             else if (Tok == Token.ARRAY)
             {
@@ -614,7 +605,7 @@ namespace compiler.frontend
             else
             {
                 // TODO: replace
-                FatalError();  
+                FatalError();
             }
             return newVar;
         }
@@ -624,7 +615,7 @@ namespace compiler.frontend
             var cfg = new Cfg {Parameters = new List<VariableType>()};
 
             FunctionsCfgs.Add(cfg);
-            
+
 
             if ((Tok != Token.FUNCTION) && (Tok != Token.PROCEDURE))
             {
@@ -647,7 +638,8 @@ namespace compiler.frontend
                 {
                     var temp = variables[parameter.Id];
 
-                    var loadInst = new Instruction(IrOps.Load, new Operand(Operand.OpType.Identifier, parameter.Id), null);
+                    var loadInst = new Instruction(IrOps.Load, new Operand(Operand.OpType.Identifier, parameter.Id),
+                        null);
                     cfg.Root.Bb.AddInstruction(loadInst);
                     temp.Value = new Operand(loadInst);
 
@@ -662,10 +654,8 @@ namespace compiler.frontend
 
                     variables[parameter.Id] = ssa;
                     //arg = new Operand(ssa);
-                    
                 }
                 //*/
-
             }
 
             GetExpected(Token.SEMI_COLON);
@@ -814,16 +804,17 @@ namespace compiler.frontend
                 //TODO: jump to call
             }
 
-			foreach (var func in FunctionsCfgs)
-			{
-				if (func.Name == id.Name)
-				{
-					if (func.Parameters.Count != paramList.Count)
-					{
-						FatalError("Function '" + func.Name + "' takes " + func.Parameters.Count +" parameters, but " + paramList.Count+ " were provided.");
-					}
-				}
-			}
+            foreach (var func in FunctionsCfgs)
+            {
+                if (func.Name == id.Name)
+                {
+                    if (func.Parameters.Count != paramList.Count)
+                    {
+                        FatalError("Function '" + func.Name + "' takes " + func.Parameters.Count + " parameters, but " +
+                                   paramList.Count + " were provided.");
+                    }
+                }
+            }
 
             foreach (ParseResult item in paramList)
             {
@@ -1042,7 +1033,7 @@ namespace compiler.frontend
 
                     if (CheckOperand(inst.Arg2, phi.Arg1) || CheckOperand(inst.Arg2, phi.Arg2))
                     {
-						if (inst.Op != IrOps.Ssa)
+                        if (inst.Op != IrOps.Ssa)
                         {
                             inst.Arg2 = new Operand(phi);
                         }
@@ -1140,7 +1131,7 @@ namespace compiler.frontend
             if (Tok == Token.IDENTIFIER)
             {
                 //TODO: handle parameters????
-                 //CreateIdentifier();
+                //CreateIdentifier();
 
                 CreateParameter(paramList, varTble);
 
@@ -1172,7 +1163,6 @@ namespace compiler.frontend
                 FatalError("Naming conflict with Global Variable:" + id.Name);
             }
             varTble.Add(id.IdKey, ssa);
-            
         }
 
 

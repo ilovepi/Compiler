@@ -26,13 +26,13 @@ namespace compiler.middleend.optimization
 
             foreach (Instruction bbInstruction in root.Bb.Instructions)
             {
-                if ((bbInstruction.Op != IrOps.Phi) || (bbInstruction.Op == IrOps.Adda) )
+                if ((bbInstruction.Op != IrOps.Phi) || (bbInstruction.Op == IrOps.Adda))
                 {
                     if (bbInstruction.Op == IrOps.Load)
                     {
-                        if ( bbInstruction.Arg1.Kind == Operand.OpType.Instruction)
+                        if (bbInstruction.Arg1.Kind == Operand.OpType.Instruction)
                         {
-                            if(bbInstruction.Arg1.Inst.Op == IrOps.Adda)
+                            if (bbInstruction.Arg1.Inst.Op == IrOps.Adda)
                             {
                                 continue;
                             }
@@ -47,11 +47,10 @@ namespace compiler.middleend.optimization
                         }
                         //continue;
                     }
-                    else if(bbInstruction.Op == IrOps.Store)
+                    else if (bbInstruction.Op == IrOps.Store)
                     {
                         // insert kill instruction for all loads
                         root.Bb.AnchorBlock.InsertKill(bbInstruction.Arg2);
-                        
                     }
 
                     EliminateInternal(root, bbInstruction, removalList, false);
@@ -64,8 +63,8 @@ namespace compiler.middleend.optimization
                 //root.Bb.AnchorBlock.FindOpChain(instruction.Op).RemoveAll(instruction.ExactMatch);
                 root.Bb.Instructions.RemoveAll(instruction.ExactMatch);
 
-				//rely on using instruction hashkey for removing a particular instruction
-				//root.Bb.Graph.RemoveVertex(instruction);
+                //rely on using instruction hashkey for removing a particular instruction
+                //root.Bb.Graph.RemoveVertex(instruction);
             }
 
 
@@ -78,13 +77,13 @@ namespace compiler.middleend.optimization
             // TODO: fix loop cse
             foreach (Instruction instruction in delayed)
             {
-                EliminateInternal(root,instruction,removalList, true);
+                EliminateInternal(root, instruction, removalList, true);
             }
         }
 
-        private static void EliminateInternal(Node root, Instruction bbInstruction, List<Instruction> removalList, bool alternate)
+        private static void EliminateInternal(Node root, Instruction bbInstruction, List<Instruction> removalList,
+            bool alternate)
         {
-            
             Instruction predecessor;
             if (alternate)
             {

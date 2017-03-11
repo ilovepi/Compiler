@@ -1,4 +1,5 @@
 ﻿#region Basic header
+
 // MIT License
 // 
 // Copyright (c) 2016 Paul Kirth
@@ -24,6 +25,7 @@
 // 
 // 
 // Created on:  03 04, 2017
+
 #endregion
 
 using System;
@@ -48,10 +50,12 @@ namespace compiler.middleend.ir
 
         public int Address { get; set; }
 
-        public VariableType() { }
+        public VariableType()
+        {
+        }
 
         // constructor for normal variables
-        public VariableType( int pId, int pOffset)
+        public VariableType(int pId, int pOffset)
         {
             Name = String.Empty;
             Id = pId;
@@ -101,11 +105,9 @@ namespace compiler.middleend.ir
         }
 
 
-
         public void Allocate(int baseAddr)
         {
             Address = baseAddr + (Offset * Dword);
         }
-
     }
 }

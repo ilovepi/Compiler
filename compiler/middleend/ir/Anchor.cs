@@ -57,8 +57,6 @@ namespace compiler.middleend.ir
             }
 
             chain.Add(new Instruction(IrOps.Kill, target, null));
-           
-
         }
     }
 }
