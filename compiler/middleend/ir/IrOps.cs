@@ -21,6 +21,7 @@
         Blt,
         Bge,
         Bgt,
+        Ret,
         Read,
         Write,
         WriteNl,

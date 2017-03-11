@@ -89,7 +89,8 @@ namespace compiler.middleend.ir
                 Bb.Instructions.Last().Arg2 = new Operand(FalseNode.GetNextInstruction());
                 Join.Parent.Bb.AddInstruction(new Instruction(IrOps.Bra,
                     new Operand(Join.GetNextInstruction()), null));
-                base.InsertBranches(visited);
+                FalseNode.InsertBranches(visited);
+                Child.InsertBranches(visited);
             }
         }
     }

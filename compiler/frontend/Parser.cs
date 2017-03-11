@@ -619,10 +619,15 @@ namespace compiler.frontend
 
             FunctionsCfgs.Add(cfg);
 
+            bool isProcedure= false;
 
             if ((Tok != Token.FUNCTION) && (Tok != Token.PROCEDURE))
             {
                 FatalError();
+            }
+            else
+            {
+                isProcedure = (Tok == Token.PROCEDURE);
             }
 
             Next();
@@ -663,7 +668,7 @@ namespace compiler.frontend
 
             GetExpected(Token.SEMI_COLON);
 
-            Cfg fb = FuncBody(variables);
+            Cfg fb = FuncBody(variables, isProcedure);
 
             if (fb != null)
             {
@@ -678,7 +683,7 @@ namespace compiler.frontend
             return cfg;
         }
 
-        private Cfg FuncBody(VarTbl ssaTable)
+        private Cfg FuncBody(VarTbl ssaTable, bool isProcedure)
         {
             Cfg cfg = new Cfg {Locals = new List<VariableType>()};
             while ((Tok == Token.VAR) || (Tok == Token.ARRAY))
@@ -695,6 +700,11 @@ namespace compiler.frontend
             }
 
             GetExpected(Token.CLOSE_CURL);
+            if (isProcedure)
+            {
+                var branchBack = new Instruction(IrOps.Ret, new Operand(Operand.OpType.Register, 31), null);
+                cfg.GetLeaf(cfg.Root).Bb.Instructions.Add(branchBack);
+            }
 
             return cfg;
         }
@@ -1126,7 +1136,7 @@ namespace compiler.frontend
             }
 
             //TODO: probably want to make better instruction here, with a real address
-            var branchBack = new Instruction(IrOps.Bra, new Operand(Operand.OpType.Register, 0), null);
+            var branchBack = new Instruction(IrOps.Ret, new Operand(Operand.OpType.Register, 31), retStmt?.Operand);
             instructions.Add(branchBack);
             if (retStmt == null)
             {
