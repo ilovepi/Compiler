@@ -15,15 +15,15 @@ namespace compiler.middleend.ir
         }
 
         // # of available registers
-        private const int REGISTER_COUNT = 28;
+        private const uint REGISTER_COUNT = 27;
 
         // Generic copy of this graph (for mutation), built alongside Interference Graph
         private UndirectedGraph<Instruction, Edge<Instruction>> copy =
             new UndirectedGraph<Instruction, Edge<Instruction>>();
 
         // Colored and spilled instructions
-        public Dictionary<Instruction, int> GraphColors = new Dictionary<Instruction, int>();
-        public List<Instruction> spilledInstr = new List<Instruction>();
+        public Dictionary<Instruction, uint> GraphColors = new Dictionary<Instruction, uint>();
+        public uint spillCount = 32; // Virtual register to count spilled instructions, starts at reg 32
 
         public InterferenceGraph(BasicBlock block)
         {
@@ -82,9 +82,9 @@ namespace compiler.middleend.ir
             {
                 // By default, spills the instruction with the most dependencies
                 // TODO: Maybe come up with a better spilling heuristic
-                var highest = curGraph.Vertices.OrderByDescending(item => AdjacentDegree(item)).First();
-                spilledInstr.Add(highest);
-                curGraph.RemoveVertex(highest);
+                var spillVertex = curGraph.Vertices.OrderByDescending(item => AdjacentDegree(item)).First();
+                GraphColors.Add(spillVertex, spillCount++);
+                curGraph.RemoveVertex(spillVertex);
             }
 
             // Either way, we've removed a vertex and logged it. Time for the subgraph.
@@ -106,7 +106,7 @@ namespace compiler.middleend.ir
                 Instruction curInstr = coloringStack.Pop();
 
                 // ... get a list of its neighbors' already assigned registers...
-                List<int> neighborRegs = new List<int>();
+                List<uint> neighborRegs = new List<uint>();
                 foreach (Instruction neighbor in curInstr.LiveRange)
                 {
                     if (GraphColors.ContainsKey(neighbor))
@@ -116,7 +116,7 @@ namespace compiler.middleend.ir
                 }
 
                 // ... and give it a different one.
-                for (int reg = 1; reg <= REGISTER_COUNT; reg++)
+                for (uint reg = 1; reg <= REGISTER_COUNT; reg++)
                 {
                     if (!neighborRegs.Contains(reg))
                     {
