@@ -112,8 +112,7 @@ namespace compiler.middleend.ir
             if (!visited.Contains(this))
             {
                 visited.Add(this);
-
-                Bb.AddInstruction(new Instruction(IrOps.Bra, new Operand(FalseNode.GetNextInstruction()), null));
+                Bb.Instructions.Last().Arg2 = new Operand(FalseNode.GetNextInstruction());
                 LoopParent.Bb.Instructions.Last().Arg1.Inst = Bb.Instructions.First();
                 foreach (Node child in GetAllChildren())
                 {

@@ -44,6 +44,7 @@
     <Compile Include="Frontend\SymbolTableTest.cs" />
     <Compile Include="MiddleEnd\BasicBlockTests.cs" />
     <Compile Include="MiddleEnd\CfgTests.cs" />
+    <Compile Include="MiddleEnd\DominatorNodeTests.cs" />
     <Compile Include="MiddleEnd\InstructionTests.cs" />
     <Compile Include="MiddleEnd\NodeTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
