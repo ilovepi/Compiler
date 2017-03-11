@@ -1,21 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using QuickGraph;
 using System.Linq;
-using System.Linq.Expressions;
 
 //using EdgeList = System.Collections.Generic.SortedDictionary<compiler.middleend.ir.Instruction, compiler.middleend.ir.InterferenceGraph.GraphNode>;
-
-
 //using EdgeList = System.Collections.Generic.HashSet<compiler.middleend.ir.InterferenceGraph.GraphNode>;
-using NUnit.Framework.Internal.Commands;
-using compiler.midleend.ir;
-using System.Runtime.InteropServices;
-using NUnit.Framework;
-using QuickGraph.Graphviz;
-using QuickGraph.Graphviz.Dot;
 
 
 namespace compiler.middleend.ir
