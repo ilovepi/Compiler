@@ -152,11 +152,11 @@ namespace compiler.middleend.ir
         }
 
 
-        public string PrintGraphNode(SymbolTable Sym)
+        public string PrintGraphNode(SymbolTable sym)
         {
             string local = string.Empty;
 
-            local += DotId() + "[label=\"{" + DotLabel(Sym) + "\\l}\",fillcolor=" + Colorname + "]\n";
+            local += DotId() + "[label=\"{" + DotLabel(sym) + "\\l}\",fillcolor=" + Colorname + "]\n";
             foreach (DominatorNode child in Children)
             {
                 local += DotId() + "->" + child.DotId() + "\n";
@@ -165,7 +165,7 @@ namespace compiler.middleend.ir
 
             foreach (DominatorNode child in Children)
             {
-                local += child.PrintGraphNode(Sym);
+                local += child.PrintGraphNode(sym);
             }
 
             return local;

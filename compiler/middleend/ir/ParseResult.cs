@@ -6,19 +6,6 @@ namespace compiler.middleend.ir
 {
     public class ParseResult
     {
-        public ParseResult()
-        {
-            Operand = null;
-            Instructions = null;
-            VarTable = new VarTbl(new VarTbl());
-        }
-
-        public ParseResult(VarTbl symTble)
-        {
-            Operand = null;
-            Instructions = null;
-            VarTable = new VarTbl(symTble);
-        }
 
         public ParseResult(Operand pOperand, List<Instruction> pInstructions, VarTbl pSymTble)
         {

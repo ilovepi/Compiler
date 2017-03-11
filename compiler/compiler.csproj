@@ -60,6 +60,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="backend\CodeGenerator.cs" />
+    <Compile Include="backend\DlxInstruction.cs" />
     <Compile Include="Compiler.cs" />
     <Compile Include="CompilerOptions.cs" />
     <Compile Include="frontend\Lexer.cs" />
@@ -70,8 +72,10 @@
     <Compile Include="middleend\ir\DomTree.cs" />
     <Compile Include="middleend\ir\DominatorNode.cs" />
     <Compile Include="middleend\ir\CompareNode.cs" />
+    <Compile Include="middleend\ir\FunctionBuilder.cs" />
     <Compile Include="middleend\ir\IrOps.cs" />
     <Compile Include="middleend\ir\JoinNode.cs" />
+    <Compile Include="backend\OpCodes.cs" />
     <Compile Include="middleend\ir\Operand.cs" />
     <Compile Include="middleend\ir\ParseResult.cs" />
     <Compile Include="middleend\ir\SsaVariable.cs" />
@@ -80,7 +84,6 @@
     <Compile Include="middleend\optimization\CsElimination.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="frontend\SymbolTable.cs" />
-    <Compile Include="frontend\Result.cs" />
     <Compile Include="middleend\ir\BasicBlock.cs" />
     <Compile Include="middleend\ir\Instruction.cs" />
     <Compile Include="middleend\ir\Anchor.cs" />
@@ -92,9 +95,7 @@
     <Compile Include="middleend\ir\InterferenceGraph.cs" />
     <Compile Include="middleend\ir\Register.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="backend\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>

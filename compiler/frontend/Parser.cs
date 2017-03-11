@@ -25,7 +25,7 @@ namespace compiler.frontend
             VarTable = new VarTbl();
         }
 
-        private bool insertBranches = false;
+        private bool _insertBranches = false;
 
         public Token Tok { get; set; }
 
@@ -414,6 +414,9 @@ namespace compiler.frontend
             GetExpected(Token.MAIN);
 
             var cfg = new Cfg();
+            cfg.Locals = new List<VariableType>();
+            cfg.Globals = new List<VariableType>();
+            cfg.Parameters = new List<VariableType>();
 
             while ((Tok == Token.VAR) || (Tok == Token.ARRAY))
             {
@@ -558,7 +561,7 @@ namespace compiler.frontend
             return variableList;
         }
 
-        private void CreateIdentifier(VarTbl varTble, VariableType varType, List<VariableType> VariableList)
+        private void CreateIdentifier(VarTbl varTble, VariableType varType, List<VariableType> variableList)
         {
             Operand id = Identifier();
             string name = Scanner.SymbolTble.Symbols[id.IdKey];
@@ -568,7 +571,7 @@ namespace compiler.frontend
             temp.Id = id.IdKey;
             temp.Offset = VariableType.CurrOffset;
             VariableType.CurrOffset += varType.Size;
-            VariableList.Add(temp);
+            variableList.Add(temp);
             var ssa = new SsaVariable(id.IdKey, null, null, name, temp);
             varTble.Add(id.IdKey, ssa);
         }
@@ -616,10 +619,15 @@ namespace compiler.frontend
 
             FunctionsCfgs.Add(cfg);
 
+            bool isProcedure= false;
 
             if ((Tok != Token.FUNCTION) && (Tok != Token.PROCEDURE))
             {
                 FatalError();
+            }
+            else
+            {
+                isProcedure = (Tok == Token.PROCEDURE);
             }
 
             Next();
@@ -660,7 +668,7 @@ namespace compiler.frontend
 
             GetExpected(Token.SEMI_COLON);
 
-            Cfg fb = FuncBody(variables);
+            Cfg fb = FuncBody(variables, isProcedure);
 
             if (fb != null)
             {
@@ -675,7 +683,7 @@ namespace compiler.frontend
             return cfg;
         }
 
-        private Cfg FuncBody(VarTbl ssaTable)
+        private Cfg FuncBody(VarTbl ssaTable, bool isProcedure)
         {
             Cfg cfg = new Cfg {Locals = new List<VariableType>()};
             while ((Tok == Token.VAR) || (Tok == Token.ARRAY))
@@ -692,6 +700,11 @@ namespace compiler.frontend
             }
 
             GetExpected(Token.CLOSE_CURL);
+            if (isProcedure)
+            {
+                var branchBack = new Instruction(IrOps.Ret, new Operand(Operand.OpType.Register, 31), null);
+                cfg.GetLeaf(cfg.Root).Bb.Instructions.Add(branchBack);
+            }
 
             return cfg;
         }
@@ -821,11 +834,26 @@ namespace compiler.frontend
                 instructions.AddRange(item.Instructions);
             }
 
-            var call = new Instruction(IrOps.Bra, id, null);
+            Instruction call;
+            if (id.Name == "InputNum")
+            {
+                call = new Instruction(IrOps.Read, id, null);
+            }
+            else if (id.Name == "OutputNum")
+            {
+                call = new Instruction(IrOps.Write, paramList.First().Operand, id);
+            }
+            else if (id.Name == "OutputNewLine")
+            {
+                call = new Instruction(IrOps.WriteNl, id, null);
+            }
+            else
+            {
+                call = new Instruction(IrOps.Bra, id, null);
+            }
+
             id = new Operand(call);
-
             instructions.Add(call);
-
             return new ParseResult(id, instructions, variables);
         }
 
@@ -872,7 +900,7 @@ namespace compiler.frontend
 
             AddPhiInstructions(variables, trueSsa, falseSsa, joinBlock, false);
 
-            if (insertBranches)
+            if (_insertBranches)
             {
                 if (joinBlock.Bb.Instructions.Count == 0)
                 {
@@ -982,7 +1010,7 @@ namespace compiler.frontend
 
             AddPhiInstructions(variables, loopSsa, headerSsa, compBlock, true);
 
-            if (insertBranches)
+            if (_insertBranches)
             {
                 //TODO: remove placeholder instruction and do something smarter
                 followBlock.Bb.AddInstruction(new Instruction(IrOps.Phi, new Operand(Operand.OpType.Identifier, 0),
@@ -1108,7 +1136,7 @@ namespace compiler.frontend
             }
 
             //TODO: probably want to make better instruction here, with a real address
-            var branchBack = new Instruction(IrOps.Bra, new Operand(Operand.OpType.Register, 0), null);
+            var branchBack = new Instruction(IrOps.Ret, new Operand(Operand.OpType.Register, 31), retStmt?.Operand);
             instructions.Add(branchBack);
             if (retStmt == null)
             {
