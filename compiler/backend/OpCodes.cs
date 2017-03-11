@@ -8,7 +8,7 @@
         DIV = 3,
         MOD = 4,
         CMP = 5,
-        OR = 8,
+        OR  = 8,
         AND = 9,
         BIC = 10,
         XOR = 11,

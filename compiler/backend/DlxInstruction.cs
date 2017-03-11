@@ -19,19 +19,19 @@ namespace compiler.backend
             switch (inst.Op)
             {
                 case IrOps.Add:
-                    ImmediateOperands(OpCodes.Add, inst.Arg1, inst.Arg2);
+                    ImmediateOperands(OpCodes.ADD, inst.Arg1, inst.Arg2);
                     break;
                 case IrOps.Sub:
-                    ImmediateOperands(OpCodes.Sub, inst.Arg1, inst.Arg2);
+                    ImmediateOperands(OpCodes.SUB, inst.Arg1, inst.Arg2);
                     break;
                 case IrOps.Mul:
-                    ImmediateOperands(OpCodes.Mul, inst.Arg1, inst.Arg2);
+                    ImmediateOperands(OpCodes.MUL, inst.Arg1, inst.Arg2);
                     break;
                 case IrOps.Div:
-                    ImmediateOperands(OpCodes.Div, inst.Arg1, inst.Arg2);
+                    ImmediateOperands(OpCodes.DIV, inst.Arg1, inst.Arg2);
                     break;
                 case IrOps.Cmp:
-                    ImmediateOperands(OpCodes.Cmp, inst.Arg1, inst.Arg2);
+                    ImmediateOperands(OpCodes.CMP, inst.Arg1, inst.Arg2);
                     break;
                 case IrOps.Load:
                     if ((inst.Arg1.Kind == Operand.OpType.Instruction) && (inst.Arg1.Inst.Op == IrOps.Adda))
@@ -43,19 +43,19 @@ namespace compiler.backend
                         if (inst.Arg1.Inst.Arg2.Kind == Operand.OpType.Instruction)
                         {
                             // load stuff from array with register 
-                            Op = OpCodes.Ldw;
+                            Op = OpCodes.LDW;
                             PutF1();
                         }
                         else
                         {
                             // load stuff from array with Address 
-                            Op = OpCodes.Ldx;
+                            Op = OpCodes.LDX;
                             PutF2();
                         }
                     }
                     else
                     {
-                        Op = OpCodes.Ldw;
+                        Op = OpCodes.LDW;
                         A = (uint)inst.Reg;
                         B = (uint)inst.Arg1.Val;
                         C = 0;
@@ -72,20 +72,20 @@ namespace compiler.backend
                         if (inst.Arg1.Inst.Arg2.Kind == Operand.OpType.Instruction)
                         {
                             // Store stuff in an array using instructions
-                            Op = OpCodes.Stw;
+                            Op = OpCodes.STW;
                             PutF1();
                         }
                         else
                         {
                             // else store stuff in an array using an adresss
-                            Op = OpCodes.Stx;
+                            Op = OpCodes.STX;
                             PutF2();
                         }
                     }
                     else
                     {
                         // Else this is a normal store to a stack variable
-                        Op = OpCodes.Stw;
+                        Op = OpCodes.STW;
                         A = (uint)inst.Reg;
                         B = (uint)inst.Arg1.Val;
                         C = 0;
@@ -94,51 +94,51 @@ namespace compiler.backend
                     break;
  
                 case IrOps.End:
-                    Op = OpCodes.Ret;
+                    Op = OpCodes.RET;
                     //A = B = C = 0;
                     PutF2();
                     break;
                 case IrOps.Bra:
                     // TODO: this needs work to handle calls
-                    Op = OpCodes.Bsr;
+                    Op = OpCodes.BSR;
                     C = inst.Offset;
                     PutF1();
                     break;
                 case IrOps.Bne:
-                    MakeBranchInst(OpCodes.Bne, inst);
+                    MakeBranchInst(OpCodes.BNE, inst);
                     break;
                 case IrOps.Beq:
-                    MakeBranchInst(OpCodes.Beq, inst);
+                    MakeBranchInst(OpCodes.BEQ, inst);
                     break;
                 case IrOps.Ble:
-                    MakeBranchInst(OpCodes.Ble, inst);
+                    MakeBranchInst(OpCodes.BLE, inst);
                     break;
                 case IrOps.Blt:
-                    MakeBranchInst(OpCodes.Ble, inst);
+                    MakeBranchInst(OpCodes.BLE, inst);
                     break;
                 case IrOps.Bge:
-                    MakeBranchInst(OpCodes.Bge, inst);
+                    MakeBranchInst(OpCodes.BGE, inst);
                     break;
                 case IrOps.Bgt:
-                    MakeBranchInst(OpCodes.Bgt, inst);
+                    MakeBranchInst(OpCodes.BGT, inst);
                     break;
                 case IrOps.Read:
-                    Op = OpCodes.Rdd;
+                    Op = OpCodes.RDD;
                     A = (uint)inst.Arg1.Val;
                     PutF2();
                     break;
                 case IrOps.Write:
-                    Op = OpCodes.Wrd;
+                    Op = OpCodes.WRD;
                     B = (uint)inst.Arg1.Val;
                     PutF2();
                     break;
                 case IrOps.WriteNl:
-                    Op = OpCodes.Wrl;
+                    Op = OpCodes.WRL;
                     PutF1();
                     break;
                 case IrOps.Move:
                     //emulate a move instruction to copy with an OR operation
-                    Op = OpCodes.Or;
+                    Op = OpCodes.OR;
                     A = (uint)inst.Arg2.Val;
                     B = (uint)inst.Arg1.Val;
                     C = B;
