@@ -28,6 +28,4 @@
         Ssa
     }
 
-
-//TODO: move to own file in backend
 }
