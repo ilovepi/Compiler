@@ -91,7 +91,7 @@ namespace compiler.middleend.ir
             ColorRecursive(curGraph);
         }
 
-        private void Color()
+        public void Color()
         {
             Stack<Instruction> coloringStack = new Stack<Instruction>();
             List<Instruction> spilledInstr = new List<Instruction>();

@@ -166,7 +166,11 @@ namespace compiler
                 return;
             }
 
-            throw new NotImplementedException();
+            foreach (ParseTree parseTree in FuncList)
+            {
+                parseTree.DominatorTree.IntGraph.Color();
+            }
+            //throw new NotImplementedException();
         }
 
 
@@ -210,6 +214,8 @@ namespace compiler
             }
             GenControlGraphString();
             GenDomGraphString();
+            GenInstructionListGraphString();
+
         }
 
 
@@ -228,7 +234,7 @@ namespace compiler
                 Cse = true,
                 DeadCode = false,
                 PruneCfg = false,
-                RegAlloc = false,
+                RegAlloc = true,
                 InstSched = false,
                 CodeGen = false
             };
@@ -252,6 +258,7 @@ namespace compiler
             c.Parse();
             c.Optimize();
             c.GenerateTestOutput();
+            c.RegisterAllocation();
         }
     }
 }
