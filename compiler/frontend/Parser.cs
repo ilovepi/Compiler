@@ -941,7 +941,7 @@ namespace compiler.frontend
                 {
                     // This top construction seems to be correct, and should give the best answer, but doesnt
                     var newInst = new Instruction(IrOps.Phi, trueVar.Value.Value,
-                        falseVar?.Value ?? new Operand(falseVar.Location));
+                        falseVar.Value ?? new Operand(falseVar.Location));
 
                     newInst.VArId = trueVar.Value.Identity;
 

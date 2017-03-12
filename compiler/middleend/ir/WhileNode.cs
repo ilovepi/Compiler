@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using compiler.frontend;
 
 namespace compiler.middleend.ir
 {
@@ -145,7 +147,8 @@ namespace compiler.middleend.ir
                 falseBranch = LoopParent.AnchorSearch(goal);
             }
 
-            if (falseBranch.ExactMatch(trueBranch))
+
+            if ((falseBranch != null) && falseBranch.ExactMatch(trueBranch))
             {
                 return trueBranch;
             }
