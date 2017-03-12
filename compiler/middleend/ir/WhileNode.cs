@@ -1,13 +1,40 @@
-﻿using System;
+﻿#region Basic header
+
+// MIT License
+// 
+// Copyright (c) 2016 Paul Kirth
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+#endregion
+
+#region
+
 using System.Collections.Generic;
 using System.Linq;
-using compiler.frontend;
+
+#endregion
 
 namespace compiler.middleend.ir
 {
     public class WhileNode : CompareNode
     {
-        //todo: rightnow we insert on the false node, but we need to fix that
         public WhileNode(BasicBlock pBb) : base(pBb)
         {
             Colorname = "turquoise";
@@ -51,19 +78,6 @@ namespace compiler.middleend.ir
                 FalseNode.Insert(other);
             }
         }
-
-        //TODO: determine if thes are ever called or needed?
-        /* public override void InsertJoinTrue(JoinNode other)
-        {
-            FalseNode = other;
-            other.Parent = this;
-        }
-
-        public override void InsertJoinFalse(JoinNode other)
-        {
-            other.FalseParent = this;
-            FalseNode = other;
-        }*/
 
         public override void Consolidate()
         {

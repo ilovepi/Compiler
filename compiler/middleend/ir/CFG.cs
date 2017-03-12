@@ -1,5 +1,35 @@
-﻿using System.Collections.Generic;
+﻿#region Basic header
+
+// MIT License
+// 
+// Copyright (c) 2016 Paul Kirth
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+#endregion
+
+#region
+
+using System.Collections.Generic;
 using compiler.frontend;
+
+#endregion
 
 namespace compiler.middleend.ir
 {
@@ -7,9 +37,6 @@ namespace compiler.middleend.ir
     {
         private Queue<Node> _q = new Queue<Node>();
         private HashSet<Node> _visited = new HashSet<Node>();
-        // TODO: create visitor function that recursively clears 'visited' flags
-
-        //TODO: create BFS method to walk the CFG
 
         // External data for BFS
         //private int BlockCount = 0;
@@ -60,8 +87,7 @@ namespace compiler.middleend.ir
 
 /*
         public Node GetLeaf()
-        {
-            // TODO: Modify to check visited
+        {           
             return GetLeaf(Root);
         }
 */
@@ -77,7 +103,6 @@ namespace compiler.middleend.ir
         // is generated for all parent-children pairs at parent. 
         public void BfsCheckEnqueue(Node parent, Node child)
         {
-            // TODO: Fix to account for cycles/join blocks
             if (child != null)
             {
                 if (!_visited.Contains(child))

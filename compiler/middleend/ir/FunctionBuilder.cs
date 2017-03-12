@@ -21,36 +21,21 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-// 
-// 
-// 
-// Created on:  03 10, 2017
 
 #endregion
 
+#region
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Policy;
 using compiler.backend;
+
+#endregion
 
 namespace compiler.middleend.ir
 {
     public class FunctionBuilder
     {
-        public ParseTree Tree { get; set; }
-        public List<Instruction> FuncBody { get; set; }
-
-        public List<DlxInstruction> MachineBody { get; set; }
-
-
-
-        public string Name { get; set; }
-
-        public int Address { get; set; }
-
-        public int FrameSize { get; set; }
-
         public FunctionBuilder(ParseTree parseTree)
         {
             Tree = parseTree;
@@ -72,6 +57,18 @@ namespace compiler.middleend.ir
             // Scale number of vars by size of int;
             //FrameSize *= 4;
         }
+
+        public ParseTree Tree { get; set; }
+        public List<Instruction> FuncBody { get; set; }
+
+        public List<DlxInstruction> MachineBody { get; set; }
+
+
+        public string Name { get; set; }
+
+        public int Address { get; set; }
+
+        public int FrameSize { get; set; }
 
 
         public List<Instruction> GetInstructions(DominatorNode root)
@@ -132,12 +129,7 @@ namespace compiler.middleend.ir
                     //throw e;
                 }
             }
-
-
-
-
         }
-
 
 
         public string DotLabel()
@@ -157,14 +149,15 @@ namespace compiler.middleend.ir
         {
             string local = string.Empty;
             local += Name + "[label=\"{" + DotLabel() + "\\l}\",fillcolor=" + "khaki" + "]\n";
-                
+
             return local;
         }
 
 
         public string PrintFunction(int n)
         {
-            string graphOutput = "subgraph cluster_" + n + " {\nlabel = \"" + Name + "\";\n node[style=filled,shape=record]\n" +
+            string graphOutput = "subgraph cluster_" + n + " {\nlabel = \"" + Name +
+                                 "\";\n node[style=filled,shape=record]\n" +
                                  PrintGraphNode() + "}";
 
             return graphOutput;
@@ -178,7 +171,6 @@ namespace compiler.middleend.ir
             // load each param into register and push onto stack
             // allocate memory for all local variables
             // save any global variable that might have be modified in function
-            
         }
 
 
@@ -190,12 +182,6 @@ namespace compiler.middleend.ir
             // pop all the parameters off the stack
             // restore the Stack pointer
             // restore the Frame pointer
-
-
-
-            
         }
-
-
     }
 }

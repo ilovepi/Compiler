@@ -1,4 +1,32 @@
-﻿using System;
+﻿#region Basic header
+
+// MIT License
+// 
+// Copyright (c) 2016 Paul Kirth
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+#endregion
+
+#region
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,19 +34,21 @@ using compiler.frontend;
 using compiler.middleend.ir;
 using compiler.middleend.optimization;
 
+#endregion
+
 namespace compiler
 {
     public class Compiler
     {
         public List<ParseTree> FuncList;
 
-        public List<FunctionBuilder> DlxFunctions { get; set; }
-
 
         public Compiler(CompilerOptions pOptions)
         {
             Opts = pOptions;
         }
+
+        public List<FunctionBuilder> DlxFunctions { get; set; }
 
         public CompilerOptions Opts { get; }
 
@@ -71,29 +101,25 @@ namespace compiler
 
             using (var file = new StreamWriter(Opts.DomFilename + ".code"))
             {
-
                 file.WriteLine("digraph Dom{\n");
                 file.WriteLine(GenInstructionListGraphString());
                 file.WriteLine("}");
-
             }
 
             using (var file = new StreamWriter(Opts.DomFilename + ".dlx"))
             {
-
                 file.WriteLine("digraph DlxCode{\n");
                 file.WriteLine(GenDlxGraphString());
                 file.WriteLine("}");
-
             }
-
         }
 
         private string GenDlxGraphString()
         {
             string ret = string.Empty;
             var i = 0;
-            return DlxFunctions.Aggregate(ret, (current, functionBuilder) => current + (functionBuilder.PrintFunction(i++) + "\n"));
+            return DlxFunctions.Aggregate(ret,
+                (current, functionBuilder) => current + (functionBuilder.PrintFunction(i++) + "\n"));
         }
 
         private string GenInstructionListGraphString()
@@ -119,7 +145,6 @@ namespace compiler
             }
             return straightFuncList;
         }
-
 
 
         private void PopulateDlxFunc()
@@ -252,7 +277,6 @@ namespace compiler
             GenControlGraphString();
             GenDomGraphString();
             GenInstructionListGraphString();
-
         }
 
 
