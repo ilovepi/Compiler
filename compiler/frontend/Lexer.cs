@@ -3,7 +3,6 @@ using System.IO;
 
 namespace compiler.frontend
 {
-    // TODO: write unit test for ident v. number storage
     public class Lexer : IDisposable
     {
         /// <summary>
@@ -110,9 +109,6 @@ namespace compiler.frontend
 
         public Token GetNextToken()
         {
-            // HACK: could wrap in try/catch and return Token.UNKOWN
-            // and leave existing exceptions in the helper functions
-            // and classifiers
             Token token = NextToken();
             Sym = (int) token;
             return token;
@@ -153,7 +149,6 @@ namespace compiler.frontend
 
         public Token Punctuation()
         {
-            //TODO: test coverage for this function is weak, add more path coverage
             switch (C)
             {
                 case '=':
@@ -311,7 +306,7 @@ namespace compiler.frontend
 
         private void ReleaseUnmanagedResources()
         {
-            // TODO release unmanaged resources here
+            
         }
 
         private void Dispose(bool disposing)
