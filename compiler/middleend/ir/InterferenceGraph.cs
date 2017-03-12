@@ -43,8 +43,16 @@ namespace compiler.middleend.ir
                 {
                     if (item != null)
                     {
-                        AddVerticesAndEdge(new Edge<Instruction>(instruction, item));
-                        copy.AddVerticesAndEdge(new Edge<Instruction>(instruction, item));
+                       
+                        AddVertex(instruction);
+                        AddVertex(item);
+
+                        if (!ContainsEdge(instruction, item))
+                        {
+                            var newEdge = new Edge<Instruction>(instruction, item);
+                            AddEdge(newEdge);
+                            copy.AddVerticesAndEdge(new Edge<Instruction>(instruction, item));
+                        }
                     }
                 }
             }

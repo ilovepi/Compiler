@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Linq;
 using compiler.middleend.ir;
 
@@ -99,21 +100,22 @@ namespace compiler
         public static HashSet<Instruction> GenerateLoopRanges(DominatorNode d, HashSet<Instruction> liveRange,
             InterferenceGraph intGraph)
         {
-            // "Regular" live range generation (as above)
-            var newRange = GenerateRanges(d.Children[0], liveRange, intGraph);
-            newRange.UnionWith(GenerateRanges(d.Children[1], newRange, intGraph));
-            newRange = PopulateRanges(d, newRange, intGraph);
+            // Get live range from the follow block
+            var followRange = GenerateRanges(d.Children[0], liveRange, intGraph);
 
-            // Union with live range of LB with new LH live range
-            newRange.UnionWith(GenerateRanges(d.Children[1], newRange, intGraph));
-            newRange = PopulateRanges(d, newRange, intGraph);
+            // interfere the follow block with the loop header
+            var headerRange = PopulateRanges(d, followRange, intGraph);
 
-            // Back to LH, and then back to LB again
-            newRange = GenerateRanges(d.Children[1], newRange, intGraph);
-            newRange.UnionWith(GenerateRanges(d.Children[1], newRange, intGraph));
-            newRange = PopulateRanges(d, newRange, intGraph);
+            // interfere the loop body with the new loop header live range
+            headerRange.UnionWith(GenerateRanges(d.Children[1], headerRange, intGraph));
 
-            newRange.UnionWith(GenerateRanges(d.Children[1], newRange, intGraph));
+            // update the header range -- probably can erase this
+            headerRange = PopulateRanges(d, headerRange, intGraph);
+
+            // fix any new addtions in the loop body
+            var newRange = GenerateRanges(d.Children[1], headerRange, intGraph);
+            
+            // return the new live ranges
             return PopulateRanges(d, newRange, intGraph);
         }
 

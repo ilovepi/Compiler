@@ -13,7 +13,7 @@ namespace Program
             try
             {
                 //TODO: Be sure to address options parsing
-                Compiler.DefaultRun(@"../../testdata/test010.txt");
+                Compiler.DefaultRun(@"../../testdata/test008.txt");
             }
             catch (ParserException e)
             {
