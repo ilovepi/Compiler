@@ -143,7 +143,7 @@ namespace compiler
 
             // fix any new addtions in the loop body
             var newRange = GenerateRanges(d.Children[1], headerRange, intGraph);
-            
+
             // return the new live ranges
             return PopulateRanges(d, newRange, intGraph);
         }
