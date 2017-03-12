@@ -21,26 +21,25 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-// 
-// 
-// 
-// Created on:  03 10, 2017
 
 #endregion
 
+#region
+
 using System.Collections.Generic;
 using compiler.middleend.ir;
+
+#endregion
 
 namespace compiler.backend
 {
     public class CodeGenerator
     {
-        public List<ParseTree> Functions { get; set; }
-
-
         public CodeGenerator(List<ParseTree> functions)
         {
             Functions = functions;
         }
+
+        public List<ParseTree> Functions { get; set; }
     }
 }

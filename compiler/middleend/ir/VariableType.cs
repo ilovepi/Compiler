@@ -21,34 +21,23 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-// 
-// 
-// 
-// Created on:  03 04, 2017
 
 #endregion
 
+#region
+
 using System;
+
+#endregion
 
 namespace compiler.middleend.ir
 {
     public class VariableType
     {
+        public const int Dword = 4;
         public static int CurrOffset = 0;
 
-        public const int Dword = 4;
-
-        public string Name { get; set; }
-
-        public int Id { get; set; }
-
         public readonly bool IsArray;
-
-        public int Size { get; set; }
-
-        public int Offset { get; set; }
-
-        public int Address { get; set; }
 
         public VariableType()
         {
@@ -98,6 +87,16 @@ namespace compiler.middleend.ir
             Size = size;
             Address = 0;
         }
+
+        public string Name { get; set; }
+
+        public int Id { get; set; }
+
+        public int Size { get; set; }
+
+        public int Offset { get; set; }
+
+        public int Address { get; set; }
 
         public virtual VariableType Clone()
         {

@@ -1,17 +1,45 @@
-﻿using System;
-using System.CodeDom.Compiler;
+﻿#region Basic header
+
+// MIT License
+// 
+// Copyright (c) 2016 Paul Kirth
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+#endregion
+
+#region
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using compiler.middleend.ir;
-using QuickGraph.Serialization;
 using VarTbl = System.Collections.Generic.SortedDictionary<int, compiler.middleend.ir.SsaVariable>;
+
+#endregion
 
 namespace compiler.frontend
 {
     public class Parser : IDisposable
     {
-        private readonly string _filename;
         private readonly bool _copyPropagationEnabled;
+        private readonly string _filename;
 
         public Parser(string pFileName, bool pCopyPropEnabled)
         {
@@ -124,7 +152,7 @@ namespace compiler.frontend
             List<Operand> indiciesList = new List<Operand>();
             int arrayCount = 0;
             ArrayType ary = null;
-           
+
             while (Tok == Token.OPEN_BRACKET)
             {
                 // throw error if the variable isn't an array
@@ -538,7 +566,7 @@ namespace compiler.frontend
         {
             var varType = TypeDecl();
             var variableList = new List<VariableType>();
-            
+
             CreateIdentifier(varTble, varType, variableList);
 
             while (Tok == Token.COMMA)
@@ -612,7 +640,7 @@ namespace compiler.frontend
 
             FunctionsCfgs.Add(cfg);
 
-            bool isProcedure= false;
+            bool isProcedure = false;
 
             if ((Tok != Token.FUNCTION) && (Tok != Token.PROCEDURE))
             {
@@ -706,7 +734,7 @@ namespace compiler.frontend
         private Cfg Statement(ref VarTbl variables)
         {
             var cfgTemp = new Cfg {Root = new Node(new BasicBlock("StatementBlock"))};
-            
+
             // TODO: address what to do with return opperand;
             ParseResult stmt;
 
@@ -1077,7 +1105,6 @@ namespace compiler.frontend
         }
 
 
-        
         private ParseResult ReturnStmt(VarTbl variables)
         {
             GetExpected(Token.RETURN);
