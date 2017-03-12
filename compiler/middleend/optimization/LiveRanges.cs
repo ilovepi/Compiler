@@ -55,6 +55,21 @@ namespace compiler
         public static HashSet<Instruction> GenerateRanges(DominatorNode d, HashSet<Instruction> liveRange,
             InterferenceGraph intGraph)
         {
+            if (false)
+            {
+                return GenerateLoopRanges(d, liveRange, intGraph);
+            }
+            else
+            {
+                return GenerateNonLoopRanges(d, liveRange, intGraph);
+            }
+        }
+
+
+        // Handles BB, Compare, Join
+        public static HashSet<Instruction> GenerateNonLoopRanges(DominatorNode d, HashSet<Instruction> liveRange,
+            InterferenceGraph intGraph)
+        {
             HashSet<Instruction> firstRange = null;
             var newRange = new HashSet<Instruction>();
             var singleBlock = true;
@@ -78,6 +93,30 @@ namespace compiler
 
             return PopulateRanges(d, newRange, intGraph);
         }
+
+
+        // Handles While
+        public static HashSet<Instruction> GenerateLoopRanges(DominatorNode d, HashSet<Instruction> liveRange,
+            InterferenceGraph intGraph)
+        {
+            // "Regular" live range generation (as above)
+            var newRange = GenerateRanges(d.Children[1], liveRange, intGraph);
+            newRange.UnionWith(GenerateRanges(d.Children[0], newRange, intGraph));
+            newRange = PopulateRanges(d, newRange, intGraph);
+
+            // Union with live range of LB with new LH live range
+            newRange.UnionWith(GenerateRanges(d.Children[0], newRange, intGraph));
+            newRange = PopulateRanges(d, newRange, intGraph);
+
+            // Back to LH, and then back to LB again
+            newRange = GenerateRanges(d.Children[1], newRange, intGraph);
+            newRange.UnionWith(GenerateRanges(d.Children[0], newRange, intGraph));
+            newRange = PopulateRanges(d, newRange, intGraph);
+
+            newRange.UnionWith(GenerateRanges(d.Children[0], newRange, intGraph));
+            return PopulateRanges(d, newRange, intGraph);
+        }
+
 
         public static void GenerateRanges(DomTree tree)
         {

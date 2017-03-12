@@ -12,6 +12,13 @@ namespace compiler.middleend.ir
         }
 
 
+        public CompareNode(BasicBlock pBb, NodeTypes n) : base(pBb, n)
+        {
+            Colorname = "cornflowerblue";
+            FalseNode = null;
+        }
+
+
         public Node FalseNode { get; set; }
         public JoinNode Join { get; set; }
 
