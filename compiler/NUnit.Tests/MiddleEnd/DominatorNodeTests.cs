@@ -23,6 +23,7 @@ namespace NUnit.Tests.MiddleEnd
         public void TestEquals()
         {
            
+            Assert.NotNull(_d);
             Assert.True(_d.Equals(_d));
             Assert.False(_d.Equals(null));
             var e = new DominatorNode(_d.Bb);
