@@ -942,8 +942,8 @@ namespace compiler.frontend
                 if (falseVar != trueVar.Value)
                 {
                     // This top construction seems to be correct, and should give the best answer, but doesnt
-                    var newInst = new Instruction(IrOps.Phi, trueVar.Value.Value,
-                        falseVar.Value ?? new Operand(falseVar.Location));
+                    var newInst = new Instruction(IrOps.Phi, new Operand(trueVar.Value.Location),
+                        new Operand(falseVar.Location));
 
                     newInst.VArId = trueVar.Value.Identity;
 
