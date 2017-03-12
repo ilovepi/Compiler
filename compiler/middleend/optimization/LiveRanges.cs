@@ -28,6 +28,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization.Formatters;
 using compiler.middleend.ir;
 
 #endregion
@@ -53,18 +54,13 @@ namespace compiler
                     case IrOps.Blt:
                     case IrOps.Bge:
                     case IrOps.Bgt:
+                    case IrOps.Ssa:
                         continue;
                 }
 
-                if (inst.Arg1?.Kind == Operand.OpType.Instruction)
-                {
-                    live.Add(inst.Arg1.Inst);
-                }
+                AddArgToLiveRange(inst.Arg1, live);
 
-                if (inst.Arg2?.Kind == Operand.OpType.Instruction)
-                {
-                    live.Add(inst.Arg2.Inst);
-                }
+                AddArgToLiveRange(inst.Arg2, live);
 
                 // add this instruction's operands to the live range
                 inst.LiveRange.UnionWith(live);
@@ -79,6 +75,14 @@ namespace compiler
             intGraph.AddInterferenceEdges(d.Bb);
 
             return live;
+        }
+
+        private static void AddArgToLiveRange(Operand arg, HashSet<Instruction> live)
+        {
+            if ((arg?.Kind == Operand.OpType.Instruction) && (arg.Inst.Op != IrOps.Ssa))
+            {
+                live.Add(arg.Inst);
+            }
         }
 
 
@@ -96,7 +100,13 @@ namespace compiler
         }
 
 
-        // Handles BB, Compare, Join
+        /// <summary>
+        /// Generates live ranges for Compare, Join and standard Basic Blocks
+        /// </summary>
+        /// <param name="d">A dominator node in the dominator tree</param>
+        /// <param name="liveRange">A set of instructions that are currently alive</param>
+        /// <param name="intGraph">The current interference graph of the function</param>
+        /// <returns></returns>
         public static HashSet<Instruction> GenerateNonLoopRanges(DominatorNode d, HashSet<Instruction> liveRange,
             InterferenceGraph intGraph)
         {
@@ -116,6 +126,10 @@ namespace compiler
                 }
             }
 
+            // if we only have a single block, then firstrange might be null,
+            // so we might not want to replace newrange in that case
+            // but if we have more than one range, we've already unioned the
+            // new ranges together.
             if (singleBlock && (firstRange != null))
             {
                 newRange = firstRange;
@@ -148,12 +162,14 @@ namespace compiler
             return PopulateRanges(d, newRange, intGraph);
         }
 
-
+        /// <summary>
+        /// Generates live ranges from a dominator tree
+        /// </summary>
+        /// <param name="tree"></param>
         public static void GenerateRanges(DomTree tree)
         {
             var liveRange = new HashSet<Instruction>();
             tree.IntGraph = new InterferenceGraph();
-
             GenerateRanges(tree.Root, liveRange, tree.IntGraph);
         }
     }
