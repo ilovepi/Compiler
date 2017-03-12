@@ -209,7 +209,6 @@ namespace compiler.middleend.ir
         {
             foreach (Operand operand in Uses)
             {
-                // TODO: this may need to be verified
                 operand.Inst = newInst;
                 newInst.Uses.Add(new Operand(this));
             }
@@ -222,7 +221,6 @@ namespace compiler.middleend.ir
         {
             foreach (Operand operand in Uses)
             {
-                // TODO: this may need to be verified
                 operand.Inst = null;
                 operand.Val = val;
                 operand.Kind = Operand.OpType.Constant;

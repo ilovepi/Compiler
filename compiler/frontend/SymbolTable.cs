@@ -24,7 +24,6 @@ namespace compiler.frontend
 
         public void Insert(string key)
         {
-            //TODO: Add test to cover the exception
             if (Values.ContainsKey(key))
             {
                 throw new DuplicateNameException("Error: Symbol Table cannot contain duplicate symbols: " + key);
@@ -63,7 +62,6 @@ namespace compiler.frontend
 
         private void Init()
         {
-            //TODO: add test to verify that the enum and this dict have identical values
             Insert(".unknown"); //0 safe since '.' is EOF char, nothing should ever come after it
 
             Insert("+"); //01

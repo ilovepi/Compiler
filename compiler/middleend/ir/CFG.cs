@@ -7,9 +7,6 @@ namespace compiler.middleend.ir
     {
         private Queue<Node> _q = new Queue<Node>();
         private HashSet<Node> _visited = new HashSet<Node>();
-        // TODO: create visitor function that recursively clears 'visited' flags
-
-        //TODO: create BFS method to walk the CFG
 
         // External data for BFS
         //private int BlockCount = 0;
@@ -60,8 +57,7 @@ namespace compiler.middleend.ir
 
 /*
         public Node GetLeaf()
-        {
-            // TODO: Modify to check visited
+        {           
             return GetLeaf(Root);
         }
 */
@@ -77,7 +73,6 @@ namespace compiler.middleend.ir
         // is generated for all parent-children pairs at parent. 
         public void BfsCheckEnqueue(Node parent, Node child)
         {
-            // TODO: Fix to account for cycles/join blocks
             if (child != null)
             {
                 if (!_visited.Contains(child))

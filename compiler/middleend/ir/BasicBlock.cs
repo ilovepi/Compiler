@@ -4,7 +4,6 @@ using QuickGraph.Graphviz;
 
 namespace compiler.middleend.ir
 {
-    //TODO: redisign this class and its supporting classes
     public class BasicBlock
     {
         public BasicBlock()

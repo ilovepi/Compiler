@@ -7,7 +7,6 @@ namespace compiler.middleend.ir
 {
     public class WhileNode : CompareNode
     {
-        //todo: rightnow we insert on the false node, but we need to fix that
         public WhileNode(BasicBlock pBb) : base(pBb)
         {
             Colorname = "turquoise";
@@ -51,19 +50,6 @@ namespace compiler.middleend.ir
                 FalseNode.Insert(other);
             }
         }
-
-        //TODO: determine if thes are ever called or needed?
-        /* public override void InsertJoinTrue(JoinNode other)
-        {
-            FalseNode = other;
-            other.Parent = this;
-        }
-
-        public override void InsertJoinFalse(JoinNode other)
-        {
-            other.FalseParent = this;
-            FalseNode = other;
-        }*/
 
         public override void Consolidate()
         {

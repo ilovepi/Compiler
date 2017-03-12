@@ -25,8 +25,6 @@ namespace compiler.frontend
             VarTable = new VarTbl();
         }
 
-        private bool _insertBranches = false;
-
         public Token Tok { get; set; }
 
         public Lexer Scanner { get; set; }
@@ -126,7 +124,7 @@ namespace compiler.frontend
             List<Operand> indiciesList = new List<Operand>();
             int arrayCount = 0;
             ArrayType ary = null;
-            //TODO handle generating array addresses
+           
             while (Tok == Token.OPEN_BRACKET)
             {
                 // throw error if the variable isn't an array
@@ -353,10 +351,8 @@ namespace compiler.frontend
             ParseResult expValue = Expression(locals);
 
             // create new instruction
-            // TODO: decide if this is ssa, and change irops.store to irops.ssa
             Instruction newInst = new Instruction(IrOps.Store, expValue.Operand, id.Operand);
 
-            Instruction prev = null;
             string name = Scanner.SymbolTble.Symbols[id.Operand.IdKey];
 
 
@@ -367,7 +363,7 @@ namespace compiler.frontend
             // check symbol "tables"
             if (locals.ContainsKey(id.Operand.IdKey))
             {
-                prev = locals[id.Operand.IdKey].Location;
+                Instruction prev = locals[id.Operand.IdKey].Location;
 
                 var ssa = new SsaVariable(id.Operand.IdKey, newInst, prev, name);
                 ssa.Identity = id.VarTable[id.Operand.IdKey].Identity;
@@ -540,12 +536,9 @@ namespace compiler.frontend
 
         public List<VariableType> VarDecl(VarTbl varTble)
         {
-            // TODO: allocate variables here
             var varType = TypeDecl();
             var variableList = new List<VariableType>();
-
-            // TODO: this is where we need to set variable addresses
-            //CreateIdentifier();
+            
             CreateIdentifier(varTble, varType, variableList);
 
             while (Tok == Token.COMMA)
@@ -712,8 +705,8 @@ namespace compiler.frontend
 
         private Cfg Statement(ref VarTbl variables)
         {
-            //TODO: CFG has trouble adding to new blocks, or inserting into CFG
             var cfgTemp = new Cfg {Root = new Node(new BasicBlock("StatementBlock"))};
+            
             // TODO: address what to do with return opperand;
             ParseResult stmt;
 
@@ -814,6 +807,7 @@ namespace compiler.frontend
                 }
 
                 GetExpected(Token.CLOSE_PAREN);
+
                 //TODO: jump to call
             }
 
@@ -870,7 +864,6 @@ namespace compiler.frontend
             var trueSsa = new VarTbl(variables);
             var falseSsa = new VarTbl(variables);
 
-            // HACK: should we use the operand of the relation?
             compBlock.Bb.AddInstructionList(Relation(variables).Instructions);
 
             GetExpected(Token.THEN);
@@ -900,25 +893,6 @@ namespace compiler.frontend
 
             AddPhiInstructions(variables, trueSsa, falseSsa, joinBlock, false);
 
-            if (_insertBranches)
-            {
-                if (joinBlock.Bb.Instructions.Count == 0)
-                {
-                    var fakePhi = new Instruction(IrOps.Phi, new Operand(Operand.OpType.Identifier, 0),
-                        new Operand(Operand.OpType.Identifier, 0));
-                    joinBlock.Bb.Instructions.Add(fakePhi);
-                }
-
-                if (elseBranch)
-                {
-                    // The branch location isn't known yet, so delay it
-                    trueBlock.Bb.AddInstruction(new Instruction(IrOps.Bra, new Operand(joinBlock.GetNextInstruction()),
-                        null));
-                }
-
-
-                compBlock.Bb.Instructions.Last().Arg2 = new Operand(falseBlock.GetNextInstruction());
-            }
             return ifBlock;
         }
 
@@ -1010,23 +984,6 @@ namespace compiler.frontend
 
             AddPhiInstructions(variables, loopSsa, headerSsa, compBlock, true);
 
-            if (_insertBranches)
-            {
-                //TODO: remove placeholder instruction and do something smarter
-                followBlock.Bb.AddInstruction(new Instruction(IrOps.Phi, new Operand(Operand.OpType.Identifier, 0),
-                    new Operand(Operand.OpType.Identifier, 0)));
-
-                Instruction inst = last.Bb.Instructions.Last();
-
-                if (inst.Op != IrOps.Bra)
-                {
-                    inst.Arg2 = new Operand(compBlock.GetNextInstruction());
-                }
-
-
-                // TODO: this is straight up wrong. we can leave this alone and fix it in the enclosing scope
-                compBlock.Bb.Instructions.Last().Arg2 = new Operand(followBlock.Bb.Instructions.First());
-            }
             return whileBlock;
         }
 
@@ -1120,7 +1077,7 @@ namespace compiler.frontend
         }
 
 
-        //TODO: Maybe pass in a return address?
+        
         private ParseResult ReturnStmt(VarTbl variables)
         {
             GetExpected(Token.RETURN);
