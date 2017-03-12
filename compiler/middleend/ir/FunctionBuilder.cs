@@ -31,6 +31,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using compiler.backend;
 
 namespace compiler.middleend.ir
@@ -167,6 +168,32 @@ namespace compiler.middleend.ir
                                  PrintGraphNode() + "}";
 
             return graphOutput;
+        }
+
+        public void Prologue()
+        {
+            // allocate memory for a return value
+            // push current ret address onto stack
+            // save sp and FP to stack
+            // load each param into register and push onto stack
+            // allocate memory for all local variables
+            // save any global variable that might have be modified in function
+            
+        }
+
+
+        public void Epilogue()
+        {
+            // save return value back on stack, or in a register if that works
+            // save any globals variables that might have been modified
+            // pop all the locals off the stack
+            // pop all the parameters off the stack
+            // restore the Stack pointer
+            // restore the Frame pointer
+
+
+
+            
         }
 
 
