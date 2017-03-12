@@ -1,4 +1,5 @@
 ﻿#region Basic header
+
 // MIT License
 // 
 // Copyright (c) 2016 Paul Kirth
@@ -24,6 +25,7 @@
 // 
 // 
 // Created on:  03 10, 2017
+
 #endregion
 
 using System.Collections.Generic;
@@ -40,8 +42,5 @@ namespace compiler.backend
         {
             Functions = functions;
         }
-
-
-        
     }
 }

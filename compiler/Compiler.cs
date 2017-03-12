@@ -71,29 +71,25 @@ namespace compiler
 
             using (var file = new StreamWriter(Opts.DomFilename + ".code"))
             {
-
                 file.WriteLine("digraph Dom{\n");
                 file.WriteLine(GenInstructionListGraphString());
                 file.WriteLine("}");
-
             }
 
             using (var file = new StreamWriter(Opts.DomFilename + ".dlx"))
             {
-
                 file.WriteLine("digraph DlxCode{\n");
                 file.WriteLine(GenDlxGraphString());
                 file.WriteLine("}");
-
             }
-
         }
 
         private string GenDlxGraphString()
         {
             string ret = string.Empty;
             var i = 0;
-            return DlxFunctions.Aggregate(ret, (current, functionBuilder) => current + (functionBuilder.PrintFunction(i++) + "\n"));
+            return DlxFunctions.Aggregate(ret,
+                (current, functionBuilder) => current + (functionBuilder.PrintFunction(i++) + "\n"));
         }
 
         private string GenInstructionListGraphString()
@@ -119,7 +115,6 @@ namespace compiler
             }
             return straightFuncList;
         }
-
 
 
         private void PopulateDlxFunc()
@@ -252,7 +247,6 @@ namespace compiler
             GenControlGraphString();
             GenDomGraphString();
             GenInstructionListGraphString();
-
         }
 
 
