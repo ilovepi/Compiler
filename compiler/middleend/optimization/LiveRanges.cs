@@ -79,7 +79,7 @@ namespace compiler
 
         private static void AddArgToLiveRange(Operand arg, HashSet<Instruction> live)
         {
-            if ((arg?.Kind == Operand.OpType.Instruction) && (arg.Inst.Op != IrOps.Ssa))
+            if ((arg?.Kind == Operand.OpType.Instruction) && (arg.Inst?.Op != IrOps.Ssa))
             {
                 live.Add(arg.Inst);
             }

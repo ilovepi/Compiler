@@ -60,6 +60,7 @@ namespace compiler.middleend.ir
                 Next = other.Next;
                 Search = other.Search;
                 Uses = other.Uses;
+                UsesLocations = other.UsesLocations;
             }
         }
 
@@ -81,11 +82,14 @@ namespace compiler.middleend.ir
             Next = null;
             Search = null;
             Uses = new List<Operand>();
+            UsesLocations = new HashSet<Instruction>();
         }
 
         public VariableType VArId { get; set; }
 
         public List<Operand> Uses { get; set; }
+
+        public HashSet<Instruction> UsesLocations { get; set; }
 
         /// <summary>
         ///     The Instruction number
@@ -165,10 +169,12 @@ namespace compiler.middleend.ir
             if (op.Kind == Operand.OpType.Instruction)
             {
                 op.Inst?.Uses.Add(op);
+                op.Inst?.UsesLocations.Add(this);
             }
             else if (op.Kind == Operand.OpType.Variable)
             {
                 op.Variable.Location?.Uses.Add(op);
+                op.Variable.Location?.UsesLocations.Add(this);
             }
         }
 
@@ -220,7 +226,18 @@ namespace compiler.middleend.ir
             string a2 = (Op != IrOps.Bra) && ((Op != IrOps.End) && (Op != IrOps.Load))
                 ? DisplayArg(smb, Arg2)
                 : string.Empty;
-            return $"{Num}: {Op} {a1} {a2}";
+            return $"{Num}: {Op} {a1} {a2} -- Uses {Uses.Count}: {PrintUses(smb)}" ;
+        }
+
+
+        private string PrintUses(SymbolTable smb)
+        {
+            var s = string.Empty;
+            foreach (Instruction usesLocation in UsesLocations)
+            {
+                s += "("+usesLocation.Num + "),";
+            }
+            return s;
         }
 
         private static string DisplayArg(SymbolTable smb, Operand arg)
@@ -230,7 +247,7 @@ namespace compiler.middleend.ir
 
         public override string ToString()
         {
-            return "" + Num + ": " + Op + " " + Arg1 + " " + Arg2;
+            return "" + Num + ": " + Op + " " + Arg1 + " " + Arg2 + " : "+ Uses.Count;
         }
 
 
@@ -239,7 +256,7 @@ namespace compiler.middleend.ir
             foreach (Operand operand in Uses)
             {
                 operand.Inst = newInst;
-                newInst.Uses.Add(new Operand(this));
+                newInst.Uses.Add(operand);
             }
 
             // clear all references just incase we need to fix this in Dead Code Elimination

@@ -441,15 +441,16 @@ namespace compiler.frontend
             cfg.Locals = new List<VariableType>();
             cfg.Globals = new List<VariableType>();
             cfg.Parameters = new List<VariableType>();
+            cfg.Globals = new List<VariableType>();
 
             while ((Tok == Token.VAR) || (Tok == Token.ARRAY))
             {
-                cfg.Globals = VarDecl(varTble);
+                cfg.Globals.AddRange( VarDecl(varTble));
             }
 
             while ((Tok == Token.FUNCTION) || (Tok == Token.PROCEDURE))
             {
-                Cfg func = FuncDecl(new VarTbl(varTble));
+                Cfg func = FuncDecl(new VarTbl(varTble), cfg.Globals);
                 func.Globals = cfg.Globals;
             }
 
@@ -634,9 +635,10 @@ namespace compiler.frontend
             return newVar;
         }
 
-        private Cfg FuncDecl(VarTbl variables)
+        private Cfg FuncDecl(VarTbl variables, List<VariableType> globals)
         {
             var cfg = new Cfg {Parameters = new List<VariableType>()};
+            cfg.Globals = globals;
 
             FunctionsCfgs.Add(cfg);
 
@@ -657,10 +659,38 @@ namespace compiler.frontend
             //CreateIdentifier();
             Operand id = Identifier();
 
+
             if (Tok == Token.OPEN_PAREN)
             {
                 cfg.Parameters = FormalParams(variables);
                 cfg.Root = new Node(new BasicBlock("Prologue"));
+               
+
+                if (true)
+                {
+                    
+                    foreach (VariableType global in cfg.Globals)
+                    {
+                        var temp = variables[global.Id];
+
+                        var loadInst = new Instruction(IrOps.Load, new Operand(Operand.OpType.Identifier, global.Id),
+                            null);
+                        cfg.Root.Bb.AddInstruction(loadInst);
+                        temp.Value = new Operand(loadInst);
+
+                        var ssa = new SsaVariable(temp.UuId, loadInst, null, temp.Name);
+                        ssa.Identity = global;
+                        temp.Value.Inst = loadInst;
+                        temp.Value.Variable = ssa;
+
+                        ssa.Value = new Operand(loadInst);
+
+                        //loadInst.Arg1 = ssa.Value;
+
+                        variables[global.Id] = ssa;
+                        //arg = new Operand(ssa);
+                    }
+                }
 
                 //*
                 foreach (VariableType parameter in cfg.Parameters)
@@ -684,6 +714,7 @@ namespace compiler.frontend
                     variables[parameter.Id] = ssa;
                     //arg = new Operand(ssa);
                 }
+                
                 //*/
             }
 
@@ -918,8 +949,16 @@ namespace compiler.frontend
             compBlock.InsertFalse(falseBlock);
 
             GetExpected(Token.FI);
+            try
+            {
+                AddPhiInstructions(variables, trueSsa, falseSsa, joinBlock, false);
+            }
+            catch (ArgumentNullException)
+            {
+                throw ParserException.CreateParserException("Variable not initialized on all paths", LineNo, Pos,
+                    _filename);
+            }
 
-            AddPhiInstructions(variables, trueSsa, falseSsa, joinBlock, false);
 
             return ifBlock;
         }
@@ -941,9 +980,14 @@ namespace compiler.frontend
                 SsaVariable falseVar = falseSsa[trueVar.Key];
                 if (falseVar != trueVar.Value)
                 {
-                    // This top construction seems to be correct, and should give the best answer, but doesnt
                     var newInst = new Instruction(IrOps.Phi, new Operand(trueVar.Value.Location),
                         new Operand(falseVar.Location));
+
+                    if ((newInst.Arg1.Inst == null) || (newInst.Arg2.Inst == null))
+                    {
+                        
+                       // throw new ArgumentNullException();
+                    }
 
                     newInst.VArId = trueVar.Value.Identity;
 
@@ -1010,7 +1054,16 @@ namespace compiler.frontend
 
             compBlock.InsertFalse(followBlock);
 
-            AddPhiInstructions(variables, loopSsa, headerSsa, compBlock, true);
+            try
+            { 
+
+                AddPhiInstructions(variables, loopSsa, headerSsa, compBlock, true);
+            }
+            catch (ArgumentNullException)
+            {
+                throw ParserException.CreateParserException("Variable not initialized on all paths", LineNo, Pos,
+                    _filename);
+            }
 
             return whileBlock;
         }
@@ -1026,7 +1079,7 @@ namespace compiler.frontend
         private static void LoopFix(Node n, Instruction phi, HashSet<Node> visited)
         {
             // base case
-            if (visited.Contains(n) || (n == null))
+            if ((n == null) || visited.Contains(n))
             {
                 return;
             }
@@ -1041,14 +1094,20 @@ namespace compiler.frontend
                 {
                     if (CheckOperand(inst.Arg1, phi.Arg1) || CheckOperand(inst.Arg1, phi.Arg2))
                     {
+                        phi.Uses.Add(inst.Arg1);
+                        phi.UsesLocations.Add(inst);
                         inst.Arg1 = new Operand(phi);
+
                     }
 
                     if (CheckOperand(inst.Arg2, phi.Arg1) || CheckOperand(inst.Arg2, phi.Arg2))
                     {
                         if (inst.Op != IrOps.Ssa)
                         {
+                            phi.Uses.Add(inst.Arg2);
+                            phi.UsesLocations.Add(inst);
                             inst.Arg2 = new Operand(phi);
+                            
                         }
                     }
                 }

@@ -26,6 +26,7 @@
 
 #region
 
+using System;
 using System.Collections.Generic;
 using compiler.middleend.ir;
 
@@ -91,7 +92,36 @@ namespace compiler.middleend.optimization
             foreach (Instruction instruction in removalList)
             {
                 //root.Bb.AnchorBlock.FindOpChain(instruction.Op).RemoveAll(instruction.ExactMatch);
-                root.Bb.Instructions.RemoveAll(instruction.ExactMatch);
+                switch (instruction.Op)
+                {
+                    case IrOps.Store:
+                    case IrOps.Move:
+                    case IrOps.Phi:
+                    case IrOps.End:
+                    case IrOps.Bra:
+                    case IrOps.Bne:
+                    case IrOps.Beq:
+                    case IrOps.Ble:
+                    case IrOps.Blt:
+                    case IrOps.Bge:
+                    case IrOps.Bgt:
+                    case IrOps.Ret:
+                    case IrOps.Read:
+                    case IrOps.Write:
+                    case IrOps.WriteNl:
+                        break;
+                    case IrOps.Neg:
+                    case IrOps.Add:
+                    case IrOps.Sub:
+                    case IrOps.Mul:
+                    case IrOps.Div:
+                    case IrOps.Cmp:
+                    case IrOps.Adda:
+                    case IrOps.Load:
+                    default:
+                        root.Bb.Instructions.RemoveAll(instruction.ExactMatch);
+                        break;
+                }
 
                 //rely on using instruction hashkey for removing a particular instruction
                 //root.Bb.Graph.RemoveVertex(instruction);
