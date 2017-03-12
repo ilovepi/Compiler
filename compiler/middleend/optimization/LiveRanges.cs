@@ -55,7 +55,7 @@ namespace compiler
         public static HashSet<Instruction> GenerateRanges(DominatorNode d, HashSet<Instruction> liveRange,
             InterferenceGraph intGraph)
         {
-            if (false)
+            if (d.Bb.NodeType == Node.NodeTypes.WhileB)
             {
                 return GenerateLoopRanges(d, liveRange, intGraph);
             }
