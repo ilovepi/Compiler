@@ -80,9 +80,9 @@ namespace compiler.middleend.ir
             // If we don't find an appropriate vertex, we'll have to spill.
             if (spill)
             {
-                // By default, spills the instruction with the most dependencies
+                // By default, spills the instruction with the least dependencies
                 // TODO: Maybe come up with a better spilling heuristic
-                var spillVertex = curGraph.Vertices.OrderByDescending(item => AdjacentDegree(item)).First();
+                var spillVertex = curGraph.Vertices.OrderByDescending(item => AdjacentDegree(item)).Last();
                 GraphColors.Add(spillVertex, spillCount++);
                 curGraph.RemoveVertex(spillVertex);
             }
