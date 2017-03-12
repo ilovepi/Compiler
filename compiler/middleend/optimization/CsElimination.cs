@@ -83,7 +83,7 @@ namespace compiler.middleend.optimization
                         root.Bb.AnchorBlock.InsertKill(bbInstruction.Arg2);
                     }
 
-                    EliminateInternal(root, bbInstruction, removalList, false);
+                    EliminatePriv(root, bbInstruction, removalList, false);
                 }
             }
 
@@ -107,11 +107,11 @@ namespace compiler.middleend.optimization
             // TODO: fix loop cse
             foreach (Instruction instruction in delayed)
             {
-                EliminateInternal(root, instruction, removalList, true);
+                EliminatePriv(root, instruction, removalList, true);
             }
         }
 
-        private static void EliminateInternal(Node root, Instruction bbInstruction, List<Instruction> removalList,
+        private static void EliminatePriv(Node root, Instruction bbInstruction, List<Instruction> removalList,
             bool alternate)
         {
             Instruction predecessor;

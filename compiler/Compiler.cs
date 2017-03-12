@@ -200,12 +200,15 @@ namespace compiler
                     CopyPropagation.ConstantFolding(func.ControlFlowGraph.Root);
                 }
 
+                CleanUpSsa.Clean(func.ControlFlowGraph.Root);
+
                 //Common Sub Expression Elimination
                 if (Opts.Cse)
                 {
                     CsElimination.Eliminate(func.ControlFlowGraph.Root);
                 }
 
+                
 
                 // Reevaluation
                 if (Opts.DeadCode)
