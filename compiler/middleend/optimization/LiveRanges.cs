@@ -100,20 +100,20 @@ namespace compiler
             InterferenceGraph intGraph)
         {
             // "Regular" live range generation (as above)
-            var newRange = GenerateRanges(d.Children[1], liveRange, intGraph);
-            newRange.UnionWith(GenerateRanges(d.Children[0], newRange, intGraph));
+            var newRange = GenerateRanges(d.Children[0], liveRange, intGraph);
+            newRange.UnionWith(GenerateRanges(d.Children[1], newRange, intGraph));
             newRange = PopulateRanges(d, newRange, intGraph);
 
             // Union with live range of LB with new LH live range
-            newRange.UnionWith(GenerateRanges(d.Children[0], newRange, intGraph));
+            newRange.UnionWith(GenerateRanges(d.Children[1], newRange, intGraph));
             newRange = PopulateRanges(d, newRange, intGraph);
 
             // Back to LH, and then back to LB again
             newRange = GenerateRanges(d.Children[1], newRange, intGraph);
-            newRange.UnionWith(GenerateRanges(d.Children[0], newRange, intGraph));
+            newRange.UnionWith(GenerateRanges(d.Children[1], newRange, intGraph));
             newRange = PopulateRanges(d, newRange, intGraph);
 
-            newRange.UnionWith(GenerateRanges(d.Children[0], newRange, intGraph));
+            newRange.UnionWith(GenerateRanges(d.Children[1], newRange, intGraph));
             return PopulateRanges(d, newRange, intGraph);
         }
 
