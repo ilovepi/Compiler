@@ -23,7 +23,7 @@ namespace compiler.middleend.ir
 
         // Colored and spilled instructions
         public Dictionary<Instruction, uint> GraphColors = new Dictionary<Instruction, uint>();
-        public uint spillCount = 32; // Virtual register to count spilled instructions, starts at reg 32
+        public uint spillCount = 32; // Virtual register to track spilled instructions, starts at reg 32
 
         public InterferenceGraph(BasicBlock block)
         {

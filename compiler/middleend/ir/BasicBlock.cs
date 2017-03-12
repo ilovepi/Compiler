@@ -27,6 +27,8 @@ namespace compiler.middleend.ir
 
         public Anchor AnchorBlock { get; set; }
 
+        public Node.NodeTypes NodeType { get; set; }
+
         //public InterferenceGraph Graph { get; set; }
 
 
