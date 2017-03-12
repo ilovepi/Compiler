@@ -40,22 +40,20 @@ namespace compiler.middleend.ir
 {
     public class InterferenceGraph : UndirectedGraph<Instruction, Edge<Instruction>>
     {
-        // # of available registers
-        private const int RegisterCount = 28;
+        public InterferenceGraph()
+        {
+        }
 
-        private Stack<Instruction> _coloringStack = new Stack<Instruction>();
+        // # of available registers
+        private const uint RegisterCount = 27;
 
         // Generic copy of this graph (for mutation), built alongside Interference Graph
         private UndirectedGraph<Instruction, Edge<Instruction>> _copy =
             new UndirectedGraph<Instruction, Edge<Instruction>>();
 
         // Colored and spilled instructions
-        public Dictionary<Instruction, int> GraphColors = new Dictionary<Instruction, int>();
-        public List<Instruction> SpilledInstr = new List<Instruction>();
-
-        public InterferenceGraph()
-        {
-        }
+        public Dictionary<Instruction, uint> GraphColors = new Dictionary<Instruction, uint>();
+        public uint spillCount = 32; // Virtual register to track spilled instructions, starts at reg 32
 
         public InterferenceGraph(BasicBlock block)
         {
@@ -75,12 +73,22 @@ namespace compiler.middleend.ir
                 {
                     if (item != null)
                     {
-                        AddVerticesAndEdge(new Edge<Instruction>(instruction, item));
-                        _copy.AddVerticesAndEdge(new Edge<Instruction>(instruction, item));
+                       
+                        AddVertex(instruction);
+                        AddVertex(item);
+
+                        if (!ContainsEdge(instruction, item))
+                        {
+                            var newEdge = new Edge<Instruction>(instruction, item);
+                            AddEdge(newEdge);
+                            _copy.AddVerticesAndEdge(new Edge<Instruction>(instruction, item));
+                        }
                     }
                 }
             }
         }
+
+        private Stack<Instruction> coloringStack = new Stack<Instruction>();
 
         private void ColorRecursive(UndirectedGraph<Instruction, Edge<Instruction>> curGraph)
         {
@@ -100,7 +108,7 @@ namespace compiler.middleend.ir
                 if (AdjacentDegree(vertex) < RegisterCount)
                 {
                     // Put that node on the coloring stack and remove it from graph
-                    _coloringStack.Push(vertex);
+                    coloringStack.Push(vertex);
                     curGraph.RemoveVertex(vertex);
                     spill = false;
                     continue;
@@ -110,11 +118,11 @@ namespace compiler.middleend.ir
             // If we don't find an appropriate vertex, we'll have to spill.
             if (spill)
             {
-                // By default, spills the instruction with the most dependencies
+                // By default, spills the instruction with the least dependencies
                 // TODO: Maybe come up with a better spilling heuristic
-                var highest = curGraph.Vertices.OrderByDescending(item => AdjacentDegree(item)).First();
-                SpilledInstr.Add(highest);
-                curGraph.RemoveVertex(highest);
+                var spillVertex = curGraph.Vertices.OrderByDescending(item => AdjacentDegree(item)).Last();
+                GraphColors.Add(spillVertex, spillCount++);
+                curGraph.RemoveVertex(spillVertex);
             }
 
             // Either way, we've removed a vertex and logged it. Time for the subgraph.
@@ -136,7 +144,7 @@ namespace compiler.middleend.ir
                 Instruction curInstr = coloringStack.Pop();
 
                 // ... get a list of its neighbors' already assigned registers...
-                List<int> neighborRegs = new List<int>();
+                List<uint> neighborRegs = new List<uint>();
                 foreach (Instruction neighbor in curInstr.LiveRange)
                 {
                     if (GraphColors.ContainsKey(neighbor))
@@ -146,7 +154,7 @@ namespace compiler.middleend.ir
                 }
 
                 // ... and give it a different one.
-                for (int reg = 1; reg <= RegisterCount; reg++)
+                for (uint reg = 1; reg <= RegisterCount; reg++)
                 {
                     if (!neighborRegs.Contains(reg))
                     {

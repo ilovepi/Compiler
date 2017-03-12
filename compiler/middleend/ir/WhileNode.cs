@@ -35,7 +35,8 @@ namespace compiler.middleend.ir
 {
     public class WhileNode : CompareNode
     {
-        public WhileNode(BasicBlock pBb) : base(pBb)
+        //todo: rightnow we insert on the false node, but we need to fix that
+        public WhileNode(BasicBlock pBb) : base(pBb, NodeTypes.WhileB)
         {
             Colorname = "turquoise";
             NodeType = NodeTypes.WhileB;

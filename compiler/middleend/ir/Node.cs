@@ -64,6 +64,7 @@ namespace compiler.middleend.ir
             Parent = null;
             Child = null;
             NodeType = NodeTypes.BB;
+            Bb.NodeType = NodeTypes.BB;
         }
 
         public Node(BasicBlock pBb, NodeTypes n)
@@ -74,6 +75,7 @@ namespace compiler.middleend.ir
             Parent = null;
             Child = null;
             NodeType = n;
+            Bb.NodeType = n;
         }
 
         public BasicBlock Bb { get; set; }
