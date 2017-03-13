@@ -213,7 +213,7 @@ namespace compiler
                 // Reevaluation
                 if (Opts.DeadCode)
                 {
-                    throw new NotImplementedException();
+                    DeadCodeElimination.RemoveDeadCode(func.ControlFlowGraph.Root);
                 }
 
                 // Pruning
@@ -302,7 +302,7 @@ namespace compiler
                 GraphOutput = true,
                 CopyProp = true,
                 Cse = true,
-                DeadCode = false,
+                DeadCode = true,
                 PruneCfg = false,
                 RegAlloc = true,
                 InstSched = false,

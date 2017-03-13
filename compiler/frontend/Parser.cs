@@ -28,6 +28,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing;
 using System.Linq;
 using compiler.middleend.ir;
 using VarTbl = System.Collections.Generic.SortedDictionary<int, compiler.middleend.ir.SsaVariable>;
@@ -663,7 +664,8 @@ namespace compiler.frontend
             if (Tok == Token.OPEN_PAREN)
             {
                 cfg.Parameters = FormalParams(variables);
-                cfg.Root = new Node(new BasicBlock("Prologue"));
+                var prologue = new Node(new BasicBlock("Prologue"));
+                cfg.Root = prologue;
                
 
                 if (true)
@@ -672,20 +674,31 @@ namespace compiler.frontend
                     foreach (VariableType global in cfg.Globals)
                     {
                         var temp = variables[global.Id];
+                        Instruction prologInst;
 
-                        var loadInst = new Instruction(IrOps.Load, new Operand(Operand.OpType.Identifier, global.Id),
+                        if (global.IsArray)
+                        {
+                            prologInst = new Instruction(IrOps.Ssa, new Operand(Operand.OpType.Constant, global.Id),null);
+                        }
+                        else
+                        {
+                            prologInst = new Instruction(IrOps.Load, new Operand(Operand.OpType.Identifier, global.Id),
                             null);
-                        cfg.Root.Bb.AddInstruction(loadInst);
-                        temp.Value = new Operand(loadInst);
 
-                        var ssa = new SsaVariable(temp.UuId, loadInst, null, temp.Name);
+                        }
+
+                        
+                        cfg.Root.Bb.AddInstruction(prologInst);
+                        temp.Value = new Operand(prologInst);
+
+                        var ssa = new SsaVariable(temp.UuId, prologInst, null, temp.Name);
                         ssa.Identity = global;
-                        temp.Value.Inst = loadInst;
+                        temp.Value.Inst = prologInst;
                         temp.Value.Variable = ssa;
 
-                        ssa.Value = new Operand(loadInst);
+                        ssa.Value = new Operand(prologInst);
 
-                        //loadInst.Arg1 = ssa.Value;
+                        prologInst.Arg2 = ssa.Value;
 
                         variables[global.Id] = ssa;
                         //arg = new Operand(ssa);
@@ -731,6 +744,25 @@ namespace compiler.frontend
             }
 
             GetExpected(Token.SEMI_COLON);
+
+            var epilogue = new Node(new BasicBlock("Epilogue"));
+
+            foreach (VariableType global in globals)
+            {
+                if (!global.IsArray)
+                {
+                    var temp = variables[global.Id];
+                    if (temp.Location?.Uses.Count != 0)
+                    {
+                        Instruction newInst = new Instruction(IrOps.Store, temp.Value,
+                            new Operand(Operand.OpType.Constant, global.Id));
+                        epilogue.Bb.AddInstruction(newInst);
+                    }
+                }
+
+            }
+
+            cfg.Insert(epilogue);
 
             return cfg;
         }
