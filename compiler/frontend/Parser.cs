@@ -1099,11 +1099,11 @@ namespace compiler.frontend
             last.Child = branchBlock;
             branchBlock.Parent = last;
             branchBlock.Bb.AddInstruction(new Instruction(IrOps.Bra, new Operand(loopHeaderBlock.GetNextInstruction()), null));
-
+            branchBlock.Child = loopHeaderBlock;
             loopBlock.Consolidate();
 
 
-            branchBlock.Child = loopHeaderBlock;
+
             try
             { 
 

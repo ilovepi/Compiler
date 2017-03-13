@@ -38,15 +38,15 @@ namespace Program
     {
         private static void Main(string[] args)
         {
-            //try
+            try
             {
                 //TODO: Be sure to address options parsing
-                Compiler.DefaultRun(@"../../testdata/test007.txt");
+                Compiler.DefaultRun(@"../../testdata/test027.txt");
             }
-            //catch (ParserException e)
+            catch (ParserException e)
             {
-                //Console.WriteLine(e.Message);
-              //  Console.ReadLine();
+                Console.WriteLine(e.Message);
+                Console.ReadLine();
             }
         }
     }

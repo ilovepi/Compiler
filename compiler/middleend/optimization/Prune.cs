@@ -38,25 +38,29 @@ namespace compiler.middleend.optimization
                 {
                     var branch = instList.Last();
                     bool takeBranch;
+
+                    var arg1 = cmp.Arg1.OpenOperand().Val;
+                    var arg2 = cmp.Arg2.OpenOperand().Val;
+
                     switch (branch.Op)
                     {
                         case IrOps.Bne:
-                            takeBranch = cmp.Arg1.Val != cmp.Arg2.Val;
+                            takeBranch = arg1 != arg2;
                             break;
                         case IrOps.Beq:
-                            takeBranch = cmp.Arg1.Val == cmp.Arg2.Val;
+                            takeBranch = arg1 == arg2;
                             break;
                         case IrOps.Ble:
-                            takeBranch = cmp.Arg1.Val <= cmp.Arg2.Val;
+                            takeBranch = arg1 <= arg2;
                             break;
                         case IrOps.Blt:
-                            takeBranch = cmp.Arg1.Val < cmp.Arg2.Val;
+                            takeBranch = arg1 < arg2;
                             break;
                         case IrOps.Bge:
-                            takeBranch = cmp.Arg1.OpenOperand().Val >= cmp.Arg2.OpenOperand().Val;
+                            takeBranch = arg1 >= arg2;
                             break;
                         case IrOps.Bgt:
-                            takeBranch = cmp.Arg1.Val > cmp.Arg2.Val;
+                            takeBranch = arg1 > arg2;
                             break;
                         default:
                             throw new Exception("Comparison cannot be evaluated!");

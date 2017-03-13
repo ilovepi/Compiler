@@ -258,7 +258,6 @@ namespace compiler
             {
                 parseTree.DominatorTree.IntGraph.Color();
             }
-            //throw new NotImplementedException();
         }
 
 

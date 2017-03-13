@@ -24,6 +24,8 @@
 
 #endregion
 
+using System.Collections.Generic;
+
 namespace compiler.middleend.ir
 {
     public class JoinNode : Node
@@ -43,12 +45,16 @@ namespace compiler.middleend.ir
         }
 
 
-        public override void Consolidate()
+        public override void Consolidate(HashSet<Node> visited )
         {
+            if (visited.Contains(this))
+            { return; }
+            visited.Add(this);
+
             CircularRef(Child);
 
             // consolidate children who exist
-            Child?.Consolidate();
+            Child?.Consolidate(visited);
         }
 
 
