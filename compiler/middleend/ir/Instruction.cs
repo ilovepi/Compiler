@@ -226,7 +226,7 @@ namespace compiler.middleend.ir
             string a2 = (Op != IrOps.Bra) && ((Op != IrOps.End) && (Op != IrOps.Load))
                 ? DisplayArg(smb, Arg2)
                 : string.Empty;
-            return $"{Num}: {Op} {a1} {a2} -- Uses {Uses.Count}: {PrintUses(smb)}" ;
+            return $"{Num}: {Op} {a1} {a2} -- Uses {Uses.Count}: {PrintUses(smb)}";
         }
 
 
@@ -235,7 +235,7 @@ namespace compiler.middleend.ir
             var s = string.Empty;
             foreach (Instruction usesLocation in UsesLocations)
             {
-                s += "("+usesLocation.Num + "),";
+                s += "(" + usesLocation.Num + "),";
             }
             return s;
         }
@@ -247,7 +247,7 @@ namespace compiler.middleend.ir
 
         public override string ToString()
         {
-            return "" + Num + ": " + Op + " " + Arg1 + " " + Arg2 + " : "+ Uses.Count;
+            return "" + Num + ": " + Op + " " + Arg1 + " " + Arg2 + " : " + Uses.Count;
         }
 
 

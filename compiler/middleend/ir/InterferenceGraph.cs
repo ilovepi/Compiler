@@ -40,10 +40,6 @@ namespace compiler.middleend.ir
 {
     public class InterferenceGraph : UndirectedGraph<Instruction, Edge<Instruction>>
     {
-        public InterferenceGraph()
-        {
-        }
-
         // # of available registers
         private const uint RegisterCount = 27;
 
@@ -51,9 +47,15 @@ namespace compiler.middleend.ir
         private UndirectedGraph<Instruction, Edge<Instruction>> _copy =
             new UndirectedGraph<Instruction, Edge<Instruction>>();
 
+        private Stack<Instruction> coloringStack = new Stack<Instruction>();
+
         // Colored and spilled instructions
         public Dictionary<Instruction, uint> GraphColors = new Dictionary<Instruction, uint>();
         public uint spillCount = 32; // Virtual register to track spilled instructions, starts at reg 32
+
+        public InterferenceGraph()
+        {
+        }
 
         public InterferenceGraph(BasicBlock block)
         {
@@ -73,7 +75,6 @@ namespace compiler.middleend.ir
                 {
                     if (item != null)
                     {
-                       
                         AddVertex(instruction);
                         AddVertex(item);
 
@@ -87,8 +88,6 @@ namespace compiler.middleend.ir
                 }
             }
         }
-
-        private Stack<Instruction> coloringStack = new Stack<Instruction>();
 
         private void ColorRecursive(UndirectedGraph<Instruction, Edge<Instruction>> curGraph)
         {
@@ -111,7 +110,6 @@ namespace compiler.middleend.ir
                     coloringStack.Push(vertex);
                     curGraph.RemoveVertex(vertex);
                     spill = false;
-                    continue;
                 }
             }
 

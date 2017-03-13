@@ -80,10 +80,12 @@ namespace compiler.middleend.ir
             }
         }
 
-        public override void Consolidate(HashSet<Node> visited )
+        public override void Consolidate(HashSet<Node> visited)
         {
             if (visited.Contains(this))
-            { return;}
+            {
+                return;
+            }
             visited.Add(this);
 
             CircularRef(FalseNode);

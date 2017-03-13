@@ -170,15 +170,17 @@ namespace compiler.middleend.ir
 
         public virtual void Consolidate()
         {
-           HashSet<Node> visited = new HashSet<Node>();
+            HashSet<Node> visited = new HashSet<Node>();
             Consolidate(visited);
         }
 
 
-        public virtual void Consolidate(HashSet<Node> visited )
+        public virtual void Consolidate(HashSet<Node> visited)
         {
-            if(visited.Contains(this))
-            { return;}
+            if (visited.Contains(this))
+            {
+                return;
+            }
 
             visited.Add(this);
 
@@ -204,7 +206,6 @@ namespace compiler.middleend.ir
                 Child.Consolidate(visited);
             }
         }
-
 
 
         public void CircularRef(Node childNode)

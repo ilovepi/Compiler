@@ -173,7 +173,6 @@ namespace compiler
             {
                 mystring += parseTree.DominatorTree.PrintInterference() + "\n";
             }
-             
         }
 
         private string GenControlGraphString()
@@ -193,13 +192,13 @@ namespace compiler
             // iterate through each CFG and do the optimizations.
             foreach (ParseTree func in FuncList)
             {
-                bool restart = false;
+                bool restart;
                 do
                 {
-                   restart = TransformIr(func, false);
+                    restart = TransformIr(func, false);
                 } while (restart);
-               
-               
+
+
                 TransformIr(func, true);
 
                 func.ControlFlowGraph.InsertBranches();
@@ -304,11 +303,10 @@ namespace compiler
             GenControlGraphString();
             GenDomGraphString();
             GenInterferenceGraphString();
-           
+
             GenStraightLineFunctions();
             GenInstructionListGraphString();
             GenDlxGraphString();
-            
         }
 
 

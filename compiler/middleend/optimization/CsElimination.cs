@@ -26,7 +26,6 @@
 
 #region
 
-using System;
 using System.Collections.Generic;
 using compiler.middleend.ir;
 

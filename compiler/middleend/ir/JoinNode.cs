@@ -24,7 +24,11 @@
 
 #endregion
 
+#region
+
 using System.Collections.Generic;
+
+#endregion
 
 namespace compiler.middleend.ir
 {
@@ -45,10 +49,12 @@ namespace compiler.middleend.ir
         }
 
 
-        public override void Consolidate(HashSet<Node> visited )
+        public override void Consolidate(HashSet<Node> visited)
         {
             if (visited.Contains(this))
-            { return; }
+            {
+                return;
+            }
             visited.Add(this);
 
             CircularRef(Child);

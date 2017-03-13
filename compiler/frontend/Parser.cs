@@ -445,7 +445,7 @@ namespace compiler.frontend
 
             while ((Tok == Token.VAR) || (Tok == Token.ARRAY))
             {
-                cfg.Globals.AddRange( VarDecl(varTble));
+                cfg.Globals.AddRange(VarDecl(varTble));
             }
 
             while ((Tok == Token.FUNCTION) || (Tok == Token.PROCEDURE))
@@ -665,11 +665,10 @@ namespace compiler.frontend
                 cfg.Parameters = FormalParams(variables);
                 var prologue = new Node(new BasicBlock("Prologue"));
                 cfg.Root = prologue;
-               
+
 
                 if (true)
                 {
-                    
                     foreach (VariableType global in cfg.Globals)
                     {
                         var temp = variables[global.Id];
@@ -677,16 +676,16 @@ namespace compiler.frontend
 
                         if (global.IsArray)
                         {
-                            prologInst = new Instruction(IrOps.Ssa, new Operand(Operand.OpType.Constant, global.Id),null);
+                            prologInst = new Instruction(IrOps.Ssa, new Operand(Operand.OpType.Constant, global.Id),
+                                null);
                         }
                         else
                         {
                             prologInst = new Instruction(IrOps.Load, new Operand(Operand.OpType.Identifier, global.Id),
-                            null);
-
+                                null);
                         }
 
-                        
+
                         cfg.Root.Bb.AddInstruction(prologInst);
                         temp.Value = new Operand(prologInst);
 
@@ -726,7 +725,7 @@ namespace compiler.frontend
                     variables[parameter.Id] = ssa;
                     //arg = new Operand(ssa);
                 }
-                
+
                 //*/
             }
 
@@ -758,7 +757,6 @@ namespace compiler.frontend
                         epilogue.Bb.AddInstruction(newInst);
                     }
                 }
-
             }
 
             cfg.Insert(epilogue);
@@ -966,14 +964,12 @@ namespace compiler.frontend
 
             compBlock.InsertTrue(trueBlock);
             trueBlock.Leaf().InsertJoinTrue(joinBlock);
-            var elseBranch = false;
             if (Tok == Token.ELSE)
             {
                 Next();
                 falseBlock = StatementSequence(ref falseSsa).Root;
                 Node.Leaf(falseBlock).InsertJoinFalse(joinBlock);
                 falseBlock.Consolidate();
-                elseBranch = true;
             }
 
 
@@ -1026,8 +1022,7 @@ namespace compiler.frontend
 
                     if ((newInst.Arg1.Inst == null) || (newInst.Arg2.Inst == null))
                     {
-                        
-                       // throw new ArgumentNullException();
+                        // throw new ArgumentNullException();
                     }
 
                     newInst.VArId = trueVar.Value.Identity;
@@ -1080,32 +1075,30 @@ namespace compiler.frontend
             Node loopBlock = stmts.Root;
 
             Node last = loopBlock.Leaf();
-           
+
 
             // insert the loop body on the true path
             loopHeaderBlock.InsertTrue(loopBlock);
 
-           
 
             GetExpected(Token.OD);
 
             var followBlock = new Node(new BasicBlock("FollowBlock")) {Colorname = "palegreen"};
             var branchBlock = new Node(new BasicBlock("BranchBack"));
             loopHeaderBlock.LoopParent = branchBlock;
-           
+
             loopHeaderBlock.InsertFalse(followBlock);
 
             last.Child = branchBlock;
             branchBlock.Parent = last;
-            branchBlock.Bb.AddInstruction(new Instruction(IrOps.Bra, new Operand(loopHeaderBlock.GetNextInstruction()), null));
+            branchBlock.Bb.AddInstruction(new Instruction(IrOps.Bra, new Operand(loopHeaderBlock.GetNextInstruction()),
+                null));
             branchBlock.Child = loopHeaderBlock;
             loopBlock.Consolidate();
 
 
-
             try
-            { 
-
+            {
                 AddPhiInstructions(variables, loopSsa, headerSsa, loopHeaderBlock, true);
             }
             catch (ArgumentNullException)
@@ -1146,7 +1139,6 @@ namespace compiler.frontend
                         phi.Uses.Add(inst.Arg1);
                         phi.UsesLocations.Add(inst);
                         inst.Arg1 = new Operand(phi);
-
                     }
 
                     if (CheckOperand(inst.Arg2, phi.Arg1) || CheckOperand(inst.Arg2, phi.Arg2))
@@ -1156,7 +1148,6 @@ namespace compiler.frontend
                             phi.Uses.Add(inst.Arg2);
                             phi.UsesLocations.Add(inst);
                             inst.Arg2 = new Operand(phi);
-                            
                         }
                     }
                 }

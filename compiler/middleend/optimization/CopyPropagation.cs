@@ -54,7 +54,7 @@ namespace compiler.middleend.optimization
 
             foreach (Instruction instruction in root.Bb.Instructions)
             {
-                if((instruction.Op == IrOps.Adda) || (instruction.Op == IrOps.Load))
+                if ((instruction.Op == IrOps.Adda) || (instruction.Op == IrOps.Load))
                 {
                     continue;
                 }

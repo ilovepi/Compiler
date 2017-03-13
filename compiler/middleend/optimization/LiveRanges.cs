@@ -28,7 +28,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization.Formatters;
 using compiler.middleend.ir;
 
 #endregion
