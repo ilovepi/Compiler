@@ -642,6 +642,7 @@ namespace compiler.frontend
         {
             var cfg = new Cfg {Parameters = new List<VariableType>()};
             cfg.Globals = globals;
+            cfg.UsedGlobals = new List<VariableType>();
 
             FunctionsCfgs.Add(cfg);
 
@@ -758,6 +759,7 @@ namespace compiler.frontend
                         Instruction newInst = new Instruction(IrOps.Store, temp.Value,
                             new Operand(Operand.OpType.Constant, global.Id));
                         epilogue.Bb.AddInstruction(newInst);
+                        cfg.UsedGlobals.Add(global);
                     }
                 }
             }
