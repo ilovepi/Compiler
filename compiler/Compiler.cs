@@ -92,14 +92,10 @@ namespace compiler
                 file.WriteLine("}");
             }
 
-            using (var file = new StreamWriter(Opts.DomFilename + ".interference"))
-            {
-                //file.WriteLine("digraph Dom{\n");
-                //file.WriteLine(GenInterferenceGraphString());
-                //file.WriteLine("}");
 
-                GenInterferenceGraphString();
-            }
+            // quickgraph makes the files for us, so no using statement here
+            GenInterferenceGraphString();
+            
 
             using (var file = new StreamWriter(Opts.DomFilename + ".code"))
             {

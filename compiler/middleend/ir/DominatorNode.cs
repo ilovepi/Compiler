@@ -201,7 +201,7 @@ namespace compiler.middleend.ir
             return local;
         }
 
-
+        /*
         public void Walk(Action<Action<DominatorNode>, DominatorNode> traversal, Action<DominatorNode> visitor)
         {
             traversal(visitor, this);
@@ -226,7 +226,7 @@ namespace compiler.middleend.ir
 
             visitor(n);
         }
-
+        
 
         /// <summary>
         ///     Preorder the specified visitor.
@@ -252,11 +252,11 @@ namespace compiler.middleend.ir
         {
             foreach (DominatorNode child in Children)
             {
-                child.Preorder(visitor);
+                child.Postorder(visitor);
             }
             visitor(this);
         }
-
+        */
 
         /// <summary>
         ///     Dots the identifier.

@@ -540,12 +540,14 @@ namespace compiler.frontend
             return op;
         }
 
+        /*
         public void CreateIdentifier()
         {
             int id = Scanner.Id;
             GetExpected(Token.IDENTIFIER);
             Scanner.SymbolTble.InsertAddress(id, NextAddress());
         }
+        
 
 
         private int NextAddress()
@@ -553,6 +555,7 @@ namespace compiler.frontend
             //TODO: implement this function
             return 0;
         }
+        */
 
         private Operand Num()
         {
@@ -850,7 +853,7 @@ namespace compiler.frontend
             return cfg;
         }
 
-
+        /*
         public void RelOp()
         {
             // TODO implement comparisions (replace IsRelOp)
@@ -863,6 +866,7 @@ namespace compiler.frontend
                 Next();
             }
         }
+        */
 
 
         private ParseResult FuncCall(VarTbl variables)
@@ -1182,7 +1186,7 @@ namespace compiler.frontend
             return false;
         }
 
-
+        /*
         public Tuple<BasicBlock, int> FindInstruction(Instruction inst, Node n)
         {
             if (n == null)
@@ -1202,6 +1206,7 @@ namespace compiler.frontend
 
             return FindInstruction(inst, n.Parent);
         }
+        */
 
 
         private ParseResult ReturnStmt(VarTbl variables)
