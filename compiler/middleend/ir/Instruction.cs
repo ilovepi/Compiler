@@ -156,7 +156,7 @@ namespace compiler.middleend.ir
         private void AddRefs()
         {
             AddInstructionRef(Arg1);
-            if (Op != IrOps.Store)
+            if (Op != IrOps.Store || Arg2.Inst?.Op == IrOps.Adda)
             {
                 AddInstructionRef(Arg2);
             }
