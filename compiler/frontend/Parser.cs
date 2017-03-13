@@ -441,15 +441,16 @@ namespace compiler.frontend
             cfg.Locals = new List<VariableType>();
             cfg.Globals = new List<VariableType>();
             cfg.Parameters = new List<VariableType>();
+            cfg.Globals = new List<VariableType>();
 
             while ((Tok == Token.VAR) || (Tok == Token.ARRAY))
             {
-                cfg.Globals = VarDecl(varTble);
+                cfg.Globals.AddRange(VarDecl(varTble));
             }
 
             while ((Tok == Token.FUNCTION) || (Tok == Token.PROCEDURE))
             {
-                Cfg func = FuncDecl(new VarTbl(varTble));
+                Cfg func = FuncDecl(new VarTbl(varTble), cfg.Globals);
                 func.Globals = cfg.Globals;
             }
 
@@ -539,12 +540,14 @@ namespace compiler.frontend
             return op;
         }
 
+        /*
         public void CreateIdentifier()
         {
             int id = Scanner.Id;
             GetExpected(Token.IDENTIFIER);
             Scanner.SymbolTble.InsertAddress(id, NextAddress());
         }
+        
 
 
         private int NextAddress()
@@ -552,6 +555,7 @@ namespace compiler.frontend
             //TODO: implement this function
             return 0;
         }
+        */
 
         private Operand Num()
         {
@@ -634,9 +638,11 @@ namespace compiler.frontend
             return newVar;
         }
 
-        private Cfg FuncDecl(VarTbl variables)
+        private Cfg FuncDecl(VarTbl variables, List<VariableType> globals)
         {
             var cfg = new Cfg {Parameters = new List<VariableType>()};
+            cfg.Globals = globals;
+            cfg.UsedGlobals = new List<VariableType>();
 
             FunctionsCfgs.Add(cfg);
 
@@ -657,10 +663,49 @@ namespace compiler.frontend
             //CreateIdentifier();
             Operand id = Identifier();
 
+
             if (Tok == Token.OPEN_PAREN)
             {
                 cfg.Parameters = FormalParams(variables);
-                cfg.Root = new Node(new BasicBlock("Prologue"));
+                var prologue = new Node(new BasicBlock("Prologue"));
+                cfg.Root = prologue;
+
+
+                if (true)
+                {
+                    foreach (VariableType global in cfg.Globals)
+                    {
+                        var temp = variables[global.Id];
+                        Instruction prologInst;
+
+                        if (global.IsArray)
+                        {
+                            prologInst = new Instruction(IrOps.Ssa, new Operand(Operand.OpType.Constant, global.Id),
+                                null);
+                        }
+                        else
+                        {
+                            prologInst = new Instruction(IrOps.Load, new Operand(Operand.OpType.Identifier, global.Id),
+                                null);
+                        }
+
+
+                        cfg.Root.Bb.AddInstruction(prologInst);
+                        temp.Value = new Operand(prologInst);
+
+                        var ssa = new SsaVariable(temp.UuId, prologInst, null, temp.Name);
+                        ssa.Identity = global;
+                        temp.Value.Inst = prologInst;
+                        temp.Value.Variable = ssa;
+
+                        ssa.Value = new Operand(prologInst);
+
+                        prologInst.Arg2 = ssa.Value;
+
+                        variables[global.Id] = ssa;
+                        //arg = new Operand(ssa);
+                    }
+                }
 
                 //*
                 foreach (VariableType parameter in cfg.Parameters)
@@ -684,6 +729,7 @@ namespace compiler.frontend
                     variables[parameter.Id] = ssa;
                     //arg = new Operand(ssa);
                 }
+
                 //*/
             }
 
@@ -700,6 +746,25 @@ namespace compiler.frontend
             }
 
             GetExpected(Token.SEMI_COLON);
+
+            var epilogue = new Node(new BasicBlock("Epilogue"));
+
+            foreach (VariableType global in globals)
+            {
+                if (!global.IsArray)
+                {
+                    var temp = variables[global.Id];
+                    if (temp.Location?.Uses.Count != 0)
+                    {
+                        Instruction newInst = new Instruction(IrOps.Store, temp.Value,
+                            new Operand(Operand.OpType.Constant, global.Id));
+                        epilogue.Bb.AddInstruction(newInst);
+                        cfg.UsedGlobals.Add(global);
+                    }
+                }
+            }
+
+            cfg.Insert(epilogue);
 
             return cfg;
         }
@@ -790,7 +855,7 @@ namespace compiler.frontend
             return cfg;
         }
 
-
+        /*
         public void RelOp()
         {
             // TODO implement comparisions (replace IsRelOp)
@@ -803,6 +868,7 @@ namespace compiler.frontend
                 Next();
             }
         }
+        */
 
 
         private ParseResult FuncCall(VarTbl variables)
@@ -904,22 +970,38 @@ namespace compiler.frontend
 
             compBlock.InsertTrue(trueBlock);
             trueBlock.Leaf().InsertJoinTrue(joinBlock);
-            var elseBranch = false;
             if (Tok == Token.ELSE)
             {
                 Next();
                 falseBlock = StatementSequence(ref falseSsa).Root;
                 Node.Leaf(falseBlock).InsertJoinFalse(joinBlock);
                 falseBlock.Consolidate();
-                elseBranch = true;
             }
 
 
-            compBlock.InsertFalse(falseBlock);
+            //compBlock.InsertFalse(falseBlock);
+            compBlock.FalseNode = falseBlock;
+            if (falseBlock == joinBlock)
+            {
+                joinBlock.FalseParent = compBlock;
+            }
+            else
+            {
+                falseBlock.Parent = compBlock;
+            }
+
 
             GetExpected(Token.FI);
+            try
+            {
+                AddPhiInstructions(variables, trueSsa, falseSsa, joinBlock, false);
+            }
+            catch (ArgumentNullException)
+            {
+                throw ParserException.CreateParserException("Variable not initialized on all paths", LineNo, Pos,
+                    _filename);
+            }
 
-            AddPhiInstructions(variables, trueSsa, falseSsa, joinBlock, false);
 
             return ifBlock;
         }
@@ -941,9 +1023,13 @@ namespace compiler.frontend
                 SsaVariable falseVar = falseSsa[trueVar.Key];
                 if (falseVar != trueVar.Value)
                 {
-                    // This top construction seems to be correct, and should give the best answer, but doesnt
-                    var newInst = new Instruction(IrOps.Phi, trueVar.Value.Value,
-                        falseVar.Value ?? new Operand(falseVar.Location));
+                    var newInst = new Instruction(IrOps.Phi, new Operand(trueVar.Value.Location),
+                        new Operand(falseVar.Location));
+
+                    if ((newInst.Arg1.Inst == null) || (newInst.Arg2.Inst == null))
+                    {
+                        // throw new ArgumentNullException();
+                    }
 
                     newInst.VArId = trueVar.Value.Identity;
 
@@ -979,13 +1065,13 @@ namespace compiler.frontend
             var whileBlock = new Cfg();
 
             //crate compare block/loop header block
-            var compBlock = new WhileNode(new BasicBlock("LoopHeader"));
+            var loopHeaderBlock = new WhileNode(new BasicBlock("LoopHeader"));
 
             // insert compare block for while stmt
-            whileBlock.Insert(compBlock);
+            whileBlock.Insert(loopHeaderBlock);
 
             // add the relation/branch comparison into the loop header block
-            compBlock.Bb.AddInstructionList(Relation(headerSsa).Instructions);
+            loopHeaderBlock.Bb.AddInstructionList(Relation(headerSsa).Instructions);
 
             GetExpected(Token.DO);
 
@@ -993,24 +1079,39 @@ namespace compiler.frontend
             Cfg stmts = StatementSequence(ref loopSsa);
 
             Node loopBlock = stmts.Root;
-            loopBlock.Consolidate();
 
             Node last = loopBlock.Leaf();
-            last.Bb.AddInstruction(new Instruction(IrOps.Bra, new Operand(compBlock.GetNextInstruction()), null));
+
 
             // insert the loop body on the true path
-            compBlock.InsertTrue(loopBlock);
+            loopHeaderBlock.InsertTrue(loopBlock);
 
-            last.Child = compBlock;
-            compBlock.LoopParent = last;
 
             GetExpected(Token.OD);
 
             var followBlock = new Node(new BasicBlock("FollowBlock")) {Colorname = "palegreen"};
+            var branchBlock = new Node(new BasicBlock("BranchBack"));
+            loopHeaderBlock.LoopParent = branchBlock;
 
-            compBlock.InsertFalse(followBlock);
+            loopHeaderBlock.InsertFalse(followBlock);
 
-            AddPhiInstructions(variables, loopSsa, headerSsa, compBlock, true);
+            last.Child = branchBlock;
+            branchBlock.Parent = last;
+            branchBlock.Bb.AddInstruction(new Instruction(IrOps.Bra, new Operand(loopHeaderBlock.GetNextInstruction()),
+                null));
+            branchBlock.Child = loopHeaderBlock;
+            loopBlock.Consolidate();
+
+
+            try
+            {
+                AddPhiInstructions(variables, loopSsa, headerSsa, loopHeaderBlock, true);
+            }
+            catch (ArgumentNullException)
+            {
+                throw ParserException.CreateParserException("Variable not initialized on all paths", LineNo, Pos,
+                    _filename);
+            }
 
             return whileBlock;
         }
@@ -1026,7 +1127,7 @@ namespace compiler.frontend
         private static void LoopFix(Node n, Instruction phi, HashSet<Node> visited)
         {
             // base case
-            if (visited.Contains(n) || (n == null))
+            if ((n == null) || visited.Contains(n))
             {
                 return;
             }
@@ -1041,6 +1142,8 @@ namespace compiler.frontend
                 {
                     if (CheckOperand(inst.Arg1, phi.Arg1) || CheckOperand(inst.Arg1, phi.Arg2))
                     {
+                        phi.Uses.Add(inst.Arg1);
+                        phi.UsesLocations.Add(inst);
                         inst.Arg1 = new Operand(phi);
                     }
 
@@ -1048,6 +1151,8 @@ namespace compiler.frontend
                     {
                         if (inst.Op != IrOps.Ssa)
                         {
+                            phi.Uses.Add(inst.Arg2);
+                            phi.UsesLocations.Add(inst);
                             inst.Arg2 = new Operand(phi);
                         }
                     }
@@ -1083,7 +1188,7 @@ namespace compiler.frontend
             return false;
         }
 
-
+        /*
         public Tuple<BasicBlock, int> FindInstruction(Instruction inst, Node n)
         {
             if (n == null)
@@ -1103,6 +1208,7 @@ namespace compiler.frontend
 
             return FindInstruction(inst, n.Parent);
         }
+        */
 
 
         private ParseResult ReturnStmt(VarTbl variables)

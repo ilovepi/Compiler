@@ -40,10 +40,6 @@ namespace compiler.middleend.ir
 {
     public class InterferenceGraph : UndirectedGraph<Instruction, Edge<Instruction>>
     {
-        public InterferenceGraph()
-        {
-        }
-
         // # of available registers
         private const uint RegisterCount = 27;
 
@@ -51,9 +47,15 @@ namespace compiler.middleend.ir
         private UndirectedGraph<Instruction, Edge<Instruction>> _copy =
             new UndirectedGraph<Instruction, Edge<Instruction>>();
 
+        private Stack<Instruction> _coloringStack = new Stack<Instruction>();
+
         // Colored and spilled instructions
         public Dictionary<Instruction, uint> GraphColors = new Dictionary<Instruction, uint>();
-        public uint spillCount = 32; // Virtual register to track spilled instructions, starts at reg 32
+        public uint SpillCount = 32; // Virtual register to track spilled instructions, starts at reg 32
+
+        public InterferenceGraph()
+        {
+        }
 
         public InterferenceGraph(BasicBlock block)
         {
@@ -73,7 +75,6 @@ namespace compiler.middleend.ir
                 {
                     if (item != null)
                     {
-                       
                         AddVertex(instruction);
                         AddVertex(item);
 
@@ -87,8 +88,6 @@ namespace compiler.middleend.ir
                 }
             }
         }
-
-        private Stack<Instruction> coloringStack = new Stack<Instruction>();
 
         private void ColorRecursive(UndirectedGraph<Instruction, Edge<Instruction>> curGraph)
         {
@@ -108,10 +107,9 @@ namespace compiler.middleend.ir
                 if (AdjacentDegree(vertex) < RegisterCount)
                 {
                     // Put that node on the coloring stack and remove it from graph
-                    coloringStack.Push(vertex);
+                    _coloringStack.Push(vertex);
                     curGraph.RemoveVertex(vertex);
                     spill = false;
-                    continue;
                 }
             }
 
@@ -121,7 +119,7 @@ namespace compiler.middleend.ir
                 // By default, spills the instruction with the least dependencies
                 // TODO: Maybe come up with a better spilling heuristic
                 var spillVertex = curGraph.Vertices.OrderByDescending(item => AdjacentDegree(item)).Last();
-                GraphColors.Add(spillVertex, spillCount++);
+                GraphColors.Add(spillVertex, SpillCount++);
                 curGraph.RemoveVertex(spillVertex);
             }
 

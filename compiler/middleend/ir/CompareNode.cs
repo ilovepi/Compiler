@@ -91,14 +91,21 @@ namespace compiler.middleend.ir
             cfg.BfsCheckEnqueue(this, FalseNode);
         }
 
-        public override void Consolidate()
+        public override void Consolidate(HashSet<Node> visited)
         {
+            if (visited.Contains(this))
+            {
+                return;
+            }
+
+            visited.Add(this);
+
             CircularRef(Child);
             CircularRef(FalseNode);
 
             // consolidate children who exist
-            Child?.Consolidate();
-            FalseNode?.Consolidate();
+            Child?.Consolidate(visited);
+            FalseNode?.Consolidate(visited);
         }
 
 
@@ -124,8 +131,11 @@ namespace compiler.middleend.ir
             {
                 // visited.Add(this);
                 Bb.Instructions.Last().Arg2 = new Operand(FalseNode.GetNextInstruction());
-                Join.Parent.Bb.AddInstruction(new Instruction(IrOps.Bra,
-                    new Operand(Join.GetNextInstruction()), null));
+                if (FalseNode != Join)
+                {
+                    Join.Parent.Bb.AddInstruction(new Instruction(IrOps.Bra,
+                        new Operand(Join.GetNextInstruction()), null));
+                }
                 FalseNode.InsertBranches(visited);
                 Child.InsertBranches(visited);
             }

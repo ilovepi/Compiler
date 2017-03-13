@@ -46,6 +46,7 @@ namespace compiler.middleend.ir
 
         public List<VariableType> Parameters;
 
+        public List<VariableType> UsedGlobals;
 
         // may not need these
         //public Node Curr { get; set; }

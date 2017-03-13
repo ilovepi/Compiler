@@ -3,10 +3,16 @@ var x, y, z;
 array [ 4 ] a;
 array [ 4 ][ 4 ] b;
 var c;
+
 function foo( );
 var i, d;
 {
 	let i <- 0;
+	let d <- 0;
+	#let x <- call InputNum();
+	#let y <- call InputNum();
+	#let z <- call InputNum();
+
 	while i < 10 do
 		let y <- y + 2;
 		let z <- x + 2;

@@ -28,12 +28,11 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization.Formatters;
 using compiler.middleend.ir;
 
 #endregion
 
-namespace compiler
+namespace compiler.middleend.optimization
 {
     public class LiveRanges
     {
@@ -79,7 +78,7 @@ namespace compiler
 
         private static void AddArgToLiveRange(Operand arg, HashSet<Instruction> live)
         {
-            if ((arg?.Kind == Operand.OpType.Instruction) && (arg.Inst.Op != IrOps.Ssa))
+            if ((arg?.Kind == Operand.OpType.Instruction) && (arg.Inst?.Op != IrOps.Ssa))
             {
                 live.Add(arg.Inst);
             }

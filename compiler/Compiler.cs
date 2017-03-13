@@ -92,14 +92,10 @@ namespace compiler
                 file.WriteLine("}");
             }
 
-            using (var file = new StreamWriter(Opts.DomFilename + ".interference"))
-            {
-                //file.WriteLine("digraph Dom{\n");
-                //file.WriteLine(GenInterferenceGraphString());
-                //file.WriteLine("}");
 
-                GenInterferenceGraphString();
-            }
+            // quickgraph makes the files for us, so no using statement here
+            GenInterferenceGraphString();
+            
 
             using (var file = new StreamWriter(Opts.DomFilename + ".code"))
             {
@@ -173,7 +169,6 @@ namespace compiler
             {
                 mystring += parseTree.DominatorTree.PrintInterference() + "\n";
             }
-             
         }
 
         private string GenControlGraphString()
@@ -193,36 +188,58 @@ namespace compiler
             // iterate through each CFG and do the optimizations.
             foreach (ParseTree func in FuncList)
             {
-                // Copy propagation
-                if (Opts.CopyProp)
+                bool restart;
+                do
                 {
-                    CopyPropagation.Propagate(func.ControlFlowGraph.Root);
-                    CopyPropagation.ConstantFolding(func.ControlFlowGraph.Root);
-                }
-
-                //Common Sub Expression Elimination
-                if (Opts.Cse)
-                {
-                    CsElimination.Eliminate(func.ControlFlowGraph.Root);
-                }
+                    restart = TransformIr(func, false);
+                } while (restart);
 
 
-                // Reevaluation
-                if (Opts.DeadCode)
-                {
-                    throw new NotImplementedException();
-                }
-
-                // Pruning
-                if (Opts.PruneCfg)
-                {
-                    throw new NotImplementedException();
-                }
+                TransformIr(func, true);
 
                 func.ControlFlowGraph.InsertBranches();
-
                 LiveRanges.GenerateRanges(func.DominatorTree);
             }
+        }
+
+        private bool TransformIr(ParseTree func, bool cleanSsa)
+        {
+            bool restart = false;
+            // Copy propagation
+            if (Opts.CopyProp)
+            {
+                CopyPropagation.Propagate(func.ControlFlowGraph.Root);
+                CopyPropagation.ConstantFolding(func.ControlFlowGraph.Root);
+            }
+
+            // replace ssa asignments with add instructions
+            if (cleanSsa)
+            {
+                CleanUpSsa.Clean(func.ControlFlowGraph.Root);
+            }
+
+            //Common Sub Expression Elimination
+            if (Opts.Cse)
+            {
+                CsElimination.Eliminate(func.ControlFlowGraph.Root);
+            }
+
+
+            // Reevaluation
+            if (Opts.DeadCode)
+            {
+                DeadCodeElimination.RemoveDeadCode(func.ControlFlowGraph.Root);
+            }
+
+            // Pruning
+            if (Opts.PruneCfg)
+            {
+                restart = Prune.StartPrune(func.ControlFlowGraph.Root);
+                func.ControlFlowGraph.Root.Consolidate();
+                func.DominatorTree = DominatorNode.ConvertCfg(func.ControlFlowGraph);
+                //restart = false;
+            }
+            return restart;
         }
 
         public void RegisterAllocation()
@@ -236,7 +253,6 @@ namespace compiler
             {
                 parseTree.DominatorTree.IntGraph.Color();
             }
-            //throw new NotImplementedException();
         }
 
 
@@ -282,7 +298,11 @@ namespace compiler
             }
             GenControlGraphString();
             GenDomGraphString();
+            GenInterferenceGraphString();
+
+            GenStraightLineFunctions();
             GenInstructionListGraphString();
+            GenDlxGraphString();
         }
 
 
@@ -299,8 +319,8 @@ namespace compiler
                 GraphOutput = true,
                 CopyProp = true,
                 Cse = true,
-                DeadCode = false,
-                PruneCfg = false,
+                DeadCode = true,
+                PruneCfg = true,
                 RegAlloc = true,
                 InstSched = false,
                 CodeGen = false

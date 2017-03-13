@@ -56,7 +56,7 @@ namespace compiler.middleend.optimization
 
             foreach (Instruction bbInstruction in root.Bb.Instructions)
             {
-                if ((bbInstruction.Op != IrOps.Phi) || (bbInstruction.Op == IrOps.Adda))
+                if ((bbInstruction.Op != IrOps.Phi) && (bbInstruction.Op != IrOps.Adda))
                 {
                     if (bbInstruction.Op == IrOps.Load)
                     {
@@ -83,7 +83,7 @@ namespace compiler.middleend.optimization
                         root.Bb.AnchorBlock.InsertKill(bbInstruction.Arg2);
                     }
 
-                    EliminateInternal(root, bbInstruction, removalList, false);
+                    EliminatePriv(root, bbInstruction, removalList, false);
                 }
             }
 
@@ -91,7 +91,39 @@ namespace compiler.middleend.optimization
             foreach (Instruction instruction in removalList)
             {
                 //root.Bb.AnchorBlock.FindOpChain(instruction.Op).RemoveAll(instruction.ExactMatch);
-                root.Bb.Instructions.RemoveAll(instruction.ExactMatch);
+                switch (instruction.Op)
+                {
+                    case IrOps.Store:
+                    case IrOps.Move:
+                    case IrOps.Phi:
+                    case IrOps.End:
+                    case IrOps.Bra:
+                    case IrOps.Bne:
+                    case IrOps.Beq:
+                    case IrOps.Ble:
+                    case IrOps.Blt:
+                    case IrOps.Bge:
+                    case IrOps.Bgt:
+                    case IrOps.Ret:
+                    case IrOps.Read:
+                    case IrOps.Write:
+                    case IrOps.WriteNl:
+                    case IrOps.Adda:
+                    case IrOps.Load:
+
+                        break;
+                    case IrOps.Neg:
+                    case IrOps.Add:
+                    case IrOps.Sub:
+                    case IrOps.Mul:
+                    case IrOps.Div:
+                    case IrOps.Cmp:
+                    //case IrOps.Adda:
+                    //case IrOps.Load:
+                    default:
+                        root.Bb.Instructions.RemoveAll(instruction.ExactMatch);
+                        break;
+                }
 
                 //rely on using instruction hashkey for removing a particular instruction
                 //root.Bb.Graph.RemoveVertex(instruction);
@@ -107,11 +139,11 @@ namespace compiler.middleend.optimization
             // TODO: fix loop cse
             foreach (Instruction instruction in delayed)
             {
-                EliminateInternal(root, instruction, removalList, true);
+                EliminatePriv(root, instruction, removalList, true);
             }
         }
 
-        private static void EliminateInternal(Node root, Instruction bbInstruction, List<Instruction> removalList,
+        private static void EliminatePriv(Node root, Instruction bbInstruction, List<Instruction> removalList,
             bool alternate)
         {
             Instruction predecessor;
