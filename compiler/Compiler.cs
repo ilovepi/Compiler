@@ -303,7 +303,12 @@ namespace compiler
             }
             GenControlGraphString();
             GenDomGraphString();
+            GenInterferenceGraphString();
+           
+            GenStraightLineFunctions();
             GenInstructionListGraphString();
+            GenDlxGraphString();
+            
         }
 
 
