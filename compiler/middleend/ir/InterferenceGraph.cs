@@ -47,11 +47,11 @@ namespace compiler.middleend.ir
         private UndirectedGraph<Instruction, Edge<Instruction>> _copy =
             new UndirectedGraph<Instruction, Edge<Instruction>>();
 
-        private Stack<Instruction> coloringStack = new Stack<Instruction>();
+        private Stack<Instruction> _coloringStack = new Stack<Instruction>();
 
         // Colored and spilled instructions
         public Dictionary<Instruction, uint> GraphColors = new Dictionary<Instruction, uint>();
-        public uint spillCount = 32; // Virtual register to track spilled instructions, starts at reg 32
+        public uint SpillCount = 32; // Virtual register to track spilled instructions, starts at reg 32
 
         public InterferenceGraph()
         {
@@ -107,7 +107,7 @@ namespace compiler.middleend.ir
                 if (AdjacentDegree(vertex) < RegisterCount)
                 {
                     // Put that node on the coloring stack and remove it from graph
-                    coloringStack.Push(vertex);
+                    _coloringStack.Push(vertex);
                     curGraph.RemoveVertex(vertex);
                     spill = false;
                 }
@@ -119,7 +119,7 @@ namespace compiler.middleend.ir
                 // By default, spills the instruction with the least dependencies
                 // TODO: Maybe come up with a better spilling heuristic
                 var spillVertex = curGraph.Vertices.OrderByDescending(item => AdjacentDegree(item)).Last();
-                GraphColors.Add(spillVertex, spillCount++);
+                GraphColors.Add(spillVertex, SpillCount++);
                 curGraph.RemoveVertex(spillVertex);
             }
 
