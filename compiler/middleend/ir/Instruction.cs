@@ -29,7 +29,7 @@
 using System;
 using System.Collections.Generic;
 using compiler.frontend;
-using compiler.midleend.ir;
+using compiler.middleend.ir;
 
 #endregion
 

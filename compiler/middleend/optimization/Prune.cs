@@ -62,7 +62,7 @@ namespace compiler.middleend.optimization
                 Instruction cmp = instList.Find((current) => current.Op == IrOps.Cmp);
 
                 if ((cmp?.Arg1.OpenOperand().Kind == Operand.OpType.Constant) &&
-                    (cmp?.Arg2.OpenOperand().Kind == Operand.OpType.Constant))
+                    (cmp.Arg2.OpenOperand().Kind == Operand.OpType.Constant))
                 {
                     var branch = instList.Last();
                     bool takeBranch;

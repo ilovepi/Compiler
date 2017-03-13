@@ -32,7 +32,7 @@ using compiler.middleend.ir;
 
 #endregion
 
-namespace compiler
+namespace compiler.middleend.optimization
 {
     public class LiveRanges
     {
