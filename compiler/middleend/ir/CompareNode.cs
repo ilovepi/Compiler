@@ -124,8 +124,11 @@ namespace compiler.middleend.ir
             {
                 // visited.Add(this);
                 Bb.Instructions.Last().Arg2 = new Operand(FalseNode.GetNextInstruction());
-                Join.Parent.Bb.AddInstruction(new Instruction(IrOps.Bra,
-                    new Operand(Join.GetNextInstruction()), null));
+                if (FalseNode != Join)
+                {
+                    Join.Parent.Bb.AddInstruction(new Instruction(IrOps.Bra,
+                        new Operand(Join.GetNextInstruction()), null));
+                }
                 FalseNode.InsertBranches(visited);
                 Child.InsertBranches(visited);
             }

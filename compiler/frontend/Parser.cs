@@ -978,7 +978,17 @@ namespace compiler.frontend
             }
 
 
-            compBlock.InsertFalse(falseBlock);
+            //compBlock.InsertFalse(falseBlock);
+            compBlock.FalseNode = falseBlock;
+            if (falseBlock == joinBlock)
+            {
+                joinBlock.FalseParent = compBlock;
+            }
+            else
+            {
+                falseBlock.Parent = compBlock;
+            }
+
 
             GetExpected(Token.FI);
             try
@@ -1055,13 +1065,13 @@ namespace compiler.frontend
             var whileBlock = new Cfg();
 
             //crate compare block/loop header block
-            var compBlock = new WhileNode(new BasicBlock("LoopHeader"));
+            var loopHeaderBlock = new WhileNode(new BasicBlock("LoopHeader"));
 
             // insert compare block for while stmt
-            whileBlock.Insert(compBlock);
+            whileBlock.Insert(loopHeaderBlock);
 
             // add the relation/branch comparison into the loop header block
-            compBlock.Bb.AddInstructionList(Relation(headerSsa).Instructions);
+            loopHeaderBlock.Bb.AddInstructionList(Relation(headerSsa).Instructions);
 
             GetExpected(Token.DO);
 
@@ -1069,27 +1079,35 @@ namespace compiler.frontend
             Cfg stmts = StatementSequence(ref loopSsa);
 
             Node loopBlock = stmts.Root;
-            loopBlock.Consolidate();
 
             Node last = loopBlock.Leaf();
-            last.Bb.AddInstruction(new Instruction(IrOps.Bra, new Operand(compBlock.GetNextInstruction()), null));
+           
 
             // insert the loop body on the true path
-            compBlock.InsertTrue(loopBlock);
+            loopHeaderBlock.InsertTrue(loopBlock);
 
-            last.Child = compBlock;
-            compBlock.LoopParent = last;
+           
 
             GetExpected(Token.OD);
 
             var followBlock = new Node(new BasicBlock("FollowBlock")) {Colorname = "palegreen"};
+            var branchBlock = new Node(new BasicBlock("BranchBack"));
+            loopHeaderBlock.LoopParent = branchBlock;
+           
+            loopHeaderBlock.InsertFalse(followBlock);
 
-            compBlock.InsertFalse(followBlock);
+            last.Child = branchBlock;
+            branchBlock.Parent = last;
+            branchBlock.Bb.AddInstruction(new Instruction(IrOps.Bra, new Operand(loopHeaderBlock.GetNextInstruction()), null));
 
+            loopBlock.Consolidate();
+
+
+            branchBlock.Child = loopHeaderBlock;
             try
             { 
 
-                AddPhiInstructions(variables, loopSsa, headerSsa, compBlock, true);
+                AddPhiInstructions(variables, loopSsa, headerSsa, loopHeaderBlock, true);
             }
             catch (ArgumentNullException)
             {

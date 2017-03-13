@@ -54,6 +54,12 @@ namespace compiler.middleend.optimization
 
             foreach (Instruction instruction in root.Bb.Instructions)
             {
+                if((instruction.Op == IrOps.Adda) || (instruction.Op == IrOps.Load))
+                {
+                    continue;
+                }
+
+
                 if (instruction.Arg1?.Kind == Operand.OpType.Variable)
                 {
                     instruction.Arg1 = instruction.Arg1.OpenOperand();

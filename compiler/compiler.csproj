@@ -84,6 +84,7 @@
     <Compile Include="middleend\optimization\CleanUpSsa.cs" />
     <Compile Include="middleend\optimization\CsElimination.cs" />
     <Compile Include="middleend\optimization\DeadCodeElimination.cs" />
+    <Compile Include="middleend\optimization\Prune.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="frontend\SymbolTable.cs" />
     <Compile Include="middleend\ir\BasicBlock.cs" />
