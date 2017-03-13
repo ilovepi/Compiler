@@ -196,7 +196,8 @@ namespace compiler.middleend.ir
                 Node temp = Child;
                 Child = temp.Child;
 
-                Consolidate(visited);
+                // restart Consolidate from here to coalesc all blocks possible
+                Consolidate();
             }
             else
             {
