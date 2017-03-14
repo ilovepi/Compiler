@@ -57,7 +57,7 @@ namespace compiler.middleend.ir
 
             FuncBody = GetInstructions(parseTree.DominatorTree.Root);
 
-            TransformDlx();
+
             // Scale number of vars by size of int;
             //FrameSize *= 4;
         }
@@ -117,7 +117,7 @@ namespace compiler.middleend.ir
         }
 
 
-        private void TransformDlx()
+        public void TransformDlx(List<FunctionBuilder> functionBuilders)
         {
             MachineBody = new List<DlxInstruction>();
             foreach (Instruction instruction in FuncBody)
@@ -126,15 +126,21 @@ namespace compiler.middleend.ir
                 {
                     if (instruction.Op == IrOps.Call)
                     {
-                        MachineBody.AddRange(Prologue(instruction));
+                        var func = functionBuilders.Find((curr) => curr.Name == instruction.Arg1.Name);
+
+                        MachineBody.AddRange(Prologue(instruction, func.Tree));
                         var dlx = new DlxInstruction(instruction);
                         MachineBody.Add(dlx);
+
                         var retInst =
-                            Tree.ControlFlowGraph.Root.Leaf().Bb.Instructions.Find((current) => (current.Op == IrOps.Ret) || (current.Op == IrOps.End));
-                        
-                        
-                        
-                        MachineBody.AddRange(Epilogue(retInst.Arg2?.Val ?? 0,instruction));
+                            func.Tree.ControlFlowGraph.Root.Leaf()
+                                .Bb.Instructions.Find(
+                                    (current) => (current.Op == IrOps.Ret) || (current.Op == IrOps.End));
+
+
+
+                        MachineBody.AddRange(Epilogue(retInst.Arg2?.Val ?? 0, instruction, func.Tree));
+
 
                     }
                     else
@@ -183,7 +189,7 @@ namespace compiler.middleend.ir
             return graphOutput;
         }
 
-        public List<DlxInstruction> Prologue(Instruction calliInstruction)
+        public List<DlxInstruction> Prologue(Instruction calliInstruction, ParseTree tree)
         {
             List<DlxInstruction> prologue = new List<DlxInstruction>();
            
@@ -204,7 +210,7 @@ namespace compiler.middleend.ir
             prologue.Add(oldFp);
 
             // save registers required
-            for (int i = 0; i < Tree.DominatorTree.NumReg; i++)
+            for (int i = 0; i < tree.DominatorTree.NumReg; i++)
             {
                 prologue.Add(new DlxInstruction(OpCodes.PSH, i, DlxInstruction.Sp, 4));
             }
@@ -231,25 +237,29 @@ namespace compiler.middleend.ir
             }
 
             // save any global variable that might have be modified in function
-            foreach (VariableType variableType in Tree.ControlFlowGraph.UsedGlobals)
+            foreach (VariableType variableType in tree.ControlFlowGraph.UsedGlobals)
             {
                 // get instruction from liverange
-                var good = calliInstruction.LiveRange.First((current) => current.VArId.Id == variableType.Id);
-                
-                
-                prologue.Add(new DlxInstruction(OpCodes.STW, (int)good.Reg , DlxInstruction.Globals, variableType.Address));
+                var good = calliInstruction.LiveRange.Where((current) => current.Arg1.IdKey == variableType.Id);
+                if (good.Count() != 0)
+                {
+                    prologue.Add(new DlxInstruction(OpCodes.STW, (int) good.First().Reg, DlxInstruction.Globals,
+                        variableType.Address));
+                }
             }
 
             return prologue;
  ;       }
 
 
-        public List<DlxInstruction> Epilogue(int retValReg, Instruction calliInstruction)
+        public List<DlxInstruction> Epilogue(int retValReg, Instruction calliInstruction, ParseTree tree)
         {
 
             int localSize = 0;
+
+
             // calculate memory for all local variables
-            foreach (VariableType variableType in Tree.ControlFlowGraph.Locals)
+            foreach (VariableType variableType in tree.ControlFlowGraph.Locals)
             {
                 localSize += (int)variableType.Size;
             }
@@ -257,24 +267,27 @@ namespace compiler.middleend.ir
             List<DlxInstruction> eplilogue = new List<DlxInstruction>();
 
             // save return value back on stack, or in a register if that works
-            var retInst = new DlxInstruction(OpCodes.STX, (int)retValReg , DlxInstruction.Sp, (-4*(3 + Tree.DominatorTree.NumReg + calliInstruction.Parameters.Count + Tree.ControlFlowGraph.Parameters.Count)));
+            var retInst = new DlxInstruction(OpCodes.STX, (int)retValReg , DlxInstruction.Sp, (-4*(3 + tree.DominatorTree.NumReg + calliInstruction.Parameters.Count + Tree.ControlFlowGraph.Parameters.Count)));
             eplilogue.Add(retInst);
 
             
             // save any global variable that might have be modified in function
-            foreach (VariableType variableType in Tree.ControlFlowGraph.UsedGlobals)
+            foreach (VariableType variableType in tree.ControlFlowGraph.UsedGlobals)
             {
                 // get instruction from liverange
-                var good = calliInstruction.LiveRange.First((current) => current.VArId.Id == variableType.Id);
-                eplilogue.Add(new DlxInstruction(OpCodes.STW, (int)good.Reg, DlxInstruction.Globals, variableType.Address));
+                var good = calliInstruction.LiveRange.Where((current) => (current.VArId?.Id ?? current.Arg1.IdKey) == variableType.Id);
+                if (good.Count() != 0)
+                {
+                    eplilogue.Add(new DlxInstruction(OpCodes.STW, (int)good.First().Reg, DlxInstruction.Globals, variableType.Address));
+                }
             }
 
             // pop all the locals off the stack
             // pop all the parameters off the stack
-            if ((Tree.ControlFlowGraph.Parameters.Count +localSize) > 0)
+            if ((tree.ControlFlowGraph.Parameters.Count +localSize) > 0)
             {
                 eplilogue.Add(new DlxInstruction(OpCodes.SUBI, DlxInstruction.Sp, DlxInstruction.Sp,
-                    (4*Tree.ControlFlowGraph.Parameters.Count) + localSize));
+                    (4*tree.ControlFlowGraph.Parameters.Count) + localSize));
             }
 
 

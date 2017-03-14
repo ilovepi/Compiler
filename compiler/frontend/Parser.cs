@@ -68,6 +68,7 @@ namespace compiler.frontend
         public HashSet<string> Callgraph;
 
 
+
         /// <summary>
         ///     A stack of frame addresses -- esentially a list of frame pointers
         /// </summary>
@@ -458,6 +459,7 @@ namespace compiler.frontend
             {
                 Cfg func = FuncDecl(new VarTbl(varTble), cfg.Globals);
                 func.Globals = cfg.Globals;
+
             }
 
             GetExpected(Token.OPEN_CURL);
@@ -803,7 +805,12 @@ namespace compiler.frontend
             if (isProcedure)
             {
                 var branchBack = new Instruction(IrOps.Ret, new Operand(Operand.OpType.Register, 31), null);
-                cfg.GetLeaf(cfg.Root).Bb.Instructions.Add(branchBack);
+                cfg.Root.Leaf().Bb.AddInstruction(branchBack);
+            }
+
+            if (cfg.Root.Leaf().Bb.Instructions.Last().Op != IrOps.Ret)
+            {
+                FatalError("Functions must have a return statement");
             }
 
             return cfg;

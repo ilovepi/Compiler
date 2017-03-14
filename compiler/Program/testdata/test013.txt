@@ -1,6 +1,6 @@
 main
 
-function foo();
+procedure foo();
 var a, b, c, d, e, f, g, h;
 {
 	let a <- 1;

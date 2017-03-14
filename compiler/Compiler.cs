@@ -154,6 +154,10 @@ namespace compiler
                 FunctionBuilder newFunction = new FunctionBuilder(parseTree);
                 DlxFunctions.Add(newFunction);
             }
+            foreach (var func in DlxFunctions)
+            {
+                func.TransformDlx(DlxFunctions);
+            }
         }
 
         private string GenDomGraphString()
@@ -320,8 +324,8 @@ namespace compiler
                 GraphOutput = true,
                 CopyProp = true,
                 Cse = true,
-                DeadCode = true,
-                PruneCfg = true,
+                DeadCode = false,
+                PruneCfg = false,
                 RegAlloc = true,
                 InstSched = false,
                 CodeGen = false
