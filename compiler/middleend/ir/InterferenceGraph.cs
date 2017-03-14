@@ -82,9 +82,6 @@ namespace compiler.middleend.ir
         {
             foreach (var instruction in block.Instructions)
             {
-
-
-
                 foreach (var item in instruction.LiveRange)
                 {
                     if (item != null)
