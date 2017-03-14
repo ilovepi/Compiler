@@ -28,6 +28,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography;
 using compiler.backend;
 
@@ -164,31 +166,61 @@ namespace compiler.middleend.ir
             return graphOutput;
         }
 
-        public void Prologue()
+        public void Prologue(Instruction calliInstruction)
         {
+            List<DlxInstruction> prologue = new List<DlxInstruction>();
+           
             // allocate memory for a return value
             var retVal = new DlxInstruction(OpCodes.PSH, 0, DlxInstruction.Sp, 4);
-
+            prologue.Add(retVal);
 
             // push current ret address onto stack
-            var reAddr = new DlxInstruction(OpCodes.PSH, DlxInstruction.RetAddr, DlxInstruction.Sp, 4);
+            var retAddr = new DlxInstruction(OpCodes.PSH, DlxInstruction.RetAddr, DlxInstruction.Sp, 4);
+            prologue.Add(retAddr);
+
 
             // save sp and FP to stack
             var oldSp = new DlxInstruction(OpCodes.PSH, DlxInstruction.Fp, DlxInstruction.Sp, 4);
             var oldFp = new DlxInstruction(OpCodes.PSH, DlxInstruction.Sp, DlxInstruction.Sp, 4);
 
+            prologue.Add(oldSp);
+            prologue.Add(oldFp);
 
 
-            // load each param into register and push onto stack
-            foreach (var variableType in Tree.ControlFlowGraph.Parameters)
+            for (uint i = 0; i < Tree.DominatorTree.NumReg; i++)
             {
-
+                prologue.Add(new DlxInstruction(OpCodes.PSH, i, DlxInstruction.Sp, 4));
             }
 
 
+            // load each param into register and push onto stack
+            foreach (var param in calliInstruction.Parameters)
+            {
+                prologue.Add(new DlxInstruction(OpCodes.PSH, (uint)param.Inst.Reg , DlxInstruction.Sp, 4));
+            }
 
+
+            uint size = 0;
             // allocate memory for all local variables
+            foreach (VariableType variableType in Tree.ControlFlowGraph.Locals)
+            {
+                size += (uint)variableType.Size;
+            }
+            
+            prologue.Add(new DlxInstruction(OpCodes.ADDI, DlxInstruction.Sp, DlxInstruction.Sp, size));
+            
+
+
+
             // save any global variable that might have be modified in function
+            foreach (VariableType variableType in Tree.ControlFlowGraph.UsedGlobals)
+            {
+                // get instruction from liverange
+                var good = calliInstruction.LiveRange.First((current) => current.VArId.Id == variableType.Id);
+                
+                
+                prologue.Add(new DlxInstruction(OpCodes.STW, (uint)good.Reg , DlxInstruction.Globals, (uint)variableType.Address));
+            }
         }
 
 
