@@ -35,6 +35,23 @@ namespace compiler.backend
 {
     public class DlxInstruction
     {
+        // Reserved Register Numbers
+        public const uint Fp = 28;
+        public const uint Sp = 29;
+        public const uint Globals = 30;
+        public const uint RetAddr = 31;
+
+
+
+        public DlxInstruction(OpCodes op, uint a, uint b, uint c)
+        {
+            Op = op;
+            A = a;
+            B = b;
+            C = c;
+        }
+
+
         public DlxInstruction(Instruction inst)
         {
             A = 0;
@@ -168,6 +185,11 @@ namespace compiler.backend
                     B = (uint) inst.Arg1.Val;
                     C = B;
                     PutF2();
+                    break;
+                case IrOps.Call:
+                    Op = OpCodes.JSR;
+                    C = inst.Offset;
+                    PutF1();
                     break;
                 case IrOps.Adda:
                 case IrOps.Phi:

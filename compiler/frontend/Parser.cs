@@ -937,10 +937,26 @@ namespace compiler.frontend
             }
             else
             {
-                call = new Instruction(IrOps.Bra, id, null);
+                call = new Instruction(IrOps.Call, id, null);
             }
 
             id = new Operand(call);
+
+            foreach (var result in paramList)
+            {
+                call.Parameters.Add(result.Operand);
+                if (result.Operand.Kind == Operand.OpType.Instruction)
+                {
+                    result.Operand.Inst.Uses.Add(id);
+                    result.Operand.Inst.UsesLocations.Add(call);
+                }
+                else if (result.Operand.Kind == Operand.OpType.Variable)
+                {
+                    result.Operand.Variable.Location.Uses.Add(id);
+                    result.Operand.Variable.Location.UsesLocations.Add(call);
+                }
+            }
+
             instructions.Add(call);
             return new ParseResult(id, instructions, variables);
         }

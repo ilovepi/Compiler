@@ -61,6 +61,7 @@ namespace compiler.middleend.ir
                 Search = other.Search;
                 Uses = other.Uses;
                 UsesLocations = other.UsesLocations;
+                Parameters = other.Parameters;
             }
         }
 
@@ -83,6 +84,7 @@ namespace compiler.middleend.ir
             Search = null;
             Uses = new List<Operand>();
             UsesLocations = new HashSet<Instruction>();
+            Parameters = new List<Operand>();
         }
 
         public VariableType VArId { get; set; }
@@ -90,6 +92,8 @@ namespace compiler.middleend.ir
         public List<Operand> Uses { get; set; }
 
         public HashSet<Instruction> UsesLocations { get; set; }
+
+        public List<Operand> Parameters { get; set; }
 
         /// <summary>
         ///     The Instruction number

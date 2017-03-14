@@ -319,7 +319,7 @@ namespace compiler
                 GraphOutput = true,
                 CopyProp = true,
                 Cse = true,
-                DeadCode = true,
+                DeadCode = false,
                 PruneCfg = true,
                 RegAlloc = true,
                 InstSched = false,

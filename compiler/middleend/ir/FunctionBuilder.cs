@@ -28,6 +28,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using compiler.backend;
 
 #endregion
@@ -166,9 +167,26 @@ namespace compiler.middleend.ir
         public void Prologue()
         {
             // allocate memory for a return value
+            var retVal = new DlxInstruction(OpCodes.PSH, 0, DlxInstruction.Sp, 4);
+
+
             // push current ret address onto stack
+            var reAddr = new DlxInstruction(OpCodes.PSH, DlxInstruction.RetAddr, DlxInstruction.Sp, 4);
+
             // save sp and FP to stack
+            var oldSp = new DlxInstruction(OpCodes.PSH, DlxInstruction.Fp, DlxInstruction.Sp, 4);
+            var oldFp = new DlxInstruction(OpCodes.PSH, DlxInstruction.Sp, DlxInstruction.Sp, 4);
+
+
+
             // load each param into register and push onto stack
+            foreach (var variableType in Tree.ControlFlowGraph.Parameters)
+            {
+
+            }
+
+
+
             // allocate memory for all local variables
             // save any global variable that might have be modified in function
         }
