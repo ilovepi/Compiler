@@ -44,7 +44,7 @@ namespace compiler.middleend.ir
 
         public string Colorname;
 
-        public uint Offset;
+        public int Offset;
 
         public Instruction(Instruction other)
         {

@@ -395,8 +395,10 @@ namespace compiler.frontend
             {
                 Instruction prev = locals[id.Operand.IdKey].Location;
 
-                var ssa = new SsaVariable(id.Operand.IdKey, newInst, prev, name);
-                ssa.Identity = id.VarTable[id.Operand.IdKey].Identity;
+                var ssa = new SsaVariable(id.Operand.IdKey, newInst, prev, name)
+                {
+                    Identity = id.VarTable[id.Operand.IdKey].Identity
+                };
                 id.Operand.Inst = newInst;
                 id.Operand.Variable = ssa;
 
@@ -439,10 +441,12 @@ namespace compiler.frontend
         {
             GetExpected(Token.MAIN);
 
-            var cfg = new Cfg();
-            cfg.Locals = new List<VariableType>();
-            cfg.Globals = new List<VariableType>();
-            cfg.Parameters = new List<VariableType>();
+            var cfg = new Cfg
+            {
+                Locals = new List<VariableType>(),
+                Globals = new List<VariableType>(),
+                Parameters = new List<VariableType>()
+            };
             cfg.Globals = new List<VariableType>();
 
             while ((Tok == Token.VAR) || (Tok == Token.ARRAY))
@@ -697,8 +701,7 @@ namespace compiler.frontend
                         cfg.Root.Bb.AddInstruction(prologInst);
                         temp.Value = new Operand(prologInst);
 
-                        var ssa = new SsaVariable(temp.UuId, prologInst, null, temp.Name);
-                        ssa.Identity = global;
+                        var ssa = new SsaVariable(temp.UuId, prologInst, null, temp.Name) {Identity = global};
                         temp.Value.Inst = prologInst;
                         temp.Value.Variable = ssa;
 
@@ -721,8 +724,7 @@ namespace compiler.frontend
                     cfg.Root.Bb.AddInstruction(loadInst);
                     temp.Value = new Operand(loadInst);
 
-                    var ssa = new SsaVariable(temp.UuId, loadInst, null, temp.Name);
-                    ssa.Identity = parameter;
+                    var ssa = new SsaVariable(temp.UuId, loadInst, null, temp.Name) {Identity = parameter};
                     temp.Value.Inst = loadInst;
                     temp.Value.Variable = ssa;
 
@@ -753,6 +755,8 @@ namespace compiler.frontend
 
             GetExpected(Token.SEMI_COLON);
 
+            var ret = cfg.Root.Leaf().Bb.Instructions.Last();
+            cfg.Root.Leaf().Bb.Instructions.Remove(ret);
             var epilogue = new Node(new BasicBlock("Epilogue"));
 
             foreach (var globalLoad in loads)
@@ -764,12 +768,14 @@ namespace compiler.frontend
                 {
                     Instruction newInst = new Instruction(IrOps.Store, temp.Value,
                         new Operand(Operand.OpType.Constant, temp.UuId));
-
+                    
                     epilogue.Bb.AddInstruction(newInst);
                     cfg.UsedGlobals.Add(temp.Identity);
                 }
 
             }
+
+            epilogue.Bb.AddInstruction(ret);
 
             cfg.Insert(epilogue);
             cfg.Callgraph = Callgraph;
@@ -1321,6 +1327,7 @@ namespace compiler.frontend
             FunctionsCfgs.Add(ProgramCfg);
             ProgramCfg.Name = "Main";
             ProgramCfg.Sym = Scanner.SymbolTble;
+            ProgramCfg.UsedGlobals = new HashSet<VariableType>();
            
         }
 
