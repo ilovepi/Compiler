@@ -72,6 +72,7 @@ namespace compiler.middleend.optimization
                     case IrOps.Read:
                     case IrOps.Write:
                     case IrOps.WriteNl:
+                    case IrOps.Call:
                         break;
                     case IrOps.Neg:
                     case IrOps.Add:

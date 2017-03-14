@@ -270,15 +270,11 @@ namespace compiler.middleend.ir
             }
 
             // pop all the locals off the stack
-            if (localSize > 0)
-            {
-                eplilogue.Add(new DlxInstruction(OpCodes.SUBI, DlxInstruction.Sp, DlxInstruction.Sp, localSize));
-            }
-
             // pop all the parameters off the stack
-            if (Tree.ControlFlowGraph.Parameters.Count > 0)
+            if ((Tree.ControlFlowGraph.Parameters.Count +localSize) > 0)
             {
-                eplilogue.Add(new DlxInstruction(OpCodes.SUBI, DlxInstruction.Sp, DlxInstruction.Sp, 4*Tree.ControlFlowGraph.Parameters.Count));
+                eplilogue.Add(new DlxInstruction(OpCodes.SUBI, DlxInstruction.Sp, DlxInstruction.Sp,
+                    (4*Tree.ControlFlowGraph.Parameters.Count) + localSize));
             }
 
 
