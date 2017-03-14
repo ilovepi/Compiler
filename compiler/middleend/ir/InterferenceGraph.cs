@@ -47,6 +47,8 @@ namespace compiler.middleend.ir
         private UndirectedGraph<Instruction, Edge<Instruction>> _copy =
             new UndirectedGraph<Instruction, Edge<Instruction>>();
 
+        private BasicBlock Bb { get; set; }
+
         private Stack<Instruction> _coloringStack = new Stack<Instruction>();
 
         // Colored and spilled instructions
@@ -60,11 +62,20 @@ namespace compiler.middleend.ir
         public InterferenceGraph(BasicBlock block)
         {
             AddVertexRange(block.Instructions);
+            Bb = block;
             _copy.AddVertexRange(block.Instructions);
 
             AddInterferenceEdges(block);
+        }
 
-            Color();
+        // Copy constructor takes the BB associated with other graph and *rebuilds*
+        public InterferenceGraph(InterferenceGraph other)
+        {
+            AddVertexRange(other.Bb.Instructions);
+            Bb = other.Bb;
+            _copy.AddVertexRange(other.Bb.Instructions);
+
+            AddInterferenceEdges(other.Bb);
         }
 
         public void AddInterferenceEdges(BasicBlock block)
