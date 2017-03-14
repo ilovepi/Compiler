@@ -65,6 +65,8 @@ namespace compiler.frontend
 
         public VarTbl VarTable { get; set; }
 
+        public HashSet<string> Callgraph;
+
 
         /// <summary>
         ///     A stack of frame addresses -- esentially a list of frame pointers
@@ -642,7 +644,7 @@ namespace compiler.frontend
         {
             var cfg = new Cfg {Parameters = new List<VariableType>()};
             cfg.Globals = globals;
-            cfg.UsedGlobals = new List<VariableType>();
+            cfg.UsedGlobals = new HashSet<VariableType>();
 
             FunctionsCfgs.Add(cfg);
 
@@ -662,7 +664,8 @@ namespace compiler.frontend
             //TODO: Need a special address thing for functions
             //CreateIdentifier();
             Operand id = Identifier();
-
+            
+            List<Instruction> loads = new List<Instruction>();
 
             if (Tok == Token.OPEN_PAREN)
             {
@@ -687,6 +690,7 @@ namespace compiler.frontend
                         {
                             prologInst = new Instruction(IrOps.Load, new Operand(Operand.OpType.Identifier, global.Id),
                                 null);
+                            loads.Add(prologInst);
                         }
 
 
@@ -735,6 +739,8 @@ namespace compiler.frontend
 
             GetExpected(Token.SEMI_COLON);
 
+            Callgraph = new HashSet<string>();
+
             Cfg fb = FuncBody(variables, isProcedure);
 
             if (fb != null)
@@ -749,22 +755,24 @@ namespace compiler.frontend
 
             var epilogue = new Node(new BasicBlock("Epilogue"));
 
-            foreach (VariableType global in globals)
+            foreach (var globalLoad in loads)
             {
-                if (!global.IsArray)
+
+
+                var temp = variables[globalLoad.Arg1.IdKey];
+                if ( temp.Location != globalLoad)
                 {
-                    var temp = variables[global.Id];
-                    if (temp.Location?.Uses.Count != 0)
-                    {
-                        Instruction newInst = new Instruction(IrOps.Store, temp.Value,
-                            new Operand(Operand.OpType.Constant, global.Id));
-                        epilogue.Bb.AddInstruction(newInst);
-                        cfg.UsedGlobals.Add(global);
-                    }
+                    Instruction newInst = new Instruction(IrOps.Store, temp.Value,
+                        new Operand(Operand.OpType.Constant, temp.UuId));
+
+                    epilogue.Bb.AddInstruction(newInst);
+                    cfg.UsedGlobals.Add(temp.Identity);
                 }
+
             }
 
             cfg.Insert(epilogue);
+            cfg.Callgraph = Callgraph;
 
             return cfg;
         }
@@ -938,6 +946,7 @@ namespace compiler.frontend
             else
             {
                 call = new Instruction(IrOps.Call, id, null);
+                Callgraph.Add(id.Name);
             }
 
             id = new Operand(call);
@@ -1303,11 +1312,56 @@ namespace compiler.frontend
         public void Parse()
         {
             Next();
-            ProgramCfg = Computation(new VarTbl());
+            var variables = new VarTbl();
+            ProgramCfg = Computation(variables);
+
+            // invoke before addin main to list of functions
+            //FixCallGraphs(variables);
+
             FunctionsCfgs.Add(ProgramCfg);
             ProgramCfg.Name = "Main";
             ProgramCfg.Sym = Scanner.SymbolTble;
+           
         }
+
+
+
+        public void FixCallGraphs(VarTbl variables)
+        {
+            foreach (Cfg function in FunctionsCfgs)
+            {
+               HashSet<string> visitedhHashSet = new HashSet<string>();
+               function.UsedGlobals.UnionWith(CheckCalls(visitedhHashSet,function));
+                var epilogue = function.Root.Leaf();
+                foreach (VariableType global in function.UsedGlobals)
+                {
+                    var temp = variables[global.Id];
+                    Instruction newInst = new Instruction(IrOps.Store, temp.Value,
+                            new Operand(Operand.OpType.Constant, global.Id));
+                    epilogue.Bb.AddInstruction(newInst);
+                }
+            }
+        }
+
+        public HashSet<VariableType> CheckCalls(HashSet<string> visited, Cfg func)
+        {
+            
+
+            var newGlobals = new HashSet<VariableType>(func.UsedGlobals);
+            if (!visited.Contains(func.Name))
+            {
+                visited.Add(func.Name);
+                foreach (string name in func.Callgraph)
+                {
+                    var found = FunctionsCfgs.Find((current) => current.Name == name);
+                    newGlobals.UnionWith(CheckCalls(visited, found));
+                }
+                
+            }
+
+            return newGlobals;
+        }
+
 
         public void ThrowParserException(Token expected)
         {

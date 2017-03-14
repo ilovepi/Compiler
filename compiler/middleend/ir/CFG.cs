@@ -46,7 +46,9 @@ namespace compiler.middleend.ir
 
         public List<VariableType> Parameters;
 
-        public List<VariableType> UsedGlobals;
+        public HashSet<VariableType> UsedGlobals;
+
+        public HashSet<string> Callgraph;
 
         // may not need these
         //public Node Curr { get; set; }
