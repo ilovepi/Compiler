@@ -43,10 +43,6 @@ namespace compiler.middleend.ir
         // # of available registers
         private const uint RegisterCount = 27;
 
-        // Generic copy of this graph (for mutation), built alongside Interference Graph
-        private UndirectedGraph<Instruction, Edge<Instruction>> _copy =
-            new UndirectedGraph<Instruction, Edge<Instruction>>();
-
         private BasicBlock Bb { get; set; }
 
         private Stack<Instruction> _coloringStack = new Stack<Instruction>();
@@ -63,7 +59,6 @@ namespace compiler.middleend.ir
         {
             AddVertexRange(block.Instructions);
             Bb = block;
-            _copy.AddVertexRange(block.Instructions);
 
             AddInterferenceEdges(block);
         }
@@ -73,7 +68,6 @@ namespace compiler.middleend.ir
         {
             AddVertexRange(other.Bb.Instructions);
             Bb = other.Bb;
-            _copy.AddVertexRange(other.Bb.Instructions);
 
             AddInterferenceEdges(other.Bb);
         }
@@ -93,7 +87,6 @@ namespace compiler.middleend.ir
                         {
                             var newEdge = new Edge<Instruction>(instruction, item);
                             AddEdge(newEdge);
-                            _copy.AddVerticesAndEdge(new Edge<Instruction>(instruction, item));
                         }
                     }
                 }
@@ -142,6 +135,8 @@ namespace compiler.middleend.ir
         {
             Stack<Instruction> coloringStack = new Stack<Instruction>();
             List<Instruction> spilledInstr = new List<Instruction>();
+
+            var _copy = new InterferenceGraph(this);
 
             // Call recursive coloring fxn with the mutable copy
             ColorRecursive(_copy);
