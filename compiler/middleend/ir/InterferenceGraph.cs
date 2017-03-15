@@ -31,6 +31,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using QuickGraph;
+using QuickGraph.Algorithms.Search;
 
 #endregion
 
@@ -103,7 +104,167 @@ namespace compiler.middleend.ir
                 }
             }
         }
+        
 
+        public InterferenceGraph PhiGlobber(Instruction root)
+        {
+            var globbed = new InterferenceGraph();
+            var visited = new HashSet<Instruction>();
+            var q = new Queue<Instruction>();
+
+            q.Enqueue(root);
+            globbed.AddVertex(root);
+
+            while (q.Count != 0)
+            {
+                var curNode = q.Dequeue();
+                visited.Add(curNode);
+                bool isPhi = (curNode.Op == IrOps.Phi);
+                var children = new List<Instruction>();
+                bool phiRemoved = false;
+
+                foreach (var e in AdjacentEdges(curNode))
+                {
+                    children.Add(e.GetOtherVertex(curNode));
+                }
+
+                // Generate list of children and iteratively glob phis 'til fixpoint
+                do
+                {
+                    var newChildren = new List<Instruction>();
+                    foreach (var orphanChild in children)
+                    {
+                        phiRemoved = false;
+                        if (visited.Contains(orphanChild))
+                        {
+                            continue;
+                        }
+
+                        if (isPhi && (orphanChild.Op == IrOps.Phi))
+                        {
+                            visited.Add(orphanChild);
+                            phiRemoved = true;
+                            foreach (var e in AdjacentEdges(orphanChild))
+                            {
+                                newChildren.Add(e.GetOtherVertex(orphanChild));
+                            }
+                        }
+
+                        else
+                        {
+                            newChildren.Add(orphanChild);
+                        }
+                        children = newChildren;
+                    }
+                } while (phiRemoved);
+
+                // Actual BFS
+                foreach (var adoptedChild in children)
+                {
+                    if (!globbed.ContainsVertex(adoptedChild))
+                    {
+                        globbed.AddVertex(adoptedChild);
+                    }
+
+                    var newEdge = new Edge<Instruction>(curNode, adoptedChild);
+                    if (!globbed.ContainsEdge(newEdge))
+                    {
+                        globbed.AddEdge(newEdge);
+                    }
+
+                    q.Enqueue(adoptedChild);
+                }
+
+            }
+
+            return globbed;
+        }
+
+        /*
+            if (!globbed.ContainsVertex(curNode))
+            {
+                globbed.AddVertex(curNode);
+
+                foreach (var e in AdjacentEdges(curNode))
+                {
+                    var child = e.GetOtherVertex(curNode);
+                    var newEdge = new Edge<Instruction>(curNode, child);
+
+                    if (!globbed.ContainsEdge(newEdge))
+                    {
+                        globbed.AddEdge(newEdge);
+                    }
+
+                    PhiGlobberRecursive(child, isPhi);
+                }
+            }
+        }
+        */
+        
+        /*
+        public void GlobPhis()
+        {
+            bool modified;
+
+            do
+            {
+                Instruction PhiGlobbed = null;
+                Instruction PhiRemoved = null;
+                var lEdgeAddition = new List<Instruction>();
+                var lEdgeRemoval = new List<Edge<Instruction>>();
+
+                modified = false;
+
+                foreach (var edge in Edges)
+                {
+                    var firstPhi = edge.Source;
+                    var secondPhi = edge.Target;
+
+                    if (firstPhi.Op == IrOps.Phi && secondPhi.Op == IrOps.Phi)
+                    {
+                        PhiGlobbed = firstPhi;
+                        PhiRemoved = secondPhi;
+
+                        foreach (var phiEdge in AdjacentEdges(secondPhi))
+                        {
+                            lEdgeRemoval.Add(phiEdge);
+                            var otherVertex = phiEdge.GetOtherVertex(secondPhi);
+                            if (otherVertex != firstPhi)
+                            {
+                                lEdgeAddition.Add(otherVertex);
+                            }
+                        }
+                        modified = true;
+                        break;
+                    }
+                }
+
+                if (modified)
+                {
+                    foreach (var vertex in lEdgeAddition)
+                    {
+                        var newEdge = new Edge<Instruction>(PhiGlobbed, vertex);
+                        if (!ContainsEdge(newEdge))
+                        {
+                            AddEdge(newEdge);
+                        }
+                    }
+
+                    foreach (var edge in lEdgeRemoval)
+                    {
+                        RemoveEdge(edge);
+                    }
+
+                    RemoveVertex(PhiRemoved);
+                }
+            } while (modified);
+        }
+        */
+        
+
+
+        // Probably all broken
+        /*
         public void MakeSupernodes(Instruction otherInstruction, Instruction phiInstruction )
         {
 
@@ -128,6 +289,7 @@ namespace compiler.middleend.ir
                 MakeSupernodes(phiInst.Arg2.Inst, phiInst);
             }
         }
+        */
 
 
         private void ColorRecursive(UndirectedGraph<Instruction, Edge<Instruction>> curGraph)
