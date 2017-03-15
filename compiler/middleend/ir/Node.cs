@@ -29,6 +29,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using compiler.frontend;
 
 #endregion
@@ -229,6 +230,16 @@ namespace compiler.middleend.ir
                 return Bb.Instructions.First();
             }
             return Child?.GetNextInstruction();
+        }
+        public Instruction GetNextNonPhi()
+        {
+            if (Bb.Instructions.Count != 0)
+            {
+               var res =  Bb.Instructions.FirstOrDefault((curr) => curr.Op != IrOps.Phi);
+                return res ?? Child?.GetNextNonPhi();
+
+            }
+            return Child?.GetNextNonPhi();
         }
 
         public virtual Instruction GetLastInstruction()

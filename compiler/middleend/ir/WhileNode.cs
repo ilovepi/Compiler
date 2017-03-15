@@ -135,8 +135,8 @@ namespace compiler.middleend.ir
             if (!visited.Contains(this))
             {
                 visited.Add(this);
-                Bb.Instructions.Last().Arg2 = new Operand(FalseNode.GetNextInstruction());
-                LoopParent.Bb.Instructions.Last().Arg1.Inst = Bb.Instructions.First();
+                Bb.Instructions.Last().Arg2 = new Operand(FalseNode.GetNextNonPhi());
+                LoopParent.Bb.Instructions.Last().Arg1.Inst = GetNextNonPhi();
                 foreach (Node child in GetAllChildren())
                 {
                     child?.InsertBranches(visited);

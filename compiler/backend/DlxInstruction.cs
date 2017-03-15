@@ -51,6 +51,7 @@ namespace compiler.backend
             C = c;
         }
 
+        public FunctionBuilder calledFunction;
 
         public DlxInstruction(Instruction inst)
         {
@@ -148,8 +149,8 @@ namespace compiler.backend
                     break;
 
                 case IrOps.Bra:
-                    // TODO: this needs work to handle calls
-                    Op = OpCodes.BSR;
+                    Op = OpCodes.BEQ;
+                    A = 0;
                     C = inst.Offset;
                     PutF1();
                     break;
@@ -206,6 +207,9 @@ namespace compiler.backend
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
+            irInst = inst;
+            irInst.MachineInst = this;
         }
 
         public OpCodes Op { get; set; }
@@ -216,7 +220,13 @@ namespace compiler.backend
 
         public int C { get; set; }
 
+        public int Address { get; set; }
+
+        public Instruction irInst { get; set; }
+
         public uint MachineCode { get; set; }
+
+        
 
         public string Colorname { get; set; }
 

@@ -97,6 +97,11 @@ namespace compiler.middleend.ir
 
         public int CodeSize => (MachineBody?.Count * 4) ?? 0;
 
+        public List<VariableType> Globals => Tree.ControlFlowGraph.Globals;
+        public HashSet<VariableType> UsedGlobals => Tree.ControlFlowGraph.UsedGlobals;
+        public List<VariableType> Params => Tree.ControlFlowGraph.Parameters;
+        public List<VariableType> Locals => Tree.ControlFlowGraph.Locals;
+
 
         /// <summary>
         /// Converts the CFG into a flat list of instructions
@@ -159,10 +164,12 @@ namespace compiler.middleend.ir
                     if (instruction.Op == IrOps.Call)
                     {
                         var func = functionBuilders.Find((curr) => curr.Name == instruction.Arg1.Name);
-
-                        MachineBody.AddRange(Prologue(instruction, func.Tree));
+                        var prologue = Prologue(instruction, func.Tree);
+                        MachineBody.AddRange(prologue);
                         var dlx = new DlxInstruction(instruction);
                         MachineBody.Add(dlx);
+                        dlx.calledFunction = func;
+                        dlx.irInst.MachineInst = prologue.First();
 
                         var retInst =
                             func.Tree.ControlFlowGraph.Root.Leaf()
@@ -368,6 +375,112 @@ namespace compiler.middleend.ir
             eplilogue.Add(newVal);
 
             return eplilogue;
+        }
+
+
+        public void AssignAddresses(int baseAddr)
+        {
+            Address = baseAddr;
+
+            // all params are ints 
+            int i;
+            for (i = 0; i < Params.Count; i++)
+            {
+                Params[i].Offset = -((i+1) * 4);
+            }
+
+           // locals can be arrays or ints
+            for (i = 0; i < Locals.Count; i++)
+            {
+                Locals[i].Offset = i;
+                i += Locals[i].Size*4;
+            }
+
+            
+            for (int j = 0; j < MachineBody.Count; j++)
+            {
+                MachineBody[j].Address = j;
+            }
+            
+
+            foreach (DlxInstruction inst in MachineBody)
+            {
+                FixInstructions(inst);
+            }
+
+            
+        }
+
+
+
+        public void FixInstructions(DlxInstruction inst)
+        {
+            switch (inst.Op)
+            {
+               
+                case OpCodes.BEQ:
+                case OpCodes.BNE:
+                case OpCodes.BLT:
+                case OpCodes.BGE:
+                case OpCodes.BLE:
+                case OpCodes.BGT:
+                    int targetOffset;
+                    if (inst.irInst.Op == IrOps.Bra)
+                    {
+                        targetOffset =inst.irInst.Arg1.Inst.MachineInst.Address;
+                    }
+                    else
+                    {
+                        targetOffset = inst.irInst.Arg2.Inst.MachineInst.Address;
+                    }
+                    
+                    inst.C =  targetOffset - inst.Address;
+                    inst.PutF1();
+                    break;
+                case OpCodes.JSR:
+                    inst.C = inst.calledFunction.Address;
+                    break;
+                case OpCodes.ADD:
+                case OpCodes.SUB:
+                case OpCodes.MUL:
+                case OpCodes.DIV:
+                case OpCodes.CMP:
+                    inst.ImmediateOperands(inst.Op, inst.irInst.Arg1, inst.irInst.Arg2);
+                    break;
+                case OpCodes.ADDI:
+                case OpCodes.SUBI:
+                case OpCodes.MULI:
+                case OpCodes.DIVI:
+                case OpCodes.CMPI:
+                    inst.ImmediateOperands(inst.Op-16, inst.irInst.Arg1, inst.irInst.Arg2);
+                    break;
+                case OpCodes.LDW:
+                    break;
+                case OpCodes.LDX:
+                    break;
+                case OpCodes.POP:
+                    break;
+                case OpCodes.STW:
+                    break;
+                case OpCodes.STX:
+                    break;
+                case OpCodes.PSH:
+                    break;
+                case OpCodes.BSR:
+                    break;
+                case OpCodes.RET:
+                    break;
+                case OpCodes.RDD:
+                    break;
+                case OpCodes.WRD:
+                    break;
+                case OpCodes.WRH:
+                    break;
+                case OpCodes.WRL:
+                    break;
+                default:
+                    return;
+            }
         }
     }
 }

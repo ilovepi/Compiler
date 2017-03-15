@@ -156,6 +156,7 @@ namespace compiler
             {
                 func.TransformDlx(DlxFunctions);
             }
+            AssignAddresses();
         }
 
         private string GenDomGraphString()
@@ -280,6 +281,19 @@ namespace compiler
             throw new NotImplementedException();
         }
 
+        public void AssignAddresses()
+        {
+            int baseAddr = 0;
+            foreach (FunctionBuilder functionBuilder in DlxFunctions)
+            {
+                functionBuilder.AssignAddresses(baseAddr);
+                baseAddr += functionBuilder.CodeSize;
+            }
+        }
+
+
+
+
         public void GenerateOutput()
         {
             GenerateGraphOutput();
@@ -298,6 +312,7 @@ namespace compiler
             GenStraightLineFunctions();
             GenInstructionListGraphString();
             GenDlxGraphString();
+
         }
 
 

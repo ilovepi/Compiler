@@ -28,6 +28,7 @@
 
 using System;
 using System.Collections.Generic;
+using compiler.backend;
 using compiler.frontend;
 using compiler.middleend.ir;
 
@@ -41,6 +42,8 @@ namespace compiler.middleend.ir
         ///     Global instruction counter for all IR instructions
         /// </summary>
         public static int InstructionCounter;
+
+        public DlxInstruction MachineInst { get; set; }
 
         public string Colorname;
 

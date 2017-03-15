@@ -130,11 +130,11 @@ namespace compiler.middleend.ir
             if (!visited.Contains(this))
             {
                 // visited.Add(this);
-                Bb.Instructions.Last().Arg2 = new Operand(FalseNode.GetNextInstruction());
+                Bb.Instructions.Last().Arg2 = new Operand(FalseNode.GetNextNonPhi());
                 if (FalseNode != Join)
                 {
                     Join.Parent.Bb.AddInstruction(new Instruction(IrOps.Bra,
-                        new Operand(Join.GetNextInstruction()), null));
+                        new Operand(Join.GetNextNonPhi()), null));
                 }
                 FalseNode.InsertBranches(visited);
                 Child.InsertBranches(visited);

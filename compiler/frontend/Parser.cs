@@ -1133,7 +1133,7 @@ namespace compiler.frontend
 
             last.Child = branchBlock;
             branchBlock.Parent = last;
-            branchBlock.Bb.AddInstruction(new Instruction(IrOps.Bra, new Operand(loopHeaderBlock.GetNextInstruction()),
+            branchBlock.Bb.AddInstruction(new Instruction(IrOps.Bra, new Operand(loopHeaderBlock.GetNextNonPhi()),
                 null));
             branchBlock.Child = loopHeaderBlock;
             loopBlock.Consolidate();
