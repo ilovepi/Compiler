@@ -40,6 +40,7 @@ namespace NUnit.Tests
         [TestCase(@"/Frontend/testdata/test001.txt")]
         [TestCase(@"/Frontend/testdata/test002.txt")]
         [TestCase(@"/Frontend/testdata/test003.txt")]
+        [TestCase(@"/Frontend/testdata/test004.txt")]
         [TestCase(@"/Frontend/testdata/test005.txt")]
         [TestCase(@"/Frontend/testdata/test006.txt")]
         [TestCase(@"/Frontend/testdata/test007.txt")]
@@ -76,7 +77,8 @@ namespace NUnit.Tests
             Compiler.TestRun(filename);
         }
 
-        [TestCase(@"/Frontend/testdata/test004.txt")]
+        [TestCase(@"/Frontend/testdata/test004bad.txt")]
+        [TestCase(@"/Frontend/testdata/test013bad.txt")]
         public void ParsingErrorTest(string pFilename)
         {
             string filename = TestContext.CurrentContext.TestDirectory + pFilename;
