@@ -103,6 +103,11 @@ namespace compiler.middleend.ir
                     }
                 }
             }
+
+            if (Vertices.Count() != 0)
+            {
+                PhiGlobber(Vertices.First());
+            }
         }
         
 
@@ -135,27 +140,25 @@ namespace compiler.middleend.ir
                     foreach (var orphanChild in children)
                     {
                         phiRemoved = false;
-                        if (visited.Contains(orphanChild))
+                        if (!visited.Contains(orphanChild))
                         {
-                            continue;
-                        }
-
-                        if (isPhi && (orphanChild.Op == IrOps.Phi))
-                        {
-                            visited.Add(orphanChild);
-                            phiRemoved = true;
-                            foreach (var e in AdjacentEdges(orphanChild))
+                            if (isPhi && (orphanChild.Op == IrOps.Phi))
                             {
-                                newChildren.Add(e.GetOtherVertex(orphanChild));
+                                visited.Add(orphanChild);
+                                phiRemoved = true;
+                                foreach (var e in AdjacentEdges(orphanChild))
+                                {
+                                    newChildren.Add(e.GetOtherVertex(orphanChild));
+                                }
+                            }
+
+                            else
+                            {
+                                newChildren.Add(orphanChild);
                             }
                         }
-
-                        else
-                        {
-                            newChildren.Add(orphanChild);
-                        }
-                        children = newChildren;
                     }
+                    children = newChildren;
                 } while (phiRemoved);
 
                 // Actual BFS
