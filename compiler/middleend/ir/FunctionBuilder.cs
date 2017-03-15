@@ -29,10 +29,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Security.Cryptography;
 using compiler.backend;
-using NUnit.Framework;
 
 #endregion
 
@@ -40,6 +37,10 @@ namespace compiler.middleend.ir
 {
     public class FunctionBuilder
     {
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="parseTree">The parse tree of the function</param>
         public FunctionBuilder(ParseTree parseTree)
         {
             Tree = parseTree;
@@ -62,19 +63,43 @@ namespace compiler.middleend.ir
             //FrameSize *= 4;
         }
 
+        /// <summary>
+        /// The Control Flow Graph, Dominator Tree, & Interference Graph of the function
+        /// </summary>
         public ParseTree Tree { get; set; }
+
+
+        /// <summary>
+        /// The flat list of inorder IR instructions
+        /// </summary>
         public List<Instruction> FuncBody { get; set; }
 
+        /// <summary>
+        /// The Machine code translation of the function body
+        /// </summary>
         public List<DlxInstruction> MachineBody { get; set; }
 
 
+        /// <summary>
+        /// The function name
+        /// </summary>
         public string Name { get; set; }
 
+        /// <summary>
+        /// The function's base address
+        /// </summary>
         public int Address { get; set; }
 
+        /// <summary>
+        /// The size of the function's call frame
+        /// </summary>
         public int FrameSize { get; set; }
 
-
+        /// <summary>
+        /// Converts the CFG into a flat list of instructions
+        /// </summary>
+        /// <param name="root">The root of the dominator tree</param>
+        /// <returns>A list of IR instructions</returns>
         public List<Instruction> GetInstructions(DominatorNode root)
         {
             List<Instruction> lastBlock = null;
@@ -117,6 +142,10 @@ namespace compiler.middleend.ir
         }
 
 
+        /// <summary>
+        /// Transforms IR instructions into DLX instructions
+        /// </summary>
+        /// <param name="functionBuilders">The list of all functions translated as function builders</param>
         public void TransformDlx(List<FunctionBuilder> functionBuilders)
         {
             MachineBody = new List<DlxInstruction>();
@@ -137,11 +166,7 @@ namespace compiler.middleend.ir
                                 .Bb.Instructions.Find(
                                     (current) => (current.Op == IrOps.Ret) || (current.Op == IrOps.End));
 
-
-
                         MachineBody.AddRange(Epilogue(retInst.Arg2?.Val ?? 0, instruction, func.Tree));
-
-
                     }
                     else
                     {
@@ -158,6 +183,10 @@ namespace compiler.middleend.ir
         }
 
 
+        /// <summary>
+        /// Creates a label for graphviz's dot language
+        /// </summary>
+        /// <returns>label string for an instruction entry in a graph node</returns>
         public string DotLabel()
         {
             string label = Name;
@@ -171,6 +200,10 @@ namespace compiler.middleend.ir
         }
 
 
+        /// <summary>
+        /// creates a node for graphviz
+        /// </summary>
+        /// <returns>string rep of a node</returns>
         public string PrintGraphNode()
         {
             string local = string.Empty;
@@ -180,19 +213,29 @@ namespace compiler.middleend.ir
         }
 
 
+        /// <summary>
+        /// creates a graph viz subgraph
+        /// </summary>
+        /// <param name="n">cluster ID number</param>
+        /// <returns></returns>
         public string PrintFunction(int n)
         {
             string graphOutput = "subgraph cluster_" + n + " {\nlabel = \"" + Name +
                                  "\";\n node[style=filled,shape=record]\n" +
                                  PrintGraphNode() + "}";
-
             return graphOutput;
         }
 
+        /// <summary>
+        /// generates a function prologue for caller saved values
+        /// </summary>
+        /// <param name="calliInstruction">The instruction calling the function</param>
+        /// <param name="tree">The parse tree of the functon being called</param>
+        /// <returns>A list of DLX machine instructions the comprise the prologue</returns>
         public List<DlxInstruction> Prologue(Instruction calliInstruction, ParseTree tree)
         {
             List<DlxInstruction> prologue = new List<DlxInstruction>();
-           
+
             // allocate memory for a return value
             var retVal = new DlxInstruction(OpCodes.PSH, 0, DlxInstruction.Sp, 4);
             prologue.Add(retVal);
@@ -219,8 +262,8 @@ namespace compiler.middleend.ir
             // load each param into register and push onto stack
             foreach (var param in calliInstruction.Parameters)
             {
-                var regNo = param.Inst == null ? (int) param.Val : (int)param.Inst.Reg;
-                prologue.Add(new DlxInstruction(OpCodes.PSH,  regNo, DlxInstruction.Sp, 4));
+                var regNo = param.Inst == null ? param.Val : (int) param.Inst.Reg;
+                prologue.Add(new DlxInstruction(OpCodes.PSH, regNo, DlxInstruction.Sp, 4));
             }
 
 
@@ -228,7 +271,7 @@ namespace compiler.middleend.ir
             // allocate memory for all local variables
             foreach (VariableType variableType in Tree.ControlFlowGraph.Locals)
             {
-                size += (int)variableType.Size;
+                size += variableType.Size;
             }
 
             if (size > 0)
@@ -241,33 +284,39 @@ namespace compiler.middleend.ir
             {
                 // get instruction from liverange
                 var good = calliInstruction.LiveRange.Where((current) => current.Arg1.IdKey == variableType.Id);
-                if (good.Count() != 0)
+                var instructions = good as Instruction[] ?? good.ToArray();
+                if (instructions.Length != 0)
                 {
-                    prologue.Add(new DlxInstruction(OpCodes.STW, (int) good.First().Reg, DlxInstruction.Globals,
+                    prologue.Add(new DlxInstruction(OpCodes.STW, (int) instructions.First().Reg, DlxInstruction.Globals,
                         variableType.Address));
                 }
             }
 
             return prologue;
- ;       }
+        }
 
 
+        /// <summary>
+        /// Generates a function epilogue for caller saved functions
+        /// </summary>
+        /// <param name="retValReg">The register number of the return value</param>
+        /// <param name="calliInstruction">The instuction doing the call</param>
+        /// <param name="tree">the parse tree of the called function</param>
+        /// <returns>A list of DLX machine instructions the comprise the epilogue</returns>
         public List<DlxInstruction> Epilogue(int retValReg, Instruction calliInstruction, ParseTree tree)
         {
-
             int localSize = 0;
-
 
             // calculate memory for all local variables
             foreach (VariableType variableType in tree.ControlFlowGraph.Locals)
             {
-                localSize += (int)variableType.Size;
+                localSize += variableType.Size;
             }
 
             List<DlxInstruction> eplilogue = new List<DlxInstruction>();
 
             // save return value back on stack, or in a register if that works
-            var retInst = new DlxInstruction(OpCodes.STX, (int)retValReg , DlxInstruction.Sp, (-4*(3 + tree.DominatorTree.NumReg + calliInstruction.Parameters.Count + Tree.ControlFlowGraph.Parameters.Count)));
+            var retInst = new DlxInstruction(OpCodes.STX, retValReg , DlxInstruction.Sp, (-4*(3 + tree.DominatorTree.NumReg + calliInstruction.Parameters.Count + Tree.ControlFlowGraph.Parameters.Count)));
             eplilogue.Add(retInst);
 
             
@@ -276,9 +325,10 @@ namespace compiler.middleend.ir
             {
                 // get instruction from liverange
                 var good = calliInstruction.LiveRange.Where((current) => (current.VArId?.Id ?? current.Arg1.IdKey) == variableType.Id);
-                if (good.Count() != 0)
+                var instructions = good as Instruction[] ?? good.ToArray();
+                if (instructions.Length != 0)
                 {
-                    eplilogue.Add(new DlxInstruction(OpCodes.STW, (int)good.First().Reg, DlxInstruction.Globals, variableType.Address));
+                    eplilogue.Add(new DlxInstruction(OpCodes.STW, (int)instructions.First().Reg, DlxInstruction.Globals, variableType.Address));
                 }
             }
 
@@ -296,7 +346,6 @@ namespace compiler.middleend.ir
             {
                 eplilogue.Add(new DlxInstruction(OpCodes.POP, i, DlxInstruction.Sp, -4));
             }
-
             
             // restore the Frame pointer
             var oldFp = new DlxInstruction(OpCodes.POP, DlxInstruction.Sp, DlxInstruction.Sp, -4);
