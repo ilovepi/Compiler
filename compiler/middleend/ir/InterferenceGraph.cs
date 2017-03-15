@@ -48,7 +48,7 @@ namespace compiler.middleend.ir
 
         private Stack<Instruction> _coloringStack = new Stack<Instruction>();
 
-        public bool useSupeNodes;
+        public bool useSuperNodes;
 
         // Colored and spilled instructions
         public Dictionary<Instruction, uint> GraphColors = new Dictionary<Instruction, uint>();
@@ -56,17 +56,17 @@ namespace compiler.middleend.ir
 
         public InterferenceGraph()
         {
-            useSupeNodes = true;
+            useSuperNodes = true;
         }
 
         public InterferenceGraph(bool pUseSuper)
         {
-            useSupeNodes = pUseSuper;
+            useSuperNodes = pUseSuper;
         }
 
         public InterferenceGraph(BasicBlock block)
         {
-            useSupeNodes = true;
+            useSuperNodes = true;
 
             AddVertexRange(block.Instructions);
             Bb = block;
