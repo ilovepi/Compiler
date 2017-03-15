@@ -82,7 +82,7 @@ namespace compiler.backend
                         A = inst.Arg1.Val;
                         B = inst.Arg1.Inst.Arg1.Val;
                         C = inst.Arg1.Inst.Arg2.Val;
-
+                        inst.Arg1.Inst.MachineInst = this;
                         if (inst.Arg1.Inst.Arg2.Kind == Operand.OpType.Instruction)
                         {
                             // load stuff from array with register 

@@ -415,6 +415,9 @@ namespace compiler.middleend.ir
 
         public void FixInstructions(DlxInstruction inst)
         {
+            if (inst.irInst == null)
+                return;
+
             switch (inst.Op)
             {
                
@@ -425,13 +428,21 @@ namespace compiler.middleend.ir
                 case OpCodes.BLE:
                 case OpCodes.BGT:
                     int targetOffset;
-                    if (inst.irInst.Op == IrOps.Bra)
+                    if ((inst.irInst.Op == IrOps.Bra) || (inst.irInst.Op == IrOps.Ssa))
                     {
                         targetOffset =inst.irInst.Arg1.Inst.MachineInst.Address;
                     }
                     else
                     {
-                        targetOffset = inst.irInst.Arg2.Inst.MachineInst.Address;
+                        var arg = inst.irInst.Arg2.Inst;
+                        if (arg.Op == IrOps.Ssa)
+                        {
+                            targetOffset = inst.irInst.Arg1.Inst.MachineInst.Address;
+                        }
+                        else
+                        {
+                            targetOffset = arg.MachineInst.Address;
+                        }
                     }
                     
                     inst.C =  targetOffset - inst.Address;
