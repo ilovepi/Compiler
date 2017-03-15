@@ -203,9 +203,6 @@ namespace compiler.backend
                 case IrOps.Kill:
                 case IrOps.Ssa:
                 case IrOps.Neg:
-                   
-                
-                   
                 default:
                     throw new ArgumentOutOfRangeException();
             }

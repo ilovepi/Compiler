@@ -35,7 +35,7 @@ using compiler.middleend.ir;
 
 namespace compiler.middleend.optimization
 {
-    class Prune
+    internal class Prune
     {
         private static HashSet<Node> _visited;
 
@@ -131,9 +131,6 @@ namespace compiler.middleend.optimization
                         joinParent.Child = end;
                         end.Parent = joinParent;
                     }
-
-                    //compareNode.Parent = null;
-
 
                     //begin.Consolidate();
 

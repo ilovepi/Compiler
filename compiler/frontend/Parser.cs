@@ -68,6 +68,7 @@ namespace compiler.frontend
         public HashSet<string> Callgraph;
 
 
+
         /// <summary>
         ///     A stack of frame addresses -- esentially a list of frame pointers
         /// </summary>
@@ -147,7 +148,7 @@ namespace compiler.frontend
             if (variables.ContainsKey(id.IdKey))
             {
                 var cached = variables[id.IdKey];
-                id = new Operand(variables[id.IdKey]);
+                id = new Operand(cached);
             }
 
 
@@ -458,6 +459,7 @@ namespace compiler.frontend
             {
                 Cfg func = FuncDecl(new VarTbl(varTble), cfg.Globals);
                 func.Globals = cfg.Globals;
+
             }
 
             GetExpected(Token.OPEN_CURL);
@@ -803,7 +805,12 @@ namespace compiler.frontend
             if (isProcedure)
             {
                 var branchBack = new Instruction(IrOps.Ret, new Operand(Operand.OpType.Register, 31), null);
-                cfg.GetLeaf(cfg.Root).Bb.Instructions.Add(branchBack);
+                cfg.Root.Leaf().Bb.AddInstruction(branchBack);
+            }
+
+            if (cfg.Root.Leaf().Bb.Instructions.Last().Op != IrOps.Ret)
+            {
+                FatalError("Functions must have a return statement");
             }
 
             return cfg;
@@ -915,8 +922,6 @@ namespace compiler.frontend
                 }
 
                 GetExpected(Token.CLOSE_PAREN);
-
-                //TODO: jump to call
             }
 
             foreach (var func in FunctionsCfgs)
@@ -1219,29 +1224,6 @@ namespace compiler.frontend
             return false;
         }
 
-        /*
-        public Tuple<BasicBlock, int> FindInstruction(Instruction inst, Node n)
-        {
-            if (n == null)
-            {
-                return null;
-            }
-
-            List<Instruction> instList = n.Bb.Instructions;
-
-            for (var i = 0; i < instList.Count; i++)
-            {
-                if (inst == instList[i])
-                {
-                    return new Tuple<BasicBlock, int>(n.Bb, i);
-                }
-            }
-
-            return FindInstruction(inst, n.Parent);
-        }
-        */
-
-
         private ParseResult ReturnStmt(VarTbl variables)
         {
             GetExpected(Token.RETURN);
@@ -1279,17 +1261,11 @@ namespace compiler.frontend
 
             if (Tok == Token.IDENTIFIER)
             {
-                //TODO: handle parameters????
-                //CreateIdentifier();
-
                 CreateParameter(paramList, varTble);
 
                 while (Tok == Token.COMMA)
                 {
                     Next();
-
-                    //not sure this is correct per above
-                    //CreateIdentifier();
                     CreateParameter(paramList, varTble);
                 }
             }
