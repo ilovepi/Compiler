@@ -357,11 +357,12 @@ namespace compiler.middleend.ir
                 }
 
                 // ... and give it a different one.
-                for (uint reg = 1; reg <= RegisterCount; reg++)
+                for (uint reg = RegisterCount; reg >= 1; reg--)
                 {
                     if (!neighborRegs.Contains(reg))
                     {
                         GraphColors.Add(curInstr, reg);
+                        break;
                     }
                 }
 
