@@ -74,6 +74,8 @@ namespace compiler.middleend.ir
 
         public int FrameSize { get; set; }
 
+        public int CodeSize => (MachineBody?.Count * 4) ?? 0;
+
 
         public List<Instruction> GetInstructions(DominatorNode root)
         {

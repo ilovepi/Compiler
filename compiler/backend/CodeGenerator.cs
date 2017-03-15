@@ -39,7 +39,7 @@ namespace compiler.backend
         {
             Functions = functions;
         }
-
+        
         public List<ParseTree> Functions { get; set; }
     }
 }
