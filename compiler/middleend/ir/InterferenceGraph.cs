@@ -45,7 +45,7 @@ namespace compiler.middleend.ir
         // # of available registers
         private const uint RegisterCount = 27;
 
-        private BasicBlock Bb { get; set; }
+        public BasicBlock Bb { get; set; }
 
         private Stack<Instruction> _coloringStack = new Stack<Instruction>();
 
@@ -74,14 +74,24 @@ namespace compiler.middleend.ir
 
             AddInterferenceEdges(block);
         }
-
-        // Copy constructor takes the BB associated with other graph and *rebuilds*
+        
         public InterferenceGraph(InterferenceGraph other)
         {
-            AddVertexRange(other.Bb.Instructions);
-            Bb = other.Bb;
+            foreach (var vertexAdd in other.Vertices)
+            {
+                if (!Vertices.Contains(vertexAdd))
+                {
+                    AddVertex(vertexAdd);
+                }
+            }
 
-            AddInterferenceEdges(other.Bb);
+            foreach (var edgeAdd in other.Edges)
+            {
+                if (!Edges.Contains(edgeAdd))
+                {
+                    AddEdge(edgeAdd);
+                }
+            }
         }
 
         public void AddInterferenceEdges(BasicBlock block)
@@ -134,6 +144,7 @@ namespace compiler.middleend.ir
                 }
 
                 // Generate list of children and iteratively glob phis 'til fixpoint
+                /*
                 do
                 {
                     var newChildren = new List<Instruction>();
@@ -160,24 +171,26 @@ namespace compiler.middleend.ir
                     }
                     children = newChildren;
                 } while (phiRemoved);
+                */
 
                 // Actual BFS
                 foreach (var adoptedChild in children)
                 {
-                    if (!globbed.ContainsVertex(adoptedChild))
+                    if (!visited.Contains(adoptedChild))
                     {
-                        globbed.AddVertex(adoptedChild);
-                    }
+                        if (!globbed.ContainsVertex(adoptedChild))
+                        {
+                            globbed.AddVertex(adoptedChild);
+                        }
 
-                    var newEdge = new Edge<Instruction>(curNode, adoptedChild);
-                    if (!globbed.ContainsEdge(newEdge))
-                    {
-                        globbed.AddEdge(newEdge);
+                        var newEdge = new Edge<Instruction>(curNode, adoptedChild);
+                        if (!globbed.ContainsEdge(newEdge))
+                        {
+                            globbed.AddEdge(newEdge);
+                        }
+                        q.Enqueue(adoptedChild);
                     }
-
-                    q.Enqueue(adoptedChild);
                 }
-
             }
 
             return globbed;

@@ -256,7 +256,12 @@ namespace compiler
 
             foreach (ParseTree parseTree in FuncList)
             {
-                parseTree.DominatorTree.IntGraph.Color();
+                var intGraph = parseTree.DominatorTree.IntGraph;
+                if (!intGraph.IsVerticesEmpty)
+                {
+                    parseTree.DominatorTree.IntGraph = new InterferenceGraph(intGraph.PhiGlobber(intGraph.Vertices.First()));
+                    //intGraph.Color();
+                }
             }
         }
 
@@ -339,6 +344,7 @@ namespace compiler
             var c = new Compiler(opts);
             c.Parse();
             c.Optimize();
+            c.RegisterAllocation();
             c.GenerateOutput();
         }
 
