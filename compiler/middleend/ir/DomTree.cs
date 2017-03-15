@@ -44,12 +44,14 @@ namespace compiler.middleend.ir
         public DomTree()
         {
             Root = null;
+            NumReg = 0;
         }
 
         public InterferenceGraph IntGraph { get; set; }
 
         public DominatorNode Root { get; set; }
 
+        public int NumReg;
 
         public string PrintTreeGraph(int n, SymbolTable sym)
         {

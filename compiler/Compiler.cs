@@ -134,9 +134,10 @@ namespace compiler
             PopulateDlxFunc();
             foreach (var dlxFunc in DlxFunctions)
             {
-                DomTree dom = new DomTree();
-                dom.Root = new DominatorNode(new BasicBlock("StatSequence"));
-                dom.Root.Bb.Instructions = dlxFunc.FuncBody;
+                DomTree dom = new DomTree
+                {
+                    Root = new DominatorNode(new BasicBlock("StatSequence")) {Bb = {Instructions = dlxFunc.FuncBody}}
+                };
                 straightFuncList.Add(new ParseTree(dlxFunc.Tree.ControlFlowGraph, dom));
                 dom.Name = dlxFunc.Tree.ControlFlowGraph.Name;
                 dom.Root.Colorname = dlxFunc.Tree.ControlFlowGraph.Root.Colorname;
@@ -152,6 +153,10 @@ namespace compiler
             {
                 FunctionBuilder newFunction = new FunctionBuilder(parseTree);
                 DlxFunctions.Add(newFunction);
+            }
+            foreach (var func in DlxFunctions)
+            {
+                func.TransformDlx(DlxFunctions);
             }
         }
 
@@ -319,8 +324,8 @@ namespace compiler
                 GraphOutput = true,
                 CopyProp = true,
                 Cse = true,
-                DeadCode = true,
-                PruneCfg = true,
+                DeadCode = false,
+                PruneCfg = false,
                 RegAlloc = true,
                 InstSched = false,
                 CodeGen = false

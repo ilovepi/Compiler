@@ -28,7 +28,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Security.Cryptography;
 using compiler.backend;
+using NUnit.Framework;
 
 #endregion
 
@@ -53,7 +57,7 @@ namespace compiler.middleend.ir
 
             FuncBody = GetInstructions(parseTree.DominatorTree.Root);
 
-            TransformDlx();
+
             // Scale number of vars by size of int;
             //FrameSize *= 4;
         }
@@ -82,7 +86,7 @@ namespace compiler.middleend.ir
 
             List<Instruction> myInstructions = new List<Instruction>(root.Bb.Instructions);
 
-            var singlebeBlock = true;
+            var singleBlock = true;
             foreach (DominatorNode child in root.Children)
             {
                 if (lastBlock == null)
@@ -91,14 +95,14 @@ namespace compiler.middleend.ir
                 }
                 else
                 {
-                    singlebeBlock = false;
+                    singleBlock = false;
                     intermediateBlocks.AddRange(GetInstructions(child));
                 }
             }
 
             if (lastBlock != null)
             {
-                if (singlebeBlock)
+                if (singleBlock)
                 {
                     intermediateBlocks = lastBlock;
                 }
@@ -113,15 +117,37 @@ namespace compiler.middleend.ir
         }
 
 
-        private void TransformDlx()
+        public void TransformDlx(List<FunctionBuilder> functionBuilders)
         {
             MachineBody = new List<DlxInstruction>();
             foreach (Instruction instruction in FuncBody)
             {
                 try
                 {
-                    var dlx = new DlxInstruction(instruction);
-                    MachineBody.Add(dlx);
+                    if (instruction.Op == IrOps.Call)
+                    {
+                        var func = functionBuilders.Find((curr) => curr.Name == instruction.Arg1.Name);
+
+                        MachineBody.AddRange(Prologue(instruction, func.Tree));
+                        var dlx = new DlxInstruction(instruction);
+                        MachineBody.Add(dlx);
+
+                        var retInst =
+                            func.Tree.ControlFlowGraph.Root.Leaf()
+                                .Bb.Instructions.Find(
+                                    (current) => (current.Op == IrOps.Ret) || (current.Op == IrOps.End));
+
+
+
+                        MachineBody.AddRange(Epilogue(retInst.Arg2?.Val ?? 0, instruction, func.Tree));
+
+
+                    }
+                    else
+                    {
+                        var dlx = new DlxInstruction(instruction);
+                        MachineBody.Add(dlx);
+                    }
                 }
                 catch (ArgumentOutOfRangeException e)
                 {
@@ -163,25 +189,133 @@ namespace compiler.middleend.ir
             return graphOutput;
         }
 
-        public void Prologue()
+        public List<DlxInstruction> Prologue(Instruction calliInstruction, ParseTree tree)
         {
+            List<DlxInstruction> prologue = new List<DlxInstruction>();
+           
             // allocate memory for a return value
+            var retVal = new DlxInstruction(OpCodes.PSH, 0, DlxInstruction.Sp, 4);
+            prologue.Add(retVal);
+
             // push current ret address onto stack
+            var retAddr = new DlxInstruction(OpCodes.PSH, DlxInstruction.RetAddr, DlxInstruction.Sp, 4);
+            prologue.Add(retAddr);
+
+
             // save sp and FP to stack
+            var oldSp = new DlxInstruction(OpCodes.PSH, DlxInstruction.Fp, DlxInstruction.Sp, 4);
+            var oldFp = new DlxInstruction(OpCodes.PSH, DlxInstruction.Sp, DlxInstruction.Sp, 4);
+
+            prologue.Add(oldSp);
+            prologue.Add(oldFp);
+
+            // save registers required
+            for (int i = 0; i < tree.DominatorTree.NumReg; i++)
+            {
+                prologue.Add(new DlxInstruction(OpCodes.PSH, i, DlxInstruction.Sp, 4));
+            }
+
+
             // load each param into register and push onto stack
+            foreach (var param in calliInstruction.Parameters)
+            {
+                var regNo = param.Inst == null ? (int) param.Val : (int)param.Inst.Reg;
+                prologue.Add(new DlxInstruction(OpCodes.PSH,  regNo, DlxInstruction.Sp, 4));
+            }
+
+
+            int size = 0;
             // allocate memory for all local variables
+            foreach (VariableType variableType in Tree.ControlFlowGraph.Locals)
+            {
+                size += (int)variableType.Size;
+            }
+
+            if (size > 0)
+            {
+                prologue.Add(new DlxInstruction(OpCodes.ADDI, DlxInstruction.Sp, DlxInstruction.Sp, size));
+            }
+
             // save any global variable that might have be modified in function
-        }
+            foreach (VariableType variableType in tree.ControlFlowGraph.UsedGlobals)
+            {
+                // get instruction from liverange
+                var good = calliInstruction.LiveRange.Where((current) => current.Arg1.IdKey == variableType.Id);
+                if (good.Count() != 0)
+                {
+                    prologue.Add(new DlxInstruction(OpCodes.STW, (int) good.First().Reg, DlxInstruction.Globals,
+                        variableType.Address));
+                }
+            }
+
+            return prologue;
+ ;       }
 
 
-        public void Epilogue()
+        public List<DlxInstruction> Epilogue(int retValReg, Instruction calliInstruction, ParseTree tree)
         {
+
+            int localSize = 0;
+
+
+            // calculate memory for all local variables
+            foreach (VariableType variableType in tree.ControlFlowGraph.Locals)
+            {
+                localSize += (int)variableType.Size;
+            }
+
+            List<DlxInstruction> eplilogue = new List<DlxInstruction>();
+
             // save return value back on stack, or in a register if that works
-            // save any globals variables that might have been modified
+            var retInst = new DlxInstruction(OpCodes.STX, (int)retValReg , DlxInstruction.Sp, (-4*(3 + tree.DominatorTree.NumReg + calliInstruction.Parameters.Count + Tree.ControlFlowGraph.Parameters.Count)));
+            eplilogue.Add(retInst);
+
+            
+            // save any global variable that might have be modified in function
+            foreach (VariableType variableType in tree.ControlFlowGraph.UsedGlobals)
+            {
+                // get instruction from liverange
+                var good = calliInstruction.LiveRange.Where((current) => (current.VArId?.Id ?? current.Arg1.IdKey) == variableType.Id);
+                if (good.Count() != 0)
+                {
+                    eplilogue.Add(new DlxInstruction(OpCodes.STW, (int)good.First().Reg, DlxInstruction.Globals, variableType.Address));
+                }
+            }
+
             // pop all the locals off the stack
             // pop all the parameters off the stack
-            // restore the Stack pointer
+            if ((tree.ControlFlowGraph.Parameters.Count +localSize) > 0)
+            {
+                eplilogue.Add(new DlxInstruction(OpCodes.SUBI, DlxInstruction.Sp, DlxInstruction.Sp,
+                    (4*tree.ControlFlowGraph.Parameters.Count) + localSize));
+            }
+
+
+            // restore old registers
+            for (int i = 0; i < Tree.DominatorTree.NumReg; i++)
+            {
+                eplilogue.Add(new DlxInstruction(OpCodes.POP, i, DlxInstruction.Sp, -4));
+            }
+
+            
             // restore the Frame pointer
+            var oldFp = new DlxInstruction(OpCodes.POP, DlxInstruction.Sp, DlxInstruction.Sp, -4);
+            eplilogue.Add(oldFp);
+
+            // restore the Stack pointer
+            var oldSp = new DlxInstruction(OpCodes.POP, DlxInstruction.Fp, DlxInstruction.Sp, -4);
+            eplilogue.Add(oldSp);
+
+            // pop current ret address off of the stack
+            var retAddr = new DlxInstruction(OpCodes.POP, DlxInstruction.RetAddr, DlxInstruction.Sp, -4);
+            eplilogue.Add(retAddr);
+
+
+            // allocate memory for a return value
+            var newVal = new DlxInstruction(OpCodes.POP, (int)calliInstruction.Reg, DlxInstruction.Sp, -4);
+            eplilogue.Add(newVal);
+
+            return eplilogue;
         }
     }
 }

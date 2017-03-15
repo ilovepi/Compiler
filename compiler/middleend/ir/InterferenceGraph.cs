@@ -28,6 +28,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using QuickGraph;
 
@@ -47,16 +48,26 @@ namespace compiler.middleend.ir
 
         private Stack<Instruction> _coloringStack = new Stack<Instruction>();
 
+        public bool useSupeNodes;
+
         // Colored and spilled instructions
         public Dictionary<Instruction, uint> GraphColors = new Dictionary<Instruction, uint>();
         public uint SpillCount = 32; // Virtual register to track spilled instructions, starts at reg 32
 
         public InterferenceGraph()
         {
+            useSupeNodes = true;
+        }
+
+        public InterferenceGraph(bool pUseSuper)
+        {
+            useSupeNodes = pUseSuper;
         }
 
         public InterferenceGraph(BasicBlock block)
         {
+            useSupeNodes = true;
+
             AddVertexRange(block.Instructions);
             Bb = block;
 
@@ -92,6 +103,32 @@ namespace compiler.middleend.ir
                 }
             }
         }
+
+        public void MakeSupernodes(Instruction otherInstruction, Instruction phiInstruction )
+        {
+
+            MakeSupernodes(otherInstruction);
+
+            var adjacent = AdjacentEdges(otherInstruction);
+            foreach (var edge in adjacent)
+            {
+                var other = edge.GetOtherVertex(otherInstruction);
+                var newEdge = new Edge<Instruction>(phiInstruction, other);
+
+                AddEdge(newEdge);
+                RemoveVertex(other);
+            }
+        }
+
+        private void MakeSupernodes(Instruction phiInst)
+        {
+            if (phiInst.Op == IrOps.Phi)
+            {
+                MakeSupernodes(phiInst.Arg1.Inst, phiInst);
+                MakeSupernodes(phiInst.Arg2.Inst, phiInst);
+            }
+        }
+
 
         private void ColorRecursive(UndirectedGraph<Instruction, Edge<Instruction>> curGraph)
         {

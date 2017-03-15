@@ -52,6 +52,7 @@ namespace compiler.middleend.ir
         Write,
         WriteNl,
         Kill,
-        Ssa
+        Ssa,
+        Call
     }
 }

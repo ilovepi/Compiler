@@ -53,7 +53,8 @@ namespace compiler.middleend.optimization
                     case IrOps.Blt:
                     case IrOps.Bge:
                     case IrOps.Bgt:
-                    case IrOps.Ssa:
+                    case IrOps.Write:
+                    case IrOps.WriteNl:
                         continue;
                 }
 
@@ -81,6 +82,10 @@ namespace compiler.middleend.optimization
             if ((arg?.Kind == Operand.OpType.Instruction) && (arg.Inst?.Op != IrOps.Ssa))
             {
                 live.Add(arg.Inst);
+            }
+            else if (arg?.Inst?.Op == IrOps.Ssa)
+            {
+                live.Add(arg.Inst.Arg1.Inst);
             }
         }
 

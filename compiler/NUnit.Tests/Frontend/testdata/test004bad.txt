@@ -10,7 +10,7 @@ var size,temp,i;
                 let arg[3] <- a3;
                 let arg[4] <- a4;
                 let arg[5] <- a5;
-                
+
                 let size <- 5;
                 let i <- 2;
                 let temp <- arg[1];
@@ -24,7 +24,7 @@ var size,temp,i;
                         let i <- i+1
                 od;
                 return temp
-        
+
 }
 ;
 {
@@ -33,8 +33,8 @@ var size,temp,i;
         let        input[3] <- 17;
         let        input[4] <- 34;
         let        input[5] <- 11;
-        
-        let        maxnumber <- call max(input[1],input[2],input[3],input[4],0)
-        
+
+        let        maxnumber <- call max(input[1],input[2],input[3],input[4])
+
 }
 .
