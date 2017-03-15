@@ -42,7 +42,6 @@ namespace compiler
     {
         public List<ParseTree> FuncList;
 
-
         public Compiler(CompilerOptions pOptions)
         {
             Opts = pOptions;
@@ -145,7 +144,6 @@ namespace compiler
             return straightFuncList;
         }
 
-
         private void PopulateDlxFunc()
         {
             DlxFunctions = new List<FunctionBuilder>();
@@ -167,20 +165,16 @@ namespace compiler
                 (current, func) => current + (func.DominatorTree.PrintTreeGraph(i++, func.ControlFlowGraph.Sym) + "\n"));
         }
 
-        private void GenInterferenceGraphString()
+        private string GenInterferenceGraphString()
         {
-            string mystring = string.Empty;
-            foreach (ParseTree parseTree in FuncList)
-            {
-                mystring += parseTree.DominatorTree.PrintInterference() + "\n";
-            }
+            return FuncList.Aggregate(string.Empty, (current, parseTree) => current + (parseTree.DominatorTree.PrintInterference() + "\n"));
         }
 
         private string GenControlGraphString()
         {
             var i = 0;
-            String s = string.Empty;
-            foreach (ParseTree func in FuncList)
+            var s = string.Empty;
+            foreach (var func in FuncList)
             {
                 func.ControlFlowGraph.GenerateDotOutput(i++);
                 s += func.ControlFlowGraph.DotOutput + "\n";
@@ -198,7 +192,6 @@ namespace compiler
                 {
                     restart = TransformIr(func, false);
                 } while (restart);
-
 
                 TransformIr(func, true);
 
@@ -229,7 +222,6 @@ namespace compiler
                 CsElimination.Eliminate(func.ControlFlowGraph.Root);
             }
 
-
             // Reevaluation
             if (Opts.DeadCode)
             {
@@ -242,7 +234,6 @@ namespace compiler
                 restart = Prune.StartPrune(func.ControlFlowGraph.Root);
                 func.ControlFlowGraph.Root.Consolidate();
                 func.DominatorTree = DominatorNode.ConvertCfg(func.ControlFlowGraph);
-                //restart = false;
             }
             return restart;
         }
@@ -304,7 +295,6 @@ namespace compiler
             GenControlGraphString();
             GenDomGraphString();
             GenInterferenceGraphString();
-
             GenStraightLineFunctions();
             GenInstructionListGraphString();
             GenDlxGraphString();
