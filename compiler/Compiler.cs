@@ -314,8 +314,8 @@ namespace compiler
                 GraphOutput = true,
                 CopyProp = true,
                 Cse = true,
-                DeadCode = false,
-                PruneCfg = false,
+                DeadCode = true,
+                PruneCfg = true,
                 RegAlloc = true,
                 InstSched = false,
                 CodeGen = false
