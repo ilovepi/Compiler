@@ -257,11 +257,16 @@ namespace compiler
             foreach (ParseTree parseTree in FuncList)
             {
                 var intGraph = parseTree.DominatorTree.IntGraph;
-                if (!intGraph.IsVerticesEmpty)
+                var newIntGraph = new InterferenceGraph();
+                HashSet<Instruction> visited = new HashSet<Instruction>();
+
+                foreach (var vertex in intGraph.Vertices)
                 {
-                    parseTree.DominatorTree.IntGraph = new InterferenceGraph(intGraph.PhiGlobber(intGraph.Vertices.First()));
+                     //newIntGraph.AddVerticesAndEdgeRange( (new InterferenceGraph(intGraph.PhiGlobber(vertex, visited))).Edges );
                     //intGraph.Color();
                 }
+
+               // parseTree.DominatorTree.IntGraph = newIntGraph;
             }
         }
 
@@ -329,7 +334,7 @@ namespace compiler
                 GraphOutput = true,
                 CopyProp = true,
                 Cse = true,
-                DeadCode = false,
+                DeadCode = true,
                 PruneCfg = false,
                 RegAlloc = true,
                 InstSched = false,

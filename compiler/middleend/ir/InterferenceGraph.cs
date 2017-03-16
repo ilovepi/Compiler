@@ -98,10 +98,27 @@ namespace compiler.middleend.ir
         {
             foreach (var instruction in block.Instructions)
             {
+
+                switch (instruction.Op)
+                {
+                    case IrOps.Bra:
+                    case IrOps.Bne:
+                    case IrOps.Beq:
+                    case IrOps.Ble:
+                    case IrOps.Blt:
+                    case IrOps.Bge:
+                    case IrOps.Bgt:
+                    case IrOps.Write:
+                    //case IrOps.Ssa:
+                        continue;
+                }
+
+
                 foreach (var item in instruction.LiveRange)
                 {
                     if (item != null)
                     {
+
                         AddVertex(instruction);
                         AddVertex(item);
 
@@ -113,19 +130,19 @@ namespace compiler.middleend.ir
                     }
                 }
             }
-
-            if (Vertices.Count() != 0)
-            {
-                PhiGlobber(Vertices.First());
-            }
         }
-        
 
-        public InterferenceGraph PhiGlobber(Instruction root)
+
+        public InterferenceGraph PhiGlobber(Instruction root, HashSet<Instruction> visited)
         {
             var globbed = new InterferenceGraph();
-            var visited = new HashSet<Instruction>();
+
             var q = new Queue<Instruction>();
+
+            if (visited.Contains(root))
+            {
+                return globbed;
+            }
 
             q.Enqueue(root);
             globbed.AddVertex(root);
@@ -144,7 +161,7 @@ namespace compiler.middleend.ir
                 }
 
                 // Generate list of children and iteratively glob phis 'til fixpoint
-                /*
+                //*
                 do
                 {
                     var newChildren = new List<Instruction>();
@@ -171,7 +188,7 @@ namespace compiler.middleend.ir
                     }
                     children = newChildren;
                 } while (phiRemoved);
-                */
+                //*/
 
                 // Actual BFS
                 foreach (var adoptedChild in children)
@@ -183,9 +200,9 @@ namespace compiler.middleend.ir
                             globbed.AddVertex(adoptedChild);
                         }
 
-                        var newEdge = new Edge<Instruction>(curNode, adoptedChild);
-                        if (!globbed.ContainsEdge(newEdge))
+                        if (!globbed.ContainsEdge(curNode, adoptedChild))
                         {
+                            var newEdge = new Edge<Instruction>(curNode, adoptedChild);
                             globbed.AddEdge(newEdge);
                         }
                         q.Enqueue(adoptedChild);
