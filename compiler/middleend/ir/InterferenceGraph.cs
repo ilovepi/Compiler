@@ -100,9 +100,8 @@ namespace compiler.middleend.ir
             }
         }
 
-        public void MakeSupernodes(Instruction otherInstruction, Instruction phiInstruction )
+        public void MakeSupernodes(Instruction otherInstruction, Instruction phiInstruction)
         {
-
             MakeSupernodes(otherInstruction);
 
             var adjacent = AdjacentEdges(otherInstruction);

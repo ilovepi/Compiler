@@ -42,7 +42,6 @@ namespace compiler.backend
         public const int RetAddr = 31;
 
 
-
         public DlxInstruction(OpCodes op, int a, int b, int c)
         {
             Op = op;
@@ -99,8 +98,8 @@ namespace compiler.backend
                     else
                     {
                         Op = OpCodes.LDW;
-                        A =  (int)inst.Reg;
-                        B =  inst.Arg1.Val;
+                        A = (int) inst.Reg;
+                        B = inst.Arg1.Val;
                         C = 0;
                         PutF1();
                     }
@@ -108,9 +107,9 @@ namespace compiler.backend
                 case IrOps.Store:
                     if ((inst.Arg1.Kind == Operand.OpType.Instruction) && (inst.Arg1.Inst.Op == IrOps.Adda))
                     {
-                        A =  inst.Arg1.Val;
-                        B =  inst.Arg1.Inst.Arg1.Val;
-                        C =  inst.Arg1.Inst.Arg2.Val;
+                        A = inst.Arg1.Val;
+                        B = inst.Arg1.Inst.Arg1.Val;
+                        C = inst.Arg1.Inst.Arg2.Val;
 
                         if (inst.Arg1.Inst.Arg2.Kind == Operand.OpType.Instruction)
                         {
@@ -129,8 +128,8 @@ namespace compiler.backend
                     {
                         // Else this is a normal store to a stack variable
                         Op = OpCodes.STW;
-                        A =  (int)inst.Reg;
-                        B =  inst.Arg1.Val;
+                        A = (int) inst.Reg;
+                        B = inst.Arg1.Val;
                         C = 0;
                         PutF1();
                     }
@@ -174,12 +173,12 @@ namespace compiler.backend
                     break;
                 case IrOps.Read:
                     Op = OpCodes.RDD;
-                    A =  inst.Arg1.Val;
+                    A = inst.Arg1.Val;
                     PutF2();
                     break;
                 case IrOps.Write:
                     Op = OpCodes.WRD;
-                    B =  inst.Arg1.Val;
+                    B = inst.Arg1.Val;
                     PutF2();
                     break;
                 case IrOps.WriteNl:
@@ -188,9 +187,9 @@ namespace compiler.backend
                     break;
                 case IrOps.Move:
                     //emulate a move instruction to copy with an OR operation
-                    Op = OpCodes.OR;
-                    A =  inst.Arg2.Val;
-                    B =  inst.Arg1.Val;
+                    Op = OpCodes.AND;
+                    A = inst.Arg2.Val;
+                    B = inst.Arg1.Val;
                     C = B;
                     PutF2();
                     break;
@@ -226,20 +225,19 @@ namespace compiler.backend
 
         public uint MachineCode { get; set; }
 
-        
 
         public string Colorname { get; set; }
 
         public void PutF1()
         {
             MachineCode = 0;
-            MachineCode = (uint)( ((int)Op << 26) | (A << 21) | (B << 16) | (C & 0xffff) );
+            MachineCode = (uint) (((int) Op << 26) | (A << 21) | (B << 16) | (C & 0xffff));
         }
 
         public void PutF2()
         {
             MachineCode = 0;
-            MachineCode = (uint)( ((int)Op << 26) | (A << 21) | (B << 16) | (C & 0x001f));
+            MachineCode = (uint) (((int) Op << 26) | (A << 21) | (B << 16) | (C & 0x001f));
         }
 
         public void PutF3()
@@ -254,14 +252,14 @@ namespace compiler.backend
             if (arg1.Kind == Operand.OpType.Constant)
             {
                 Op = opCode + 16;
-                var temp =  arg1.Val;
+                var temp = arg1.Val;
                 B = arg2.Val;
                 C = temp;
             }
             else
             {
                 Op = arg2.Kind == Operand.OpType.Constant ? opCode + 16 : opCode;
-                B =  arg1.Val;
+                B = arg1.Val;
                 C = arg2.Val;
             }
         }

@@ -68,7 +68,6 @@ namespace compiler.frontend
         public HashSet<string> Callgraph;
 
 
-
         /// <summary>
         ///     A stack of frame addresses -- esentially a list of frame pointers
         /// </summary>
@@ -459,7 +458,6 @@ namespace compiler.frontend
             {
                 Cfg func = FuncDecl(new VarTbl(varTble), cfg.Globals);
                 func.Globals = cfg.Globals;
-
             }
 
             GetExpected(Token.OPEN_CURL);
@@ -670,7 +668,7 @@ namespace compiler.frontend
             //TODO: Need a special address thing for functions
             //CreateIdentifier();
             Operand id = Identifier();
-            
+
             List<Instruction> loads = new List<Instruction>();
 
             if (Tok == Token.OPEN_PAREN)
@@ -763,18 +761,15 @@ namespace compiler.frontend
 
             foreach (var globalLoad in loads)
             {
-
-
                 var temp = variables[globalLoad.Arg1.IdKey];
-                if ( temp.Location != globalLoad)
+                if (temp.Location != globalLoad)
                 {
                     Instruction newInst = new Instruction(IrOps.Store, temp.Value,
                         new Operand(Operand.OpType.Constant, temp.UuId));
-                    
+
                     epilogue.Bb.AddInstruction(newInst);
                     cfg.UsedGlobals.Add(temp.Identity);
                 }
-
             }
 
             epilogue.Bb.AddInstruction(ret);
@@ -1304,23 +1299,21 @@ namespace compiler.frontend
             ProgramCfg.Name = "Main";
             ProgramCfg.Sym = Scanner.SymbolTble;
             ProgramCfg.UsedGlobals = new HashSet<VariableType>();
-           
         }
-
 
 
         public void FixCallGraphs(VarTbl variables)
         {
             foreach (Cfg function in FunctionsCfgs)
             {
-               HashSet<string> visitedhHashSet = new HashSet<string>();
-               function.UsedGlobals.UnionWith(CheckCalls(visitedhHashSet,function));
+                HashSet<string> visitedhHashSet = new HashSet<string>();
+                function.UsedGlobals.UnionWith(CheckCalls(visitedhHashSet, function));
                 var epilogue = function.Root.Leaf();
                 foreach (VariableType global in function.UsedGlobals)
                 {
                     var temp = variables[global.Id];
                     Instruction newInst = new Instruction(IrOps.Store, temp.Value,
-                            new Operand(Operand.OpType.Constant, global.Id));
+                        new Operand(Operand.OpType.Constant, global.Id));
                     epilogue.Bb.AddInstruction(newInst);
                 }
             }
@@ -1328,8 +1321,6 @@ namespace compiler.frontend
 
         public HashSet<VariableType> CheckCalls(HashSet<string> visited, Cfg func)
         {
-            
-
             var newGlobals = new HashSet<VariableType>(func.UsedGlobals);
             if (!visited.Contains(func.Name))
             {
@@ -1339,7 +1330,6 @@ namespace compiler.frontend
                     var found = FunctionsCfgs.Find((current) => current.Name == name);
                     newGlobals.UnionWith(CheckCalls(visited, found));
                 }
-                
             }
 
             return newGlobals;

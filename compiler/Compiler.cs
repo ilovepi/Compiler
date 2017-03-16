@@ -94,7 +94,7 @@ namespace compiler
 
             // quickgraph makes the files for us, so no using statement here
             GenInterferenceGraphString();
-            
+
 
             using (var file = new StreamWriter(Opts.DomFilename + ".code"))
             {
@@ -168,7 +168,8 @@ namespace compiler
 
         private string GenInterferenceGraphString()
         {
-            return FuncList.Aggregate(string.Empty, (current, parseTree) => current + (parseTree.DominatorTree.PrintInterference() + "\n"));
+            return FuncList.Aggregate(string.Empty,
+                (current, parseTree) => current + (parseTree.DominatorTree.PrintInterference() + "\n"));
         }
 
         private string GenControlGraphString()
@@ -292,8 +293,6 @@ namespace compiler
         }
 
 
-
-
         public void GenerateOutput()
         {
             GenerateGraphOutput();
@@ -312,7 +311,6 @@ namespace compiler
             GenStraightLineFunctions();
             GenInstructionListGraphString();
             GenDlxGraphString();
-
         }
 
 

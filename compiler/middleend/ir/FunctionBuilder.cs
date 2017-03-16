@@ -326,28 +326,34 @@ namespace compiler.middleend.ir
             List<DlxInstruction> eplilogue = new List<DlxInstruction>();
 
             // save return value back on stack, or in a register if that works
-            var retInst = new DlxInstruction(OpCodes.STX, retValReg , DlxInstruction.Sp, (-4*(3 + tree.DominatorTree.NumReg + calliInstruction.Parameters.Count + Tree.ControlFlowGraph.Parameters.Count)));
+            var retInst = new DlxInstruction(OpCodes.STX, retValReg, DlxInstruction.Sp,
+            (-4 *
+             (3 + tree.DominatorTree.NumReg + calliInstruction.Parameters.Count +
+              Tree.ControlFlowGraph.Parameters.Count)));
             eplilogue.Add(retInst);
 
-            
+
             // save any global variable that might have be modified in function
             foreach (VariableType variableType in tree.ControlFlowGraph.UsedGlobals)
             {
                 // get instruction from liverange
-                var good = calliInstruction.LiveRange.Where((current) => (current.VArId?.Id ?? current.Arg1.IdKey) == variableType.Id);
+                var good =
+                    calliInstruction.LiveRange.Where(
+                        (current) => (current.VArId?.Id ?? current.Arg1.IdKey) == variableType.Id);
                 var instructions = good as Instruction[] ?? good.ToArray();
                 if (instructions.Length != 0)
                 {
-                    eplilogue.Add(new DlxInstruction(OpCodes.STW, (int)instructions.First().Reg, DlxInstruction.Globals, variableType.Address));
+                    eplilogue.Add(new DlxInstruction(OpCodes.STW, (int) instructions.First().Reg, DlxInstruction.Globals,
+                        variableType.Address));
                 }
             }
 
             // pop all the locals off the stack
             // pop all the parameters off the stack
-            if ((tree.ControlFlowGraph.Parameters.Count +localSize) > 0)
+            if ((tree.ControlFlowGraph.Parameters.Count + localSize) > 0)
             {
                 eplilogue.Add(new DlxInstruction(OpCodes.SUBI, DlxInstruction.Sp, DlxInstruction.Sp,
-                    (4*tree.ControlFlowGraph.Parameters.Count) + localSize));
+                    (4 * tree.ControlFlowGraph.Parameters.Count) + localSize));
             }
 
 
@@ -356,7 +362,7 @@ namespace compiler.middleend.ir
             {
                 eplilogue.Add(new DlxInstruction(OpCodes.POP, i, DlxInstruction.Sp, -4));
             }
-            
+
             // restore the Frame pointer
             var oldFp = new DlxInstruction(OpCodes.POP, DlxInstruction.Sp, DlxInstruction.Sp, -4);
             eplilogue.Add(oldFp);
@@ -371,7 +377,7 @@ namespace compiler.middleend.ir
 
 
             // allocate memory for a return value
-            var newVal = new DlxInstruction(OpCodes.POP, (int)calliInstruction.Reg, DlxInstruction.Sp, -4);
+            var newVal = new DlxInstruction(OpCodes.POP, (int) calliInstruction.Reg, DlxInstruction.Sp, -4);
             eplilogue.Add(newVal);
 
             return eplilogue;
@@ -386,31 +392,28 @@ namespace compiler.middleend.ir
             int i;
             for (i = 0; i < Params.Count; i++)
             {
-                Params[i].Offset = -((i+1) * 4);
+                Params[i].Offset = -((i + 1) * 4);
             }
 
-           // locals can be arrays or ints
+            // locals can be arrays or ints
             for (i = 0; i < Locals.Count; i++)
             {
                 Locals[i].Offset = i;
-                i += Locals[i].Size*4;
+                i += Locals[i].Size * 4;
             }
 
-            
+
             for (int j = 0; j < MachineBody.Count; j++)
             {
                 MachineBody[j].Address = j;
             }
-            
+
 
             foreach (DlxInstruction inst in MachineBody)
             {
                 FixInstructions(inst);
             }
-
-            
         }
-
 
 
         public void FixInstructions(DlxInstruction inst)
@@ -420,7 +423,6 @@ namespace compiler.middleend.ir
 
             switch (inst.Op)
             {
-               
                 case OpCodes.BEQ:
                 case OpCodes.BNE:
                 case OpCodes.BLT:
@@ -430,7 +432,7 @@ namespace compiler.middleend.ir
                     int targetOffset;
                     if ((inst.irInst.Op == IrOps.Bra) || (inst.irInst.Op == IrOps.Ssa))
                     {
-                        targetOffset =inst.irInst.Arg1.Inst.MachineInst.Address;
+                        targetOffset = inst.irInst.Arg1.Inst.MachineInst.Address;
                     }
                     else
                     {
@@ -444,8 +446,8 @@ namespace compiler.middleend.ir
                             targetOffset = arg.MachineInst.Address;
                         }
                     }
-                    
-                    inst.C =  targetOffset - inst.Address;
+
+                    inst.C = targetOffset - inst.Address;
                     inst.PutF1();
                     break;
                 case OpCodes.JSR:
@@ -463,7 +465,7 @@ namespace compiler.middleend.ir
                 case OpCodes.MULI:
                 case OpCodes.DIVI:
                 case OpCodes.CMPI:
-                    inst.ImmediateOperands(inst.Op-16, inst.irInst.Arg1, inst.irInst.Arg2);
+                    inst.ImmediateOperands(inst.Op - 16, inst.irInst.Arg1, inst.irInst.Arg2);
                     break;
                 case OpCodes.LDW:
                     break;

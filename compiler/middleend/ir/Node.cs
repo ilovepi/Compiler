@@ -231,13 +231,13 @@ namespace compiler.middleend.ir
             }
             return Child?.GetNextInstruction();
         }
+
         public Instruction GetNextNonPhi()
         {
             if (Bb.Instructions.Count != 0)
             {
-               var res =  Bb.Instructions.FirstOrDefault((curr) => curr.Op != IrOps.Phi);
+                var res = Bb.Instructions.FirstOrDefault((curr) => curr.Op != IrOps.Phi);
                 return res ?? Child?.GetNextNonPhi();
-
             }
             return Child?.GetNextNonPhi();
         }
