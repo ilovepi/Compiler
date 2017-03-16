@@ -30,6 +30,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using QuickGraph;
 using QuickGraph.Algorithms.Search;
 
@@ -325,7 +326,7 @@ namespace compiler.middleend.ir
         */
 
 
-        private void ColorRecursive(UndirectedGraph<Instruction, Edge<Instruction>> curGraph)
+        private void ColorRecursive(InterferenceGraph curGraph)
         {
             // We have to spill if we don't find a vertex with low enough edges.
             bool spill = true;
@@ -365,19 +366,20 @@ namespace compiler.middleend.ir
 
         public void Color()
         {
-            Stack<Instruction> coloringStack = new Stack<Instruction>();
-            List<Instruction> spilledInstr = new List<Instruction>();
+            _coloringStack = new Stack<Instruction>();
 
             var _copy = new InterferenceGraph(this);
 
             // Call recursive coloring fxn with the mutable copy
             ColorRecursive(_copy);
 
+            int x = 5;
+
             // Until there are no more instructions to be colored...
-            while (coloringStack.Count != 0)
+            while (_coloringStack.Count != 0)
             {
                 // ... pop an instruction from the stack...
-                Instruction curInstr = coloringStack.Pop();
+                Instruction curInstr = _coloringStack.Pop();
 
                 // ... get a list of its neighbors' already assigned registers...
                 List<uint> neighborRegs = new List<uint>();

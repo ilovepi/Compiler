@@ -267,6 +267,7 @@ namespace compiler
                 }
 
                // parseTree.DominatorTree.IntGraph = newIntGraph;
+               intGraph.Color();
             }
         }
 
