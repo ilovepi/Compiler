@@ -35,11 +35,11 @@ namespace compiler.backend
 {
     public class CodeGenerator
     {
+        public List<ParseTree> Functions { get; set; }
+
         public CodeGenerator(List<ParseTree> functions)
         {
             Functions = functions;
         }
-
-        public List<ParseTree> Functions { get; set; }
     }
 }

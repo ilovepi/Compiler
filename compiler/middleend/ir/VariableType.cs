@@ -39,6 +39,16 @@ namespace compiler.middleend.ir
 
         public readonly bool IsArray;
 
+        public string Name { get; set; }
+
+        public int Id { get; set; }
+
+        public int Size { get; set; }
+
+        public int Offset { get; set; }
+
+        public int Address { get; set; }
+
         public VariableType()
         {
         }
@@ -87,16 +97,6 @@ namespace compiler.middleend.ir
             Size = size;
             Address = 0;
         }
-
-        public string Name { get; set; }
-
-        public int Id { get; set; }
-
-        public int Size { get; set; }
-
-        public int Offset { get; set; }
-
-        public int Address { get; set; }
 
         public virtual VariableType Clone()
         {

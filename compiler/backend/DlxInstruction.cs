@@ -41,6 +41,25 @@ namespace compiler.backend
         public const int Globals = 30;
         public const int RetAddr = 31;
 
+        public FunctionBuilder calledFunction;
+
+        public OpCodes Op { get; set; }
+
+        public int A { get; set; }
+
+        public int B { get; set; }
+
+        public int C { get; set; }
+
+        public int Address { get; set; }
+
+        public Instruction irInst { get; set; }
+
+        public uint MachineCode { get; set; }
+
+
+        public string Colorname { get; set; }
+
 
         public DlxInstruction(OpCodes op, int a, int b, int c)
         {
@@ -49,8 +68,6 @@ namespace compiler.backend
             B = b;
             C = c;
         }
-
-        public FunctionBuilder calledFunction;
 
         public DlxInstruction(Instruction inst)
         {
@@ -210,23 +227,6 @@ namespace compiler.backend
             irInst = inst;
             irInst.MachineInst = this;
         }
-
-        public OpCodes Op { get; set; }
-
-        public int A { get; set; }
-
-        public int B { get; set; }
-
-        public int C { get; set; }
-
-        public int Address { get; set; }
-
-        public Instruction irInst { get; set; }
-
-        public uint MachineCode { get; set; }
-
-
-        public string Colorname { get; set; }
 
         public void PutF1()
         {

@@ -35,6 +35,9 @@ namespace compiler.middleend.ir
 {
     public class CompareNode : Node
     {
+        public Node FalseNode { get; set; }
+        public JoinNode Join { get; set; }
+
         public CompareNode(BasicBlock pBb) : base(pBb, NodeTypes.CompareB)
         {
             Colorname = "cornflowerblue";
@@ -47,10 +50,6 @@ namespace compiler.middleend.ir
             Colorname = "cornflowerblue";
             FalseNode = null;
         }
-
-
-        public Node FalseNode { get; set; }
-        public JoinNode Join { get; set; }
 
 
         public void Insert(Node other, bool trueChild)

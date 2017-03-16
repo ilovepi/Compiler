@@ -35,6 +35,13 @@ namespace compiler.middleend.ir
 {
     public class BasicBlock
     {
+        public string Name { get; }
+        public List<Instruction> Instructions { get; set; }
+
+        public Anchor AnchorBlock { get; set; }
+
+        public Node.NodeTypes NodeType { get; set; }
+
         public BasicBlock()
         {
             Instructions = new List<Instruction>();
@@ -49,13 +56,6 @@ namespace compiler.middleend.ir
             AnchorBlock = new Anchor();
             //Graph = new InterferenceGraph();
         }
-
-        public string Name { get; }
-        public List<Instruction> Instructions { get; set; }
-
-        public Anchor AnchorBlock { get; set; }
-
-        public Node.NodeTypes NodeType { get; set; }
 
         //public InterferenceGraph Graph { get; set; }
 

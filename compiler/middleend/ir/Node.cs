@@ -29,7 +29,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
 using compiler.frontend;
 
 #endregion
@@ -52,6 +51,21 @@ namespace compiler.middleend.ir
         public int BlockNumber;
 
         public string Colorname = "khaki";
+
+        public BasicBlock Bb { get; set; }
+
+        public NodeTypes NodeType { get; set; }
+
+        /// <summary>
+        ///     Parent Node
+        /// </summary>
+        public Node Parent { get; set; }
+
+
+        /// <summary>
+        ///     Successor Node
+        /// </summary>
+        public Node Child { get; set; }
 
         /// <summary>
         ///     Constructor
@@ -78,21 +92,6 @@ namespace compiler.middleend.ir
             NodeType = n;
             Bb.NodeType = n;
         }
-
-        public BasicBlock Bb { get; set; }
-
-        public NodeTypes NodeType { get; set; }
-
-        /// <summary>
-        ///     Parent Node
-        /// </summary>
-        public Node Parent { get; set; }
-
-
-        /// <summary>
-        ///     Successor Node
-        /// </summary>
-        public Node Child { get; set; }
 
 
         /// <summary>

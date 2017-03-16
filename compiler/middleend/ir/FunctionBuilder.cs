@@ -38,32 +38,6 @@ namespace compiler.middleend.ir
     public class FunctionBuilder
     {
         /// <summary>
-        /// constructor
-        /// </summary>
-        /// <param name="parseTree">The parse tree of the function</param>
-        public FunctionBuilder(ParseTree parseTree)
-        {
-            Tree = parseTree;
-            Name = Tree.ControlFlowGraph.Name;
-            FrameSize = 0;
-            foreach (VariableType variableType in Tree.ControlFlowGraph.Parameters)
-            {
-                FrameSize += variableType.Size;
-            }
-
-            foreach (VariableType variableType in Tree.ControlFlowGraph.Locals)
-            {
-                FrameSize += variableType.Size;
-            }
-
-            FuncBody = GetInstructions(parseTree.DominatorTree.Root);
-
-
-            // Scale number of vars by size of int;
-            //FrameSize *= 4;
-        }
-
-        /// <summary>
         /// The Control Flow Graph, Dominator Tree, & Interference Graph of the function
         /// </summary>
         public ParseTree Tree { get; set; }
@@ -101,6 +75,32 @@ namespace compiler.middleend.ir
         public HashSet<VariableType> UsedGlobals => Tree.ControlFlowGraph.UsedGlobals;
         public List<VariableType> Params => Tree.ControlFlowGraph.Parameters;
         public List<VariableType> Locals => Tree.ControlFlowGraph.Locals;
+
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="parseTree">The parse tree of the function</param>
+        public FunctionBuilder(ParseTree parseTree)
+        {
+            Tree = parseTree;
+            Name = Tree.ControlFlowGraph.Name;
+            FrameSize = 0;
+            foreach (VariableType variableType in Tree.ControlFlowGraph.Parameters)
+            {
+                FrameSize += variableType.Size;
+            }
+
+            foreach (VariableType variableType in Tree.ControlFlowGraph.Locals)
+            {
+                FrameSize += variableType.Size;
+            }
+
+            FuncBody = GetInstructions(parseTree.DominatorTree.Root);
+
+
+            // Scale number of vars by size of int;
+            //FrameSize *= 4;
+        }
 
 
         /// <summary>

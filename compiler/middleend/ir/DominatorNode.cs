@@ -50,6 +50,16 @@ namespace compiler.middleend.ir
 
         public string Colorname;
 
+        /// <summary>
+        ///     The basic block of the node
+        /// </summary>
+        public BasicBlock Bb { get; set; }
+
+        /// <summary>
+        ///     The parent of this node
+        /// </summary>
+        public DominatorNode Parent { get; set; }
+
 
         /// <summary>
         ///     constructor
@@ -61,16 +71,6 @@ namespace compiler.middleend.ir
             Parent = null;
             Children = new List<DominatorNode>();
         }
-
-        /// <summary>
-        ///     The basic block of the node
-        /// </summary>
-        public BasicBlock Bb { get; set; }
-
-        /// <summary>
-        ///     The parent of this node
-        /// </summary>
-        public DominatorNode Parent { get; set; }
 
         public bool Equals(DominatorNode other)
         {

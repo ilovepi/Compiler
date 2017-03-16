@@ -41,17 +41,7 @@ namespace compiler.frontend
         private readonly bool _copyPropagationEnabled;
         private readonly string _filename;
 
-        public Parser(string pFileName, bool pCopyPropEnabled)
-        {
-            _filename = pFileName;
-            _copyPropagationEnabled = pCopyPropEnabled;
-
-            Tok = Token.UNKNOWN;
-            Scanner = new Lexer(_filename);
-            ProgramCfg = new Cfg();
-            FunctionsCfgs = new List<Cfg>();
-            VarTable = new VarTbl();
-        }
+        public HashSet<string> Callgraph;
 
         public Token Tok { get; set; }
 
@@ -65,8 +55,6 @@ namespace compiler.frontend
 
         public VarTbl VarTable { get; set; }
 
-        public HashSet<string> Callgraph;
-
 
         /// <summary>
         ///     A stack of frame addresses -- esentially a list of frame pointers
@@ -77,6 +65,18 @@ namespace compiler.frontend
         public Cfg ProgramCfg { get; set; }
 
         public List<Cfg> FunctionsCfgs { get; set; }
+
+        public Parser(string pFileName, bool pCopyPropEnabled)
+        {
+            _filename = pFileName;
+            _copyPropagationEnabled = pCopyPropEnabled;
+
+            Tok = Token.UNKNOWN;
+            Scanner = new Lexer(_filename);
+            ProgramCfg = new Cfg();
+            FunctionsCfgs = new List<Cfg>();
+            VarTable = new VarTbl();
+        }
 
         public void Dispose()
         {

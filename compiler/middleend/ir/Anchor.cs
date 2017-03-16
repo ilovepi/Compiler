@@ -35,12 +35,12 @@ namespace compiler.middleend.ir
 {
     public class Anchor
     {
+        public List<List<Instruction>> Oplist { get; set; }
+
         public Anchor()
         {
             Oplist = new List<List<Instruction>>();
         }
-
-        public List<List<Instruction>> Oplist { get; set; }
 
         /// <summary>
         ///     Insert the specified inst. into the Anchor lists

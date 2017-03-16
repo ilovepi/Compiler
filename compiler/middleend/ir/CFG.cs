@@ -38,6 +38,8 @@ namespace compiler.middleend.ir
         private Queue<Node> _q = new Queue<Node>();
         private HashSet<Node> _visited = new HashSet<Node>();
 
+        public HashSet<string> Callgraph;
+
         // External data for BFS
         //private int BlockCount = 0;
         public string DotOutput = string.Empty;
@@ -48,7 +50,11 @@ namespace compiler.middleend.ir
 
         public HashSet<VariableType> UsedGlobals;
 
-        public HashSet<string> Callgraph;
+        public SymbolTable Sym { get; set; }
+
+        public string Name { get; set; }
+
+        public Node Root { get; set; }
 
         // may not need these
         //public Node Curr { get; set; }
@@ -64,12 +70,6 @@ namespace compiler.middleend.ir
             Sym = pSymbolTable;
             Root = null;
         }
-
-        public SymbolTable Sym { get; set; }
-
-        public string Name { get; set; }
-
-        public Node Root { get; set; }
 
         public void Insert(Node subTree)
         {

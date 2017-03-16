@@ -41,17 +41,17 @@ namespace compiler.middleend.ir
         public string GraphOutput;
         public string Name;
 
-        public DomTree()
-        {
-            Root = null;
-            NumReg = 0;
-        }
+        public int NumReg;
 
         public InterferenceGraph IntGraph { get; set; }
 
         public DominatorNode Root { get; set; }
 
-        public int NumReg;
+        public DomTree()
+        {
+            Root = null;
+            NumReg = 0;
+        }
 
         public string PrintTreeGraph(int n, SymbolTable sym)
         {

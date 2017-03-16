@@ -28,6 +28,21 @@ namespace compiler.middleend.ir
 {
     public class SsaVariable
     {
+        public VariableType Identity { get; set; }
+
+        public int UuId { get; set; }
+
+        public Instruction Location { get; set; }
+
+        /// <summary>
+        ///     Previous Instruction
+        /// </summary>
+        public Instruction Prev { get; set; }
+
+        public string Name { get; set; }
+
+        public Operand Value { get; set; }
+
         public SsaVariable(SsaVariable other)
         {
             Name = other.Name;
@@ -54,21 +69,6 @@ namespace compiler.middleend.ir
             Location = plocation;
             UuId = puuid;
         }
-
-        public VariableType Identity { get; set; }
-
-        public int UuId { get; set; }
-
-        public Instruction Location { get; set; }
-
-        /// <summary>
-        ///     Previous Instruction
-        /// </summary>
-        public Instruction Prev { get; set; }
-
-        public string Name { get; set; }
-
-        public Operand Value { get; set; }
 
         public override string ToString()
         {

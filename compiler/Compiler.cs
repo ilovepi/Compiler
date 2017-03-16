@@ -42,14 +42,14 @@ namespace compiler
     {
         public List<ParseTree> FuncList;
 
+        public List<FunctionBuilder> DlxFunctions { get; set; }
+
+        public CompilerOptions Opts { get; }
+
         public Compiler(CompilerOptions pOptions)
         {
             Opts = pOptions;
         }
-
-        public List<FunctionBuilder> DlxFunctions { get; set; }
-
-        public CompilerOptions Opts { get; }
 
         public void Parse()
         {

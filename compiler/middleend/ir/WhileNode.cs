@@ -35,6 +35,10 @@ namespace compiler.middleend.ir
 {
     public class WhileNode : CompareNode
     {
+        //public Node FalseNode { get; set; }
+
+
+        public Node LoopParent { get; set; }
         //todo: rightnow we insert on the false node, but we need to fix that
         public WhileNode(BasicBlock pBb) : base(pBb, NodeTypes.WhileB)
         {
@@ -43,11 +47,6 @@ namespace compiler.middleend.ir
             FalseNode = null;
             LoopParent = null;
         }
-
-        //public Node FalseNode { get; set; }
-
-
-        public Node LoopParent { get; set; }
 
 
         public override void CheckEnqueue(Cfg cfg)
