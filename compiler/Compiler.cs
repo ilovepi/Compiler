@@ -356,10 +356,14 @@ namespace compiler
             c.GenerateOutput();
         }
 
-        public static void TestRun(string pFilename)
+        public static void TestRun(string pFilename, bool copyprop, bool cse, bool deadcode, bool prune)
         {
             //TODO make this a commandline program with args parsing
             CompilerOptions opts = DefaultOpts(pFilename);
+            opts.CopyProp = copyprop;
+            opts.Cse = cse;
+            opts.DeadCode = deadcode;
+            opts.PruneCfg = prune;
             var c = new Compiler(opts);
             c.Parse();
             c.Optimize();
