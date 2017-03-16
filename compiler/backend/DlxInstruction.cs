@@ -122,13 +122,14 @@ namespace compiler.backend
                     }
                     break;
                 case IrOps.Store:
-                    if ((inst.Arg1.Kind == Operand.OpType.Instruction) && (inst.Arg1.Inst.Op == IrOps.Adda))
+                    if ((inst.Arg1.Kind == Operand.OpType.Instruction) && (inst.Arg2.Inst?.Op == IrOps.Adda))
                     {
                         A = inst.Arg1.Val;
-                        B = inst.Arg1.Inst.Arg1.Val;
-                        C = inst.Arg1.Inst.Arg2.Val;
+                        B = inst.Arg2.Inst.Arg2.Val;
+                        C = inst.Arg1.Inst.Arg1.Val;
+                        //C = inst.Arg1.Val;
 
-                        if (inst.Arg1.Inst.Arg2.Kind == Operand.OpType.Instruction)
+                        if (inst.Arg2.Inst.Arg2.Kind == Operand.OpType.Instruction)
                         {
                             // Store stuff in an array using instructions
                             Op = OpCodes.STW;
@@ -213,7 +214,7 @@ namespace compiler.backend
                 case IrOps.Call:
                     Op = OpCodes.JSR;
                     C = inst.Offset;
-                    PutF1();
+                    PutF3();
                     break;
                 case IrOps.Adda:
                 case IrOps.Phi:

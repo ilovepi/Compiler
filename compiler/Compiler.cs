@@ -363,8 +363,9 @@ namespace compiler
             var c = new Compiler(opts);
             c.Parse();
             c.Optimize();
-            c.GenerateTestOutput();
             c.RegisterAllocation();
+            c.GenerateTestOutput();
+            
         }
     }
 }

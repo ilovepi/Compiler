@@ -99,7 +99,7 @@ namespace compiler.middleend.optimization
 
             foreach (var bbInstruction in root.Bb.Instructions)
             {
-                if ((bbInstruction.Op != IrOps.Phi) && (bbInstruction.Op != IrOps.Load))
+                if ((bbInstruction.Op != IrOps.Phi) && (bbInstruction.Op != IrOps.Load) && (bbInstruction.Op != IrOps.Adda))
                 {
                     if ((bbInstruction.Arg1.Kind == Operand.OpType.Constant) &&
                         (bbInstruction.Arg2?.Kind == Operand.OpType.Constant))
