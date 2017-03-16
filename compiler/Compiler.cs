@@ -249,7 +249,17 @@ namespace compiler
 
             foreach (ParseTree parseTree in FuncList)
             {
-                parseTree.DominatorTree.IntGraph.Color();
+                var intGraph = parseTree.DominatorTree.IntGraph;
+                var newIntGraph = new InterferenceGraph();
+                HashSet<Instruction> visited = new HashSet<Instruction>();
+
+                foreach (var vertex in intGraph.Vertices)
+                {
+                     //newIntGraph.AddVerticesAndEdgeRange( (new InterferenceGraph(intGraph.PhiGlobber(vertex, visited))).Edges );
+                    //intGraph.Color();
+                }
+
+               // parseTree.DominatorTree.IntGraph = newIntGraph;
             }
         }
 
@@ -342,6 +352,7 @@ namespace compiler
             var c = new Compiler(opts);
             c.Parse();
             c.Optimize();
+            c.RegisterAllocation();
             c.GenerateOutput();
         }
 

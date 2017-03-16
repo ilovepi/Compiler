@@ -1,9 +1,10 @@
 //Basic if statement test
 main
-var a, b;
+#var a, b;
+procedure foo(a,b);
 {
-	let a <- 1;
-	let b <- 2;
+	#let a <- 1;
+	#let b <- 2;
 	if a > b then
 		let a <- a + 1
 	else
@@ -16,4 +17,7 @@ var a, b;
 	
 	call OutputNum(a);
 	call OutputNum(b)
+};
+{
+    call foo(1,2)
 }.

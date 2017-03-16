@@ -45,8 +45,34 @@ namespace compiler.middleend.optimization
             {
                 switch (inst.Op)
                 {
-                    case IrOps.End:
                     case IrOps.Bra:
+                    case IrOps.End:
+                    case IrOps.WriteNl:
+                        continue;
+                }
+
+
+                // add this instruction's operands to the live range
+
+
+
+                if (live.Contains(inst))
+                {
+                    // remove this instruction from the live range
+                    //live.Remove(inst);
+                    live.Remove(inst);
+                }
+
+                inst.LiveRange.UnionWith(live);
+
+
+                // add arguments to the live range
+                AddArgToLiveRange(inst.Arg1, live);
+
+
+                switch (inst.Op)
+                {
+
                     case IrOps.Bne:
                     case IrOps.Beq:
                     case IrOps.Ble:
@@ -54,22 +80,14 @@ namespace compiler.middleend.optimization
                     case IrOps.Bge:
                     case IrOps.Bgt:
                     case IrOps.Write:
-                    case IrOps.WriteNl:
-                        continue;
+                        break;
+                    default:
+                        AddArgToLiveRange(inst.Arg2, live);
+                        break;
                 }
 
-                AddArgToLiveRange(inst.Arg1, live);
 
-                AddArgToLiveRange(inst.Arg2, live);
 
-                // add this instruction's operands to the live range
-                inst.LiveRange.UnionWith(live);
-
-                if (inst.LiveRange.Contains(inst))
-                {
-                    // remove this instruction from the live range
-                    inst.LiveRange.Remove(inst);
-                }
             }
 
             intGraph.AddInterferenceEdges(d.Bb);
@@ -126,7 +144,9 @@ namespace compiler.middleend.optimization
                 else
                 {
                     singleBlock = false;
-                    newRange.UnionWith(GenerateRanges(child, firstRange, intGraph));
+                    var temprange = GenerateRanges(child, firstRange, intGraph);
+                    temprange.IntersectWith(firstRange);
+                    newRange.UnionWith(temprange);
                 }
             }
 
