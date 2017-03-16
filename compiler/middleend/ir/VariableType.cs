@@ -35,7 +35,7 @@ namespace compiler.middleend.ir
     public class VariableType
     {
         public const int Dword = 4;
-        public static int CurrOffset = 0;
+        public static int CurrOffset;
 
         public readonly bool IsArray;
 
@@ -53,6 +53,7 @@ namespace compiler.middleend.ir
         {
         }
 
+        /*
         // constructor for normal variables
         public VariableType(int pId, int pOffset)
         {
@@ -75,6 +76,7 @@ namespace compiler.middleend.ir
             Size = 1;
             Address = 0;
         }
+        */
 
         // constructor for normal variables
         public VariableType(string pName, int pId)
@@ -103,10 +105,11 @@ namespace compiler.middleend.ir
             return new VariableType(Name, Id, Offset, Size, IsArray);
         }
 
-
+        /*
         public void Allocate(int baseAddr)
         {
             Address = baseAddr + (Offset * Dword);
         }
+        */
     }
 }

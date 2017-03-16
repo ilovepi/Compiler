@@ -42,18 +42,22 @@ namespace compiler.middleend.ir
 
         public Node.NodeTypes NodeType { get; set; }
 
+        public int NestingDepth { get; set; }
+
         public BasicBlock()
         {
             Instructions = new List<Instruction>();
             AnchorBlock = new Anchor();
+            NestingDepth = 1;
             //Graph = new InterferenceGraph();
         }
 
-        public BasicBlock(string pName)
+        public BasicBlock(string pName, int pNestingDetph)
         {
             Instructions = new List<Instruction>();
             Name = pName;
             AnchorBlock = new Anchor();
+            NestingDepth = pNestingDetph;
             //Graph = new InterferenceGraph();
         }
 

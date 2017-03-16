@@ -40,11 +40,11 @@ namespace compiler.middleend.ir
         /// <summary>
         ///     Global instruction counter for all IR instructions
         /// </summary>
-        public static int InstructionCounter;
+        private static int _instructionCounter;
 
         public string Colorname;
 
-        public int Offset;
+        public int Offset { get; set; }
 
         public DlxInstruction MachineInst { get; set; }
 
@@ -125,8 +125,8 @@ namespace compiler.middleend.ir
 
         public Instruction(IrOps pOp, Operand pArg1, Operand pArg2)
         {
-            InstructionCounter++;
-            Num = InstructionCounter;
+            _instructionCounter++;
+            Num = _instructionCounter;
 
             Op = pOp;
             Arg1 = pArg1;
@@ -168,7 +168,7 @@ namespace compiler.middleend.ir
             }
         }
 
-        public void AddInstructionRef(Operand op)
+        private void AddInstructionRef(Operand op)
         {
             if (op == null)
             {

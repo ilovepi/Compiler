@@ -40,7 +40,7 @@ namespace compiler.middleend.ir
         /// <summary>
         ///     The Global set of visited nodes
         /// </summary>
-        public static HashSet<Node> Visited;
+        private static HashSet<Node> _visited;
 
         /// <summary>
         ///     The Nodes which this basic block directly dominates
@@ -152,7 +152,7 @@ namespace compiler.middleend.ir
         /// <param name="controlFlow">Control flow graph.</param>
         public static DomTree ConvertCfg(Cfg controlFlow)
         {
-            Visited = new HashSet<Node>();
+            _visited = new HashSet<Node>();
             var d = new DomTree
             {
                 Root = controlFlow.Root.ConvertNode(),
@@ -174,9 +174,9 @@ namespace compiler.middleend.ir
                 return;
             }
 
-            if (!Visited.Contains(n))
+            if (!_visited.Contains(n))
             {
-                Visited.Add(n);
+                _visited.Add(n);
                 InsertChild(n.ConvertNode());
             }
         }
@@ -262,7 +262,7 @@ namespace compiler.middleend.ir
         ///     Dots the identifier.
         /// </summary>
         /// <returns>The identifier.</returns>
-        public string DotId()
+        private string DotId()
         {
             string ret = Bb.Name;
             if (Bb.Instructions.Count != 0)
@@ -272,7 +272,7 @@ namespace compiler.middleend.ir
             return ret;
         }
 
-        public string DotLabel(SymbolTable pSymbolTable)
+        private string DotLabel(SymbolTable pSymbolTable)
         {
             string label = Bb.Name;
             var slot = 0;

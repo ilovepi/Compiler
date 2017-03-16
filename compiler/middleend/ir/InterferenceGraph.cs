@@ -28,10 +28,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using QuickGraph;
-using QuickGraph.Algorithms.Search;
 
 #endregion
 
@@ -49,7 +47,7 @@ namespace compiler.middleend.ir
 
         private Stack<Instruction> _coloringStack = new Stack<Instruction>();
 
-        public bool useSupeNodes;
+        public bool UseSupeNodes;
 
         // Colored and spilled instructions
         public Dictionary<Instruction, uint> GraphColors = new Dictionary<Instruction, uint>();
@@ -57,17 +55,17 @@ namespace compiler.middleend.ir
 
         public InterferenceGraph()
         {
-            useSupeNodes = true;
+            UseSupeNodes = true;
         }
 
         public InterferenceGraph(bool pUseSuper)
         {
-            useSupeNodes = pUseSuper;
+            UseSupeNodes = pUseSuper;
         }
 
         public InterferenceGraph(BasicBlock block)
         {
-            useSupeNodes = true;
+            UseSupeNodes = true;
 
             AddVertexRange(block.Instructions);
             Bb = block;
@@ -368,10 +366,10 @@ namespace compiler.middleend.ir
             Stack<Instruction> coloringStack = new Stack<Instruction>();
             List<Instruction> spilledInstr = new List<Instruction>();
 
-            var _copy = new InterferenceGraph(this);
+            var copy = new InterferenceGraph(this);
 
             // Call recursive coloring fxn with the mutable copy
-            ColorRecursive(_copy);
+            ColorRecursive(copy);
 
             // Until there are no more instructions to be colored...
             while (coloringStack.Count != 0)

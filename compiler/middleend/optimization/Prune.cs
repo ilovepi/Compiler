@@ -35,7 +35,7 @@ using compiler.middleend.ir;
 
 namespace compiler.middleend.optimization
 {
-    internal class Prune
+    internal static class Prune
     {
         private static HashSet<Node> _visited;
 
@@ -53,8 +53,6 @@ namespace compiler.middleend.optimization
             }
 
             _visited.Add(root);
-
-            bool mutatedGraph = false;
 
             if (root.GetType() == typeof(CompareNode))
             {
@@ -141,12 +139,7 @@ namespace compiler.middleend.optimization
 
             List<Node> children = root.GetAllChildren();
 
-            foreach (Node child in children)
-            {
-                mutatedGraph = (mutatedGraph || PruneBranches(child));
-            }
-
-            return mutatedGraph;
+            return children.Aggregate(false, (current, child) => (current || PruneBranches(child)));
         }
     }
 }

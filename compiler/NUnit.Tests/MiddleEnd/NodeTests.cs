@@ -38,10 +38,11 @@ namespace NUnit.Tests.MiddleEnd
     [TestFixture]
     public class NodeTests
     {
+        private int nestingDepth = 1;
         [SetUp]
         public void Init()
         {
-            Root = new Node(new BasicBlock("Test Block"));
+            Root = new Node(new BasicBlock("Test Block", nestingDepth));
         }
 
         public Node Root { get; set; }
@@ -71,9 +72,9 @@ namespace NUnit.Tests.MiddleEnd
 
             Root.Bb.Instructions.Add(inst1);
 
-            Root.Insert(new Node(new BasicBlock("Child Block")));
+            Root.Insert(new Node(new BasicBlock("Child Block", nestingDepth)));
             Root.Child.Bb.Instructions.Add(inst2);
-            Root.Insert(new Node(new BasicBlock("Child Block 2")));
+            Root.Insert(new Node(new BasicBlock("Child Block 2", nestingDepth)));
 
             Root.Consolidate();
             Assert.AreEqual(Root, Node.Leaf(Root));
@@ -94,20 +95,20 @@ namespace NUnit.Tests.MiddleEnd
 
             Root.Bb.Instructions.Add(inst1);
 
-            Root.Insert(new Node(new BasicBlock("Child Block")));
+            Root.Insert(new Node(new BasicBlock("Child Block", nestingDepth)));
             Root.Child.Bb.Instructions.Add(inst2);
 
 
             Assert.AreEqual(Root.Child.Bb.Instructions.Last(), Root.GetLastInstruction());
-            Root.Insert(new Node(new BasicBlock("Child Block 2")));
+            Root.Insert(new Node(new BasicBlock("Child Block 2", nestingDepth)));
 
             Root.Leaf().Bb.Instructions.Add(inst2);
             Root.Leaf().Bb.Instructions.Add(inst1);
 
             Assert.AreEqual(inst1, Root.GetLastInstruction());
 
-            Root.Insert(new Node(new BasicBlock("Almost Last Block")));
-            Root.Insert(new Node(new BasicBlock("lastBlock")));
+            Root.Insert(new Node(new BasicBlock("Almost Last Block", nestingDepth)));
+            Root.Insert(new Node(new BasicBlock("lastBlock", nestingDepth)));
 
             Assert.AreEqual(inst1, Root.GetLastInstruction());
         }
@@ -124,9 +125,9 @@ namespace NUnit.Tests.MiddleEnd
 
             Root.Bb.Instructions.Add(inst1);
 
-            Root.Insert(new Node(new BasicBlock("Child Block")));
+            Root.Insert(new Node(new BasicBlock("Child Block", nestingDepth)));
             Root.Child.Bb.Instructions.Add(inst2);
-            Root.Insert(new Node(new BasicBlock("Child Block 2")));
+            Root.Insert(new Node(new BasicBlock("Child Block 2", nestingDepth)));
 
             Assert.AreEqual(Root.Bb.Instructions.First(), Root.GetNextInstruction());
         }
@@ -136,11 +137,11 @@ namespace NUnit.Tests.MiddleEnd
         {
             Assert.IsTrue(Root.IsRoot());
 
-            Root.Insert(new Node(new BasicBlock("Child Block")));
+            Root.Insert(new Node(new BasicBlock("Child Block", nestingDepth)));
 
             Assert.IsFalse(Root.Child.IsRoot());
 
-            Root.Insert(new Node(new BasicBlock("Child Block 2")));
+            Root.Insert(new Node(new BasicBlock("Child Block 2", nestingDepth)));
         }
 
         [Test]
@@ -148,7 +149,7 @@ namespace NUnit.Tests.MiddleEnd
         {
             Assert.IsTrue(Root.IsRoot());
 
-            Root.Insert(new Node(new BasicBlock("Child Block")));
+            Root.Insert(new Node(new BasicBlock("Child Block", nestingDepth)));
 
             Assert.IsFalse(Root.Child.IsRoot());
         }
@@ -157,8 +158,8 @@ namespace NUnit.Tests.MiddleEnd
         [Test]
         public void LeafReturnsChildTest()
         {
-            Root.Insert(new Node(new BasicBlock("Child Block")));
-            Root.Insert(new Node(new BasicBlock("Child Block 2")));
+            Root.Insert(new Node(new BasicBlock("Child Block", nestingDepth)));
+            Root.Insert(new Node(new BasicBlock("Child Block 2", nestingDepth)));
             Assert.AreNotEqual(Root, Node.Leaf(Root));
             Assert.AreNotEqual(Root.Child, Node.Leaf(Root));
         }
@@ -190,7 +191,7 @@ namespace NUnit.Tests.MiddleEnd
 
             Root.Bb.Instructions.Add(inst1);
 
-            Root.Insert(new Node(new BasicBlock("Child Block")));
+            Root.Insert(new Node(new BasicBlock("Child Block", nestingDepth)));
             Root.Child.Bb.Instructions.Add(inst2);
 
             Node.NodeTypes temp = Root.NodeType;
@@ -201,17 +202,20 @@ namespace NUnit.Tests.MiddleEnd
         [Test]
         public void WhileNodeTest()
         {
-            var n = new WhileNode(new BasicBlock("BB"));
+            var n = new WhileNode(new BasicBlock("BB", nestingDepth));
             Assert.AreEqual(n, n.Leaf());
             Instruction i = n.GetLastInstruction();
             Assert.Null(i);
-            n.Insert(new WhileNode(new BasicBlock("BB")));
+            n.Insert(new WhileNode(new BasicBlock("BB", nestingDepth)));
             i = n.GetLastInstruction();
+            Assert.Null(i);
             n.Bb.AddInstruction(new Instruction(IrOps.Add, null, null));
             i = n.GetLastInstruction();
+            Assert.NotNull(i);
             n.Consolidate();
             n.FalseNode = null;
             i = n.GetLastInstruction();
+            Assert.NotNull(i);
             n.Consolidate();
         }
     }

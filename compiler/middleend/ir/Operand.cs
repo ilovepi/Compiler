@@ -201,8 +201,9 @@ namespace compiler.middleend.ir
                     return "(" + val + ")";
                 case OpType.Register:
                     return "R" + Val;
+                default:
+                    return "ERROR!!!";
             }
-            return "ERROR!!!";
         }
 
 

@@ -45,10 +45,10 @@ namespace compiler.middleend.ir
             WhileB
         }
 
-        public static int BlockId;
+        private static int BlockId;
 
 
-        public int BlockNumber;
+        private readonly int _blockNumber;
 
         public string Colorname = "khaki";
 
@@ -74,7 +74,7 @@ namespace compiler.middleend.ir
         public Node(BasicBlock pBb)
         {
             BlockId++;
-            BlockNumber = BlockId;
+            _blockNumber = BlockId;
             Bb = pBb;
             Parent = null;
             Child = null;
@@ -85,7 +85,7 @@ namespace compiler.middleend.ir
         public Node(BasicBlock pBb, NodeTypes n)
         {
             BlockId++;
-            BlockNumber = BlockId;
+            _blockNumber = BlockId;
             Bb = pBb;
             Parent = null;
             Child = null;
@@ -208,7 +208,7 @@ namespace compiler.middleend.ir
         }
 
 
-        public void CircularRef(Node childNode)
+        protected void CircularRef(Node childNode)
         {
             if (ReferenceEquals(this, childNode))
             {
@@ -265,7 +265,7 @@ namespace compiler.middleend.ir
 
         public string DotId()
         {
-            return Bb.Name + BlockNumber;
+            return Bb.Name + _blockNumber;
         }
 
         public string DotLabel(SymbolTable pSymbolTable)

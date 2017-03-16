@@ -33,7 +33,7 @@ using compiler.middleend.ir;
 
 namespace compiler.middleend.optimization
 {
-    public class CopyPropagation
+    public static class CopyPropagation
     {
         private static HashSet<Node> _visited;
 
@@ -97,9 +97,8 @@ namespace compiler.middleend.optimization
             visited.Add(root);
             var removalList = new List<Instruction>();
 
-            for (int i = 0; i < root.Bb.Instructions.Count; i++)
+            foreach (var bbInstruction in root.Bb.Instructions)
             {
-                var bbInstruction = root.Bb.Instructions[i];
                 if ((bbInstruction.Op != IrOps.Phi) && (bbInstruction.Op != IrOps.Load))
                 {
                     if ((bbInstruction.Arg1.Kind == Operand.OpType.Constant) &&
@@ -107,10 +106,6 @@ namespace compiler.middleend.optimization
                     {
                         FoldValue(bbInstruction, removalList);
                     }
-                }
-                else if (bbInstruction.Op == IrOps.Cmp)
-                {
-                    FoldComparison();
                 }
             }
 
@@ -153,10 +148,6 @@ namespace compiler.middleend.optimization
 
             inst.FoldConst(result);
             removalList.Add(inst);
-        }
-
-        public static void FoldComparison()
-        {
         }
     }
 }

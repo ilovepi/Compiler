@@ -419,7 +419,9 @@ namespace compiler.middleend.ir
         public void FixInstructions(DlxInstruction inst)
         {
             if (inst.IrInst == null)
+            {
                 return;
+            }
 
             switch (inst.Op)
             {

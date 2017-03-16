@@ -58,11 +58,7 @@ namespace compiler.middleend.ir
 
         public override Node Leaf()
         {
-            if (FalseNode == null)
-            {
-                return this;
-            }
-            return FalseNode.Leaf();
+            return FalseNode == null ? this : FalseNode.Leaf();
         }
 
 
@@ -106,15 +102,19 @@ namespace compiler.middleend.ir
                 return Bb.Instructions.Last();
             }
             Instruction ret = FalseNode.GetLastInstruction();
-            if (ret == null)
+
+            if (ret != null)
             {
-                if (Bb.Instructions.Count == 0)
-                {
-                    return null;
-                }
-                ret = Bb.Instructions.Last();
+                return ret;
             }
-            return ret;
+
+            if (Bb.Instructions.Count == 0)
+            {
+                return null;
+            }
+
+            return Bb.Instructions.Last();
+            
         }
 
 
@@ -131,15 +131,17 @@ namespace compiler.middleend.ir
 
         public override void InsertBranches(HashSet<Node> visited)
         {
-            if (!visited.Contains(this))
+            if (visited.Contains(this))
             {
-                visited.Add(this);
-                Bb.Instructions.Last().Arg2 = new Operand(FalseNode.GetNextNonPhi());
-                LoopParent.Bb.Instructions.Last().Arg1.Inst = GetNextNonPhi();
-                foreach (Node child in GetAllChildren())
-                {
-                    child?.InsertBranches(visited);
-                }
+                return;
+            }
+
+            visited.Add(this);
+            Bb.Instructions.Last().Arg2 = new Operand(FalseNode.GetNextNonPhi());
+            LoopParent.Bb.Instructions.Last().Arg1.Inst = GetNextNonPhi();
+            foreach (Node child in GetAllChildren())
+            {
+                child?.InsertBranches(visited);
             }
         }
 
