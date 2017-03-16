@@ -255,11 +255,11 @@ namespace compiler
 
                 foreach (var vertex in intGraph.Vertices)
                 {
-                     //newIntGraph.AddVerticesAndEdgeRange( (new InterferenceGraph(intGraph.PhiGlobber(vertex, visited))).Edges );
+                     newIntGraph.AddVerticesAndEdgeRange( (new InterferenceGraph(intGraph.PhiGlobber(vertex, visited))).Edges );
                     //intGraph.Color();
                 }
 
-               // parseTree.DominatorTree.IntGraph = newIntGraph;
+               parseTree.DominatorTree.IntGraph = newIntGraph;
             }
         }
 
