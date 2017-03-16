@@ -135,7 +135,7 @@ namespace compiler
             {
                 DomTree dom = new DomTree
                 {
-                    Root = new DominatorNode(new BasicBlock("StatSequence", 1)) {Bb = {Instructions = dlxFunc.FuncBody}}
+                    Root = new DominatorNode(new BasicBlock("StatSequence")) {Bb = {Instructions = dlxFunc.FuncBody}}
                 };
                 straightFuncList.Add(new ParseTree(dlxFunc.Tree.ControlFlowGraph, dom));
                 dom.Name = dlxFunc.Tree.ControlFlowGraph.Name;
@@ -249,7 +249,17 @@ namespace compiler
 
             foreach (ParseTree parseTree in FuncList)
             {
-                parseTree.DominatorTree.IntGraph.Color();
+                var intGraph = parseTree.DominatorTree.IntGraph;
+                var newIntGraph = new InterferenceGraph();
+                HashSet<Instruction> visited = new HashSet<Instruction>();
+
+                foreach (var vertex in intGraph.Vertices)
+                {
+                     //newIntGraph.AddVerticesAndEdgeRange( (new InterferenceGraph(intGraph.PhiGlobber(vertex, visited))).Edges );
+                    //intGraph.Color();
+                }
+
+               //parseTree.DominatorTree.IntGraph = newIntGraph;
             }
         }
 
@@ -328,7 +338,7 @@ namespace compiler
                 CopyProp = true,
                 Cse = true,
                 DeadCode = true,
-                PruneCfg = true,
+                PruneCfg = false,
                 RegAlloc = true,
                 InstSched = false,
                 CodeGen = false
@@ -342,6 +352,7 @@ namespace compiler
             var c = new Compiler(opts);
             c.Parse();
             c.Optimize();
+            c.RegisterAllocation();
             c.GenerateOutput();
         }
 
