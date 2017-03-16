@@ -41,7 +41,7 @@ namespace compiler.backend
         public const int Globals = 30;
         public const int RetAddr = 31;
 
-        public FunctionBuilder calledFunction;
+        public FunctionBuilder CalledFunction;
 
         public OpCodes Op { get; set; }
 
@@ -53,7 +53,7 @@ namespace compiler.backend
 
         public int Address { get; set; }
 
-        public Instruction irInst { get; set; }
+        public Instruction IrInst { get; set; }
 
         public uint MachineCode { get; set; }
 
@@ -224,8 +224,8 @@ namespace compiler.backend
                     throw new ArgumentOutOfRangeException();
             }
 
-            irInst = inst;
-            irInst.MachineInst = this;
+            IrInst = inst;
+            IrInst.MachineInst = this;
         }
 
         public void PutF1()

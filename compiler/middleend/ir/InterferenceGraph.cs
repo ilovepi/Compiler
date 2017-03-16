@@ -53,21 +53,21 @@ namespace compiler.middleend.ir
         public Dictionary<Instruction, uint> GraphColors = new Dictionary<Instruction, uint>();
         public uint SpillCount = 32; // Virtual register to track spilled instructions, starts at reg 32
 
-        public bool useSupeNodes;
+        public bool UseSupeNodes;
 
         public InterferenceGraph()
         {
-            useSupeNodes = true;
+            UseSupeNodes = true;
         }
 
         public InterferenceGraph(bool pUseSuper)
         {
-            useSupeNodes = pUseSuper;
+            UseSupeNodes = pUseSuper;
         }
 
         public InterferenceGraph(BasicBlock block)
         {
-            useSupeNodes = true;
+            UseSupeNodes = true;
 
             AddVertexRange(block.Instructions);
             _copy.AddVertexRange(block.Instructions);

@@ -168,8 +168,8 @@ namespace compiler.middleend.ir
                         MachineBody.AddRange(prologue);
                         var dlx = new DlxInstruction(instruction);
                         MachineBody.Add(dlx);
-                        dlx.calledFunction = func;
-                        dlx.irInst.MachineInst = prologue.First();
+                        dlx.CalledFunction = func;
+                        dlx.IrInst.MachineInst = prologue.First();
 
                         var retInst =
                             func.Tree.ControlFlowGraph.Root.Leaf()
@@ -418,7 +418,7 @@ namespace compiler.middleend.ir
 
         public void FixInstructions(DlxInstruction inst)
         {
-            if (inst.irInst == null)
+            if (inst.IrInst == null)
                 return;
 
             switch (inst.Op)
@@ -430,16 +430,16 @@ namespace compiler.middleend.ir
                 case OpCodes.BLE:
                 case OpCodes.BGT:
                     int targetOffset;
-                    if ((inst.irInst.Op == IrOps.Bra) || (inst.irInst.Op == IrOps.Ssa))
+                    if ((inst.IrInst.Op == IrOps.Bra) || (inst.IrInst.Op == IrOps.Ssa))
                     {
-                        targetOffset = inst.irInst.Arg1.Inst.MachineInst.Address;
+                        targetOffset = inst.IrInst.Arg1.Inst.MachineInst.Address;
                     }
                     else
                     {
-                        var arg = inst.irInst.Arg2.Inst;
+                        var arg = inst.IrInst.Arg2.Inst;
                         if (arg.Op == IrOps.Ssa)
                         {
-                            targetOffset = inst.irInst.Arg1.Inst.MachineInst.Address;
+                            targetOffset = inst.IrInst.Arg1.Inst.MachineInst.Address;
                         }
                         else
                         {
@@ -451,21 +451,21 @@ namespace compiler.middleend.ir
                     inst.PutF1();
                     break;
                 case OpCodes.JSR:
-                    inst.C = inst.calledFunction.Address;
+                    inst.C = inst.CalledFunction.Address;
                     break;
                 case OpCodes.ADD:
                 case OpCodes.SUB:
                 case OpCodes.MUL:
                 case OpCodes.DIV:
                 case OpCodes.CMP:
-                    inst.ImmediateOperands(inst.Op, inst.irInst.Arg1, inst.irInst.Arg2);
+                    inst.ImmediateOperands(inst.Op, inst.IrInst.Arg1, inst.IrInst.Arg2);
                     break;
                 case OpCodes.ADDI:
                 case OpCodes.SUBI:
                 case OpCodes.MULI:
                 case OpCodes.DIVI:
                 case OpCodes.CMPI:
-                    inst.ImmediateOperands(inst.Op - 16, inst.irInst.Arg1, inst.irInst.Arg2);
+                    inst.ImmediateOperands(inst.Op - 16, inst.IrInst.Arg1, inst.IrInst.Arg2);
                     break;
                 case OpCodes.LDW:
                     break;
