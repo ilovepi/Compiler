@@ -83,7 +83,43 @@ namespace compiler.middleend.optimization
                         root.Bb.AnchorBlock.InsertKill(bbInstruction.Arg2);
                     }
 
-                    EliminatePriv(root, bbInstruction, removalList, false);
+
+
+                    switch (bbInstruction.Op)
+                    {
+                        case IrOps.Store:
+                        case IrOps.Move:
+                        case IrOps.Phi:
+                        case IrOps.End:
+                        case IrOps.Bra:
+                        case IrOps.Bne:
+                        case IrOps.Beq:
+                        case IrOps.Ble:
+                        case IrOps.Blt:
+                        case IrOps.Bge:
+                        case IrOps.Bgt:
+                        case IrOps.Ret:
+                        case IrOps.Read:
+                        case IrOps.Write:
+                        case IrOps.WriteNl:
+                        case IrOps.Adda:
+                        case IrOps.Load:
+                        case IrOps.Call:
+
+                            break;
+                        case IrOps.Neg:
+                        case IrOps.Add:
+                        case IrOps.Sub:
+                        case IrOps.Mul:
+                        case IrOps.Div:
+                        case IrOps.Cmp:
+                        //case IrOps.Adda:
+                        //case IrOps.Load:
+                        default:
+
+                            EliminatePriv(root, bbInstruction, removalList, false);
+                            break;
+                    }
                 }
             }
 
@@ -140,7 +176,33 @@ namespace compiler.middleend.optimization
             // TODO: fix loop cse
             foreach (Instruction instruction in delayed)
             {
-                EliminatePriv(root, instruction, removalList, true);
+
+                switch (instruction.Op)
+                {
+                    case IrOps.Store:
+                    case IrOps.Move:
+                    case IrOps.Phi:
+                    case IrOps.End:
+                    case IrOps.Bra:
+                    case IrOps.Bne:
+                    case IrOps.Beq:
+                    case IrOps.Ble:
+                    case IrOps.Blt:
+                    case IrOps.Bge:
+                    case IrOps.Bgt:
+                    case IrOps.Ret:
+                    case IrOps.Read:
+                    case IrOps.Write:
+                    case IrOps.WriteNl:
+                    case IrOps.Adda:
+                    case IrOps.Load:
+                    case IrOps.Call:
+
+                        break;
+                    default:
+                        EliminatePriv(root, instruction, removalList, true);
+                        break;
+                }
             }
         }
 

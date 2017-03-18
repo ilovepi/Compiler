@@ -672,48 +672,55 @@ namespace compiler.frontend
 
             List<Instruction> loads = new List<Instruction>();
 
+
+
+
+            var prologue = new Node(new BasicBlock("Prologue", nestingDepth));
+            cfg.Root = prologue;
+
+
+
+            foreach (VariableType global in cfg.Globals)
+            {
+                var temp = variables[global.Id];
+                Instruction prologInst;
+
+                if (global.IsArray)
+                {
+                    prologInst = new Instruction(IrOps.Ssa, new Operand(Operand.OpType.Constant, global.Id),
+                        null);
+                }
+                else
+                {
+                    prologInst = new Instruction(IrOps.Load, new Operand(Operand.OpType.Identifier, global.Id),
+                        null);
+                    loads.Add(prologInst);
+                }
+
+
+                cfg.Root.Bb.AddInstruction(prologInst);
+                temp.Value = new Operand(prologInst);
+
+                var ssa = new SsaVariable(temp.UuId, prologInst, null, temp.Name) {Identity = global};
+                temp.Value.Inst = prologInst;
+                temp.Value.Variable = ssa;
+
+                ssa.Value = new Operand(prologInst);
+
+                prologInst.Arg2 = ssa.Value;
+
+                variables[global.Id] = ssa;
+                //arg = new Operand(ssa);
+            }
+
+
+
+
+
             if (Tok == Token.OPEN_PAREN)
             {
+
                 cfg.Parameters = FormalParams(variables);
-                var prologue = new Node(new BasicBlock("Prologue", nestingDepth));
-                cfg.Root = prologue;
-
-
-                if (true)
-                {
-                    foreach (VariableType global in cfg.Globals)
-                    {
-                        var temp = variables[global.Id];
-                        Instruction prologInst;
-
-                        if (global.IsArray)
-                        {
-                            prologInst = new Instruction(IrOps.Ssa, new Operand(Operand.OpType.Constant, global.Id),
-                                null);
-                        }
-                        else
-                        {
-                            prologInst = new Instruction(IrOps.Load, new Operand(Operand.OpType.Identifier, global.Id),
-                                null);
-                            loads.Add(prologInst);
-                        }
-
-
-                        cfg.Root.Bb.AddInstruction(prologInst);
-                        temp.Value = new Operand(prologInst);
-
-                        var ssa = new SsaVariable(temp.UuId, prologInst, null, temp.Name) {Identity = global};
-                        temp.Value.Inst = prologInst;
-                        temp.Value.Variable = ssa;
-
-                        ssa.Value = new Operand(prologInst);
-
-                        prologInst.Arg2 = ssa.Value;
-
-                        variables[global.Id] = ssa;
-                        //arg = new Operand(ssa);
-                    }
-                }
 
                 //*
                 foreach (VariableType parameter in cfg.Parameters)

@@ -189,12 +189,14 @@ namespace compiler
             // iterate through each CFG and do the optimizations.
             foreach (ParseTree func in FuncList)
             {
-                bool restart;
-                do
+                //if (Opts.PruneCfg)
                 {
-                    restart = TransformIr(func, false);
-                } while (restart);
-
+                    bool restart;
+                    do
+                    {
+                        restart = TransformIr(func, false);
+                    } while (restart);
+                }
                 TransformIr(func, true);
 
                 func.ControlFlowGraph.InsertBranches();

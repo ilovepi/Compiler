@@ -28,6 +28,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using compiler.frontend;
 using compiler.middleend.ir;
 
 #endregion
@@ -108,11 +109,25 @@ namespace compiler.middleend.optimization
         {
             if ((arg?.Kind == Operand.OpType.Instruction) && (arg.Inst?.Op != IrOps.Ssa))
             {
-                live.Add(arg.Inst);
+                if (arg.Inst != null)
+                {
+                    live.Add(arg.Inst);
+                }
+                else
+                {
+                    //throw new ParserException("Variable Uninitialized before use:");
+                }
             }
             else if (arg?.Inst?.Op == IrOps.Ssa)
             {
-                live.Add(arg.Inst.Arg1.Inst);
+                if (arg.Inst != null)
+                {
+                    live.Add(arg.Inst.Arg1.Inst);
+                }
+                else
+                {
+                    //throw new ParserException("Variable Uninitialized before use:");
+                }
             }
         }
 
