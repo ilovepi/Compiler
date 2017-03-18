@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using compiler.frontend;
 using compiler.middleend.ir;
 
@@ -7,15 +8,15 @@ namespace compiler.middleend.optimization
     internal static class SemanticChecks
     {
 
-        private static HashSet<Node> _visited;
+        private static HashSet<DominatorNode> _visited;
 
-        public static void RunChecks(Node root)
+        public static void RunChecks(DominatorNode root)
         {
-            _visited = new HashSet<Node>();
+            _visited = new HashSet<DominatorNode>();
             Validate(root);
         }
 
-        private static void Validate(Node root)
+        private static void Validate(DominatorNode root)
         {
             if ((root == null) || _visited.Contains(root))
             {
@@ -23,19 +24,46 @@ namespace compiler.middleend.optimization
             }
 
             _visited.Add(root);
-            List<Instruction> removalList = new List<Instruction>();
-            foreach (Instruction instruction in root.Bb.Instructions)
+            //foreach (Instruction instruction in root.Bb.Instructions)
             {
-                DefUse(instruction);
+                //DefUse(instruction, root);
+                
+
             }
 
-            List<Node> children = root.GetAllChildren();
+            CheckPhi(root);
 
-            foreach (Node child in children)
+
+
+            foreach (var child in root.Children)
             {
                 Validate(child);
             }
 
+        }
+
+
+        public static void CheckPhi( DominatorNode root)
+        {
+            if ((root.Bb.NodeType == Node.NodeTypes.BB) || (root.Bb.NodeType == Node.NodeTypes.CompareB))
+            {
+                //return;
+            }
+
+            foreach (Instruction target in root.Bb.Instructions)
+            {
+                if (target.Op == IrOps.Phi)
+                {
+                    if ((target.Arg1.Inst == null) || (target.Arg2.Inst == null))
+                    {
+                        if (target.UsesLocations.Any(root.SearchDominated))
+                        {
+                            throw new ParserException("Variable Uninitialized before use:");
+                        }
+                    }
+                }
+            }
+            
         }
 
 
@@ -56,7 +84,7 @@ namespace compiler.middleend.optimization
             }
         }
 
-        private static void DefUse(Instruction inst)
+        private static void DefUse(Instruction inst, DominatorNode root)
         {
             switch (inst.Op)
             {

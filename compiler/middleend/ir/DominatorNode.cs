@@ -169,16 +169,13 @@ namespace compiler.middleend.ir
         /// <param name="n">A child of the current node</param>
         public void TestInsert(Node n)
         {
-            if (n == null)
+            if ((n == null) || _visited.Contains(n))
             {
                 return;
             }
-
-            if (!_visited.Contains(n))
-            {
-                _visited.Add(n);
-                InsertChild(n.ConvertNode());
-            }
+           
+            _visited.Add(n);
+            InsertChild(n.ConvertNode());
         }
 
 
@@ -187,19 +184,23 @@ namespace compiler.middleend.ir
             string local = string.Empty;
 
             local += DotId() + "[label=\"{" + DotLabel(sym) + "\\l}\",fillcolor=" + Colorname + "]\n";
-            foreach (DominatorNode child in Children)
-            {
-                local += DotId() + "->" + child.DotId() + "\n";
-            }
+            local = Children.Aggregate(local, (current, child) => current + (DotId() + "->" + child.DotId() + "\n"));
 
 
-            foreach (DominatorNode child in Children)
-            {
-                local += child.PrintGraphNode(sym);
-            }
-
-            return local;
+            return Children.Aggregate(local, (current, child) => current + child.PrintGraphNode(sym));
         }
+
+
+        public bool SearchDominated(Instruction target)
+        {
+            return Children.First()?.SearchAll(target) ??  false;
+        }
+
+        public bool SearchAll(Instruction target)
+        {
+            return Bb.Instructions.Contains(target) || Children.Any(child => child.SearchAll(target));
+        }
+
 
         /*
         public void Walk(Action<Action<DominatorNode>, DominatorNode> traversal, Action<DominatorNode> visitor)

@@ -73,7 +73,13 @@
     <Content Include="testdata\test011.txt" />
     <Content Include="testdata\test012.txt" />
     <Content Include="testdata\test013.txt" />
+    <Content Include="testdata\test013bad.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="testdata\test014.txt" />
+    <Content Include="testdata\test014bad.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="testdata\test015.txt" />
     <Content Include="testdata\test016.txt" />
     <Content Include="testdata\test017.txt" />
@@ -88,9 +94,15 @@
     <Content Include="testdata\test026.txt" />
     <Content Include="testdata\test027.txt" />
     <Content Include="testdata\test028.txt" />
+    <Content Include="testdata\test028bad.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="testdata\test029.txt" />
     <Content Include="testdata\test030.txt" />
     <Content Include="testdata\test031.txt" />
+    <Content Include="testdata\test031bad.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\compiler.csproj">

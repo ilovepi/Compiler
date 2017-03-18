@@ -199,7 +199,7 @@ namespace compiler
                     } while (restart);
                 }
                 TransformIr(func, true);
-                //SemanticChecks.RunChecks(func.ControlFlowGraph.Root);
+                SemanticChecks.RunChecks(func.DominatorTree.Root);
                 func.ControlFlowGraph.InsertBranches();
                 LiveRanges.GenerateRanges(func.DominatorTree);
             }
