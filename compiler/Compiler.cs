@@ -63,6 +63,7 @@ namespace compiler
                     func.Sym = p.Scanner.SymbolTble;
                     // create dominator Tree
                     DomTree dom = DominatorNode.ConvertCfg(func);
+                    SemanticChecks.RunChecks(func.Root);
 
                     // add CFG and DomTree to the functin list
                     FuncList.Add(new ParseTree(func, dom));
@@ -290,9 +291,11 @@ namespace compiler
 
             //lower representation to machine code
             GenStraightLineFunctions();
+            GenInstructionListGraphString();
+            GenDlxGraphString();
 
 
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
         public void AssignAddresses()
@@ -319,11 +322,13 @@ namespace compiler
                 return;
             }
             GenControlGraphString();
-            GenDomGraphString();
+            CodeGeneration();
+            /*GenDomGraphString();
             GenInterferenceGraphString();
             GenStraightLineFunctions();
             GenInstructionListGraphString();
             GenDlxGraphString();
+            */
         }
 
 
@@ -339,12 +344,12 @@ namespace compiler
                 DomFilename = "Dominator.dot",
                 GraphOutput = true,
                 CopyProp = true,
-                Cse = true,
-                DeadCode = true,
+                Cse = false,
+                DeadCode = false,
                 PruneCfg = false,
                 RegAlloc = true,
                 InstSched = false,
-                CodeGen = false
+                CodeGen = true
             };
             return opts;
         }
@@ -370,7 +375,6 @@ namespace compiler
             var c = new Compiler(opts);
             c.Parse();
             c.Optimize();
-            c.RegisterAllocation();
             c.GenerateTestOutput();
             
         }

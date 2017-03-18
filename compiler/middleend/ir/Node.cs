@@ -235,7 +235,7 @@ namespace compiler.middleend.ir
         {
             if (Bb.Instructions.Count != 0)
             {
-				var res = Bb.Instructions.FirstOrDefault((curr) => curr.Op != IrOps.Phi && curr.Op != IrOps.Adda);
+				var res = Bb.Instructions.FirstOrDefault((curr) => (curr.Op != IrOps.Phi) && (curr.Op != IrOps.Adda));
                 return res ?? Child?.GetNextNonPhi();
             }
             return Child?.GetNextNonPhi();
