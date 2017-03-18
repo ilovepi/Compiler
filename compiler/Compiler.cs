@@ -63,7 +63,7 @@ namespace compiler
                     func.Sym = p.Scanner.SymbolTble;
                     // create dominator Tree
                     DomTree dom = DominatorNode.ConvertCfg(func);
-                    SemanticChecks.RunChecks(func.Root);
+                   
 
                     // add CFG and DomTree to the functin list
                     FuncList.Add(new ParseTree(func, dom));
@@ -199,7 +199,7 @@ namespace compiler
                     } while (restart);
                 }
                 TransformIr(func, true);
-
+                SemanticChecks.RunChecks(func.ControlFlowGraph.Root);
                 func.ControlFlowGraph.InsertBranches();
                 LiveRanges.GenerateRanges(func.DominatorTree);
             }
@@ -355,8 +355,8 @@ namespace compiler
                 GraphOutput = true,
                 CopyProp = true,
                 Cse = true,
-                DeadCode = true,
-                PruneCfg = true,
+                DeadCode = false,
+                PruneCfg = false,
                 RegAlloc = true,
                 InstSched = false,
                 CodeGen = true
