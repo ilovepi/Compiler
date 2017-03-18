@@ -354,7 +354,7 @@ namespace compiler
                 DomFilename = "Dominator.dot",
                 GraphOutput = true,
                 CopyProp = true,
-                Cse = true,
+                Cse = false,
                 DeadCode = false,
                 PruneCfg = false,
                 RegAlloc = true,

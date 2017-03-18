@@ -50,20 +50,43 @@ namespace compiler.middleend.optimization
                 //return;
             }
 
-            foreach (Instruction target in root.Bb.Instructions)
+            for (var index = 0; index < root.Bb.Instructions.Count; index++)
             {
+                Instruction target = root.Bb.Instructions[index];
                 if (target.Op == IrOps.Phi)
                 {
                     if ((target.Arg1.Inst == null) || (target.Arg2.Inst == null))
                     {
-                        if (target.UsesLocations.Any(root.SearchDominated))
+
+                        for (int j = index+1; j < root.Bb.Instructions.Count; j++)
                         {
-                            throw new ParserException("Variable Uninitialized before use:");
+                            foreach (Instruction location in target.UsesLocations)
+                            {
+                                if (root.Bb.Instructions[j].Num == location.Num)
+                                {
+                                    throw new ParserException("Variable Uninitialized Before use:");
+                                }
+                            }
+                        }
+
+
+
+                        List<Instruction> badUses =
+                            target.UsesLocations.Where(curr => root.SearchDominated(curr)).ToList();
+                        foreach (Instruction badUse in badUses)
+                        {
+                            if (badUse.Op != IrOps.Phi)
+                            {
+                                throw new ParserException("Variable Uninitialized before use:");
+                            }
                         }
                     }
                 }
+                else
+                {
+                    DefUse(target);
+                }
             }
-            
         }
 
 
@@ -84,7 +107,7 @@ namespace compiler.middleend.optimization
             }
         }
 
-        private static void DefUse(Instruction inst, DominatorNode root)
+        private static void DefUse(Instruction inst)
         {
             switch (inst.Op)
             {
@@ -119,19 +142,19 @@ namespace compiler.middleend.optimization
                 case IrOps.Div:
                 case IrOps.Cmp:
                 case IrOps.Adda:
-                    CheckUseDef(inst.Arg1);
-                    CheckUseDef(inst.Arg2);
+                    BadPhiArg(inst.Arg1);
+                    BadPhiArg(inst.Arg2);
                     break;
 
                 //first
                 case IrOps.Move:
 
                 case IrOps.Load:
-                    CheckUseDef(inst.Arg1);
+                    BadPhiArg(inst.Arg1);
                     break;
 
                 case IrOps.Ssa:
-                    CheckUseDef(inst.Arg1);
+                    //CheckUseDef(inst.Arg1);
                     BadPhiArg(inst.Arg1);
                     break;
             }

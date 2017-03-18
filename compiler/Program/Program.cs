@@ -41,7 +41,7 @@ namespace Program
             //try
             {
                 //TODO: Be sure to address options parsing
-                Compiler.DefaultRun(@"../../testdata/test014bad.txt");
+                Compiler.DefaultRun(@"../../testdata/test015.txt");
             }
             //catch (ParserException e)
             {

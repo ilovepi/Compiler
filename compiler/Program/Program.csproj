@@ -57,49 +57,117 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <Content Include="testdata\big.txt" />
-    <Content Include="testdata\cell.txt" />
-    <Content Include="testdata\factorial.txt" />
-    <Content Include="testdata\test001.txt" />
-    <Content Include="testdata\test002.txt" />
-    <Content Include="testdata\test003.txt" />
-    <Content Include="testdata\test004.txt" />
-    <Content Include="testdata\test005.txt" />
-    <Content Include="testdata\test006.txt" />
-    <Content Include="testdata\test007.txt" />
-    <Content Include="testdata\test008.txt" />
-    <Content Include="testdata\test009.txt" />
-    <Content Include="testdata\test010.txt" />
-    <Content Include="testdata\test011.txt" />
-    <Content Include="testdata\test012.txt" />
-    <Content Include="testdata\test013.txt" />
+    <Content Include="testdata\big.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="testdata\cell.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="testdata\factorial.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="testdata\test001.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="testdata\test002.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="testdata\test003.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="testdata\test004.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="testdata\test005.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="testdata\test006.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="testdata\test007.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="testdata\test008.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="testdata\test009.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="testdata\test010.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="testdata\test011.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="testdata\test012.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="testdata\test013.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="testdata\test013bad.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="testdata\test014.txt" />
+    <Content Include="testdata\test014.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="testdata\test014bad.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="testdata\test015.txt" />
-    <Content Include="testdata\test016.txt" />
-    <Content Include="testdata\test017.txt" />
-    <Content Include="testdata\test018.txt" />
-    <Content Include="testdata\test019.txt" />
-    <Content Include="testdata\test020.txt" />
-    <Content Include="testdata\test021.txt" />
-    <Content Include="testdata\test022.txt" />
-    <Content Include="testdata\test023.txt" />
-    <Content Include="testdata\test024.txt" />
-    <Content Include="testdata\test025.txt" />
-    <Content Include="testdata\test026.txt" />
-    <Content Include="testdata\test027.txt" />
-    <Content Include="testdata\test028.txt" />
+    <Content Include="testdata\test015.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="testdata\test016.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="testdata\test017.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="testdata\test018.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="testdata\test019.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="testdata\test020.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="testdata\test021.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="testdata\test022.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="testdata\test023.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="testdata\test024.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="testdata\test025.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="testdata\test026.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="testdata\test027.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="testdata\test028.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="testdata\test028bad.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="testdata\test029.txt" />
-    <Content Include="testdata\test030.txt" />
-    <Content Include="testdata\test031.txt" />
+    <Content Include="testdata\test029.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="testdata\test030.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="testdata\test031.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="testdata\test031bad.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
