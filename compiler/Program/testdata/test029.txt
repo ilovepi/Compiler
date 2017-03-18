@@ -4,8 +4,8 @@
 main
 var q, foo, af, too;
 {
-    #let foo <-1;
-	let q<-foo;
+    let foo <- InputNum();
+	let q <-foo;
 	if 2 < 3 then
 		while 4 > 6 do
 			let af <- foo+6;

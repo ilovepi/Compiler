@@ -398,7 +398,7 @@ namespace compiler.middleend.ir
                 }
 
                 // ... and give it a different one.
-                for (uint reg = RegisterCount-1; reg >= 1; reg--)
+                for (uint reg = RegisterCount; reg >= 1; reg--)
                 {
                     if (!neighborRegs.Contains(reg))
                     {

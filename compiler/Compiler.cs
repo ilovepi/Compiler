@@ -311,8 +311,14 @@ namespace compiler
 
         public void GenerateOutput()
         {
-            GenerateGraphOutput();
+            if (!Opts.GraphOutput)
+            {
+                return;
+            }
+
+           
             CodeGeneration();
+            GenerateGraphOutput();
         }
 
         public void GenerateTestOutput()
@@ -321,16 +327,20 @@ namespace compiler
             {
                 return;
             }
-            GenControlGraphString();
+
+            
             CodeGeneration();
-            /*GenDomGraphString();
-            GenInterferenceGraphString();
-            GenStraightLineFunctions();
-            GenInstructionListGraphString();
-            GenDlxGraphString();
-            */
+            GenerateTestGraphOutput();
         }
 
+        public void GenerateTestGraphOutput()
+        {
+            GenControlGraphString();
+            GenDomGraphString();
+            GenInterferenceGraphString();
+            GenInstructionListGraphString();
+            GenDlxGraphString();
+        }
 
         private static CompilerOptions DefaultOpts(string pFilename)
         {
@@ -344,9 +354,9 @@ namespace compiler
                 DomFilename = "Dominator.dot",
                 GraphOutput = true,
                 CopyProp = true,
-                Cse = false,
-                DeadCode = false,
-                PruneCfg = false,
+                Cse = true,
+                DeadCode = true,
+                PruneCfg = true,
                 RegAlloc = true,
                 InstSched = false,
                 CodeGen = true
@@ -360,7 +370,6 @@ namespace compiler
             var c = new Compiler(opts);
             c.Parse();
             c.Optimize();
-            c.RegisterAllocation();
             c.GenerateOutput();
         }
 
