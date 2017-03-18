@@ -41,17 +41,7 @@ namespace compiler.frontend
         private readonly bool _copyPropagationEnabled;
         private readonly string _filename;
 
-        public Parser(string pFileName, bool pCopyPropEnabled)
-        {
-            _filename = pFileName;
-            _copyPropagationEnabled = pCopyPropEnabled;
-
-            Tok = Token.UNKNOWN;
-            Scanner = new Lexer(_filename);
-            ProgramCfg = new Cfg();
-            FunctionsCfgs = new List<Cfg>();
-            VarTable = new VarTbl();
-        }
+        public HashSet<string> Callgraph;
 
         public Token Tok { get; set; }
 
@@ -65,6 +55,7 @@ namespace compiler.frontend
 
         public VarTbl VarTable { get; set; }
 
+        public static int nestingDepth = 1;
 
         /// <summary>
         ///     A stack of frame addresses -- esentially a list of frame pointers
@@ -75,6 +66,18 @@ namespace compiler.frontend
         public Cfg ProgramCfg { get; set; }
 
         public List<Cfg> FunctionsCfgs { get; set; }
+
+        public Parser(string pFileName, bool pCopyPropEnabled)
+        {
+            _filename = pFileName;
+            _copyPropagationEnabled = pCopyPropEnabled;
+
+            Tok = Token.UNKNOWN;
+            Scanner = new Lexer(_filename);
+            ProgramCfg = new Cfg();
+            FunctionsCfgs = new List<Cfg>();
+            VarTable = new VarTbl();
+        }
 
         public void Dispose()
         {
@@ -145,7 +148,7 @@ namespace compiler.frontend
             if (variables.ContainsKey(id.IdKey))
             {
                 var cached = variables[id.IdKey];
-                id = new Operand(variables[id.IdKey]);
+                id = new Operand(cached);
             }
 
 
@@ -393,8 +396,10 @@ namespace compiler.frontend
             {
                 Instruction prev = locals[id.Operand.IdKey].Location;
 
-                var ssa = new SsaVariable(id.Operand.IdKey, newInst, prev, name);
-                ssa.Identity = id.VarTable[id.Operand.IdKey].Identity;
+                var ssa = new SsaVariable(id.Operand.IdKey, newInst, prev, name)
+                {
+                    Identity = id.VarTable[id.Operand.IdKey].Identity
+                };
                 id.Operand.Inst = newInst;
                 id.Operand.Variable = ssa;
 
@@ -437,19 +442,22 @@ namespace compiler.frontend
         {
             GetExpected(Token.MAIN);
 
-            var cfg = new Cfg();
-            cfg.Locals = new List<VariableType>();
+            var cfg = new Cfg
+            {
+                Locals = new List<VariableType>(),
+                Globals = new List<VariableType>(),
+                Parameters = new List<VariableType>()
+            };
             cfg.Globals = new List<VariableType>();
-            cfg.Parameters = new List<VariableType>();
 
             while ((Tok == Token.VAR) || (Tok == Token.ARRAY))
             {
-                cfg.Globals = VarDecl(varTble);
+                cfg.Globals.AddRange(VarDecl(varTble));
             }
 
             while ((Tok == Token.FUNCTION) || (Tok == Token.PROCEDURE))
             {
-                Cfg func = FuncDecl(new VarTbl(varTble));
+                Cfg func = FuncDecl(new VarTbl(varTble), cfg.Globals);
                 func.Globals = cfg.Globals;
             }
 
@@ -539,12 +547,14 @@ namespace compiler.frontend
             return op;
         }
 
+        /*
         public void CreateIdentifier()
         {
             int id = Scanner.Id;
             GetExpected(Token.IDENTIFIER);
             Scanner.SymbolTble.InsertAddress(id, NextAddress());
         }
+        
 
 
         private int NextAddress()
@@ -552,6 +562,7 @@ namespace compiler.frontend
             //TODO: implement this function
             return 0;
         }
+        */
 
         private Operand Num()
         {
@@ -634,9 +645,11 @@ namespace compiler.frontend
             return newVar;
         }
 
-        private Cfg FuncDecl(VarTbl variables)
+        private Cfg FuncDecl(VarTbl variables, List<VariableType> globals)
         {
             var cfg = new Cfg {Parameters = new List<VariableType>()};
+            cfg.Globals = globals;
+            cfg.UsedGlobals = new HashSet<VariableType>();
 
             FunctionsCfgs.Add(cfg);
 
@@ -657,10 +670,57 @@ namespace compiler.frontend
             //CreateIdentifier();
             Operand id = Identifier();
 
+            List<Instruction> loads = new List<Instruction>();
+
+
+
+
+            var prologue = new Node(new BasicBlock("Prologue", nestingDepth));
+            cfg.Root = prologue;
+
+
+
+            foreach (VariableType global in cfg.Globals)
+            {
+                var temp = variables[global.Id];
+                Instruction prologInst;
+
+                if (global.IsArray)
+                {
+                    prologInst = new Instruction(IrOps.Ssa, new Operand(Operand.OpType.Constant, global.Id),
+                        null);
+                }
+                else
+                {
+                    prologInst = new Instruction(IrOps.Load, new Operand(Operand.OpType.Identifier, global.Id),
+                        null);
+                    loads.Add(prologInst);
+                }
+
+
+                cfg.Root.Bb.AddInstruction(prologInst);
+                temp.Value = new Operand(prologInst);
+
+                var ssa = new SsaVariable(temp.UuId, prologInst, null, temp.Name) {Identity = global};
+                temp.Value.Inst = prologInst;
+                temp.Value.Variable = ssa;
+
+                ssa.Value = new Operand(prologInst);
+
+                prologInst.Arg2 = ssa.Value;
+
+                variables[global.Id] = ssa;
+                //arg = new Operand(ssa);
+            }
+
+
+
+
+
             if (Tok == Token.OPEN_PAREN)
             {
+
                 cfg.Parameters = FormalParams(variables);
-                cfg.Root = new Node(new BasicBlock("Prologue"));
 
                 //*
                 foreach (VariableType parameter in cfg.Parameters)
@@ -672,8 +732,7 @@ namespace compiler.frontend
                     cfg.Root.Bb.AddInstruction(loadInst);
                     temp.Value = new Operand(loadInst);
 
-                    var ssa = new SsaVariable(temp.UuId, loadInst, null, temp.Name);
-                    ssa.Identity = parameter;
+                    var ssa = new SsaVariable(temp.UuId, loadInst, null, temp.Name) {Identity = parameter};
                     temp.Value.Inst = loadInst;
                     temp.Value.Variable = ssa;
 
@@ -684,10 +743,13 @@ namespace compiler.frontend
                     variables[parameter.Id] = ssa;
                     //arg = new Operand(ssa);
                 }
+
                 //*/
             }
 
             GetExpected(Token.SEMI_COLON);
+
+            Callgraph = new HashSet<string>();
 
             Cfg fb = FuncBody(variables, isProcedure);
 
@@ -700,6 +762,28 @@ namespace compiler.frontend
             }
 
             GetExpected(Token.SEMI_COLON);
+
+            var ret = cfg.Root.Leaf().Bb.Instructions.Last();
+            cfg.Root.Leaf().Bb.Instructions.Remove(ret);
+            var epilogue = new Node(new BasicBlock("Epilogue", nestingDepth));
+
+            foreach (var globalLoad in loads)
+            {
+                var temp = variables[globalLoad.Arg1.IdKey];
+                if (temp.Location != globalLoad)
+                {
+                    Instruction newInst = new Instruction(IrOps.Store, temp.Value,
+                        new Operand(Operand.OpType.Constant, temp.UuId));
+
+                    epilogue.Bb.AddInstruction(newInst);
+                    cfg.UsedGlobals.Add(temp.Identity);
+                }
+            }
+
+            epilogue.Bb.AddInstruction(ret);
+
+            cfg.Insert(epilogue);
+            cfg.Callgraph = Callgraph;
 
             return cfg;
         }
@@ -724,7 +808,12 @@ namespace compiler.frontend
             if (isProcedure)
             {
                 var branchBack = new Instruction(IrOps.Ret, new Operand(Operand.OpType.Register, 31), null);
-                cfg.GetLeaf(cfg.Root).Bb.Instructions.Add(branchBack);
+                cfg.Root.Leaf().Bb.AddInstruction(branchBack);
+            }
+
+            if (cfg.Root.Leaf().Bb.Instructions.Last().Op != IrOps.Ret)
+            {
+                FatalError("Functions must have a return statement");
             }
 
             return cfg;
@@ -733,7 +822,7 @@ namespace compiler.frontend
 
         private Cfg Statement(ref VarTbl variables)
         {
-            var cfgTemp = new Cfg {Root = new Node(new BasicBlock("StatementBlock"))};
+            var cfgTemp = new Cfg {Root = new Node(new BasicBlock("StatementBlock", nestingDepth))};
 
             // TODO: address what to do with return opperand;
             ParseResult stmt;
@@ -770,7 +859,7 @@ namespace compiler.frontend
         private Cfg StatementSequence(ref VarTbl variables)
         {
             var cfg = new Cfg();
-            var bb = new BasicBlock("StatSequence");
+            var bb = new BasicBlock("StatSequence", nestingDepth);
             cfg.Root = new Node(bb);
             Cfg stmt = Statement(ref variables);
             cfg.Insert(stmt);
@@ -790,7 +879,7 @@ namespace compiler.frontend
             return cfg;
         }
 
-
+        /*
         public void RelOp()
         {
             // TODO implement comparisions (replace IsRelOp)
@@ -803,6 +892,7 @@ namespace compiler.frontend
                 Next();
             }
         }
+        */
 
 
         private ParseResult FuncCall(VarTbl variables)
@@ -835,8 +925,6 @@ namespace compiler.frontend
                 }
 
                 GetExpected(Token.CLOSE_PAREN);
-
-                //TODO: jump to call
             }
 
             foreach (var func in FunctionsCfgs)
@@ -871,10 +959,27 @@ namespace compiler.frontend
             }
             else
             {
-                call = new Instruction(IrOps.Bra, id, null);
+                call = new Instruction(IrOps.Call, id, null);
+                Callgraph.Add(id.Name);
             }
 
             id = new Operand(call);
+
+            foreach (var result in paramList)
+            {
+                call.Parameters.Add(result.Operand);
+                if (result.Operand.Kind == Operand.OpType.Instruction)
+                {
+                    result.Operand.Inst.Uses.Add(id);
+                    result.Operand.Inst.UsesLocations.Add(call);
+                }
+                else if (result.Operand.Kind == Operand.OpType.Variable)
+                {
+                    result.Operand.Variable.Location.Uses.Add(id);
+                    result.Operand.Variable.Location.UsesLocations.Add(call);
+                }
+            }
+
             instructions.Add(call);
             return new ParseResult(id, instructions, variables);
         }
@@ -883,9 +988,9 @@ namespace compiler.frontend
         {
             GetExpected(Token.IF);
             var ifBlock = new Cfg();
-            var compBlock = new CompareNode(new BasicBlock("CompareBlock"));
+            var compBlock = new CompareNode(new BasicBlock("CompareBlock", nestingDepth));
 
-            var joinBlock = new JoinNode(new BasicBlock("JoinBlock"));
+            var joinBlock = new JoinNode(new BasicBlock("JoinBlock", nestingDepth));
             Node falseBlock = joinBlock;
             compBlock.Join = joinBlock;
 
@@ -904,22 +1009,38 @@ namespace compiler.frontend
 
             compBlock.InsertTrue(trueBlock);
             trueBlock.Leaf().InsertJoinTrue(joinBlock);
-            var elseBranch = false;
             if (Tok == Token.ELSE)
             {
                 Next();
                 falseBlock = StatementSequence(ref falseSsa).Root;
                 Node.Leaf(falseBlock).InsertJoinFalse(joinBlock);
                 falseBlock.Consolidate();
-                elseBranch = true;
             }
 
 
-            compBlock.InsertFalse(falseBlock);
+            //compBlock.InsertFalse(falseBlock);
+            compBlock.FalseNode = falseBlock;
+            if (falseBlock == joinBlock)
+            {
+                joinBlock.FalseParent = compBlock;
+            }
+            else
+            {
+                falseBlock.Parent = compBlock;
+            }
+
 
             GetExpected(Token.FI);
+            try
+            {
+                AddPhiInstructions(variables, trueSsa, falseSsa, joinBlock, false);
+            }
+            catch (ArgumentNullException)
+            {
+                throw ParserException.CreateParserException("Variable not initialized on all paths", LineNo, Pos,
+                    _filename);
+            }
 
-            AddPhiInstructions(variables, trueSsa, falseSsa, joinBlock, false);
 
             return ifBlock;
         }
@@ -941,9 +1062,13 @@ namespace compiler.frontend
                 SsaVariable falseVar = falseSsa[trueVar.Key];
                 if (falseVar != trueVar.Value)
                 {
-                    // This top construction seems to be correct, and should give the best answer, but doesnt
-                    var newInst = new Instruction(IrOps.Phi, trueVar.Value.Value,
-                        falseVar.Value ?? new Operand(falseVar.Location));
+                    var newInst = new Instruction(IrOps.Phi, new Operand(trueVar.Value.Location),
+                        new Operand(falseVar.Location));
+
+                    if ((newInst.Arg1.Inst == null) || (newInst.Arg2.Inst == null))
+                    {
+                        // throw new ArgumentNullException();
+                    }
 
                     newInst.VArId = trueVar.Value.Identity;
 
@@ -979,38 +1104,55 @@ namespace compiler.frontend
             var whileBlock = new Cfg();
 
             //crate compare block/loop header block
-            var compBlock = new WhileNode(new BasicBlock("LoopHeader"));
+            var loopHeaderBlock = new WhileNode(new BasicBlock("LoopHeader", nestingDepth));
 
             // insert compare block for while stmt
-            whileBlock.Insert(compBlock);
+            whileBlock.Insert(loopHeaderBlock);
 
             // add the relation/branch comparison into the loop header block
-            compBlock.Bb.AddInstructionList(Relation(headerSsa).Instructions);
+            loopHeaderBlock.Bb.AddInstructionList(Relation(headerSsa).Instructions);
 
             GetExpected(Token.DO);
 
+            nestingDepth++;
             // prepare basic block for loop body
             Cfg stmts = StatementSequence(ref loopSsa);
+            nestingDepth--;
 
             Node loopBlock = stmts.Root;
-            loopBlock.Consolidate();
 
             Node last = loopBlock.Leaf();
-            last.Bb.AddInstruction(new Instruction(IrOps.Bra, new Operand(compBlock.GetNextInstruction()), null));
+
 
             // insert the loop body on the true path
-            compBlock.InsertTrue(loopBlock);
+            loopHeaderBlock.InsertTrue(loopBlock);
 
-            last.Child = compBlock;
-            compBlock.LoopParent = last;
 
             GetExpected(Token.OD);
 
-            var followBlock = new Node(new BasicBlock("FollowBlock")) {Colorname = "palegreen"};
+            var followBlock = new Node(new BasicBlock("FollowBlock", nestingDepth)) {Colorname = "palegreen"};
+            var branchBlock = new Node(new BasicBlock("BranchBack", nestingDepth));
+            loopHeaderBlock.LoopParent = branchBlock;
 
-            compBlock.InsertFalse(followBlock);
+            loopHeaderBlock.InsertFalse(followBlock);
 
-            AddPhiInstructions(variables, loopSsa, headerSsa, compBlock, true);
+            last.Child = branchBlock;
+            branchBlock.Parent = last;
+            branchBlock.Bb.AddInstruction(new Instruction(IrOps.Bra, new Operand(loopHeaderBlock.GetNextNonPhi()),
+                null));
+            branchBlock.Child = loopHeaderBlock;
+            loopBlock.Consolidate();
+
+
+            try
+            {
+                AddPhiInstructions(variables, loopSsa, headerSsa, loopHeaderBlock, true);
+            }
+            catch (ArgumentNullException)
+            {
+                throw ParserException.CreateParserException("Variable not initialized on all paths", LineNo, Pos,
+                    _filename);
+            }
 
             return whileBlock;
         }
@@ -1026,7 +1168,7 @@ namespace compiler.frontend
         private static void LoopFix(Node n, Instruction phi, HashSet<Node> visited)
         {
             // base case
-            if (visited.Contains(n) || (n == null))
+            if ((n == null) || visited.Contains(n))
             {
                 return;
             }
@@ -1041,6 +1183,8 @@ namespace compiler.frontend
                 {
                     if (CheckOperand(inst.Arg1, phi.Arg1) || CheckOperand(inst.Arg1, phi.Arg2))
                     {
+                        phi.Uses.Add(inst.Arg1);
+                        phi.UsesLocations.Add(inst);
                         inst.Arg1 = new Operand(phi);
                     }
 
@@ -1048,6 +1192,8 @@ namespace compiler.frontend
                     {
                         if (inst.Op != IrOps.Ssa)
                         {
+                            phi.Uses.Add(inst.Arg2);
+                            phi.UsesLocations.Add(inst);
                             inst.Arg2 = new Operand(phi);
                         }
                     }
@@ -1082,28 +1228,6 @@ namespace compiler.frontend
             }
             return false;
         }
-
-
-        public Tuple<BasicBlock, int> FindInstruction(Instruction inst, Node n)
-        {
-            if (n == null)
-            {
-                return null;
-            }
-
-            List<Instruction> instList = n.Bb.Instructions;
-
-            for (var i = 0; i < instList.Count; i++)
-            {
-                if (inst == instList[i])
-                {
-                    return new Tuple<BasicBlock, int>(n.Bb, i);
-                }
-            }
-
-            return FindInstruction(inst, n.Parent);
-        }
-
 
         private ParseResult ReturnStmt(VarTbl variables)
         {
@@ -1142,17 +1266,11 @@ namespace compiler.frontend
 
             if (Tok == Token.IDENTIFIER)
             {
-                //TODO: handle parameters????
-                //CreateIdentifier();
-
                 CreateParameter(paramList, varTble);
 
                 while (Tok == Token.COMMA)
                 {
                     Next();
-
-                    //not sure this is correct per above
-                    //CreateIdentifier();
                     CreateParameter(paramList, varTble);
                 }
             }
@@ -1181,11 +1299,52 @@ namespace compiler.frontend
         public void Parse()
         {
             Next();
-            ProgramCfg = Computation(new VarTbl());
+            var variables = new VarTbl();
+            ProgramCfg = Computation(variables);
+
+            // invoke before addin main to list of functions
+            //FixCallGraphs(variables);
+
             FunctionsCfgs.Add(ProgramCfg);
             ProgramCfg.Name = "Main";
             ProgramCfg.Sym = Scanner.SymbolTble;
+            ProgramCfg.UsedGlobals = new HashSet<VariableType>();
         }
+
+
+        public void FixCallGraphs(VarTbl variables)
+        {
+            foreach (Cfg function in FunctionsCfgs)
+            {
+                HashSet<string> visitedhHashSet = new HashSet<string>();
+                function.UsedGlobals.UnionWith(CheckCalls(visitedhHashSet, function));
+                var epilogue = function.Root.Leaf();
+                foreach (VariableType global in function.UsedGlobals)
+                {
+                    var temp = variables[global.Id];
+                    Instruction newInst = new Instruction(IrOps.Store, temp.Value,
+                        new Operand(Operand.OpType.Constant, global.Id));
+                    epilogue.Bb.AddInstruction(newInst);
+                }
+            }
+        }
+
+        public HashSet<VariableType> CheckCalls(HashSet<string> visited, Cfg func)
+        {
+            var newGlobals = new HashSet<VariableType>(func.UsedGlobals);
+            if (!visited.Contains(func.Name))
+            {
+                visited.Add(func.Name);
+                foreach (string name in func.Callgraph)
+                {
+                    var found = FunctionsCfgs.Find((current) => current.Name == name);
+                    newGlobals.UnionWith(CheckCalls(visited, found));
+                }
+            }
+
+            return newGlobals;
+        }
+
 
         public void ThrowParserException(Token expected)
         {

@@ -4,8 +4,10 @@
 main
 var q, foo, af, too;
 {
+    let foo <- call InputNum();
+	let too <- call InputNum();
 	let q<-foo;
-	if 2 < 3 then            
+	if 2 < 3 then
 		while 4 > 6 do
 			let af <- foo+6;
 			let foo <- q+2;

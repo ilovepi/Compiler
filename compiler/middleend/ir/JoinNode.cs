@@ -24,17 +24,23 @@
 
 #endregion
 
+#region
+
+using System.Collections.Generic;
+
+#endregion
+
 namespace compiler.middleend.ir
 {
     public class JoinNode : Node
     {
+        public Node FalseParent { get; set; }
+
         public JoinNode(BasicBlock pBb) : base(pBb, NodeTypes.JoinB)
         {
             Colorname = "coral";
             FalseParent = null;
         }
-
-        public Node FalseParent { get; set; }
 
 
         public override void CheckEnqueue(Cfg cfg)
@@ -43,12 +49,18 @@ namespace compiler.middleend.ir
         }
 
 
-        public override void Consolidate()
+        public override void Consolidate(HashSet<Node> visited)
         {
+            if (visited.Contains(this))
+            {
+                return;
+            }
+            visited.Add(this);
+
             CircularRef(Child);
 
             // consolidate children who exist
-            Child?.Consolidate();
+            Child?.Consolidate(visited);
         }
 
 

@@ -34,6 +34,8 @@ namespace compiler.middleend.ir
 {
     public class ArrayType : VariableType
     {
+        public List<int> Dimensions { get; set; }
+
         public ArrayType() : base(string.Empty, 0, 0, 1, true)
         {
         }
@@ -81,8 +83,6 @@ namespace compiler.middleend.ir
                 Size *= dimension;
             }
         }
-
-        public List<int> Dimensions { get; set; }
 
         public override VariableType Clone()
         {

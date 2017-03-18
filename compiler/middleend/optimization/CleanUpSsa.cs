@@ -27,66 +27,49 @@
 #region
 
 using System.Collections.Generic;
-using System.Linq;
+using compiler.middleend.ir;
 
 #endregion
 
-namespace compiler.middleend.ir
+namespace compiler.middleend.optimization
 {
-    public class Anchor
+    internal static class CleanUpSsa
     {
-        public List<List<Instruction>> Oplist { get; set; }
+        private static HashSet<Node> _visited;
 
-        public Anchor()
+        public static void Clean(Node root)
         {
-            Oplist = new List<List<Instruction>>();
+            _visited = new HashSet<Node>();
+            CleanConstSsa(root);
         }
 
-        /// <summary>
-        ///     Insert the specified inst. into the Anchor lists
-        /// </summary>
-        /// <param name="inst">Inst.</param>
-        public void Insert(Instruction inst)
+        private static void CleanConstSsa(Node root)
         {
-            IrOps key = inst.Op;
-
-            List<Instruction> chain = FindOpChain(key);
-
-            // if the op never existed, add it
-            if (chain == null)
+            if ((root == null) || _visited.Contains(root))
             {
-                chain = new List<Instruction>();
-                Oplist.Add(chain);
+                return;
             }
 
-            // insert the new instruction at the bottom of the list
-            chain.Add(inst);
-        }
+            _visited.Add(root);
 
-        public List<Instruction> FindOpChain(IrOps key)
-        {
-            foreach (List<Instruction> sublist in Oplist)
+            foreach (Instruction instruction in root.Bb.Instructions)
             {
-                if ((sublist.Count > 0) && (sublist.First().Op == key))
+                if (instruction.Op == IrOps.Ssa)
                 {
-                    return sublist;
+                    if (instruction.Arg1.Kind == Operand.OpType.Constant)
+                    {
+                        instruction.Op = IrOps.Add;
+                        instruction.Arg2 = new Operand(Operand.OpType.Constant, 0);
+                    }
                 }
             }
 
-            return null;
-        }
+            List<Node> children = root.GetAllChildren();
 
-        public void InsertKill(Operand target)
-        {
-            var chain = FindOpChain(IrOps.Load);
-            // if the op never existed, add it
-            if (chain == null)
+            foreach (Node child in children)
             {
-                chain = new List<Instruction>();
-                Oplist.Add(chain);
+                CleanConstSsa(child);
             }
-
-            chain.Add(new Instruction(IrOps.Kill, target, null));
         }
     }
 }

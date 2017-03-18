@@ -58,16 +58,16 @@ namespace NUnit.Tests.MiddleEnd
         [Test]
         public void EqualsNotEqualTest()
         {
-            object l = null;
+            object testObj = null;
             Assert.AreNotEqual(Inst2, Inst1);
             Assert.AreNotEqual(Inst2, null);
             Assert.AreNotEqual(Inst1, null);
 
             Assert.AreNotEqual(Inst1, new List());
             Assert.False(Inst1.Equals(null));
-            Assert.False(Inst1.Equals(l));
-            l = new List();
-            Assert.AreNotEqual(Inst1, l);
+            Assert.False(Inst1.Equals(testObj));
+            testObj = new List();
+            Assert.AreNotEqual(Inst1, testObj);
 
             Assert.AreNotEqual(Inst1, Inst3);
         }
@@ -101,8 +101,8 @@ namespace NUnit.Tests.MiddleEnd
         [Test]
         public void ToStringTest()
         {
-            Assert.AreEqual(Inst3.Num + ": Bra (" + Inst1.Num + ")", Inst3.ToString().Trim());
-            Assert.AreEqual(Inst2.Num + ": Add #5 (" + Inst1.Num + ")", Inst2.ToString());
+            Assert.AreEqual(Inst3.Num + ": Bra (" + Inst1.Num + ")  : 0", Inst3.ToString().Trim());
+            Assert.AreEqual(Inst2.Num + ": Add #5 (" + Inst1.Num + ") : 0", Inst2.ToString());
         }
     }
 }

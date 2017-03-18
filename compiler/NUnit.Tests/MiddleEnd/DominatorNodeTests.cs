@@ -37,10 +37,11 @@ namespace NUnit.Tests.MiddleEnd
     [TestFixture]
     public class DominatorNodeTests
     {
+        private int nestingDepth = 1;
         [SetUp]
         public void Init()
         {
-            _d = new DominatorNode(new BasicBlock("poo"));
+            _d = new DominatorNode(new BasicBlock("poo", nestingDepth));
         }
 
         private DominatorNode _d;
@@ -60,17 +61,17 @@ namespace NUnit.Tests.MiddleEnd
             e.Bb = null;
             Assert.False(_d.Equals(e));
             _d.InsertChild(e);
-            e.Bb = new BasicBlock("This");
+            e.Bb = new BasicBlock("This", nestingDepth);
             Assert.False(_d.Equals(e));
 
-            _d = new DominatorNode(new BasicBlock("poo"));
+            _d = new DominatorNode(new BasicBlock("poo", nestingDepth));
             e = new DominatorNode(_d.Bb);
-            _d.InsertChild(new DominatorNode(new BasicBlock("that")));
+            _d.InsertChild(new DominatorNode(new BasicBlock("that", nestingDepth)));
             e.Children.Add(_d.Children.First());
             Assert.True(_d.Equals(e));
 
             e.Children.Clear();
-            e.InsertChild(new DominatorNode(new BasicBlock("the other thing")));
+            e.InsertChild(new DominatorNode(new BasicBlock("the other thing", nestingDepth)));
             Assert.False(_d.Equals(e));
         }
 
@@ -79,7 +80,7 @@ namespace NUnit.Tests.MiddleEnd
         public void TestIsRoot()
         {
             Assert.True(_d.IsRoot());
-            var e = new DominatorNode(new BasicBlock("poo"));
+            var e = new DominatorNode(new BasicBlock("poo", nestingDepth));
             e.InsertChild(_d);
             Assert.False(_d.IsRoot());
         }

@@ -40,7 +40,7 @@ namespace compiler.middleend.ir
         /// <summary>
         ///     The Global set of visited nodes
         /// </summary>
-        public static HashSet<Node> Visited;
+        private static HashSet<Node> _visited;
 
         /// <summary>
         ///     The Nodes which this basic block directly dominates
@@ -49,6 +49,16 @@ namespace compiler.middleend.ir
 
 
         public string Colorname;
+
+        /// <summary>
+        ///     The basic block of the node
+        /// </summary>
+        public BasicBlock Bb { get; set; }
+
+        /// <summary>
+        ///     The parent of this node
+        /// </summary>
+        public DominatorNode Parent { get; set; }
 
 
         /// <summary>
@@ -61,16 +71,6 @@ namespace compiler.middleend.ir
             Parent = null;
             Children = new List<DominatorNode>();
         }
-
-        /// <summary>
-        ///     The basic block of the node
-        /// </summary>
-        public BasicBlock Bb { get; set; }
-
-        /// <summary>
-        ///     The parent of this node
-        /// </summary>
-        public DominatorNode Parent { get; set; }
 
         public bool Equals(DominatorNode other)
         {
@@ -152,7 +152,7 @@ namespace compiler.middleend.ir
         /// <param name="controlFlow">Control flow graph.</param>
         public static DomTree ConvertCfg(Cfg controlFlow)
         {
-            Visited = new HashSet<Node>();
+            _visited = new HashSet<Node>();
             var d = new DomTree
             {
                 Root = controlFlow.Root.ConvertNode(),
@@ -169,16 +169,13 @@ namespace compiler.middleend.ir
         /// <param name="n">A child of the current node</param>
         public void TestInsert(Node n)
         {
-            if (n == null)
+            if ((n == null) || _visited.Contains(n))
             {
                 return;
             }
-
-            if (!Visited.Contains(n))
-            {
-                Visited.Add(n);
-                InsertChild(n.ConvertNode());
-            }
+           
+            _visited.Add(n);
+            InsertChild(n.ConvertNode());
         }
 
 
@@ -187,21 +184,25 @@ namespace compiler.middleend.ir
             string local = string.Empty;
 
             local += DotId() + "[label=\"{" + DotLabel(sym) + "\\l}\",fillcolor=" + Colorname + "]\n";
-            foreach (DominatorNode child in Children)
-            {
-                local += DotId() + "->" + child.DotId() + "\n";
-            }
+            local = Children.Aggregate(local, (current, child) => current + (DotId() + "->" + child.DotId() + "\n"));
 
 
-            foreach (DominatorNode child in Children)
-            {
-                local += child.PrintGraphNode(sym);
-            }
-
-            return local;
+            return Children.Aggregate(local, (current, child) => current + child.PrintGraphNode(sym));
         }
 
 
+        public bool SearchDominated(Instruction target)
+        {
+            return Children.First()?.SearchAll(target) ??  false;
+        }
+
+        public bool SearchAll(Instruction target)
+        {
+            return Bb.Instructions.Contains(target) || Children.Any(child => child.SearchAll(target));
+        }
+
+
+        /*
         public void Walk(Action<Action<DominatorNode>, DominatorNode> traversal, Action<DominatorNode> visitor)
         {
             traversal(visitor, this);
@@ -226,7 +227,7 @@ namespace compiler.middleend.ir
 
             visitor(n);
         }
-
+        
 
         /// <summary>
         ///     Preorder the specified visitor.
@@ -252,17 +253,17 @@ namespace compiler.middleend.ir
         {
             foreach (DominatorNode child in Children)
             {
-                child.Preorder(visitor);
+                child.Postorder(visitor);
             }
             visitor(this);
         }
-
+        */
 
         /// <summary>
         ///     Dots the identifier.
         /// </summary>
         /// <returns>The identifier.</returns>
-        public string DotId()
+        private string DotId()
         {
             string ret = Bb.Name;
             if (Bb.Instructions.Count != 0)
@@ -272,7 +273,7 @@ namespace compiler.middleend.ir
             return ret;
         }
 
-        public string DotLabel(SymbolTable pSymbolTable)
+        private string DotLabel(SymbolTable pSymbolTable)
         {
             string label = Bb.Name;
             var slot = 0;

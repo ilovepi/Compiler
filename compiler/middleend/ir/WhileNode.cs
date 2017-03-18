@@ -35,18 +35,18 @@ namespace compiler.middleend.ir
 {
     public class WhileNode : CompareNode
     {
-        public WhileNode(BasicBlock pBb) : base(pBb)
+        //public Node FalseNode { get; set; }
+
+
+        public Node LoopParent { get; set; }
+        //todo: rightnow we insert on the false node, but we need to fix that
+        public WhileNode(BasicBlock pBb) : base(pBb, NodeTypes.WhileB)
         {
             Colorname = "turquoise";
             NodeType = NodeTypes.WhileB;
             FalseNode = null;
             LoopParent = null;
         }
-
-        //public Node FalseNode { get; set; }
-
-
-        public Node LoopParent { get; set; }
 
 
         public override void CheckEnqueue(Cfg cfg)
@@ -58,11 +58,7 @@ namespace compiler.middleend.ir
 
         public override Node Leaf()
         {
-            if (FalseNode == null)
-            {
-                return this;
-            }
-            return FalseNode.Leaf();
+            return FalseNode == null ? this : FalseNode.Leaf();
         }
 
 
@@ -79,13 +75,19 @@ namespace compiler.middleend.ir
             }
         }
 
-        public override void Consolidate()
+        public override void Consolidate(HashSet<Node> visited)
         {
+            if (visited.Contains(this))
+            {
+                return;
+            }
+            visited.Add(this);
+
             CircularRef(FalseNode);
 
             // consolidate children who exist
-            //Child?.Consolidate();
-            FalseNode?.Consolidate();
+            Child?.Consolidate(visited);
+            FalseNode?.Consolidate(visited);
         }
 
 
@@ -100,15 +102,19 @@ namespace compiler.middleend.ir
                 return Bb.Instructions.Last();
             }
             Instruction ret = FalseNode.GetLastInstruction();
-            if (ret == null)
+
+            if (ret != null)
             {
-                if (Bb.Instructions.Count == 0)
-                {
-                    return null;
-                }
-                ret = Bb.Instructions.Last();
+                return ret;
             }
-            return ret;
+
+            if (Bb.Instructions.Count == 0)
+            {
+                return null;
+            }
+
+            return Bb.Instructions.Last();
+            
         }
 
 
@@ -125,15 +131,17 @@ namespace compiler.middleend.ir
 
         public override void InsertBranches(HashSet<Node> visited)
         {
-            if (!visited.Contains(this))
+            if (visited.Contains(this))
             {
-                visited.Add(this);
-                Bb.Instructions.Last().Arg2 = new Operand(FalseNode.GetNextInstruction());
-                LoopParent.Bb.Instructions.Last().Arg1.Inst = Bb.Instructions.First();
-                foreach (Node child in GetAllChildren())
-                {
-                    child?.InsertBranches(visited);
-                }
+                return;
+            }
+
+            visited.Add(this);
+            Bb.Instructions.Last().Arg2 = new Operand(FalseNode.GetNextNonPhi());
+            LoopParent.Bb.Instructions.Last().Arg1.Inst = GetNextNonPhi();
+            foreach (Node child in GetAllChildren())
+            {
+                child?.InsertBranches(visited);
             }
         }
 

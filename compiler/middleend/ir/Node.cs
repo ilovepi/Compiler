@@ -45,36 +45,12 @@ namespace compiler.middleend.ir
             WhileB
         }
 
-        public static int BlockId;
+        private static int BlockId;
 
 
-        public int BlockNumber;
+        private readonly int _blockNumber;
 
         public string Colorname = "khaki";
-
-        /// <summary>
-        ///     Constructor
-        /// </summary>
-        /// <param name="pBb">A Basic block</param>
-        public Node(BasicBlock pBb)
-        {
-            BlockId++;
-            BlockNumber = BlockId;
-            Bb = pBb;
-            Parent = null;
-            Child = null;
-            NodeType = NodeTypes.BB;
-        }
-
-        public Node(BasicBlock pBb, NodeTypes n)
-        {
-            BlockId++;
-            BlockNumber = BlockId;
-            Bb = pBb;
-            Parent = null;
-            Child = null;
-            NodeType = n;
-        }
 
         public BasicBlock Bb { get; set; }
 
@@ -90,6 +66,32 @@ namespace compiler.middleend.ir
         ///     Successor Node
         /// </summary>
         public Node Child { get; set; }
+
+        /// <summary>
+        ///     Constructor
+        /// </summary>
+        /// <param name="pBb">A Basic block</param>
+        public Node(BasicBlock pBb)
+        {
+            BlockId++;
+            _blockNumber = BlockId;
+            Bb = pBb;
+            Parent = null;
+            Child = null;
+            NodeType = NodeTypes.BB;
+            Bb.NodeType = NodeTypes.BB;
+        }
+
+        public Node(BasicBlock pBb, NodeTypes n)
+        {
+            BlockId++;
+            _blockNumber = BlockId;
+            Bb = pBb;
+            Parent = null;
+            Child = null;
+            NodeType = n;
+            Bb.NodeType = n;
+        }
 
 
         /// <summary>
@@ -168,6 +170,20 @@ namespace compiler.middleend.ir
 
         public virtual void Consolidate()
         {
+            HashSet<Node> visited = new HashSet<Node>();
+            Consolidate(visited);
+        }
+
+
+        public virtual void Consolidate(HashSet<Node> visited)
+        {
+            if (visited.Contains(this))
+            {
+                return;
+            }
+
+            visited.Add(this);
+
             if (Child == null)
             {
                 return;
@@ -182,15 +198,17 @@ namespace compiler.middleend.ir
                 Node temp = Child;
                 Child = temp.Child;
 
+                // restart Consolidate from here to coalesc all blocks possible
                 Consolidate();
             }
             else
             {
-                Child.Consolidate();
+                Child.Consolidate(visited);
             }
         }
 
-        public void CircularRef(Node childNode)
+
+        protected void CircularRef(Node childNode)
         {
             if (ReferenceEquals(this, childNode))
             {
@@ -211,6 +229,16 @@ namespace compiler.middleend.ir
                 return Bb.Instructions.First();
             }
             return Child?.GetNextInstruction();
+        }
+
+        public Instruction GetNextNonPhi()
+        {
+            if (Bb.Instructions.Count != 0)
+            {
+				var res = Bb.Instructions.FirstOrDefault((curr) => (curr.Op != IrOps.Phi) && (curr.Op != IrOps.Adda));
+                return res ?? Child?.GetNextNonPhi();
+            }
+            return Child?.GetNextNonPhi();
         }
 
         public virtual Instruction GetLastInstruction()
@@ -237,7 +265,7 @@ namespace compiler.middleend.ir
 
         public string DotId()
         {
-            return Bb.Name + BlockNumber;
+            return Bb.Name + _blockNumber;
         }
 
         public string DotLabel(SymbolTable pSymbolTable)

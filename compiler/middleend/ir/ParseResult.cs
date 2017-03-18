@@ -35,17 +35,17 @@ namespace compiler.middleend.ir
 {
     public class ParseResult
     {
+        public Operand Operand { get; set; }
+
+        public List<Instruction> Instructions { get; set; }
+
+        public VarTbl VarTable { get; set; }
+
         public ParseResult(Operand pOperand, List<Instruction> pInstructions, VarTbl pSymTble)
         {
             Operand = pOperand;
             Instructions = new List<Instruction>(pInstructions);
             VarTable = new VarTbl(pSymTble);
         }
-
-        public Operand Operand { get; set; }
-
-        public List<Instruction> Instructions { get; set; }
-
-        public VarTbl VarTable { get; set; }
     }
 }

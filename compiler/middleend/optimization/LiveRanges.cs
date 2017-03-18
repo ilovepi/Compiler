@@ -28,15 +28,16 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using compiler.frontend;
 using compiler.middleend.ir;
 
 #endregion
 
-namespace compiler
+namespace compiler.middleend.optimization
 {
-    public class LiveRanges
+    internal static class LiveRanges
     {
-        public static HashSet<Instruction> PopulateRanges(DominatorNode d, HashSet<Instruction> liveRange,
+        private static HashSet<Instruction> PopulateRanges(DominatorNode d, HashSet<Instruction> liveRange,
             InterferenceGraph intGraph)
         {
             var live = new HashSet<Instruction>(liveRange);
@@ -45,35 +46,58 @@ namespace compiler
             {
                 switch (inst.Op)
                 {
-                    case IrOps.End:
+
+                    //case IrOps.Adda:
                     case IrOps.Bra:
+                    case IrOps.End:
+                    case IrOps.WriteNl:
+                        continue;
+                }
+
+
+                // add this instruction's operands to the live range
+
+
+
+                if (live.Contains(inst))
+                {
+                    // remove this instruction from the live range
+                    //live.Remove(inst);
+                    live.Remove(inst);
+                }
+
+                inst.LiveRange.UnionWith(live);
+
+
+                // add arguments to the live range
+                AddArgToLiveRange(inst.Arg1, live);
+
+
+                switch (inst.Op)
+                {
+
+
                     case IrOps.Bne:
                     case IrOps.Beq:
                     case IrOps.Ble:
                     case IrOps.Blt:
                     case IrOps.Bge:
                     case IrOps.Bgt:
-                        continue;
+                    case IrOps.Write:
+                        break;
+                    case IrOps.Load:
+                        if ((inst.Arg1.Kind == Operand.OpType.Instruction) && (inst.Arg1.Inst.Op == IrOps.Adda))
+                        {
+                            AddArgToLiveRange(inst.Arg1.Inst.Arg1, live);
+                        }
+                        break;
+                    default:
+                        AddArgToLiveRange(inst.Arg2, live);
+                        break;
                 }
 
-                if (inst.Arg1?.Kind == Operand.OpType.Instruction)
-                {
-                    live.Add(inst.Arg1.Inst);
-                }
 
-                if (inst.Arg2?.Kind == Operand.OpType.Instruction)
-                {
-                    live.Add(inst.Arg2.Inst);
-                }
 
-                // add this isntructions operands to the live range
-                inst.LiveRange.UnionWith(live);
-
-                if (inst.LiveRange.Contains(inst))
-                {
-                    //remove this instruction from the live range
-                    inst.LiveRange.Remove(inst);
-                }
             }
 
             intGraph.AddInterferenceEdges(d.Bb);
@@ -81,13 +105,60 @@ namespace compiler
             return live;
         }
 
+        private static void AddArgToLiveRange(Operand arg, HashSet<Instruction> live)
+        {
+            if ((arg?.Kind == Operand.OpType.Instruction) && (arg.Inst?.Op != IrOps.Ssa))
+            {
+                if (arg.Inst != null)
+                {
+                    live.Add(arg.Inst);
+                }
+                else
+                {
+                    //throw new ParserException("Variable Uninitialized before use:");
+                }
+            }
+            else if (arg?.Inst?.Op == IrOps.Ssa)
+            {
+                if (arg.Inst != null)
+                {
+                    live.Add(arg.Inst.Arg1.Inst);
+                }
+                else
+                {
+                    //throw new ParserException("Variable Uninitialized before use:");
+                }
+            }
+        }
 
-        public static HashSet<Instruction> GenerateRanges(DominatorNode d, HashSet<Instruction> liveRange,
+
+        private static HashSet<Instruction> GenerateRanges(DominatorNode d, HashSet<Instruction> liveRange,
+            InterferenceGraph intGraph)
+        {
+            if (d.Bb.NodeType == Node.NodeTypes.WhileB)
+            {
+                return GenerateLoopRanges(d, liveRange, intGraph);
+            }
+            else
+            {
+                return GenerateNonLoopRanges(d, liveRange, intGraph);
+            }
+        }
+
+
+        /// <summary>
+        /// Generates live ranges for Compare, Join and standard Basic Blocks
+        /// </summary>
+        /// <param name="d">A dominator node in the dominator tree</param>
+        /// <param name="liveRange">A set of instructions that are currently alive</param>
+        /// <param name="intGraph">The current interference graph of the function</param>
+        /// <returns></returns>
+        public static HashSet<Instruction> GenerateNonLoopRanges(DominatorNode d, HashSet<Instruction> liveRange,
             InterferenceGraph intGraph)
         {
             HashSet<Instruction> firstRange = null;
             var newRange = new HashSet<Instruction>();
-            var singlebeBlock = true;
+            var singleBlock = true;
             foreach (DominatorNode child in d.Children)
             {
                 if (firstRange == null)
@@ -96,12 +167,18 @@ namespace compiler
                 }
                 else
                 {
-                    singlebeBlock = false;
-                    newRange.UnionWith(GenerateRanges(child, firstRange, intGraph));
+                    singleBlock = false;
+                    var temprange = GenerateRanges(child, firstRange, intGraph);
+                    temprange.IntersectWith(firstRange);
+                    newRange.UnionWith(temprange);
                 }
             }
 
-            if (singlebeBlock && (firstRange != null))
+            // if we only have a single block, then firstrange might be null,
+            // so we might not want to replace newrange in that case
+            // but if we have more than one range, we've already unioned the
+            // new ranges together.
+            if (singleBlock && (firstRange != null))
             {
                 newRange = firstRange;
             }
@@ -109,11 +186,38 @@ namespace compiler
             return PopulateRanges(d, newRange, intGraph);
         }
 
+
+        // Handles While
+        private static HashSet<Instruction> GenerateLoopRanges(DominatorNode d, HashSet<Instruction> liveRange,
+            InterferenceGraph intGraph)
+        {
+            // Get live range from the follow block
+            var followRange = GenerateRanges(d.Children[0], liveRange, intGraph);
+
+            // interfere the follow block with the loop header
+            var headerRange = PopulateRanges(d, followRange, intGraph);
+
+            // interfere the loop body with the new loop header live range
+            headerRange.UnionWith(GenerateRanges(d.Children[1], headerRange, intGraph));
+
+            // update the header range -- probably can erase this
+            headerRange = PopulateRanges(d, headerRange, intGraph);
+
+            // fix any new addtions in the loop body
+            var newRange = GenerateRanges(d.Children[1], headerRange, intGraph);
+
+            // return the new live ranges
+            return PopulateRanges(d, newRange, intGraph);
+        }
+
+        /// <summary>
+        /// Generates live ranges from a dominator tree
+        /// </summary>
+        /// <param name="tree"></param>
         public static void GenerateRanges(DomTree tree)
         {
             var liveRange = new HashSet<Instruction>();
             tree.IntGraph = new InterferenceGraph();
-
             GenerateRanges(tree.Root, liveRange, tree.IntGraph);
         }
     }

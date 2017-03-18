@@ -28,6 +28,9 @@ namespace compiler.middleend.ir
 {
     public class ParseTree
     {
+        public Cfg ControlFlowGraph { get; set; }
+        public DomTree DominatorTree { get; set; }
+
         public ParseTree()
         {
             ControlFlowGraph = new Cfg();
@@ -39,8 +42,5 @@ namespace compiler.middleend.ir
             ControlFlowGraph = pCfg;
             DominatorTree = pDom;
         }
-
-        public Cfg ControlFlowGraph { get; set; }
-        public DomTree DominatorTree { get; set; }
     }
 }

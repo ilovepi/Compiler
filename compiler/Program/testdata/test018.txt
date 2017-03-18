@@ -4,12 +4,16 @@ main
 procedure foo();
 var a, b, c, d, e, f, g, h;
 {
+	let a <- call InputNum();
+	let b <- call InputNum();
 	let c <- a + b;
 	let d <- c;
 	let e <- d * d;
 	let f <- a + c;
 	let g <- e;
 	let a <- g + d;
+
+	let h<-call InputNum();
 	
 	if a < c then
 		let h <- g + 1

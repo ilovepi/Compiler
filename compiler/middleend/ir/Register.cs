@@ -24,7 +24,7 @@
 
 #endregion
 
-namespace compiler.midleend.ir
+namespace compiler.middleend.ir
 {
     public enum Register
     {

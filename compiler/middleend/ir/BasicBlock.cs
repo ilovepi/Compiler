@@ -35,25 +35,31 @@ namespace compiler.middleend.ir
 {
     public class BasicBlock
     {
-        public BasicBlock()
-        {
-            Instructions = new List<Instruction>();
-            AnchorBlock = new Anchor();
-            //Graph = new InterferenceGraph();
-        }
-
-        public BasicBlock(string pName)
-        {
-            Instructions = new List<Instruction>();
-            Name = pName;
-            AnchorBlock = new Anchor();
-            //Graph = new InterferenceGraph();
-        }
-
         public string Name { get; }
         public List<Instruction> Instructions { get; set; }
 
         public Anchor AnchorBlock { get; set; }
+
+        public Node.NodeTypes NodeType { get; set; }
+
+        public int NestingDepth { get; set; }
+
+        public BasicBlock()
+        {
+            Instructions = new List<Instruction>();
+            AnchorBlock = new Anchor();
+            NestingDepth = 1;
+            //Graph = new InterferenceGraph();
+        }
+
+        public BasicBlock(string pName, int pNestingDetph)
+        {
+            Instructions = new List<Instruction>();
+            Name = pName;
+            AnchorBlock = new Anchor();
+            NestingDepth = pNestingDetph;
+            //Graph = new InterferenceGraph();
+        }
 
         //public InterferenceGraph Graph { get; set; }
 

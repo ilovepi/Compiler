@@ -28,8 +28,8 @@
 
 using System;
 using System.Collections.Generic;
+using compiler.backend;
 using compiler.frontend;
-using compiler.midleend.ir;
 
 #endregion
 
@@ -40,52 +40,21 @@ namespace compiler.middleend.ir
         /// <summary>
         ///     Global instruction counter for all IR instructions
         /// </summary>
-        public static int InstructionCounter;
+        private static int _instructionCounter;
 
         public string Colorname;
 
-        public uint Offset;
+        public int Offset { get; set; }
 
-        public Instruction(Instruction other)
-        {
-            if (other != null)
-            {
-                Num = other.Num;
-                Op = other.Op;
-                Arg1 = other.Arg1;
-                Arg2 = other.Arg2;
-                LiveRange = other.LiveRange;
-
-                Prev = other.Prev;
-                Next = other.Next;
-                Search = other.Search;
-                Uses = other.Uses;
-            }
-        }
-
-
-        public Instruction(IrOps pOp, Operand pArg1, Operand pArg2)
-        {
-            InstructionCounter++;
-            Num = InstructionCounter;
-
-            Op = pOp;
-            Arg1 = pArg1;
-            Arg2 = pArg2;
-
-            AddRefs();
-
-            LiveRange = new HashSet<Instruction>();
-
-            Prev = null;
-            Next = null;
-            Search = null;
-            Uses = new List<Operand>();
-        }
+        public DlxInstruction MachineInst { get; set; }
 
         public VariableType VArId { get; set; }
 
         public List<Operand> Uses { get; set; }
+
+        public HashSet<Instruction> UsesLocations { get; set; }
+
+        public List<Operand> Parameters { get; set; }
 
         /// <summary>
         ///     The Instruction number
@@ -134,6 +103,47 @@ namespace compiler.middleend.ir
 
         public Register Reg { get; set; }
 
+        public Instruction(Instruction other)
+        {
+            if (other != null)
+            {
+                Num = other.Num;
+                Op = other.Op;
+                Arg1 = other.Arg1;
+                Arg2 = other.Arg2;
+                LiveRange = other.LiveRange;
+
+                Prev = other.Prev;
+                Next = other.Next;
+                Search = other.Search;
+                Uses = other.Uses;
+                UsesLocations = other.UsesLocations;
+                Parameters = other.Parameters;
+            }
+        }
+
+
+        public Instruction(IrOps pOp, Operand pArg1, Operand pArg2)
+        {
+            _instructionCounter++;
+            Num = _instructionCounter;
+
+            Op = pOp;
+            Arg1 = pArg1;
+            Arg2 = pArg2;
+
+            AddRefs();
+
+            LiveRange = new HashSet<Instruction>();
+
+            Prev = null;
+            Next = null;
+            Search = null;
+            Uses = new List<Operand>();
+            UsesLocations = new HashSet<Instruction>();
+            Parameters = new List<Operand>();
+        }
+
 
         public bool Equals(Instruction other)
         {
@@ -152,10 +162,13 @@ namespace compiler.middleend.ir
         private void AddRefs()
         {
             AddInstructionRef(Arg1);
-            AddInstructionRef(Arg2);
+            if ((Op != IrOps.Store) || (Arg2.Inst?.Op == IrOps.Adda))
+            {
+                AddInstructionRef(Arg2);
+            }
         }
 
-        public void AddInstructionRef(Operand op)
+        private void AddInstructionRef(Operand op)
         {
             if (op == null)
             {
@@ -165,10 +178,12 @@ namespace compiler.middleend.ir
             if (op.Kind == Operand.OpType.Instruction)
             {
                 op.Inst?.Uses.Add(op);
+                op.Inst?.UsesLocations.Add(this);
             }
             else if (op.Kind == Operand.OpType.Variable)
             {
                 op.Variable.Location?.Uses.Add(op);
+                op.Variable.Location?.UsesLocations.Add(this);
             }
         }
 
@@ -220,7 +235,18 @@ namespace compiler.middleend.ir
             string a2 = (Op != IrOps.Bra) && ((Op != IrOps.End) && (Op != IrOps.Load))
                 ? DisplayArg(smb, Arg2)
                 : string.Empty;
-            return $"{Num}: {Op} {a1} {a2}";
+            return $"{Num}: {Op} {a1} {a2} -- Uses {Uses.Count}: {PrintUses(smb)}";
+        }
+
+
+        private string PrintUses(SymbolTable smb)
+        {
+            var s = string.Empty;
+            foreach (Instruction usesLocation in UsesLocations)
+            {
+                s += "(" + usesLocation.Num + "),";
+            }
+            return s;
         }
 
         private static string DisplayArg(SymbolTable smb, Operand arg)
@@ -230,7 +256,7 @@ namespace compiler.middleend.ir
 
         public override string ToString()
         {
-            return "" + Num + ": " + Op + " " + Arg1 + " " + Arg2;
+            return "" + Num + ": " + Op + " " + Arg1 + " " + Arg2 + " : " + Uses.Count;
         }
 
 
@@ -239,7 +265,7 @@ namespace compiler.middleend.ir
             foreach (Operand operand in Uses)
             {
                 operand.Inst = newInst;
-                newInst.Uses.Add(new Operand(this));
+                newInst.Uses.Add(operand);
             }
 
             // clear all references just incase we need to fix this in Dead Code Elimination
