@@ -35,6 +35,9 @@ namespace compiler.middleend.ir
 {
     public class CompareNode : Node
     {
+        public Node FalseNode { get; set; }
+        public JoinNode Join { get; set; }
+
         public CompareNode(BasicBlock pBb) : base(pBb, NodeTypes.CompareB)
         {
             Colorname = "cornflowerblue";
@@ -47,10 +50,6 @@ namespace compiler.middleend.ir
             Colorname = "cornflowerblue";
             FalseNode = null;
         }
-
-
-        public Node FalseNode { get; set; }
-        public JoinNode Join { get; set; }
 
 
         public void Insert(Node other, bool trueChild)
@@ -130,11 +129,11 @@ namespace compiler.middleend.ir
             if (!visited.Contains(this))
             {
                 // visited.Add(this);
-                Bb.Instructions.Last().Arg2 = new Operand(FalseNode.GetNextInstruction());
+                Bb.Instructions.Last().Arg2 = new Operand(FalseNode.GetNextNonPhi());
                 if (FalseNode != Join)
                 {
                     Join.Parent.Bb.AddInstruction(new Instruction(IrOps.Bra,
-                        new Operand(Join.GetNextInstruction()), null));
+                        new Operand(Join.GetNextNonPhi()), null));
                 }
                 FalseNode.InsertBranches(visited);
                 Child.InsertBranches(visited);

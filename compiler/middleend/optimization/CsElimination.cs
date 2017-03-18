@@ -33,7 +33,7 @@ using compiler.middleend.ir;
 
 namespace compiler.middleend.optimization
 {
-    public class CsElimination
+    public static class CsElimination
     {
         public static void Eliminate(Node root)
         {
@@ -42,7 +42,7 @@ namespace compiler.middleend.optimization
         }
 
 
-        public static void Eliminate(Node root, HashSet<Node> visited)
+        private static void Eliminate(Node root, HashSet<Node> visited)
         {
             if ((root == null) || visited.Contains(root))
             {
@@ -147,15 +147,9 @@ namespace compiler.middleend.optimization
         private static void EliminatePriv(Node root, Instruction bbInstruction, List<Instruction> removalList,
             bool alternate)
         {
-            Instruction predecessor;
-            if (alternate)
-            {
-                predecessor = root.AnchorSearch(bbInstruction, alternate);
-            }
-            else
-            {
-                predecessor = root.AnchorSearch(bbInstruction);
-            }
+            Instruction predecessor = alternate
+                ? root.AnchorSearch(bbInstruction, true)
+                : root.AnchorSearch(bbInstruction);
 
 
             if (predecessor != null)

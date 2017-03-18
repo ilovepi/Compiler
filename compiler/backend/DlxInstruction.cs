@@ -41,6 +41,24 @@ namespace compiler.backend
         public const int Globals = 30;
         public const int RetAddr = 31;
 
+        public FunctionBuilder CalledFunction;
+
+        public OpCodes Op { get; set; }
+
+        public int A { get; set; }
+
+        public int B { get; set; }
+
+        public int C { get; set; }
+
+        public int Address { get; set; }
+
+        public Instruction IrInst { get; set; }
+
+        public uint MachineCode { get; set; }
+
+
+        public string Colorname { get; set; }
 
 
         public DlxInstruction(OpCodes op, int a, int b, int c)
@@ -50,7 +68,6 @@ namespace compiler.backend
             B = b;
             C = c;
         }
-
 
         public DlxInstruction(Instruction inst)
         {
@@ -81,7 +98,7 @@ namespace compiler.backend
                         A = inst.Arg1.Val;
                         B = inst.Arg1.Inst.Arg1.Val;
                         C = inst.Arg1.Inst.Arg2.Val;
-
+                        inst.Arg1.Inst.MachineInst = this;
                         if (inst.Arg1.Inst.Arg2.Kind == Operand.OpType.Instruction)
                         {
                             // load stuff from array with register 
@@ -98,20 +115,21 @@ namespace compiler.backend
                     else
                     {
                         Op = OpCodes.LDW;
-                        A =  (int)inst.Reg;
-                        B =  inst.Arg1.Val;
+                        A = (int) inst.Reg;
+                        B = inst.Arg1.Val;
                         C = 0;
                         PutF1();
                     }
                     break;
                 case IrOps.Store:
-                    if ((inst.Arg1.Kind == Operand.OpType.Instruction) && (inst.Arg1.Inst.Op == IrOps.Adda))
+                    if ((inst.Arg1.Kind == Operand.OpType.Instruction) && (inst.Arg2.Inst?.Op == IrOps.Adda))
                     {
-                        A =  inst.Arg1.Val;
-                        B =  inst.Arg1.Inst.Arg1.Val;
-                        C =  inst.Arg1.Inst.Arg2.Val;
+                        A = inst.Arg1.Val;
+                        B = inst.Arg2.Inst.Arg2.Val;
+                        C = inst.Arg1.Inst.Arg1.Val;
+                        //C = inst.Arg1.Val;
 
-                        if (inst.Arg1.Inst.Arg2.Kind == Operand.OpType.Instruction)
+                        if (inst.Arg2.Inst.Arg2.Kind == Operand.OpType.Instruction)
                         {
                             // Store stuff in an array using instructions
                             Op = OpCodes.STW;
@@ -128,8 +146,8 @@ namespace compiler.backend
                     {
                         // Else this is a normal store to a stack variable
                         Op = OpCodes.STW;
-                        A =  (int)inst.Reg;
-                        B =  inst.Arg1.Val;
+                        A = (int) inst.Reg;
+                        B = inst.Arg1.Val;
                         C = 0;
                         PutF1();
                     }
@@ -148,8 +166,8 @@ namespace compiler.backend
                     break;
 
                 case IrOps.Bra:
-                    // TODO: this needs work to handle calls
-                    Op = OpCodes.BSR;
+                    Op = OpCodes.BEQ;
+                    A = 0;
                     C = inst.Offset;
                     PutF1();
                     break;
@@ -173,12 +191,12 @@ namespace compiler.backend
                     break;
                 case IrOps.Read:
                     Op = OpCodes.RDD;
-                    A =  inst.Arg1.Val;
+                    A = inst.Arg1.Val;
                     PutF2();
                     break;
                 case IrOps.Write:
                     Op = OpCodes.WRD;
-                    B =  inst.Arg1.Val;
+                    B = inst.Arg1.Val;
                     PutF2();
                     break;
                 case IrOps.WriteNl:
@@ -187,16 +205,16 @@ namespace compiler.backend
                     break;
                 case IrOps.Move:
                     //emulate a move instruction to copy with an OR operation
-                    Op = OpCodes.OR;
-                    A =  inst.Arg2.Val;
-                    B =  inst.Arg1.Val;
+                    Op = OpCodes.AND;
+                    A = inst.Arg2.Val;
+                    B = inst.Arg1.Val;
                     C = B;
                     PutF2();
                     break;
                 case IrOps.Call:
                     Op = OpCodes.JSR;
                     C = inst.Offset;
-                    PutF1();
+                    PutF3();
                     break;
                 case IrOps.Adda:
                 case IrOps.Phi:
@@ -206,30 +224,21 @@ namespace compiler.backend
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
+            IrInst = inst;
+            IrInst.MachineInst = this;
         }
-
-        public OpCodes Op { get; set; }
-
-        public int A { get; set; }
-
-        public int B { get; set; }
-
-        public int C { get; set; }
-
-        public uint MachineCode { get; set; }
-
-        public string Colorname { get; set; }
 
         public void PutF1()
         {
             MachineCode = 0;
-            MachineCode = (uint)( ((int)Op << 26) | (A << 21) | (B << 16) | (C & 0xffff) );
+            MachineCode = (uint) (((int) Op << 26) | (A << 21) | (B << 16) | (C & 0xffff));
         }
 
         public void PutF2()
         {
             MachineCode = 0;
-            MachineCode = (uint)( ((int)Op << 26) | (A << 21) | (B << 16) | (C & 0x001f));
+            MachineCode = (uint) (((int) Op << 26) | (A << 21) | (B << 16) | (C & 0x001f));
         }
 
         public void PutF3()
@@ -244,14 +253,14 @@ namespace compiler.backend
             if (arg1.Kind == Operand.OpType.Constant)
             {
                 Op = opCode + 16;
-                var temp =  arg1.Val;
+                var temp = arg1.Val;
                 B = arg2.Val;
                 C = temp;
             }
             else
             {
                 Op = arg2.Kind == Operand.OpType.Constant ? opCode + 16 : opCode;
-                B =  arg1.Val;
+                B = arg1.Val;
                 C = arg2.Val;
             }
         }

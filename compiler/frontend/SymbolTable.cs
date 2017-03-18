@@ -35,6 +35,14 @@ namespace compiler.frontend
 {
     public class SymbolTable
     {
+        public Dictionary<string, int> Values { get; set; }
+
+        public Dictionary<int, string> Symbols { get; set; }
+
+        public Dictionary<int, int> AddressTble { get; set; }
+
+        public int Count { get; private set; }
+
         public SymbolTable()
         {
             Count = 0;
@@ -43,14 +51,6 @@ namespace compiler.frontend
             AddressTble = new Dictionary<int, int>();
             Init();
         }
-
-        public Dictionary<string, int> Values { get; set; }
-
-        public Dictionary<int, string> Symbols { get; set; }
-
-        public Dictionary<int, int> AddressTble { get; set; }
-
-        public int Count { get; private set; }
 
         public void Insert(string key)
         {

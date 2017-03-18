@@ -34,13 +34,13 @@ namespace compiler.middleend.ir
 {
     public class JoinNode : Node
     {
+        public Node FalseParent { get; set; }
+
         public JoinNode(BasicBlock pBb) : base(pBb, NodeTypes.JoinB)
         {
             Colorname = "coral";
             FalseParent = null;
         }
-
-        public Node FalseParent { get; set; }
 
 
         public override void CheckEnqueue(Cfg cfg)

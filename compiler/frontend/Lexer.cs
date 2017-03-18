@@ -36,27 +36,6 @@ namespace compiler.frontend
     public class Lexer : IDisposable
     {
         /// <summary>
-        ///     Constructor for the Lexer
-        /// </summary>
-        /// <param name="filename">The name of the source file to begin tokenizing</param>
-        public Lexer(string filename)
-        {
-            try
-            {
-                Sr = new StreamReader(filename);
-            }
-            catch (FileNotFoundException e)
-            {
-                Console.WriteLine(e.Message);
-                throw;
-            }
-
-            SymbolTble = new SymbolTable();
-            Next();
-            LineNo = 1;
-        }
-
-        /// <summary>
         ///     A StreamReader to read chars from file
         /// </summary>
         public StreamReader Sr { get; set; }
@@ -96,6 +75,27 @@ namespace compiler.frontend
         ///     The current position in the current line
         /// </summary>
         public int Position { set; get; }
+
+        /// <summary>
+        ///     Constructor for the Lexer
+        /// </summary>
+        /// <param name="filename">The name of the source file to begin tokenizing</param>
+        public Lexer(string filename)
+        {
+            try
+            {
+                Sr = new StreamReader(filename);
+            }
+            catch (FileNotFoundException e)
+            {
+                Console.WriteLine(e.Message);
+                throw;
+            }
+
+            SymbolTble = new SymbolTable();
+            Next();
+            LineNo = 1;
+        }
 
         public void Dispose()
         {

@@ -34,9 +34,9 @@ using compiler.middleend.ir;
 
 namespace compiler.middleend.optimization
 {
-    public class LiveRanges
+    internal static class LiveRanges
     {
-        public static HashSet<Instruction> PopulateRanges(DominatorNode d, HashSet<Instruction> liveRange,
+        private static HashSet<Instruction> PopulateRanges(DominatorNode d, HashSet<Instruction> liveRange,
             InterferenceGraph intGraph)
         {
             var live = new HashSet<Instruction>(liveRange);
@@ -117,7 +117,7 @@ namespace compiler.middleend.optimization
         }
 
 
-        public static HashSet<Instruction> GenerateRanges(DominatorNode d, HashSet<Instruction> liveRange,
+        private static HashSet<Instruction> GenerateRanges(DominatorNode d, HashSet<Instruction> liveRange,
             InterferenceGraph intGraph)
         {
             if (d.Bb.NodeType == Node.NodeTypes.WhileB)
@@ -173,7 +173,7 @@ namespace compiler.middleend.optimization
 
 
         // Handles While
-        public static HashSet<Instruction> GenerateLoopRanges(DominatorNode d, HashSet<Instruction> liveRange,
+        private static HashSet<Instruction> GenerateLoopRanges(DominatorNode d, HashSet<Instruction> liveRange,
             InterferenceGraph intGraph)
         {
             // Get live range from the follow block

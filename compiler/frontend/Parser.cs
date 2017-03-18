@@ -41,17 +41,7 @@ namespace compiler.frontend
         private readonly bool _copyPropagationEnabled;
         private readonly string _filename;
 
-        public Parser(string pFileName, bool pCopyPropEnabled)
-        {
-            _filename = pFileName;
-            _copyPropagationEnabled = pCopyPropEnabled;
-
-            Tok = Token.UNKNOWN;
-            Scanner = new Lexer(_filename);
-            ProgramCfg = new Cfg();
-            FunctionsCfgs = new List<Cfg>();
-            VarTable = new VarTbl();
-        }
+        public HashSet<string> Callgraph;
 
         public Token Tok { get; set; }
 
@@ -65,9 +55,7 @@ namespace compiler.frontend
 
         public VarTbl VarTable { get; set; }
 
-        public HashSet<string> Callgraph;
-
-
+        public static int nestingDepth = 1;
 
         /// <summary>
         ///     A stack of frame addresses -- esentially a list of frame pointers
@@ -78,6 +66,18 @@ namespace compiler.frontend
         public Cfg ProgramCfg { get; set; }
 
         public List<Cfg> FunctionsCfgs { get; set; }
+
+        public Parser(string pFileName, bool pCopyPropEnabled)
+        {
+            _filename = pFileName;
+            _copyPropagationEnabled = pCopyPropEnabled;
+
+            Tok = Token.UNKNOWN;
+            Scanner = new Lexer(_filename);
+            ProgramCfg = new Cfg();
+            FunctionsCfgs = new List<Cfg>();
+            VarTable = new VarTbl();
+        }
 
         public void Dispose()
         {
@@ -148,7 +148,7 @@ namespace compiler.frontend
             if (variables.ContainsKey(id.IdKey))
             {
                 var cached = variables[id.IdKey];
-                id = new Operand(variables[id.IdKey]);
+                id = new Operand(cached);
             }
 
 
@@ -459,7 +459,6 @@ namespace compiler.frontend
             {
                 Cfg func = FuncDecl(new VarTbl(varTble), cfg.Globals);
                 func.Globals = cfg.Globals;
-
             }
 
             GetExpected(Token.OPEN_CURL);
@@ -670,13 +669,13 @@ namespace compiler.frontend
             //TODO: Need a special address thing for functions
             //CreateIdentifier();
             Operand id = Identifier();
-            
+
             List<Instruction> loads = new List<Instruction>();
 
             if (Tok == Token.OPEN_PAREN)
             {
                 cfg.Parameters = FormalParams(variables);
-                var prologue = new Node(new BasicBlock("Prologue"));
+                var prologue = new Node(new BasicBlock("Prologue", nestingDepth));
                 cfg.Root = prologue;
 
 
@@ -759,22 +758,19 @@ namespace compiler.frontend
 
             var ret = cfg.Root.Leaf().Bb.Instructions.Last();
             cfg.Root.Leaf().Bb.Instructions.Remove(ret);
-            var epilogue = new Node(new BasicBlock("Epilogue"));
+            var epilogue = new Node(new BasicBlock("Epilogue", nestingDepth));
 
             foreach (var globalLoad in loads)
             {
-
-
                 var temp = variables[globalLoad.Arg1.IdKey];
-                if ( temp.Location != globalLoad)
+                if (temp.Location != globalLoad)
                 {
                     Instruction newInst = new Instruction(IrOps.Store, temp.Value,
                         new Operand(Operand.OpType.Constant, temp.UuId));
-                    
+
                     epilogue.Bb.AddInstruction(newInst);
                     cfg.UsedGlobals.Add(temp.Identity);
                 }
-
             }
 
             epilogue.Bb.AddInstruction(ret);
@@ -819,7 +815,7 @@ namespace compiler.frontend
 
         private Cfg Statement(ref VarTbl variables)
         {
-            var cfgTemp = new Cfg {Root = new Node(new BasicBlock("StatementBlock"))};
+            var cfgTemp = new Cfg {Root = new Node(new BasicBlock("StatementBlock", nestingDepth))};
 
             // TODO: address what to do with return opperand;
             ParseResult stmt;
@@ -856,7 +852,7 @@ namespace compiler.frontend
         private Cfg StatementSequence(ref VarTbl variables)
         {
             var cfg = new Cfg();
-            var bb = new BasicBlock("StatSequence");
+            var bb = new BasicBlock("StatSequence", nestingDepth);
             cfg.Root = new Node(bb);
             Cfg stmt = Statement(ref variables);
             cfg.Insert(stmt);
@@ -922,8 +918,6 @@ namespace compiler.frontend
                 }
 
                 GetExpected(Token.CLOSE_PAREN);
-
-                //TODO: jump to call
             }
 
             foreach (var func in FunctionsCfgs)
@@ -987,9 +981,9 @@ namespace compiler.frontend
         {
             GetExpected(Token.IF);
             var ifBlock = new Cfg();
-            var compBlock = new CompareNode(new BasicBlock("CompareBlock"));
+            var compBlock = new CompareNode(new BasicBlock("CompareBlock", nestingDepth));
 
-            var joinBlock = new JoinNode(new BasicBlock("JoinBlock"));
+            var joinBlock = new JoinNode(new BasicBlock("JoinBlock", nestingDepth));
             Node falseBlock = joinBlock;
             compBlock.Join = joinBlock;
 
@@ -1103,7 +1097,7 @@ namespace compiler.frontend
             var whileBlock = new Cfg();
 
             //crate compare block/loop header block
-            var loopHeaderBlock = new WhileNode(new BasicBlock("LoopHeader"));
+            var loopHeaderBlock = new WhileNode(new BasicBlock("LoopHeader", nestingDepth));
 
             // insert compare block for while stmt
             whileBlock.Insert(loopHeaderBlock);
@@ -1113,8 +1107,10 @@ namespace compiler.frontend
 
             GetExpected(Token.DO);
 
+            nestingDepth++;
             // prepare basic block for loop body
             Cfg stmts = StatementSequence(ref loopSsa);
+            nestingDepth--;
 
             Node loopBlock = stmts.Root;
 
@@ -1127,15 +1123,15 @@ namespace compiler.frontend
 
             GetExpected(Token.OD);
 
-            var followBlock = new Node(new BasicBlock("FollowBlock")) {Colorname = "palegreen"};
-            var branchBlock = new Node(new BasicBlock("BranchBack"));
+            var followBlock = new Node(new BasicBlock("FollowBlock", nestingDepth)) {Colorname = "palegreen"};
+            var branchBlock = new Node(new BasicBlock("BranchBack", nestingDepth));
             loopHeaderBlock.LoopParent = branchBlock;
 
             loopHeaderBlock.InsertFalse(followBlock);
 
             last.Child = branchBlock;
             branchBlock.Parent = last;
-            branchBlock.Bb.AddInstruction(new Instruction(IrOps.Bra, new Operand(loopHeaderBlock.GetNextInstruction()),
+            branchBlock.Bb.AddInstruction(new Instruction(IrOps.Bra, new Operand(loopHeaderBlock.GetNextNonPhi()),
                 null));
             branchBlock.Child = loopHeaderBlock;
             loopBlock.Consolidate();
@@ -1226,29 +1222,6 @@ namespace compiler.frontend
             return false;
         }
 
-        /*
-        public Tuple<BasicBlock, int> FindInstruction(Instruction inst, Node n)
-        {
-            if (n == null)
-            {
-                return null;
-            }
-
-            List<Instruction> instList = n.Bb.Instructions;
-
-            for (var i = 0; i < instList.Count; i++)
-            {
-                if (inst == instList[i])
-                {
-                    return new Tuple<BasicBlock, int>(n.Bb, i);
-                }
-            }
-
-            return FindInstruction(inst, n.Parent);
-        }
-        */
-
-
         private ParseResult ReturnStmt(VarTbl variables)
         {
             GetExpected(Token.RETURN);
@@ -1286,17 +1259,11 @@ namespace compiler.frontend
 
             if (Tok == Token.IDENTIFIER)
             {
-                //TODO: handle parameters????
-                //CreateIdentifier();
-
                 CreateParameter(paramList, varTble);
 
                 while (Tok == Token.COMMA)
                 {
                     Next();
-
-                    //not sure this is correct per above
-                    //CreateIdentifier();
                     CreateParameter(paramList, varTble);
                 }
             }
@@ -1335,23 +1302,21 @@ namespace compiler.frontend
             ProgramCfg.Name = "Main";
             ProgramCfg.Sym = Scanner.SymbolTble;
             ProgramCfg.UsedGlobals = new HashSet<VariableType>();
-           
         }
-
 
 
         public void FixCallGraphs(VarTbl variables)
         {
             foreach (Cfg function in FunctionsCfgs)
             {
-               HashSet<string> visitedhHashSet = new HashSet<string>();
-               function.UsedGlobals.UnionWith(CheckCalls(visitedhHashSet,function));
+                HashSet<string> visitedhHashSet = new HashSet<string>();
+                function.UsedGlobals.UnionWith(CheckCalls(visitedhHashSet, function));
                 var epilogue = function.Root.Leaf();
                 foreach (VariableType global in function.UsedGlobals)
                 {
                     var temp = variables[global.Id];
                     Instruction newInst = new Instruction(IrOps.Store, temp.Value,
-                            new Operand(Operand.OpType.Constant, global.Id));
+                        new Operand(Operand.OpType.Constant, global.Id));
                     epilogue.Bb.AddInstruction(newInst);
                 }
             }
@@ -1359,8 +1324,6 @@ namespace compiler.frontend
 
         public HashSet<VariableType> CheckCalls(HashSet<string> visited, Cfg func)
         {
-            
-
             var newGlobals = new HashSet<VariableType>(func.UsedGlobals);
             if (!visited.Contains(func.Name))
             {
@@ -1370,7 +1333,6 @@ namespace compiler.frontend
                     var found = FunctionsCfgs.Find((current) => current.Name == name);
                     newGlobals.UnionWith(CheckCalls(visited, found));
                 }
-                
             }
 
             return newGlobals;

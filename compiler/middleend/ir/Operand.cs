@@ -46,6 +46,22 @@ namespace compiler.middleend.ir
         }
 
 
+        public OpType Kind { get; set; }
+
+
+        public int Val { get; set; }
+
+
+        public int IdKey { get; set; }
+
+        public string Name { get; set; }
+
+        public SsaVariable Variable { get; set; }
+
+
+        public Instruction Inst { get; set; }
+
+
         public Operand(Instruction pInst)
         {
             Kind = OpType.Instruction;
@@ -83,22 +99,6 @@ namespace compiler.middleend.ir
             Variable = ssa;
             IdKey = Variable.UuId;
         }
-
-
-        public OpType Kind { get; set; }
-
-
-        public int Val { get; set; }
-
-
-        public int IdKey { get; set; }
-
-        public string Name { get; set; }
-
-        public SsaVariable Variable { get; set; }
-
-
-        public Instruction Inst { get; set; }
 
         public bool Equals(Operand other)
         {
@@ -201,8 +201,9 @@ namespace compiler.middleend.ir
                     return "(" + val + ")";
                 case OpType.Register:
                     return "R" + Val;
+                default:
+                    return "ERROR!!!";
             }
-            return "ERROR!!!";
         }
 
 

@@ -33,7 +33,7 @@ using compiler.middleend.ir;
 
 namespace compiler.middleend.optimization
 {
-    class DeadCodeElimination
+    internal static class DeadCodeElimination
     {
         private static HashSet<Node> _visited;
 

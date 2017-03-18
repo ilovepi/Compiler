@@ -33,7 +33,7 @@ using compiler.middleend.ir;
 
 namespace compiler.middleend.optimization
 {
-    class CleanUpSsa
+    internal static class CleanUpSsa
     {
         private static HashSet<Node> _visited;
 

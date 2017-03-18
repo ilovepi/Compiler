@@ -42,15 +42,14 @@ namespace compiler
     {
         public List<ParseTree> FuncList;
 
+        public List<FunctionBuilder> DlxFunctions { get; set; }
+
+        public CompilerOptions Opts { get; }
 
         public Compiler(CompilerOptions pOptions)
         {
             Opts = pOptions;
         }
-
-        public List<FunctionBuilder> DlxFunctions { get; set; }
-
-        public CompilerOptions Opts { get; }
 
         public void Parse()
         {
@@ -95,7 +94,7 @@ namespace compiler
 
             // quickgraph makes the files for us, so no using statement here
             GenInterferenceGraphString();
-            
+
 
             using (var file = new StreamWriter(Opts.DomFilename + ".code"))
             {
@@ -136,7 +135,7 @@ namespace compiler
             {
                 DomTree dom = new DomTree
                 {
-                    Root = new DominatorNode(new BasicBlock("StatSequence")) {Bb = {Instructions = dlxFunc.FuncBody}}
+                    Root = new DominatorNode(new BasicBlock("StatSequence",1)) {Bb = {Instructions = dlxFunc.FuncBody}}
                 };
                 straightFuncList.Add(new ParseTree(dlxFunc.Tree.ControlFlowGraph, dom));
                 dom.Name = dlxFunc.Tree.ControlFlowGraph.Name;
@@ -144,7 +143,6 @@ namespace compiler
             }
             return straightFuncList;
         }
-
 
         private void PopulateDlxFunc()
         {
@@ -158,6 +156,7 @@ namespace compiler
             {
                 func.TransformDlx(DlxFunctions);
             }
+            AssignAddresses();
         }
 
         private string GenDomGraphString()
@@ -167,20 +166,17 @@ namespace compiler
                 (current, func) => current + (func.DominatorTree.PrintTreeGraph(i++, func.ControlFlowGraph.Sym) + "\n"));
         }
 
-        private void GenInterferenceGraphString()
+        private string GenInterferenceGraphString()
         {
-            string mystring = string.Empty;
-            foreach (ParseTree parseTree in FuncList)
-            {
-                mystring += parseTree.DominatorTree.PrintInterference() + "\n";
-            }
+            return FuncList.Aggregate(string.Empty,
+                (current, parseTree) => current + (parseTree.DominatorTree.PrintInterference() + "\n"));
         }
 
         private string GenControlGraphString()
         {
             var i = 0;
-            String s = string.Empty;
-            foreach (ParseTree func in FuncList)
+            var s = string.Empty;
+            foreach (var func in FuncList)
             {
                 func.ControlFlowGraph.GenerateDotOutput(i++);
                 s += func.ControlFlowGraph.DotOutput + "\n";
@@ -198,7 +194,6 @@ namespace compiler
                 {
                     restart = TransformIr(func, false);
                 } while (restart);
-
 
                 TransformIr(func, true);
 
@@ -229,7 +224,6 @@ namespace compiler
                 CsElimination.Eliminate(func.ControlFlowGraph.Root);
             }
 
-
             // Reevaluation
             if (Opts.DeadCode)
             {
@@ -242,7 +236,6 @@ namespace compiler
                 restart = Prune.StartPrune(func.ControlFlowGraph.Root);
                 func.ControlFlowGraph.Root.Consolidate();
                 func.DominatorTree = DominatorNode.ConvertCfg(func.ControlFlowGraph);
-                //restart = false;
             }
             return restart;
         }
@@ -262,7 +255,7 @@ namespace compiler
 
                 foreach (var vertex in intGraph.Vertices)
                 {
-                     //newIntGraph.AddVerticesAndEdgeRange( (new InterferenceGraph(intGraph.PhiGlobber(vertex, visited))).Edges );
+                    //newIntGraph.AddVerticesAndEdgeRange( (new InterferenceGraph(intGraph.PhiGlobber(vertex, visited))).Edges );
                     //intGraph.Color();
                 }
 
@@ -300,6 +293,17 @@ namespace compiler
             throw new NotImplementedException();
         }
 
+        public void AssignAddresses()
+        {
+            int baseAddr = 0;
+            foreach (FunctionBuilder functionBuilder in DlxFunctions)
+            {
+                functionBuilder.AssignAddresses(baseAddr);
+                baseAddr += functionBuilder.CodeSize;
+            }
+        }
+
+
         public void GenerateOutput()
         {
             GenerateGraphOutput();
@@ -315,7 +319,6 @@ namespace compiler
             GenControlGraphString();
             GenDomGraphString();
             GenInterferenceGraphString();
-
             GenStraightLineFunctions();
             GenInstructionListGraphString();
             GenDlxGraphString();
@@ -354,15 +357,20 @@ namespace compiler
             c.GenerateOutput();
         }
 
-        public static void TestRun(string pFilename)
+        public static void TestRun(string pFilename, bool copyprop, bool cse, bool deadcode, bool prune)
         {
             //TODO make this a commandline program with args parsing
             CompilerOptions opts = DefaultOpts(pFilename);
+            opts.CopyProp = copyprop;
+            opts.Cse = cse;
+            opts.DeadCode = deadcode;
+            opts.PruneCfg = prune;
             var c = new Compiler(opts);
             c.Parse();
             c.Optimize();
-            c.GenerateTestOutput();
             c.RegisterAllocation();
+            c.GenerateTestOutput();
+            
         }
     }
 }

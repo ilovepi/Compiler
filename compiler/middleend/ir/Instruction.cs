@@ -28,8 +28,8 @@
 
 using System;
 using System.Collections.Generic;
+using compiler.backend;
 using compiler.frontend;
-using compiler.middleend.ir;
 
 #endregion
 
@@ -40,52 +40,13 @@ namespace compiler.middleend.ir
         /// <summary>
         ///     Global instruction counter for all IR instructions
         /// </summary>
-        public static int InstructionCounter;
+        private static int _instructionCounter;
 
         public string Colorname;
 
-        public int Offset;
+        public int Offset { get; set; }
 
-        public Instruction(Instruction other)
-        {
-            if (other != null)
-            {
-                Num = other.Num;
-                Op = other.Op;
-                Arg1 = other.Arg1;
-                Arg2 = other.Arg2;
-                LiveRange = other.LiveRange;
-
-                Prev = other.Prev;
-                Next = other.Next;
-                Search = other.Search;
-                Uses = other.Uses;
-                UsesLocations = other.UsesLocations;
-                Parameters = other.Parameters;
-            }
-        }
-
-
-        public Instruction(IrOps pOp, Operand pArg1, Operand pArg2)
-        {
-            InstructionCounter++;
-            Num = InstructionCounter;
-
-            Op = pOp;
-            Arg1 = pArg1;
-            Arg2 = pArg2;
-
-            AddRefs();
-
-            LiveRange = new HashSet<Instruction>();
-
-            Prev = null;
-            Next = null;
-            Search = null;
-            Uses = new List<Operand>();
-            UsesLocations = new HashSet<Instruction>();
-            Parameters = new List<Operand>();
-        }
+        public DlxInstruction MachineInst { get; set; }
 
         public VariableType VArId { get; set; }
 
@@ -142,6 +103,47 @@ namespace compiler.middleend.ir
 
         public Register Reg { get; set; }
 
+        public Instruction(Instruction other)
+        {
+            if (other != null)
+            {
+                Num = other.Num;
+                Op = other.Op;
+                Arg1 = other.Arg1;
+                Arg2 = other.Arg2;
+                LiveRange = other.LiveRange;
+
+                Prev = other.Prev;
+                Next = other.Next;
+                Search = other.Search;
+                Uses = other.Uses;
+                UsesLocations = other.UsesLocations;
+                Parameters = other.Parameters;
+            }
+        }
+
+
+        public Instruction(IrOps pOp, Operand pArg1, Operand pArg2)
+        {
+            _instructionCounter++;
+            Num = _instructionCounter;
+
+            Op = pOp;
+            Arg1 = pArg1;
+            Arg2 = pArg2;
+
+            AddRefs();
+
+            LiveRange = new HashSet<Instruction>();
+
+            Prev = null;
+            Next = null;
+            Search = null;
+            Uses = new List<Operand>();
+            UsesLocations = new HashSet<Instruction>();
+            Parameters = new List<Operand>();
+        }
+
 
         public bool Equals(Instruction other)
         {
@@ -166,7 +168,7 @@ namespace compiler.middleend.ir
             }
         }
 
-        public void AddInstructionRef(Operand op)
+        private void AddInstructionRef(Operand op)
         {
             if (op == null)
             {

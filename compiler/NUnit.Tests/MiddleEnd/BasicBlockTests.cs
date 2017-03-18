@@ -49,7 +49,7 @@ namespace NUnit.Tests.MiddleEnd
         public void ConstructorTest()
         {
             Assert.Null(Block.Name);
-            Block = new BasicBlock("Test Block");
+            Block = new BasicBlock("Test Block", 1);
             Assert.AreEqual("Test Block", Block.Name);
         }
 
@@ -57,7 +57,7 @@ namespace NUnit.Tests.MiddleEnd
         [Test]
         public void SearchTest()
         {
-            var graphCfg = new Cfg {Root = new Node(new BasicBlock("MyBlock"))};
+            var graphCfg = new Cfg {Root = new Node(new BasicBlock("MyBlock", 1))};
 
             var inst1 = new Instruction(IrOps.Add, new Operand(Operand.OpType.Constant, 10),
                 new Operand(Operand.OpType.Identifier, 10));
@@ -70,7 +70,7 @@ namespace NUnit.Tests.MiddleEnd
             graphCfg.Root.Bb.AddInstruction(inst2);
 
 
-            graphCfg.Root.Insert(new Node(new BasicBlock("Child Block")));
+            graphCfg.Root.Insert(new Node(new BasicBlock("Child Block", 1)));
             graphCfg.Root.Child.Bb.AddInstruction(inst2);
             CsElimination.Eliminate(graphCfg.Root);
 
