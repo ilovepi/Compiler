@@ -77,7 +77,7 @@ namespace NUnit.Tests
                 @"/Frontend/testdata/big.txt",
                 @"/Frontend/testdata/cell.txt",
                 @"/Frontend/testdata/factorial.txt")] string pFilename,
-            [Values(true)] bool copyProp, [Values(true)] bool cse, [Values(false)] bool deadCode, [Values(true, false)] bool prune)
+            [Values(true)] bool copyProp, [Values(true)] bool cse, [Values(true, false)] bool deadCode, [Values(true, false)] bool prune)
         {
             string filename = TestContext.CurrentContext.TestDirectory + pFilename;
             Compiler.TestRun(filename, copyProp, cse,deadCode,prune);
