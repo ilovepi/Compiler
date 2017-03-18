@@ -101,7 +101,7 @@ namespace compiler.middleend.ir
         /// </summary>
         public HashSet<Instruction> LiveRange { get; set; }
 
-        public Register Reg { get; set; }
+        public int Reg { get; set; }
 
         public Instruction(Instruction other)
         {
@@ -235,7 +235,7 @@ namespace compiler.middleend.ir
             string a2 = (Op != IrOps.Bra) && ((Op != IrOps.End) && (Op != IrOps.Load))
                 ? DisplayArg(smb, Arg2)
                 : string.Empty;
-            return $"{Num}: {Op} {a1} {a2} -- Uses {Uses.Count}: {PrintUses(smb)}";
+            return $"{Num}: {Op} {a1} {a2} -- Uses {Uses.Count}: {PrintUses(smb)} -- Register: {Reg}";
         }
 
 
@@ -256,7 +256,7 @@ namespace compiler.middleend.ir
 
         public override string ToString()
         {
-            return "" + Num + ": " + Op + " " + Arg1 + " " + Arg2 + " : " + Uses.Count;
+            return "" + Num + ": " + Op + " " + Arg1 + " " + Arg2 + " : " + Uses.Count +  " -- " + "Register: " + Reg;
         }
 
 
@@ -270,6 +270,7 @@ namespace compiler.middleend.ir
 
             // clear all references just incase we need to fix this in Dead Code Elimination
             Uses.Clear();
+            //RemoveRefs();
         }
 
         public void FoldConst(int val)
@@ -284,11 +285,18 @@ namespace compiler.middleend.ir
 
             // clear all references just incase we need to fix this in Dead Code Elimination
             Uses.Clear();
+            UsesLocations.Clear();
         }
 
         public bool ExactMatch(Instruction other)
         {
             return (other?.Num == Num) && Equals(other);
+        }
+
+        public void RemoveRefs()
+        {
+            Arg1?.RemoveRefs(this);
+            Arg2?.RemoveRefs(this);
         }
     }
 }

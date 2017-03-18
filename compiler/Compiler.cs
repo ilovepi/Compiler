@@ -262,8 +262,16 @@ namespace compiler
                     //intGraph.Color();
                 }
 
-               // parseTree.DominatorTree.IntGraph = newIntGraph;
-               intGraph.Color();
+                // parseTree.DominatorTree.IntGraph = newIntGraph;
+                intGraph.Color();
+
+                foreach (KeyValuePair<Instruction, uint> pair in intGraph.GraphColors)
+                {
+                    var inst = pair.Key;
+                    var reg = pair.Value;
+
+                    inst.Reg = (int)reg;
+                }
             }
         }
 
@@ -354,8 +362,8 @@ namespace compiler
                 DomFilename = "Dominator.dot",
                 GraphOutput = true,
                 CopyProp = true,
-                Cse = false,
-                DeadCode = false,
+                Cse = true,
+                DeadCode = true,
                 PruneCfg = false,
                 RegAlloc = true,
                 InstSched = false,

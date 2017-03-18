@@ -101,8 +101,8 @@ namespace NUnit.Tests.MiddleEnd
         [Test]
         public void ToStringTest()
         {
-            Assert.AreEqual(Inst3.Num + ": Bra (" + Inst1.Num + ")  : 0", Inst3.ToString().Trim());
-            Assert.AreEqual(Inst2.Num + ": Add #5 (" + Inst1.Num + ") : 0", Inst2.ToString());
+            Assert.AreEqual(Inst3.Num + ": Bra (" + Inst1.Num + ")  : 0 -- Register: 0", Inst3.ToString().Trim());
+            Assert.AreEqual(Inst2.Num + ": Add #5 (" + Inst1.Num + ") : 0 -- Register: 0", Inst2.ToString());
         }
     }
 }

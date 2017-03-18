@@ -88,6 +88,7 @@ namespace compiler.middleend.optimization
                     default:
                         if (instruction.Uses.Count == 0)
                         {
+                            //instruction.RemoveRefs();
                             removalList.Add(instruction);
                         }
                         break;

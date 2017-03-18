@@ -206,6 +206,22 @@ namespace compiler.middleend.ir
             }
         }
 
+        public void RemoveRefs(Instruction target)
+        {
+            if (Kind == OpType.Instruction)
+            {
+                Inst.Uses.Remove(this);
+                if (Inst.Uses.Count == 0)
+                {
+                    Inst.RemoveRefs();
+                }
+
+                if (Inst.UsesLocations.Contains(target))
+                {
+                    Inst.UsesLocations.Remove(target);
+                }
+            }
+        }
 
         public Operand OpenOperand()
         {

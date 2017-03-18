@@ -63,7 +63,6 @@ namespace compiler.middleend.optimization
                 if (instruction.Arg1?.Kind == Operand.OpType.Variable)
                 {
                     instruction.Arg1 = instruction.Arg1.OpenOperand();
-                    //instruction.Arg1 = instruction.Arg1.Variable.Value.OpenOperand();
                 }
 
                 if ((instruction.Arg2?.Kind == Operand.OpType.Variable) && (instruction.Op != IrOps.Ssa))
@@ -112,7 +111,6 @@ namespace compiler.middleend.optimization
             // can't mutate a list while we're iterating through it so delay removal till here
             foreach (Instruction instruction in removalList)
             {
-                //root.Bb.AnchorBlock.FindOpChain(instruction.Op).RemoveAll(instruction.ExactMatch);
                 root.Bb.Instructions.RemoveAll(instruction.ExactMatch);
             }
 
@@ -124,6 +122,7 @@ namespace compiler.middleend.optimization
             }
         }
 
+      
 
         private static void FoldValue(Instruction inst, List<Instruction> removalList)
         {
