@@ -31,6 +31,7 @@ using compiler.frontend;
 using QuickGraph;
 using QuickGraph.Graphviz;
 using QuickGraph.Graphviz.Dot;
+using QuickGraph.Serialization.DirectedGraphML;
 
 #endregion
 
@@ -66,12 +67,15 @@ namespace compiler.middleend.ir
 
         public string PrintInterference()
         {
-            AdjacencyGraph<Instruction, Edge<Instruction>> temp =
-                IntGraph.Edges.ToAdjacencyGraph<Instruction, Edge<Instruction>>();
-            var graphViz = new GraphvizAlgorithm<Instruction, Edge<Instruction>>(temp, @".", GraphvizImageType.Gif);
+
+           var temp = new BidirectionalGraph<Instruction, UndirectedEdge<Instruction>>();
+            temp.AddVertexRange(IntGraph.Vertices);
+            temp.AddEdgeRange(IntGraph.Edges);
+            var graphViz = new GraphvizAlgorithm<Instruction, UndirectedEdge<Instruction>>(temp, @".", GraphvizImageType.Gif);
 
             graphViz.FormatVertex += FormatVertex;
             graphViz.FormatEdge += FormatEdge;
+
             return graphViz.Generate(new FileDotEngine(), Name + "-InterferenceGraph.dot");
             //return intGraph.ToGraphviz();
         }
@@ -81,18 +85,18 @@ namespace compiler.middleend.ir
         {
             e.VertexFormatter.Label = e.Vertex.ToString();
             e.VertexFormatter.Shape = GraphvizVertexShape.Circle;
-
             e.VertexFormatter.BottomLabel = e.Vertex.ToString();
 
             //e.VertexFormatter.StrokeColor = GraphvizColor.Black;
             //e.VertexFormatter.Font = new GraphvizFont("Calibri", 11);
         }
 
-        private static void FormatEdge(object sender, FormatEdgeEventArgs<Instruction, Edge<Instruction>> e)
+        private static void FormatEdge(object sender, FormatEdgeEventArgs<Instruction, UndirectedEdge<Instruction>> e)
         {
             // e.EdgeFormatter.Font = new GraphvizFont("Calibri", 8);
             e.EdgeFormatter.FontGraphvizColor = GraphvizColor.Black;
             e.EdgeFormatter.StrokeGraphvizColor = GraphvizColor.Black;
+
         }
 
 

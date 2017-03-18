@@ -28,11 +28,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using QuickGraph;
-using QuickGraph.Algorithms.Search;
 
 #endregion
 
@@ -41,7 +38,7 @@ using QuickGraph.Algorithms.Search;
 
 namespace compiler.middleend.ir
 {
-    public class InterferenceGraph : UndirectedGraph<Instruction, Edge<Instruction>>
+    public class InterferenceGraph : UndirectedGraph<Instruction, UndirectedEdge<Instruction>>
     {
         // # of available registers
         private const uint RegisterCount = 27;
@@ -102,6 +99,7 @@ namespace compiler.middleend.ir
 
                 switch (instruction.Op)
                 {
+                    case IrOps.Adda:
                     case IrOps.Bra:
                     case IrOps.Bne:
                     case IrOps.Beq:
@@ -110,22 +108,29 @@ namespace compiler.middleend.ir
                     case IrOps.Bge:
                     case IrOps.Bgt:
                     case IrOps.Write:
+
                     //case IrOps.Ssa:
                         continue;
                 }
 
-
+                AddVertex(instruction);
                 foreach (var item in instruction.LiveRange)
                 {
                     if (item != null)
                     {
 
-                        AddVertex(instruction);
+                        if (instruction.Op == IrOps.Ssa)
+                        {
+                            if (item == instruction.Arg1.Inst)
+                                continue;
+                        }
+
+
                         AddVertex(item);
 
                         if (!ContainsEdge(instruction, item))
                         {
-                            var newEdge = new Edge<Instruction>(instruction, item);
+                            var newEdge = new UndirectedEdge<Instruction>(instruction, item);
                             AddEdge(newEdge);
                         }
                     }
@@ -203,7 +208,7 @@ namespace compiler.middleend.ir
 
                         if (!globbed.ContainsEdge(curNode, adoptedChild))
                         {
-                            var newEdge = new Edge<Instruction>(curNode, adoptedChild);
+                            var newEdge = new UndirectedEdge<Instruction>(curNode, adoptedChild);
                             globbed.AddEdge(newEdge);
                         }
                         q.Enqueue(adoptedChild);

@@ -45,6 +45,8 @@ namespace compiler.middleend.optimization
             {
                 switch (inst.Op)
                 {
+
+                    //case IrOps.Adda:
                     case IrOps.Bra:
                     case IrOps.End:
                     case IrOps.WriteNl:
@@ -73,6 +75,7 @@ namespace compiler.middleend.optimization
                 switch (inst.Op)
                 {
 
+
                     case IrOps.Bne:
                     case IrOps.Beq:
                     case IrOps.Ble:
@@ -80,6 +83,12 @@ namespace compiler.middleend.optimization
                     case IrOps.Bge:
                     case IrOps.Bgt:
                     case IrOps.Write:
+                        break;
+                    case IrOps.Load:
+                        if ((inst.Arg1.Kind == Operand.OpType.Instruction) && (inst.Arg1.Inst.Op == IrOps.Adda))
+                        {
+                            AddArgToLiveRange(inst.Arg1.Inst.Arg1, live);
+                        }
                         break;
                     default:
                         AddArgToLiveRange(inst.Arg2, live);
