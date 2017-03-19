@@ -364,7 +364,7 @@ namespace compiler
                 CopyProp = true,
                 Cse = true,
                 DeadCode = true,
-                PruneCfg = false,
+                PruneCfg = true,
                 RegAlloc = true,
                 InstSched = false,
                 CodeGen = true

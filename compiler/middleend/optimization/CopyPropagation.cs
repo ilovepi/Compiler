@@ -26,7 +26,9 @@
 
 #region
 
+using System;
 using System.Collections.Generic;
+using System.Net.Configuration;
 using compiler.middleend.ir;
 
 #endregion
@@ -40,8 +42,51 @@ namespace compiler.middleend.optimization
         public static void Propagate(Node root)
         {
             _visited = new HashSet<Node>();
-            PropagateValues(root);
+            PropagateValues(root,true);
         }
+
+
+
+        private static void PropagateValues(Node root, bool complete)
+        {
+            if ((root == null) || _visited.Contains(root))
+            {
+                return;
+            }
+            var bb = root.Bb;
+            var instList = bb.Instructions;
+
+            foreach (Instruction instruction in instList)
+            {
+                if (instruction.Op == IrOps.Ssa)
+                {
+                    if (instruction.Arg1.Kind == Operand.OpType.Constant)
+                    {
+                        var assignedValue = instruction.Arg1.Val;
+                        foreach (Operand operand in instruction.Uses)
+                        {
+                            operand.Val = assignedValue;
+                            operand.Kind = Operand.OpType.Constant;
+                            // leave the instruction ref an variable value intact for now
+                            //operand.Inst = null;
+                            //operand.Variable = null;
+                        }
+
+                        instruction.Uses.Clear();
+                        instruction.UsesLocations.Clear();
+                    }
+                }
+            }
+
+            List<Node> children = root.GetAllChildren();
+
+            foreach (Node child in children)
+            {
+                PropagateValues(child, true);
+            }
+        }
+
+
 
         private static void PropagateValues(Node root)
         {
