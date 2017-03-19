@@ -273,6 +273,22 @@ namespace compiler.middleend.ir
             //RemoveRefs();
         }
 
+      
+
+
+        public bool PropagateUses(Operand targetArg, int assignedValue)
+        {
+            if (Uses.Contains(targetArg))
+            {
+                targetArg.UpdateConstant(assignedValue);
+
+                Uses.Remove(targetArg);
+                return true;
+            }
+            return false;
+        }
+
+
         public void FoldConst(int val)
         {
             foreach (Operand operand in Uses)

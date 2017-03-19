@@ -28,6 +28,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Configuration;
 using compiler.middleend.ir;
 
@@ -42,17 +43,20 @@ namespace compiler.middleend.optimization
         public static void Propagate(Node root)
         {
             _visited = new HashSet<Node>();
-            PropagateValues(root,true);
+            PropagateValues(root);
         }
 
 
 
-        private static void PropagateValues(Node root, bool complete)
+        private static void PropagateValues(Node root)
         {
             if ((root == null) || _visited.Contains(root))
             {
                 return;
             }
+
+            _visited.Add(root);
+
             var bb = root.Bb;
             var instList = bb.Instructions;
 
@@ -63,17 +67,17 @@ namespace compiler.middleend.optimization
                     if (instruction.Arg1.Kind == Operand.OpType.Constant)
                     {
                         var assignedValue = instruction.Arg1.Val;
-                        foreach (Operand operand in instruction.Uses)
-                        {
-                            operand.Val = assignedValue;
-                            operand.Kind = Operand.OpType.Constant;
-                            // leave the instruction ref an variable value intact for now
-                            //operand.Inst = null;
-                            //operand.Variable = null;
-                        }
+                        var argUses = instruction.Uses;
+                        var instUses = instruction.UsesLocations;
+                        var replaceList = instUses.Where(target => (target.Op != IrOps.Write) && (target.Op != IrOps.Load) && (target.Op != IrOps.Adda)).ToList();
 
-                        instruction.Uses.Clear();
-                        instruction.UsesLocations.Clear();
+                        foreach (var replacedItem in replaceList)
+                        {
+                            instruction.PropagateUses(replacedItem.Arg1, assignedValue);
+                            instruction.PropagateUses(replacedItem.Arg2, assignedValue);
+                            instruction.UsesLocations.Remove(replacedItem);
+                        }
+                      
                     }
                 }
             }
@@ -82,12 +86,13 @@ namespace compiler.middleend.optimization
 
             foreach (Node child in children)
             {
-                PropagateValues(child, true);
+                PropagateValues(child);
             }
         }
 
 
-
+/*
+ * Old/Broken propagation using ope operand
         private static void PropagateValues(Node root)
         {
             if ((root == null) || _visited.Contains(root))
@@ -123,6 +128,8 @@ namespace compiler.middleend.optimization
                 PropagateValues(child);
             }
         }
+        */
+
 
         public static void ConstantFolding(Node root)
         {
