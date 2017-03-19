@@ -42,7 +42,7 @@ namespace compiler.middleend.ir
     public class InterferenceGraph : UndirectedGraph<Instruction, UndirectedEdge<Instruction>>
     {
         // # of available registers
-        private const uint RegisterCount = 27;
+        private const uint RegisterCount = 26;
 
         public BasicBlock Bb { get; set; }
 
@@ -331,6 +331,21 @@ namespace compiler.middleend.ir
         }
         */
 
+        private List<Instruction> GetNeighbors(Instruction curNode)
+        {
+            var neighbors = new List<Instruction>();
+
+            foreach (var e in AdjacentEdges(curNode))
+            {
+                var neighbor = e.GetOtherVertex(curNode);
+                if (neighbor != curNode)
+                {
+                    neighbors.Add(neighbor);
+                }
+            }
+
+            return neighbors;
+        }
 
         private void ColorRecursive(InterferenceGraph curGraph)
         {
@@ -389,7 +404,7 @@ namespace compiler.middleend.ir
 
                 // ... get a list of its neighbors' already assigned registers...
                 List<uint> neighborRegs = new List<uint>();
-                foreach (Instruction neighbor in curInstr.LiveRange)
+                foreach (Instruction neighbor in GetNeighbors(curInstr))
                 {
                     if (GraphColors.ContainsKey(neighbor))
                     {
