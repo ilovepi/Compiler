@@ -208,17 +208,18 @@ namespace compiler
         private bool TransformIr(ParseTree func, bool cleanSsa)
         {
             bool restart = false;
-            // Copy propagation
-            if (Opts.CopyProp)
-            {
-                CopyPropagation.Propagate(func.ControlFlowGraph.Root);
-                CopyPropagation.ConstantFolding(func.ControlFlowGraph.Root);
-            }
 
             // replace ssa asignments with add instructions
             if (cleanSsa)
             {
                 CleanUpSsa.Clean(func.ControlFlowGraph.Root);
+            }
+
+            // Copy propagation
+            if (Opts.CopyProp)
+            {
+                CopyPropagation.Propagate(func.ControlFlowGraph.Root);
+                CopyPropagation.ConstantFolding(func.ControlFlowGraph.Root);
             }
 
             //Common Sub Expression Elimination
