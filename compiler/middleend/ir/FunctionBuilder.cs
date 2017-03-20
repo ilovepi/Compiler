@@ -289,6 +289,7 @@ namespace compiler.middleend.ir
                 prologue.Add(new DlxInstruction(OpCodes.ADDI, DlxInstruction.Sp, DlxInstruction.Sp, size));
             }
 
+            prologue.Add(new DlxInstruction(OpCodes.ADDI, DlxInstruction.Fp, DlxInstruction.Sp, 0));
             // save any global variable that might have be modified in function
             foreach (VariableType variableType in tree.ControlFlowGraph.UsedGlobals)
             {
@@ -377,7 +378,7 @@ namespace compiler.middleend.ir
             eplilogue.Add(retAddr);
 
 
-            // allocate memory for a return value
+            // deallocate memory for a return value
             var newVal = new DlxInstruction(OpCodes.POP, (int) calliInstruction.Reg, DlxInstruction.Sp, -4);
             eplilogue.Add(newVal);
 
@@ -390,7 +391,7 @@ namespace compiler.middleend.ir
             Address = baseAddr;
 
             // all params are ints 
-            
+
             int i = 0;
             foreach (VariableType parameter in Params)
             {
@@ -413,7 +414,10 @@ namespace compiler.middleend.ir
                 MachineBody[j].Address = j;
             }
 
+        }
 
+        public void FixInstructions()
+        {
             foreach (DlxInstruction inst in MachineBody)
             {
                 FixInstructions(inst);
@@ -459,6 +463,7 @@ namespace compiler.middleend.ir
                     break;
                 case OpCodes.JSR:
                     inst.C = inst.CalledFunction.Address;
+                    inst.PutF3();
                     break;
                 case OpCodes.ADD:
                 case OpCodes.SUB:

@@ -154,10 +154,12 @@ namespace compiler
                 FunctionBuilder newFunction = new FunctionBuilder(parseTree);
                 DlxFunctions.Add(newFunction);
             }
+
             foreach (var func in DlxFunctions)
             {
                 func.TransformDlx(DlxFunctions);
             }
+
             AssignAddresses();
         }
 
@@ -330,6 +332,14 @@ namespace compiler
 
         public void AssignAddresses()
         {
+            var globals = FuncList.First().ControlFlowGraph.Globals;
+            int i = 0;
+            foreach (VariableType globalVar in globals)
+            {
+                globalVar.Offset = i;
+                i += globalVar.Size * 4;
+            }
+
             int baseAddr = 0;
             foreach (FunctionBuilder functionBuilder in DlxFunctions)
             {
@@ -337,14 +347,15 @@ namespace compiler
                 baseAddr += functionBuilder.CodeSize;
             }
 
-            var globals = FuncList.First().ControlFlowGraph.Globals;
+           
 
-            int i = 0;
-            foreach (VariableType globalVar in globals)
+            
+
+            foreach (FunctionBuilder functionBuilder in DlxFunctions)
             {
-                globalVar.Offset = i;
-                i += globalVar.Size * 4;
+                functionBuilder.FixInstructions();
             }
+
         }
 
 
