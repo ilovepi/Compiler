@@ -330,6 +330,7 @@ namespace compiler.middleend.ir
             (-4 *
              (3 + tree.DominatorTree.NumReg + calliInstruction.Parameters.Count +
               Tree.ControlFlowGraph.Parameters.Count)));
+            retInst.PutF2();
             eplilogue.Add(retInst);
 
 

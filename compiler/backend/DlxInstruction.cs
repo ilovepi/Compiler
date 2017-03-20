@@ -67,6 +67,7 @@ namespace compiler.backend
             A = a;
             B = b;
             C = c;
+            PutF1();
         }
 
         public DlxInstruction(Instruction inst)
@@ -218,6 +219,7 @@ namespace compiler.backend
                     PutF2();
                     break;
                 case IrOps.Call:
+                    A = 0;
                     Op = OpCodes.JSR;
                     // TODO: This value must be the actual addres of the function, fix it later
                     C = inst.Offset;
@@ -266,6 +268,7 @@ namespace compiler.backend
                     Op = opCode;
                     B = arg1.Register;
                     C = arg2.Register;
+                    PutF1();
                 }
                 else
                 {
@@ -273,23 +276,25 @@ namespace compiler.backend
                     Op = opCode + 16;
                     B = arg2.Register;
                     C = arg1.Val;
+                    PutF2();
                 }
             }
             else
             {
+                B = arg1.Register;
                 // then arg might have the constant, and B is the register for sure
                 if (arg2.Kind == Operand.OpType.Constant)
                 {
                     Op = opCode + 16;
                     C = arg2.Val;
+                    PutF1();
                 }
                 else
                 {
                     Op = opCode;
                     C = arg2.Register;
+                    PutF2();
                 }
-                B = arg1.Register;
-               
             }
         }
 

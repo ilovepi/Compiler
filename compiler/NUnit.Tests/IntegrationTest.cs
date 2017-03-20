@@ -39,9 +39,6 @@ namespace NUnit.Tests
     public class IntegrationTest
     {
 
-
-
-
         [Test, Combinatorial]
         public void CompilerIntegrationTest([Values(@"/Frontend/testdata/test001.txt",
                 @"/Frontend/testdata/test002.txt",
