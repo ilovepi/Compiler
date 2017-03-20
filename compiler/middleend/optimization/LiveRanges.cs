@@ -169,7 +169,7 @@ namespace compiler.middleend.optimization
                 {
                     singleBlock = false;
                     var temprange = GenerateRanges(child, firstRange, intGraph);
-                    temprange.IntersectWith(firstRange);
+                    //temprange.IntersectWith(firstRange);
                     newRange.UnionWith(temprange);
                 }
             }
@@ -178,9 +178,9 @@ namespace compiler.middleend.optimization
             // so we might not want to replace newrange in that case
             // but if we have more than one range, we've already unioned the
             // new ranges together.
-            if (singleBlock && (firstRange != null))
+            if (singleBlock)
             {
-                newRange = firstRange;
+                newRange = firstRange ?? liveRange;
             }
 
             return PopulateRanges(d, newRange, intGraph);

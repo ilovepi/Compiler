@@ -54,17 +54,19 @@ namespace compiler.middleend.ir
         public Dictionary<Instruction, uint> GraphColors = new Dictionary<Instruction, uint>();
         public uint SpillCount = 32; // Virtual register to track spilled instructions, starts at reg 32
 
-        public InterferenceGraph()
+        public InterferenceGraph():base(false)
         {
+           
+            
             UseSupeNodes = true;
         }
 
-        public InterferenceGraph(bool pUseSuper)
+        public InterferenceGraph(bool pUseSuper) : base(false)
         {
             UseSupeNodes = pUseSuper;
         }
 
-        public InterferenceGraph(BasicBlock block)
+        public InterferenceGraph(BasicBlock block) : base(false)
         {
             UseSupeNodes = true;
 
@@ -74,7 +76,7 @@ namespace compiler.middleend.ir
             AddInterferenceEdges(block);
         }
         
-        public InterferenceGraph(InterferenceGraph other)
+        public InterferenceGraph(InterferenceGraph other) : base(false)
         {
             foreach (var vertexAdd in other.Vertices)
             {
@@ -119,17 +121,14 @@ namespace compiler.middleend.ir
                 {
                     if (item != null)
                     {
-
-                        if (instruction.Op == IrOps.Ssa)
+                        if ((instruction.Op == IrOps.Ssa) && (item == instruction.Arg1.Inst))
                         {
-                            if (item == instruction.Arg1.Inst)
-                                continue;
+                            continue;
                         }
-
 
                         AddVertex(item);
 
-                        if (!ContainsEdge(instruction, item))
+                        if (!ContainsEdge(instruction, item) && !ContainsEdge(item, instruction))
                         {
                             var newEdge = new UndirectedEdge<Instruction>(instruction, item);
                             AddEdge(newEdge);
@@ -207,7 +206,7 @@ namespace compiler.middleend.ir
                             globbed.AddVertex(adoptedChild);
                         }
 
-                        if (!globbed.ContainsEdge(curNode, adoptedChild))
+                        if (!globbed.ContainsEdge(curNode, adoptedChild) &&!globbed.ContainsEdge(adoptedChild, curNode))
                         {
                             var newEdge = new UndirectedEdge<Instruction>(curNode, adoptedChild);
                             globbed.AddEdge(newEdge);
