@@ -215,7 +215,8 @@ namespace compiler.backend
                     break;
                 case IrOps.Call:
                     Op = OpCodes.JSR;
-                    C = inst.Arg1.Variable.Identity.Address;
+                    // TODO: This value must be the actual addres of the function, fix it later
+                    C = inst.Offset;
                     PutF3();
                     break;
                 case IrOps.Adda:
