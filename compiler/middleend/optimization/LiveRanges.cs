@@ -38,7 +38,7 @@ namespace compiler.middleend.optimization
     internal static class LiveRanges
     {
         private static HashSet<Instruction> PopulateRanges(DominatorNode d, HashSet<Instruction> liveRange,
-            InterferenceGraph intGraph)
+            InterferenceGraph intGraph, bool isLoop)
         {
             var live = new HashSet<Instruction>(liveRange);
 
@@ -46,12 +46,17 @@ namespace compiler.middleend.optimization
             {
                 switch (inst.Op)
                 {
-
                     //case IrOps.Adda:
                     case IrOps.Bra:
                     case IrOps.End:
                     case IrOps.WriteNl:
                         continue;
+                    case IrOps.Phi:
+                        if (isLoop)
+                        {
+                            continue;
+                        }
+                        break;
                 }
 
 
@@ -70,7 +75,10 @@ namespace compiler.middleend.optimization
 
 
                 // add arguments to the live range
-                AddArgToLiveRange(inst.Arg1, live);
+                if (inst.Op != IrOps.Phi || isLoop)
+                {
+                    AddArgToLiveRange(inst.Arg1, live);
+                }
 
 
                 switch (inst.Op)
@@ -180,10 +188,10 @@ namespace compiler.middleend.optimization
             // new ranges together.
             if (singleBlock)
             {
-                newRange = firstRange ?? liveRange;
+                newRange = firstRange ?? new HashSet<Instruction>(liveRange);
             }
 
-            return PopulateRanges(d, newRange, intGraph);
+            return PopulateRanges(d, newRange, intGraph, false);
         }
 
 
@@ -195,19 +203,19 @@ namespace compiler.middleend.optimization
             var followRange = GenerateRanges(d.Children[0], liveRange, intGraph);
 
             // interfere the follow block with the loop header
-            var headerRange = PopulateRanges(d, followRange, intGraph);
+            var headerRange = PopulateRanges(d, followRange, intGraph, true);
 
             // interfere the loop body with the new loop header live range
-            headerRange.UnionWith(GenerateRanges(d.Children[1], headerRange, intGraph));
+            var bodyRange = (GenerateRanges(d.Children[1], headerRange, intGraph));
 
             // update the header range -- probably can erase this
-            headerRange = PopulateRanges(d, headerRange, intGraph);
+            headerRange = PopulateRanges(d, bodyRange, intGraph, true);
 
             // fix any new addtions in the loop body
-            var newRange = GenerateRanges(d.Children[1], headerRange, intGraph);
+            //var newRange = GenerateRanges(d.Children[1], headerRange, intGraph);
 
             // return the new live ranges
-            return PopulateRanges(d, newRange, intGraph);
+            return PopulateRanges(d, headerRange, intGraph, false);
         }
 
         /// <summary>

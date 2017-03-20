@@ -28,6 +28,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using compiler.backend;
 using compiler.frontend;
 
@@ -240,12 +241,14 @@ namespace compiler.middleend.ir
 
         public string Display(SymbolTable smb)
         {
+
             string a1 = DisplayArg(smb, Arg1);
             // unconditionalbranches don't have a second arg, so they shouldn't print
             string a2 = (Op != IrOps.Bra) && ((Op != IrOps.End) && (Op != IrOps.Load))
                 ? DisplayArg(smb, Arg2)
                 : string.Empty;
-            return $"{Num}: {Op} {a1} {a2} -- Uses {Uses.Count}: {PrintUses(smb)} -- Register: {Reg}";
+            string lr = LiveRange.Aggregate(String.Empty, (current, instruction) => current + ("" + instruction.Num + ","));
+            return $"{Num}: {Op} {a1} {a2} -- Uses {Uses.Count}: {PrintUses(smb)} -- Register: {Reg} -- LiveRange: {lr}";
         }
 
 
@@ -266,7 +269,10 @@ namespace compiler.middleend.ir
 
         public override string ToString()
         {
-            return "" + Num + ": " + Op + " " + Arg1 + " " + Arg2 + " : " + Uses.Count +  " -- " + "Register: " + Reg;
+
+            string lr = LiveRange.Aggregate(String.Empty, (current, instruction) => current + ("" + instruction.Num + ","));
+
+            return "" + Num + ": " + Op + " " + Arg1 + " " + Arg2 + " : " + Uses.Count +  " -- " + "Register: " + Reg + " -- liveRange: {"+ lr +"}" ;
         }
 
 

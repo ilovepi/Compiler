@@ -69,7 +69,7 @@ namespace compiler.middleend.optimization
                         var assignedValue = instruction.Arg1.Val;
                         var argUses = instruction.Uses;
                         var instUses = instruction.UsesLocations;
-                        var replaceList = instUses.Where(target => (target.Op != IrOps.Write) && (target.Op != IrOps.Load) && (target.Op != IrOps.Adda)).ToList();
+                        var replaceList = instUses.Where(target => (target.Op != IrOps.Write) && (target.Op != IrOps.Load) && (target.Op != IrOps.Adda) && (target.Op != IrOps.Phi)).ToList();
 
                         foreach (var replacedItem in replaceList)
                         {

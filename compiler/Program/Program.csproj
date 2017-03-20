@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <Content Include="testdata\big-small.txt" />
     <Content Include="testdata\big.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
