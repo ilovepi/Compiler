@@ -77,7 +77,7 @@ namespace NUnit.Tests
                 @"/Frontend/testdata/big.txt",
                 @"/Frontend/testdata/cell.txt",
                 @"/Frontend/testdata/factorial.txt")] string pFilename,
-            [Values(true, false)] bool copyProp, [Values(true, false)] bool cse, [Values(true, false)] bool deadCode, [Values(true, false)] bool prune)
+            [Values(true)] bool copyProp, [Values(true, false)] bool cse, [Values(true, false)] bool deadCode, [Values(true, false)] bool prune)
         {
             string filename = TestContext.CurrentContext.TestDirectory + pFilename;
             Compiler.TestRun(filename, copyProp, cse,deadCode,prune);
@@ -85,7 +85,7 @@ namespace NUnit.Tests
 
        [Test,Combinatorial]
         public void CompilerIntegrationErrorTest([Values(@"/Frontend/testdata/test004bad.txt", @"/Frontend/testdata/test013bad.txt", @"/Frontend/testdata/test014bad.txt", @"/Frontend/testdata/test028bad.txt", @"/Frontend/testdata/test031bad.txt")] string pFilename,
-         [Values(true, false)] bool copyProp, [Values(true, false)] bool cse, [Values(true, false)] bool deadCode, [Values(true, false)] bool prune)
+         [Values(true)] bool copyProp, [Values(true, false)] bool cse, [Values(true, false)] bool deadCode, [Values(true, false)] bool prune)
         {
             string filename = TestContext.CurrentContext.TestDirectory + pFilename;
             Assert.Throws<ParserException>(() => Compiler.TestRun(filename, copyProp, cse, deadCode, prune));
