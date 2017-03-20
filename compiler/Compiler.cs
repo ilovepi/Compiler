@@ -288,7 +288,7 @@ namespace compiler
         }
 
 
-        public void CodeGeneration()
+        public void CodeGeneration(bool createExecutable)
         {
             if (!Opts.CodeGen)
             {
@@ -302,7 +302,11 @@ namespace compiler
             GenStraightLineFunctions();
             GenInstructionListGraphString();
             GenDlxGraphString();
-            GenerateCodeOutput();
+
+            if (createExecutable)
+            {
+                GenerateCodeOutput();
+            }
 
 
         }
@@ -332,6 +336,15 @@ namespace compiler
                 functionBuilder.AssignAddresses(baseAddr);
                 baseAddr += functionBuilder.CodeSize;
             }
+
+            var globals = FuncList.First().ControlFlowGraph.Globals;
+
+            int i = 0;
+            foreach (VariableType globalVar in globals)
+            {
+                globalVar.Offset = i;
+                i += globalVar.Size * 4;
+            }
         }
 
 
@@ -343,7 +356,7 @@ namespace compiler
             }
 
            
-            CodeGeneration();
+            CodeGeneration(true);
             GenerateGraphOutput();
         }
 
@@ -355,7 +368,7 @@ namespace compiler
             }
 
             
-            CodeGeneration();
+            CodeGeneration(false);
             GenerateTestGraphOutput();
         }
 

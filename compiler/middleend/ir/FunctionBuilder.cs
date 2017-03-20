@@ -298,7 +298,7 @@ namespace compiler.middleend.ir
                 if (instructions.Length != 0)
                 {
                     prologue.Add(new DlxInstruction(OpCodes.STW, (int) instructions.First().Reg, DlxInstruction.Globals,
-                        variableType.Address));
+                        variableType.Offset));
                 }
             }
 
@@ -390,17 +390,21 @@ namespace compiler.middleend.ir
             Address = baseAddr;
 
             // all params are ints 
-            int i;
-            for (i = 0; i < Params.Count; i++)
+            
+            int i = 0;
+            foreach (VariableType parameter in Params)
             {
-                Params[i].Offset = -((i + 1) * 4);
+                i -= parameter.Size * 4;
+                parameter.Offset = i;
             }
 
             // locals can be arrays or ints
-            for (i = 0; i < Locals.Count; i++)
+
+            i = 0;
+            foreach (VariableType local in Locals)
             {
-                Locals[i].Offset = i;
-                i += Locals[i].Size * 4;
+                local.Offset = i;
+                i += local.Size * 4;
             }
 
 

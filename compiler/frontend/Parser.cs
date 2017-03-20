@@ -1311,9 +1311,9 @@ namespace compiler.frontend
             ProgramCfg = Computation(variables);
 
             // invoke before addin main to list of functions
-            //FixCallGraphs(variables);
+            FixCallGraphs(variables);
 
-            FunctionsCfgs.Add(ProgramCfg);
+            FunctionsCfgs.Insert(0, ProgramCfg);
             ProgramCfg.Name = "Main";
             ProgramCfg.Sym = Scanner.SymbolTble;
             ProgramCfg.UsedGlobals = new HashSet<VariableType>();
