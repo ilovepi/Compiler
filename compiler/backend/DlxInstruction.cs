@@ -95,11 +95,13 @@ namespace compiler.backend
                 case IrOps.Load:
                     if ((inst.Arg1.Kind == Operand.OpType.Instruction) && (inst.Arg1.Inst.Op == IrOps.Adda))
                     {
-                        A = inst.Arg1.Val;
-                        B = inst.Arg1.Inst.Arg1.Val;
-                        C = inst.Arg1.Inst.Arg2.Val;
-                        inst.Arg1.Inst.MachineInst = this;
-                        if (inst.Arg1.Inst.Arg2.Kind == Operand.OpType.Instruction)
+                        var addaInst = inst.Arg1.Inst;
+
+                        //A = inst.Arg1.Register;
+                        B = addaInst.Arg1.Register;
+                        C = addaInst.Arg2.Val;
+                        addaInst.MachineInst = this;
+                        if (addaInst.Arg2.Kind == Operand.OpType.Instruction)
                         {
                             // load stuff from array with register 
                             Op = OpCodes.LDW;
@@ -115,9 +117,11 @@ namespace compiler.backend
                     else
                     {
                         Op = OpCodes.LDW;
-                        A = (int) inst.Reg;
-                        B = inst.Arg1.Val;
-                        C = 0;
+                        //A = (int) inst.Reg;
+                        var curVariable = inst.VArId;
+                        B = curVariable.IsGlobal ? Globals : Fp;
+                        //B = inst.Arg1.Register;
+                        C = curVariable.Offset;
                         PutF1();
                     }
                     break;
@@ -253,18 +257,39 @@ namespace compiler.backend
 
         public void ImmediateOperands(OpCodes opCode, Operand arg1, Operand arg2)
         {
+            
             if (arg1.Kind == Operand.OpType.Constant)
             {
-                Op = opCode + 16;
-                var temp = arg1.Val;
-                B = arg2.Val;
-                C = temp;
+                // thse cannot have their argument ordering switched
+                if ((opCode == OpCodes.SUB) || (opCode == OpCodes.DIV) || (opCode == OpCodes.CMP))
+                {
+                    Op = opCode;
+                    B = arg1.Register;
+                    C = arg2.Register;
+                }
+                else
+                {
+                    // arg 2 has the register value
+                    Op = opCode + 16;
+                    B = arg2.Register;
+                    C = arg1.Val;
+                }
             }
             else
             {
-                Op = arg2.Kind == Operand.OpType.Constant ? opCode + 16 : opCode;
+                // then arg might have the constant, and B is the register for sure
+                if (arg2.Kind == Operand.OpType.Constant)
+                {
+                    Op = opCode + 16;
+                    C = arg2.Val;
+                }
+                else
+                {
+                    Op = opCode;
+                    C = arg2.Register;
+                }
                 B = arg1.Register;
-                C = arg2.Register;
+               
             }
         }
 
@@ -280,7 +305,7 @@ namespace compiler.backend
 
         public override string ToString()
         {
-            return Op + " A: " + A + " B: " + B + " C: " + C;
+            return Op + " - A: " + A + " - B: " + B + " - C: " + C +" - Code: " + Convert.ToString(MachineCode, 2);
         }
     }
 }
