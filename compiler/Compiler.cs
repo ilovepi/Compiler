@@ -30,6 +30,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using compiler.backend;
 using compiler.frontend;
 using compiler.middleend.ir;
 using compiler.middleend.optimization;
@@ -301,10 +302,27 @@ namespace compiler
             GenStraightLineFunctions();
             GenInstructionListGraphString();
             GenDlxGraphString();
+            GenerateCodeOutput();
 
 
-            //throw new NotImplementedException();
         }
+
+        public void GenerateCodeOutput()
+        {
+            using (var file = new BinaryWriter(File.Open(Opts.OutputFilename, FileMode.Create)))
+            {
+                foreach (FunctionBuilder function in DlxFunctions)
+                {
+                    foreach (DlxInstruction instruction in function.MachineBody)
+                    {
+                        file.Write(instruction.MachineCode);
+                    }
+                }
+
+            }
+        }
+
+
 
         public void AssignAddresses()
         {

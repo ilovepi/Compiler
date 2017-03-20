@@ -268,7 +268,7 @@ namespace compiler.backend
                     Op = opCode;
                     B = arg1.Register;
                     C = arg2.Register;
-                    PutF1();
+                    PutF2();
                 }
                 else
                 {
@@ -276,7 +276,7 @@ namespace compiler.backend
                     Op = opCode + 16;
                     B = arg2.Register;
                     C = arg1.Val;
-                    PutF2();
+                    PutF1();
                 }
             }
             else
