@@ -120,7 +120,7 @@ namespace compiler.middleend.optimization
             }
             else if (arg?.Inst?.Op == IrOps.Ssa)
             {
-                if (arg.Inst != null)
+                if ((arg.Inst != null) && (arg.Inst.Arg1.Inst != null))
                 {
                     live.Add(arg.Inst.Arg1.Inst);
                 }

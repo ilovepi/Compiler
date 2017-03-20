@@ -38,6 +38,7 @@ namespace compiler.middleend.ir
         public static int CurrOffset;
 
         public readonly bool IsArray;
+        public bool IsGlobal;
 
         public string Name { get; set; }
 

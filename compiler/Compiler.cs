@@ -94,7 +94,7 @@ namespace compiler
 
 
             // quickgraph makes the files for us, so no using statement here
-            GenInterferenceGraphString();
+            GenInterferenceGraphString(true);
 
 
             using (var file = new StreamWriter(Opts.DomFilename + ".code"))
@@ -167,10 +167,10 @@ namespace compiler
                 (current, func) => current + (func.DominatorTree.PrintTreeGraph(i++, func.ControlFlowGraph.Sym) + "\n"));
         }
 
-        private string GenInterferenceGraphString()
+        private string GenInterferenceGraphString(bool generateFile)
         {
             return FuncList.Aggregate(string.Empty,
-                (current, parseTree) => current + (parseTree.DominatorTree.PrintInterference() + "\n"));
+                (current, parseTree) => current + (parseTree.DominatorTree.PrintInterference(generateFile) + "\n"));
         }
 
         private string GenControlGraphString()
@@ -262,8 +262,16 @@ namespace compiler
                     //intGraph.Color();
                 }
 
-               // parseTree.DominatorTree.IntGraph = newIntGraph;
-               intGraph.Color();
+                // parseTree.DominatorTree.IntGraph = newIntGraph;
+                intGraph.Color();
+
+                foreach (KeyValuePair<Instruction, uint> pair in intGraph.GraphColors)
+                {
+                    var inst = pair.Key;
+                    var reg = pair.Value;
+
+                    inst.Reg = (int)reg;
+                }
             }
         }
 
@@ -337,7 +345,7 @@ namespace compiler
         {
             GenControlGraphString();
             GenDomGraphString();
-            GenInterferenceGraphString();
+            GenInterferenceGraphString(false);
             GenInstructionListGraphString();
             GenDlxGraphString();
         }
@@ -354,9 +362,9 @@ namespace compiler
                 DomFilename = "Dominator.dot",
                 GraphOutput = true,
                 CopyProp = true,
-                Cse = false,
-                DeadCode = false,
-                PruneCfg = false,
+                Cse = true,
+                DeadCode = true,
+                PruneCfg = true,
                 RegAlloc = true,
                 InstSched = false,
                 CodeGen = true

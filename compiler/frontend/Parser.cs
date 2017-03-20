@@ -407,12 +407,12 @@ namespace compiler.frontend
                 newInst.Op = IrOps.Ssa;
 
                 // try to use ssa value
-                //ssa.Value = newInst.Arg1;
-                ssa.Value = newInst.Arg1.OpenOperand();
+                ssa.Value = newInst.Arg1;
+                //ssa.Value = newInst.Arg1.OpenOperand();
 
                 if (_copyPropagationEnabled && (ssa.Value.Kind == Operand.OpType.Constant))
                 {
-                    ssa.Value = new Operand(ssa.Location);
+                    //ssa.Value = new Operand(ssa.Location);
                 }
 
                 locals[id.Operand.IdKey] = ssa;
@@ -448,11 +448,15 @@ namespace compiler.frontend
                 Globals = new List<VariableType>(),
                 Parameters = new List<VariableType>()
             };
-            cfg.Globals = new List<VariableType>();
 
             while ((Tok == Token.VAR) || (Tok == Token.ARRAY))
             {
                 cfg.Globals.AddRange(VarDecl(varTble));
+            }
+
+            foreach (VariableType global in cfg.Globals)
+            {
+                global.IsGlobal = true;
             }
 
             while ((Tok == Token.FUNCTION) || (Tok == Token.PROCEDURE))
@@ -689,11 +693,13 @@ namespace compiler.frontend
                 {
                     prologInst = new Instruction(IrOps.Ssa, new Operand(Operand.OpType.Constant, global.Id),
                         null);
+                    prologInst.VArId = global;
                 }
                 else
                 {
                     prologInst = new Instruction(IrOps.Load, new Operand(Operand.OpType.Identifier, global.Id),
                         null);
+                    prologInst.VArId = global;
                     loads.Add(prologInst);
                 }
 
@@ -708,6 +714,7 @@ namespace compiler.frontend
                 ssa.Value = new Operand(prologInst);
 
                 prologInst.Arg2 = ssa.Value;
+                
 
                 variables[global.Id] = ssa;
                 //arg = new Operand(ssa);
@@ -729,6 +736,7 @@ namespace compiler.frontend
 
                     var loadInst = new Instruction(IrOps.Load, new Operand(Operand.OpType.Identifier, parameter.Id),
                         null);
+                    loadInst.VArId = parameter;
                     cfg.Root.Bb.AddInstruction(loadInst);
                     temp.Value = new Operand(loadInst);
 

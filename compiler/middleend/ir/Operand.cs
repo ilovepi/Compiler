@@ -61,6 +61,8 @@ namespace compiler.middleend.ir
 
         public Instruction Inst { get; set; }
 
+        public int Register { get; set; }
+
 
         public Operand(Instruction pInst)
         {
@@ -206,6 +208,22 @@ namespace compiler.middleend.ir
             }
         }
 
+        public void RemoveRefs(Instruction target)
+        {
+            if (Kind == OpType.Instruction)
+            {
+                Inst.Uses.Remove(this);
+                if (Inst.Uses.Count == 0)
+                {
+                    Inst.RemoveRefs();
+                }
+
+                if (Inst.UsesLocations.Contains(target))
+                {
+                    Inst.UsesLocations.Remove(target);
+                }
+            }
+        }
 
         public Operand OpenOperand()
         {
@@ -229,5 +247,19 @@ namespace compiler.middleend.ir
 
             return Kind == OpType.Variable ? Variable.Value?.OpenOperand() ?? this : this;
         }
+
+
+        public void UpdateConstant(int value)
+        {
+            Val = value;
+            Kind = Operand.OpType.Constant;
+
+            // leave the instruction ref an variable value intact for now
+            //operand.Inst = null;
+            //operand.Variable = null;
+        }
+
+
+
     }
 }

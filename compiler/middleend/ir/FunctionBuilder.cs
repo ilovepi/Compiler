@@ -470,7 +470,6 @@ namespace compiler.middleend.ir
                     inst.ImmediateOperands(inst.Op - 16, inst.IrInst.Arg1, inst.IrInst.Arg2);
                     break;
                 case OpCodes.LDW:
-                    break;
                 case OpCodes.LDX:
                     break;
                 case OpCodes.POP:
@@ -488,6 +487,7 @@ namespace compiler.middleend.ir
                 case OpCodes.RDD:
                     break;
                 case OpCodes.WRD:
+                    //inst.B = inst.IrInst.Arg1.Variable.Location.Reg;
                     break;
                 case OpCodes.WRH:
                     break;
