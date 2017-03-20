@@ -101,7 +101,17 @@ namespace compiler.middleend.ir
         /// </summary>
         public HashSet<Instruction> LiveRange { get; set; }
 
-        public int Reg { get; set; }
+        private int _reg;
+
+        public int Reg
+        {
+            get { return _reg; }
+            set
+            {
+                _reg = value; 
+                PropagateRegister();
+            }
+        }
 
         public Instruction(Instruction other)
         {
@@ -286,6 +296,16 @@ namespace compiler.middleend.ir
                 return true;
             }
             return false;
+        }
+
+        
+
+        public void PropagateRegister()
+        {
+            foreach (Operand use in Uses)
+            {
+                use.Register = Reg;
+            }
         }
 
 

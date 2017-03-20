@@ -61,6 +61,8 @@ namespace compiler.middleend.ir
 
         public Instruction Inst { get; set; }
 
+        public int Register { get; set; }
+
 
         public Operand(Instruction pInst)
         {

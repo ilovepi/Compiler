@@ -71,7 +71,7 @@ namespace compiler.backend
 
         public DlxInstruction(Instruction inst)
         {
-            A = 0;
+            A = inst.Reg;
             B = 0;
             C = 0;
 
@@ -155,12 +155,12 @@ namespace compiler.backend
 
                 case IrOps.End:
                     Op = OpCodes.RET;
-                    //A = B = C = 0;
+                    A = B = C = 0;
                     PutF2();
                     break;
                 case IrOps.Ret:
                     Op = OpCodes.RET;
-                    //A = B = C = 0;
+                    A = B = C = 0;
                     C = inst.Arg1.Val;
                     PutF2();
                     break;
@@ -191,29 +191,31 @@ namespace compiler.backend
                     break;
                 case IrOps.Read:
                     Op = OpCodes.RDD;
-                    A = inst.Arg1.Val;
+                    //A = inst.Arg1.Val;
                     PutF2();
                     break;
                 case IrOps.Write:
                     Op = OpCodes.WRD;
-                    B = inst.Arg1.Val;
+                    A = 0;
+                    B = inst.Arg1.Register;
                     PutF2();
                     break;
                 case IrOps.WriteNl:
+                    A = B = C = 0;
                     Op = OpCodes.WRL;
                     PutF1();
                     break;
                 case IrOps.Move:
                     //emulate a move instruction to copy with an OR operation
                     Op = OpCodes.AND;
-                    A = inst.Arg2.Val;
-                    B = inst.Arg1.Val;
+                    A = inst.Arg2.Register;
+                    B = inst.Arg1.Register;
                     C = B;
                     PutF2();
                     break;
                 case IrOps.Call:
                     Op = OpCodes.JSR;
-                    C = inst.Offset;
+                    C = inst.Arg1.Variable.Identity.Address;
                     PutF3();
                     break;
                 case IrOps.Adda:
@@ -260,15 +262,16 @@ namespace compiler.backend
             else
             {
                 Op = arg2.Kind == Operand.OpType.Constant ? opCode + 16 : opCode;
-                B = arg1.Val;
-                C = arg2.Val;
+                B = arg1.Register;
+                C = arg2.Register;
             }
         }
 
         public void MakeBranchInst(OpCodes opCode, Instruction inst)
         {
             Op = opCode;
-            A = (int) inst.Arg1.Inst.Reg;
+            A = inst.Arg1.Register;
+            B = 0;
             C = inst.Arg2.Inst.Offset;
             PutF1();
         }
