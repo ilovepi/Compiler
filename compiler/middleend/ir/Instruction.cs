@@ -101,7 +101,17 @@ namespace compiler.middleend.ir
         /// </summary>
         public HashSet<Instruction> LiveRange { get; set; }
 
-        public int Reg { get; set; }
+        private int _reg;
+
+        public int Reg
+        {
+            get { return _reg; }
+            set
+            {
+                _reg = value; 
+                PropagateRegister();
+            }
+        }
 
         public Instruction(Instruction other)
         {
@@ -272,6 +282,32 @@ namespace compiler.middleend.ir
             Uses.Clear();
             //RemoveRefs();
         }
+
+      
+
+
+        public bool PropagateUses(Operand targetArg, int assignedValue)
+        {
+            if (Uses.Contains(targetArg))
+            {
+                targetArg.UpdateConstant(assignedValue);
+
+                Uses.Remove(targetArg);
+                return true;
+            }
+            return false;
+        }
+
+        
+
+        public void PropagateRegister()
+        {
+            foreach (Operand use in Uses)
+            {
+                use.Register = Reg;
+            }
+        }
+
 
         public void FoldConst(int val)
         {

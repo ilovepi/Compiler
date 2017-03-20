@@ -65,7 +65,7 @@ namespace compiler.middleend.ir
             return GraphOutput;
         }
 
-        public string PrintInterference()
+        public string PrintInterference(bool printGraph)
         {
 
            var temp = new BidirectionalGraph<Instruction, UndirectedEdge<Instruction>>();
@@ -75,9 +75,8 @@ namespace compiler.middleend.ir
 
             graphViz.FormatVertex += FormatVertex;
             graphViz.FormatEdge += FormatEdge;
-
-            return graphViz.Generate(new FileDotEngine(), Name + "-InterferenceGraph.dot");
-            //return intGraph.ToGraphviz();
+            return printGraph ? graphViz.Generate(new FileDotEngine(), Name + "-InterferenceGraph.dot") : string.Empty;
+            
         }
 
 

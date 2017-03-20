@@ -407,12 +407,12 @@ namespace compiler.frontend
                 newInst.Op = IrOps.Ssa;
 
                 // try to use ssa value
-                //ssa.Value = newInst.Arg1;
-                ssa.Value = newInst.Arg1.OpenOperand();
+                ssa.Value = newInst.Arg1;
+                //ssa.Value = newInst.Arg1.OpenOperand();
 
                 if (_copyPropagationEnabled && (ssa.Value.Kind == Operand.OpType.Constant))
                 {
-                    ssa.Value = new Operand(ssa.Location);
+                    //ssa.Value = new Operand(ssa.Location);
                 }
 
                 locals[id.Operand.IdKey] = ssa;

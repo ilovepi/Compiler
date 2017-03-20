@@ -488,6 +488,7 @@ namespace compiler.middleend.ir
                 case OpCodes.RDD:
                     break;
                 case OpCodes.WRD:
+                    //inst.B = inst.IrInst.Arg1.Variable.Location.Reg;
                     break;
                 case OpCodes.WRH:
                     break;
