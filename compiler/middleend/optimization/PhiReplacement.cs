@@ -27,11 +27,11 @@ namespace compiler.middleend.optimization
             {
                 if (instruction.Op == IrOps.Phi)
                 {
-                    if (instruction.Reg != instruction.Arg1.Register)
-                    {
+
                         root.InsertMoveInst(instruction);
-                    }
+
                 }
+            }
 
             List<Node> children = root.GetAllChildren();
 
@@ -40,6 +40,6 @@ namespace compiler.middleend.optimization
                 InsertMove(child);
             }
         }
-    }
+
     }
 }

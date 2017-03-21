@@ -69,6 +69,7 @@ namespace compiler.middleend.ir
             Kind = OpType.Instruction;
             Inst = pInst;
             Val = 0;
+            Register = pInst.Reg;
         }
 
 

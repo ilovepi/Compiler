@@ -277,6 +277,7 @@ namespace compiler
                 }
 
                 var glob = intGraph.PhiGlobber();
+                PhiReplacement.InsertMoveInst(parseTree.ControlFlowGraph.Root);
             }
         }
 
@@ -300,6 +301,7 @@ namespace compiler
             }
 
             RegisterAllocation();
+
             InstructionScheduling();
 
             //lower representation to machine code
