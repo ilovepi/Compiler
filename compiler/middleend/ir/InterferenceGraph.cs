@@ -29,6 +29,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using compiler.frontend;
 using QuickGraph;
 
@@ -200,6 +201,21 @@ namespace compiler.middleend.ir
             return neighbors;
         }
 
+        private List<uint> GetNeighborRegs(Instruction curNode)
+        {
+            var neighborRegs = new List<uint>();
+
+            foreach (Instruction neighbor in GetNeighbors(curNode))
+            {
+                if (GraphColors.ContainsKey(neighbor))
+                {
+                    neighborRegs.Add(GraphColors[neighbor]);
+                }
+            }
+
+            return neighborRegs;
+        }
+
         private void ColorRecursive(InterferenceGraph curGraph)
         {
             // We have to spill if we don't find a vertex with low enough edges.
@@ -241,42 +257,78 @@ namespace compiler.middleend.ir
         public void Color()
         {
             _coloringStack = new Stack<Instruction>();
+            GraphColors = new Dictionary<Instruction, uint>();
 
             var copy = new InterferenceGraph(this);
+            var globDict = PhiGlobber();
 
             // Call recursive coloring fxn with the mutable copy
             ColorRecursive(copy);
-
-            int x = 5;
 
             // Until there are no more instructions to be colored...
             while (_coloringStack.Count != 0)
             {
                 // ... pop an instruction from the stack...
                 Instruction curInstr = _coloringStack.Pop();
+                uint curReg = 0;
 
-                // ... get a list of its neighbors' already assigned registers...
-                List<uint> neighborRegs = new List<uint>();
-                foreach (Instruction neighbor in GetNeighbors(curInstr))
+                if (GraphColors.ContainsKey(curInstr))
                 {
-                    if (GraphColors.ContainsKey(neighbor))
+                    continue;
+                }
+
+                // [PHIGLOB] get a list of its globmates that haven't been colored
+                var globMates = new List<Instruction>();
+                foreach (var potGlobMate in globDict[curInstr])
+                {
+                    if (!GraphColors.ContainsKey(potGlobMate))
                     {
-                        neighborRegs.Add(GraphColors[neighbor]);
+                        globMates.Add(potGlobMate);
                     }
                 }
 
-                // ... and give it a different one.
+                // ... get a list of its neighbors' already assigned registers...
+                List<uint> neighborRegs = GetNeighborRegs(curInstr);
+
+                // [PHIGLOB] and it's uncolored globmates' registers
+                var globNeighborRegs = new List<uint>();
+                foreach (var globMate in globMates)
+                {
+                    globNeighborRegs = globNeighborRegs.Union(GetNeighborRegs(globMate)).ToList();
+                }
+
+                bool couldGlob = false;
+                // [PHIGLOB] first try to assign a common reg
                 for (uint reg = RegisterCount; reg >= 1; reg--)
                 {
-                    if (!neighborRegs.Contains(reg))
+                    if (!globNeighborRegs.Contains(reg))
                     {
-                        GraphColors.Add(curInstr, reg);
+                        curReg = reg;
+                        foreach (var globMate in globMates)
+                        {
+                            GraphColors.Add(globMate, curReg);
+                        }
+                        couldGlob = true;
                         break;
                     }
                 }
 
+                // ... and give it a different one.
+                if (!couldGlob)
+                {
+                    for (uint reg = RegisterCount; reg >= 1; reg--)
+                    {
+                        if (!neighborRegs.Contains(reg))
+                        {
+                            curReg = reg;
+                            GraphColors.Add(curInstr, curReg);
+                            break;
+                        }
+                    }
+                }
+
                 // All coloring stack values should be assigned a color
-                if (!GraphColors.ContainsKey(curInstr))
+                if (curReg == 0)
                 {
                     throw new Exception("Did not color colorable reg.");
                 }
