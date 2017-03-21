@@ -268,13 +268,13 @@ namespace compiler.middleend.optimization
             HashSet<Instruction> bodyRange = GenerateRanges(d.Children[1], headerRange, intGraph);
 
             // update the header range -- probably can erase this
-            headerRange = PopulateRanges(d, bodyRange, intGraph, false);
+            //headerRange = PopulateLoopHeader(d, bodyRange, intGraph, false);
 
             // fix any new addtions in the loop body
             //var newRange = GenerateRanges(d.Children[1], headerRange, intGraph);
 
             // return the new live ranges
-            return PopulateRanges(d, headerRange, intGraph, false);
+            return PopulateLoopHeader(d, bodyRange, intGraph, false);
         }
 
         /// <summary>
