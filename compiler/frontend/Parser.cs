@@ -722,7 +722,7 @@ namespace compiler.frontend
                 cfg.Parameters = FormalParams(variables);
 
                 //*
-                foreach (VariableType parameter in Enumerable.Reverse(cfg.Parameters))
+                foreach (VariableType parameter in cfg.Parameters)
                 {
                     SsaVariable temp = variables[parameter.Id];
 

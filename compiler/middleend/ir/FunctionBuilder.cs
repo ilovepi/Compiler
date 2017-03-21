@@ -270,9 +270,21 @@ namespace compiler.middleend.ir
 
 
             // load each param into register and push onto stack
-            foreach (Operand param in calliInstruction.Parameters)
+            foreach (Operand param in Enumerable.Reverse(calliInstruction.Parameters))
             {
-                int regNo = param.Inst == null ? param.Val : param.Inst.Reg;
+
+                int regNo;
+                if (param.Inst == null)
+                {
+                    regNo = 27;
+                    prologue.Add(new DlxInstruction(OpCodes.ADDI, regNo, 0, param.Val));
+
+                }
+                else
+                {
+                    regNo =  param.Inst.Reg;
+                }
+
                 prologue.Add(new DlxInstruction(OpCodes.PSH, regNo, DlxInstruction.Sp, 4));
             }
 
@@ -396,8 +408,9 @@ namespace compiler.middleend.ir
             var i = 0;
             foreach (VariableType parameter in Params)
             {
-                i -= parameter.Size * 4;
+
                 parameter.Offset = i;
+                i -= parameter.Size * 4;
             }
 
             // locals can be arrays or ints
