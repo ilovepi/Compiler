@@ -117,7 +117,7 @@ namespace compiler.middleend.ir
 
                 foreach (Instruction item in instruction.LiveRange)
                 {
-                    if (item != null)
+                    if ((item != null) && (item != instruction))
                     {
                         if ((instruction.Op == IrOps.Ssa) && (item == instruction.Arg1.Inst))
                         {

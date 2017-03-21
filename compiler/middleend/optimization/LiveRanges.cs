@@ -106,6 +106,81 @@ namespace compiler.middleend.optimization
             return live;
         }
 
+
+        private static HashSet<Instruction> PopulateLoopHeader(DominatorNode d, HashSet<Instruction> liveRange,
+    InterferenceGraph intGraph, bool isFirstVisit)
+        {
+            var live = new HashSet<Instruction>(liveRange);
+
+            foreach (Instruction inst in Enumerable.Reverse(d.Bb.Instructions))
+            {
+                switch (inst.Op)
+                {
+                    //case IrOps.Adda:
+                    case IrOps.Bra:
+                    case IrOps.End:
+                    case IrOps.WriteNl:
+                        continue;
+                }
+
+
+                // add this instruction's operands to the live range
+
+                //if (inst.Op != IrOps.Phi || !isFirstVisit)
+                {
+                    if (live.Contains(inst))
+                    {
+                        // remove this instruction from the live range
+                        //live.Remove(inst);
+                        live.Remove(inst);
+                    }
+                }
+
+                inst.LiveRange.UnionWith(live);
+
+
+                // add arguments to the live range
+                if ((inst.Op != IrOps.Phi) || isFirstVisit)
+                {
+                    AddArgToLiveRange(inst.Arg1, live);
+                }
+
+
+                switch (inst.Op)
+                {
+                    case IrOps.Bne:
+                    case IrOps.Beq:
+                    case IrOps.Ble:
+                    case IrOps.Blt:
+                    case IrOps.Bge:
+                    case IrOps.Bgt:
+                    case IrOps.Write:
+                        break;
+                        case IrOps.Phi:
+                        if (!isFirstVisit)
+                        {
+                            AddArgToLiveRange(inst.Arg2, live);
+                        }
+                        break;
+                    case IrOps.Load:
+                        if ((inst.Arg1.Kind == Operand.OpType.Instruction) && (inst.Arg1.Inst.Op == IrOps.Adda))
+                        {
+                            AddArgToLiveRange(inst.Arg1.Inst.Arg1, live);
+                        }
+                        break;
+                    default:
+                        AddArgToLiveRange(inst.Arg2, live);
+                        break;
+                }
+            }
+
+            intGraph.AddInterferenceEdges(d.Bb);
+
+            return live;
+        }
+
+
+
         private static void AddArgToLiveRange(Operand arg, HashSet<Instruction> live)
         {
             if ((arg?.Kind == Operand.OpType.Instruction) && (arg.Inst?.Op != IrOps.Ssa))
@@ -123,6 +198,8 @@ namespace compiler.middleend.optimization
                 }
             }
         }
+
+
 
 
         private static HashSet<Instruction> GenerateRanges(DominatorNode d, HashSet<Instruction> liveRange,
@@ -185,13 +262,13 @@ namespace compiler.middleend.optimization
             HashSet<Instruction> followRange = GenerateRanges(d.Children[0], liveRange, intGraph);
 
             // interfere the follow block with the loop header
-            HashSet<Instruction> headerRange = PopulateRanges(d, followRange, intGraph, true);
+            HashSet<Instruction> headerRange = PopulateLoopHeader(d, followRange, intGraph, true);
 
             // interfere the loop body with the new loop header live range
             HashSet<Instruction> bodyRange = GenerateRanges(d.Children[1], headerRange, intGraph);
 
             // update the header range -- probably can erase this
-            headerRange = PopulateRanges(d, bodyRange, intGraph, true);
+            headerRange = PopulateRanges(d, bodyRange, intGraph, false);
 
             // fix any new addtions in the loop body
             //var newRange = GenerateRanges(d.Children[1], headerRange, intGraph);
