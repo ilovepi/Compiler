@@ -138,197 +138,51 @@ namespace compiler.middleend.ir
             }
         }
 
-
-        public InterferenceGraph PhiGlobber(Instruction root, HashSet<Instruction> visited)
+        public Dictionary<Instruction, List<Instruction>> PhiGlobber()
         {
-            var globbed = new InterferenceGraph();
+            // Key: Instruction in glob
+            // Value: All instructions globbed with that one
+            var globDict = new Dictionary<Instruction, List<Instruction>>();
 
-            var q = new Queue<Instruction>();
-
-            if (visited.Contains(root))
+            foreach (var v in Vertices)
             {
-                return globbed;
+                var globList = new List<Instruction>();
+                globList.Add(v);
+                globDict.Add(v, globList);
             }
 
-            q.Enqueue(root);
-            globbed.AddVertex(root);
-
-            while (q.Count != 0)
+            foreach (var v in Vertices)
             {
-                var curNode = q.Dequeue();
-                visited.Add(curNode);
-                bool isPhi = (curNode.Op == IrOps.Phi);
-                var children = new List<Instruction>();
-                bool phiRemoved = false;
-
-                foreach (var e in AdjacentEdges(curNode))
+                if (v.Op == IrOps.Phi)
                 {
-                    children.Add(e.GetOtherVertex(curNode));
-                }
+                    var globList = new List<Instruction>();
+                    var arg1 = v.Arg1.Inst;
+                    var arg2 = v.Arg2.Inst;
+                    var newGlob = new List<Instruction>();
 
-                // Generate list of children and iteratively glob phis 'til fixpoint
-                //*
-                do
-                {
-                    var newChildren = new List<Instruction>();
-                    foreach (var orphanChild in children)
+                    globList.Add(v);
+                    if (!GetNeighbors(v).Contains(arg1))
                     {
-                        phiRemoved = false;
-                        if (!visited.Contains(orphanChild))
-                        {
-                            if (isPhi && (orphanChild.Op == IrOps.Phi))
-                            {
-                                visited.Add(orphanChild);
-                                phiRemoved = true;
-                                foreach (var e in AdjacentEdges(orphanChild))
-                                {
-                                    newChildren.Add(e.GetOtherVertex(orphanChild));
-                                }
-                            }
-
-                            else
-                            {
-                                newChildren.Add(orphanChild);
-                            }
-                        }
+                        globList.Add(arg1);
                     }
-                    children = newChildren;
-                } while (phiRemoved);
-                //*/
-
-                // Actual BFS
-                foreach (var adoptedChild in children)
-                {
-                    if (!visited.Contains(adoptedChild))
+                    if (!GetNeighbors(v).Contains(arg2))
                     {
-                        if (!globbed.ContainsVertex(adoptedChild))
-                        {
-                            globbed.AddVertex(adoptedChild);
-                        }
+                        globList.Add(arg2);
+                    }
 
-                        if (!globbed.ContainsEdge(curNode, adoptedChild) &&!globbed.ContainsEdge(adoptedChild, curNode))
-                        {
-                            var newEdge = new UndirectedEdge<Instruction>(curNode, adoptedChild);
-                            globbed.AddEdge(newEdge);
-                        }
-                        q.Enqueue(adoptedChild);
+                    foreach (var instr in globList)
+                    {
+                        newGlob = newGlob.Union(globDict[instr]).ToList();
+                    }
+                    foreach (var instr in globList)
+                    {
+                        globDict[instr] = newGlob;
                     }
                 }
             }
 
-            return globbed;
+            return globDict;
         }
-
-        /*
-            if (!globbed.ContainsVertex(curNode))
-            {
-                globbed.AddVertex(curNode);
-
-                foreach (var e in AdjacentEdges(curNode))
-                {
-                    var child = e.GetOtherVertex(curNode);
-                    var newEdge = new Edge<Instruction>(curNode, child);
-
-                    if (!globbed.ContainsEdge(newEdge))
-                    {
-                        globbed.AddEdge(newEdge);
-                    }
-
-                    PhiGlobberRecursive(child, isPhi);
-                }
-            }
-        }
-        */
-        
-        /*
-        public void GlobPhis()
-        {
-            bool modified;
-
-            do
-            {
-                Instruction PhiGlobbed = null;
-                Instruction PhiRemoved = null;
-                var lEdgeAddition = new List<Instruction>();
-                var lEdgeRemoval = new List<Edge<Instruction>>();
-
-                modified = false;
-
-                foreach (var edge in Edges)
-                {
-                    var firstPhi = edge.Source;
-                    var secondPhi = edge.Target;
-
-                    if (firstPhi.Op == IrOps.Phi && secondPhi.Op == IrOps.Phi)
-                    {
-                        PhiGlobbed = firstPhi;
-                        PhiRemoved = secondPhi;
-
-                        foreach (var phiEdge in AdjacentEdges(secondPhi))
-                        {
-                            lEdgeRemoval.Add(phiEdge);
-                            var otherVertex = phiEdge.GetOtherVertex(secondPhi);
-                            if (otherVertex != firstPhi)
-                            {
-                                lEdgeAddition.Add(otherVertex);
-                            }
-                        }
-                        modified = true;
-                        break;
-                    }
-                }
-
-                if (modified)
-                {
-                    foreach (var vertex in lEdgeAddition)
-                    {
-                        var newEdge = new Edge<Instruction>(PhiGlobbed, vertex);
-                        if (!ContainsEdge(newEdge))
-                        {
-                            AddEdge(newEdge);
-                        }
-                    }
-
-                    foreach (var edge in lEdgeRemoval)
-                    {
-                        RemoveEdge(edge);
-                    }
-
-                    RemoveVertex(PhiRemoved);
-                }
-            } while (modified);
-        }
-        */
-        
-
-
-        // Probably all broken
-        /*
-        public void MakeSupernodes(Instruction otherInstruction, Instruction phiInstruction )
-        {
-
-            MakeSupernodes(otherInstruction);
-
-            var adjacent = AdjacentEdges(otherInstruction);
-            foreach (var edge in adjacent)
-            {
-                var other = edge.GetOtherVertex(otherInstruction);
-                var newEdge = new Edge<Instruction>(phiInstruction, other);
-
-                AddEdge(newEdge);
-                RemoveVertex(other);
-            }
-        }
-
-        private void MakeSupernodes(Instruction phiInst)
-        {
-            if (phiInst.Op == IrOps.Phi)
-            {
-                MakeSupernodes(phiInst.Arg1.Inst, phiInst);
-                MakeSupernodes(phiInst.Arg2.Inst, phiInst);
-            }
-        }
-        */
 
         private List<Instruction> GetNeighbors(Instruction curNode)
         {
