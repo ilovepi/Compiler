@@ -29,6 +29,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using compiler.frontend;
 using QuickGraph;
 
 #endregion
@@ -43,18 +45,20 @@ namespace compiler.middleend.ir
         // # of available registers
         private const uint RegisterCount = 26;
 
+        public BasicBlock Bb { get; set; }
+
         private Stack<Instruction> _coloringStack = new Stack<Instruction>();
+
+        public bool UseSupeNodes;
 
         // Colored and spilled instructions
         public Dictionary<Instruction, uint> GraphColors = new Dictionary<Instruction, uint>();
         public uint SpillCount = 32; // Virtual register to track spilled instructions, starts at reg 32
 
-        public bool UseSupeNodes;
-
-        public BasicBlock Bb { get; set; }
-
-        public InterferenceGraph() : base(false)
+        public InterferenceGraph():base(false)
         {
+           
+            
             UseSupeNodes = true;
         }
 
@@ -75,7 +79,7 @@ namespace compiler.middleend.ir
 
         public InterferenceGraph(InterferenceGraph other) : base(false)
         {
-            foreach (Instruction vertexAdd in other.Vertices)
+            foreach (var vertexAdd in other.Vertices)
             {
                 if (!Vertices.Contains(vertexAdd))
                 {
@@ -83,7 +87,7 @@ namespace compiler.middleend.ir
                 }
             }
 
-            foreach (UndirectedEdge<Instruction> edgeAdd in other.Edges)
+            foreach (var edgeAdd in other.Edges)
             {
                 if (!Edges.Contains(edgeAdd))
                 {
@@ -94,8 +98,9 @@ namespace compiler.middleend.ir
 
         public void AddInterferenceEdges(BasicBlock block)
         {
-            foreach (Instruction instruction in block.Instructions)
+            foreach (var instruction in block.Instructions)
             {
+
                 switch (instruction.Op)
                 {
                     case IrOps.Adda:
@@ -108,14 +113,12 @@ namespace compiler.middleend.ir
                     case IrOps.Bgt:
                     case IrOps.Write:
 
-                        //case IrOps.Ssa:
+                    //case IrOps.Ssa:
                         continue;
                 }
 
-
                 AddVertex(instruction);
-
-                foreach (Instruction item in instruction.LiveRange)
+                foreach (var item in instruction.LiveRange)
                 {
                     if ((item != null) && (item != instruction))
                     {
@@ -132,216 +135,67 @@ namespace compiler.middleend.ir
 
                         if (!ContainsEdge(instruction, item) && !ContainsEdge(item, instruction))
                         {
-
-
-
-                                var newEdge = new UndirectedEdge<Instruction>(instruction, item);
-                                AddEdge(newEdge);
-
-                        }
-                    }
-                }
-            }
-        }
-
-
-        public InterferenceGraph PhiGlobber(Instruction root, HashSet<Instruction> visited)
-        {
-            var globbed = new InterferenceGraph();
-
-            var q = new Queue<Instruction>();
-
-            if (visited.Contains(root))
-            {
-                return globbed;
-            }
-
-            q.Enqueue(root);
-            globbed.AddVertex(root);
-
-            while (q.Count != 0)
-            {
-                Instruction curNode = q.Dequeue();
-                visited.Add(curNode);
-                bool isPhi = curNode.Op == IrOps.Phi;
-                var children = new List<Instruction>();
-                var phiRemoved = false;
-
-                foreach (UndirectedEdge<Instruction> e in AdjacentEdges(curNode))
-                {
-                    children.Add(e.GetOtherVertex(curNode));
-                }
-
-                // Generate list of children and iteratively glob phis 'til fixpoint
-                //*
-                do
-                {
-                    var newChildren = new List<Instruction>();
-                    foreach (Instruction orphanChild in children)
-                    {
-                        phiRemoved = false;
-                        if (!visited.Contains(orphanChild))
-                        {
-                            if (isPhi && (orphanChild.Op == IrOps.Phi))
-                            {
-                                visited.Add(orphanChild);
-                                phiRemoved = true;
-                                foreach (UndirectedEdge<Instruction> e in AdjacentEdges(orphanChild))
-                                {
-                                    newChildren.Add(e.GetOtherVertex(orphanChild));
-                                }
-                            }
-
-                            else
-                            {
-                                newChildren.Add(orphanChild);
-                            }
-                        }
-                    }
-                    children = newChildren;
-                } while (phiRemoved);
-                //*/
-
-                // Actual BFS
-                foreach (Instruction adoptedChild in children)
-                {
-                    if (!visited.Contains(adoptedChild))
-                    {
-                        if (!globbed.ContainsVertex(adoptedChild))
-                        {
-                            globbed.AddVertex(adoptedChild);
-                        }
-
-                        if (!globbed.ContainsEdge(curNode, adoptedChild) && !globbed.ContainsEdge(adoptedChild, curNode))
-                        {
-                            var newEdge = new UndirectedEdge<Instruction>(curNode, adoptedChild);
-                            globbed.AddEdge(newEdge);
-                        }
-                        q.Enqueue(adoptedChild);
-                    }
-                }
-            }
-
-            return globbed;
-        }
-
-        /*
-            if (!globbed.ContainsVertex(curNode))
-            {
-                globbed.AddVertex(curNode);
-
-                foreach (var e in AdjacentEdges(curNode))
-                {
-                    var child = e.GetOtherVertex(curNode);
-                    var newEdge = new Edge<Instruction>(curNode, child);
-
-                    if (!globbed.ContainsEdge(newEdge))
-                    {
-                        globbed.AddEdge(newEdge);
-                    }
-
-                    PhiGlobberRecursive(child, isPhi);
-                }
-            }
-        }
-        */
-
-        /*
-        public void GlobPhis()
-        {
-            bool modified;
-
-            do
-            {
-                Instruction PhiGlobbed = null;
-                Instruction PhiRemoved = null;
-                var lEdgeAddition = new List<Instruction>();
-                var lEdgeRemoval = new List<Edge<Instruction>>();
-
-                modified = false;
-
-                foreach (var edge in Edges)
-                {
-                    var firstPhi = edge.Source;
-                    var secondPhi = edge.Target;
-
-                    if (firstPhi.Op == IrOps.Phi && secondPhi.Op == IrOps.Phi)
-                    {
-                        PhiGlobbed = firstPhi;
-                        PhiRemoved = secondPhi;
-
-                        foreach (var phiEdge in AdjacentEdges(secondPhi))
-                        {
-                            lEdgeRemoval.Add(phiEdge);
-                            var otherVertex = phiEdge.GetOtherVertex(secondPhi);
-                            if (otherVertex != firstPhi)
-                            {
-                                lEdgeAddition.Add(otherVertex);
-                            }
-                        }
-                        modified = true;
-                        break;
-                    }
-                }
-
-                if (modified)
-                {
-                    foreach (var vertex in lEdgeAddition)
-                    {
-                        var newEdge = new Edge<Instruction>(PhiGlobbed, vertex);
-                        if (!ContainsEdge(newEdge))
-                        {
+                            var newEdge = new UndirectedEdge<Instruction>(instruction, item);
                             AddEdge(newEdge);
                         }
                     }
+                }
+            }
+        }
 
-                    foreach (var edge in lEdgeRemoval)
+        public Dictionary<Instruction, HashSet<Instruction>> PhiGlobber()
+        {
+            // Key: Instruction in glob
+            // Value: All instructions globbed with that one
+            var globDict = new Dictionary<Instruction, HashSet<Instruction>>();
+
+            foreach (var v in Vertices)
+            {
+                var globList = new HashSet<Instruction>();
+                globList.Add(v);
+                globDict.Add(v, globList);
+            }
+
+            foreach (var v in Vertices)
+            {
+                if (v.Op == IrOps.Phi)
+                {
+                    var globList = new HashSet<Instruction>();
+                    var arg1 = v.Arg1.Inst;
+                    var arg2 = v.Arg2.Inst;
+                    var newGlob = new HashSet<Instruction>();
+
+                    globList.Add(v);
+                    if (!GetNeighbors(v).Contains(arg1))
                     {
-                        RemoveEdge(edge);
+                        globList.Add(arg1);
+                    }
+                    if (!GetNeighbors(v).Contains(arg2))
+                    {
+                        globList.Add(arg2);
                     }
 
-                    RemoveVertex(PhiRemoved);
+                    foreach (var instr in globList)
+                    {
+                        newGlob.UnionWith(globDict[instr]);
+                    }
+                    foreach (var instr in globList)
+                    {
+                        globDict[instr] = newGlob;
+                    }
                 }
-            } while (modified);
-        }
-        */
-
-
-        // Probably all broken
-        /*
-        public void MakeSupernodes(Instruction otherInstruction, Instruction phiInstruction )
-        {
-
-            MakeSupernodes(otherInstruction);
-
-            var adjacent = AdjacentEdges(otherInstruction);
-            foreach (var edge in adjacent)
-            {
-                var other = edge.GetOtherVertex(otherInstruction);
-                var newEdge = new Edge<Instruction>(phiInstruction, other);
-
-                AddEdge(newEdge);
-                RemoveVertex(other);
             }
-        }
 
-        private void MakeSupernodes(Instruction phiInst)
-        {
-            if (phiInst.Op == IrOps.Phi)
-            {
-                MakeSupernodes(phiInst.Arg1.Inst, phiInst);
-                MakeSupernodes(phiInst.Arg2.Inst, phiInst);
-            }
+            return globDict;
         }
-        */
 
         private List<Instruction> GetNeighbors(Instruction curNode)
         {
             var neighbors = new List<Instruction>();
 
-            foreach (UndirectedEdge<Instruction> e in AdjacentEdges(curNode))
+            foreach (var e in AdjacentEdges(curNode))
             {
-                Instruction neighbor = e.GetOtherVertex(curNode);
+                var neighbor = e.GetOtherVertex(curNode);
                 if (neighbor != curNode)
                 {
                     neighbors.Add(neighbor);
@@ -351,10 +205,25 @@ namespace compiler.middleend.ir
             return neighbors;
         }
 
+        private List<uint> GetNeighborRegs(Instruction curNode)
+        {
+            var neighborRegs = new List<uint>();
+
+            foreach (Instruction neighbor in GetNeighbors(curNode))
+            {
+                if (GraphColors.ContainsKey(neighbor))
+                {
+                    neighborRegs.Add(GraphColors[neighbor]);
+                }
+            }
+
+            return neighborRegs;
+        }
+
         private void ColorRecursive(InterferenceGraph curGraph)
         {
             // We have to spill if we don't find a vertex with low enough edges.
-            var spill = true;
+            bool spill = true;
 
             // Base case (empty graph)
             if (curGraph.VertexCount == 0)
@@ -363,7 +232,7 @@ namespace compiler.middleend.ir
             }
 
             // Step through vertices by descending edge count
-            foreach (Instruction vertex in curGraph.Vertices.OrderByDescending(AdjacentDegree))
+            foreach (var vertex in curGraph.Vertices.OrderByDescending(item => AdjacentDegree(item)))
             {
                 // Pick a node with fewer neighbors than the max
                 if (AdjacentDegree(vertex) < RegisterCount)
@@ -380,7 +249,7 @@ namespace compiler.middleend.ir
             {
                 // By default, spills the instruction with the least dependencies
                 // TODO: Maybe come up with a better spilling heuristic
-                Instruction spillVertex = curGraph.Vertices.OrderByDescending(item => AdjacentDegree(item)).Last();
+                var spillVertex = curGraph.Vertices.OrderByDescending(item => AdjacentDegree(item)).Last();
                 GraphColors.Add(spillVertex, SpillCount++);
                 curGraph.RemoveVertex(spillVertex);
             }
@@ -392,42 +261,78 @@ namespace compiler.middleend.ir
         public void Color()
         {
             _coloringStack = new Stack<Instruction>();
+            GraphColors = new Dictionary<Instruction, uint>();
 
             var copy = new InterferenceGraph(this);
+            var globDict = PhiGlobber();
 
             // Call recursive coloring fxn with the mutable copy
             ColorRecursive(copy);
-
-            var x = 5;
 
             // Until there are no more instructions to be colored...
             while (_coloringStack.Count != 0)
             {
                 // ... pop an instruction from the stack...
                 Instruction curInstr = _coloringStack.Pop();
+                uint curReg = 0;
 
-                // ... get a list of its neighbors' already assigned registers...
-                var neighborRegs = new List<uint>();
-                foreach (Instruction neighbor in GetNeighbors(curInstr))
+                if (GraphColors.ContainsKey(curInstr))
                 {
-                    if (GraphColors.ContainsKey(neighbor))
+                    continue;
+                }
+
+                // [PHIGLOB] get a list of its globmates that haven't been colored
+                var globMates = new List<Instruction>();
+                foreach (var potGlobMate in globDict[curInstr])
+                {
+                    if (!GraphColors.ContainsKey(potGlobMate))
                     {
-                        neighborRegs.Add(GraphColors[neighbor]);
+                        globMates.Add(potGlobMate);
                     }
                 }
 
-                // ... and give it a different one.
+                // ... get a list of its neighbors' already assigned registers...
+                List<uint> neighborRegs = GetNeighborRegs(curInstr);
+
+                // [PHIGLOB] and it's uncolored globmates' registers
+                var globNeighborRegs = new List<uint>();
+                foreach (var globMate in globMates)
+                {
+                    globNeighborRegs = globNeighborRegs.Union(GetNeighborRegs(globMate)).ToList();
+                }
+
+                bool couldGlob = false;
+                // [PHIGLOB] first try to assign a common reg
                 for (uint reg = RegisterCount; reg >= 1; reg--)
                 {
-                    if (!neighborRegs.Contains(reg))
+                    if (!globNeighborRegs.Contains(reg))
                     {
-                        GraphColors.Add(curInstr, reg);
+                        curReg = reg;
+                        foreach (var globMate in globMates)
+                        {
+                            GraphColors.Add(globMate, curReg);
+                        }
+                        couldGlob = true;
                         break;
                     }
                 }
 
+                // ... and give it a different one.
+                if (!couldGlob)
+                {
+                    for (uint reg = RegisterCount; reg >= 1; reg--)
+                    {
+                        if (!neighborRegs.Contains(reg))
+                        {
+                            curReg = reg;
+                            GraphColors.Add(curInstr, curReg);
+                            break;
+                        }
+                    }
+                }
+
                 // All coloring stack values should be assigned a color
-                if (!GraphColors.ContainsKey(curInstr))
+                if (curReg == 0)
                 {
                     throw new Exception("Did not color colorable reg.");
                 }

@@ -275,6 +275,8 @@ namespace compiler
 
                     inst.Reg = (int) reg;
                 }
+
+                var glob = intGraph.PhiGlobber();
             }
         }
 
