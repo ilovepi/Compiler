@@ -50,12 +50,7 @@ namespace compiler.middleend.optimization
                     case IrOps.End:
                     case IrOps.WriteNl:
                         continue;
-                    case IrOps.Phi:
-                        if (isLoop)
-                        {
-                            continue;
-                        }
-                        break;
+
                 }
 
 
@@ -73,7 +68,7 @@ namespace compiler.middleend.optimization
 
 
                 // add arguments to the live range
-                if ((inst.Op != IrOps.Phi) || isLoop)
+                //if ((inst.Op != IrOps.Phi) || isLoop)
                 {
                     AddArgToLiveRange(inst.Arg1, live);
                 }
