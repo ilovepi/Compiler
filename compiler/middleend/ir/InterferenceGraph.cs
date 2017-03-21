@@ -355,7 +355,7 @@ namespace compiler.middleend.ir
             }
 
             // Step through vertices by descending edge count
-            foreach (Instruction vertex in curGraph.Vertices.OrderByDescending(item => AdjacentDegree(item)))
+            foreach (Instruction vertex in curGraph.Vertices.OrderByDescending(AdjacentDegree))
             {
                 // Pick a node with fewer neighbors than the max
                 if (AdjacentDegree(vertex) < RegisterCount)
