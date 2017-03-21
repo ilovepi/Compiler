@@ -126,12 +126,14 @@ namespace compiler.middleend.ir
                         {
                             continue;
                         }
-                        if ((instruction.Op == IrOps.Ssa) && (item == instruction.Arg1.Inst))
+                        if ((instruction.Op == IrOps.Ssa))// && (item == instruction.Arg1.Inst))
                         {
                             continue;
                         }
 
                         AddVertex(item);
+
+
 
                         if (!ContainsEdge(instruction, item) && !ContainsEdge(item, instruction))
                         {
@@ -166,12 +168,26 @@ namespace compiler.middleend.ir
                     var newGlob = new HashSet<Instruction>();
 
                     globList.Add(v);
-                    if (!GetNeighbors(v).Contains(arg1))
+
+                    if (!GetNeighbors(v).Contains(arg1) && Vertices.Contains(arg1))
                     {
+                        if (arg1.Op == IrOps.Ssa)
+                        {
+                            arg1 = arg1.Arg1.Inst;
+                        }
+
                         globList.Add(arg1);
                     }
-                    if (!GetNeighbors(v).Contains(arg2))
+
+                    if (!GetNeighbors(v).Contains(arg2) && Vertices.Contains(arg2))
                     {
+
+                        if (arg2.Op == IrOps.Ssa)
+                        {
+                            arg2 = arg2.Arg1.Inst;
+                        }
+
+
                         globList.Add(arg2);
                     }
 
@@ -179,6 +195,7 @@ namespace compiler.middleend.ir
                     {
                         newGlob.UnionWith(globDict[instr]);
                     }
+
                     foreach (var instr in globList)
                     {
                         globDict[instr] = newGlob;

@@ -28,6 +28,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using compiler.frontend;
 using compiler.middleend.ir;
 
 #endregion
