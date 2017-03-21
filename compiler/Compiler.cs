@@ -256,8 +256,6 @@ namespace compiler
             foreach (ParseTree parseTree in FuncList)
             {
                 InterferenceGraph intGraph = parseTree.DominatorTree.IntGraph;
-                var newIntGraph = new InterferenceGraph();
-                var visited = new HashSet<Instruction>();
 
                 foreach (Instruction vertex in intGraph.Vertices)
                 {
@@ -275,8 +273,6 @@ namespace compiler
 
                     inst.Reg = (int) reg;
                 }
-
-                var glob = intGraph.PhiGlobber();
             }
         }
 
