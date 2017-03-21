@@ -252,7 +252,7 @@ namespace compiler.middleend.ir
         public void UpdateConstant(int value)
         {
             Val = value;
-            Kind = Operand.OpType.Constant;
+            Kind = OpType.Constant;
 
             // leave the instruction ref an variable value intact for now
             //operand.Inst = null;

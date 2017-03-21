@@ -28,7 +28,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using compiler.frontend;
 using compiler.middleend.ir;
 
 #endregion
@@ -74,7 +73,7 @@ namespace compiler.middleend.optimization
 
 
                 // add arguments to the live range
-                if (inst.Op != IrOps.Phi || isLoop)
+                if ((inst.Op != IrOps.Phi) || isLoop)
                 {
                     AddArgToLiveRange(inst.Arg1, live);
                 }
@@ -115,20 +114,12 @@ namespace compiler.middleend.optimization
                 {
                     live.Add(arg.Inst);
                 }
-                else
-                {
-                    //throw new ParserException("Variable Uninitialized before use:");
-                }
             }
             else if (arg?.Inst?.Op == IrOps.Ssa)
             {
                 if ((arg.Inst != null) && (arg.Inst.Arg1.Inst != null))
                 {
                     live.Add(arg.Inst.Arg1.Inst);
-                }
-                else
-                {
-                    //throw new ParserException("Variable Uninitialized before use:");
                 }
             }
         }
@@ -141,15 +132,12 @@ namespace compiler.middleend.optimization
             {
                 return GenerateLoopRanges(d, liveRange, intGraph);
             }
-            else
-            {
-                return GenerateNonLoopRanges(d, liveRange, intGraph);
-            }
+            return GenerateNonLoopRanges(d, liveRange, intGraph);
         }
 
 
         /// <summary>
-        /// Generates live ranges for Compare, Join and standard Basic Blocks
+        ///     Generates live ranges for Compare, Join and standard Basic Blocks
         /// </summary>
         /// <param name="d">A dominator node in the dominator tree</param>
         /// <param name="liveRange">A set of instructions that are currently alive</param>
@@ -170,7 +158,7 @@ namespace compiler.middleend.optimization
                 else
                 {
                     singleBlock = false;
-                    var temprange = GenerateRanges(child, firstRange, intGraph);
+                    HashSet<Instruction> temprange = GenerateRanges(child, firstRange, intGraph);
                     //temprange.IntersectWith(firstRange);
                     newRange.UnionWith(temprange);
                 }
@@ -194,13 +182,13 @@ namespace compiler.middleend.optimization
             InterferenceGraph intGraph)
         {
             // Get live range from the follow block
-            var followRange = GenerateRanges(d.Children[0], liveRange, intGraph);
+            HashSet<Instruction> followRange = GenerateRanges(d.Children[0], liveRange, intGraph);
 
             // interfere the follow block with the loop header
-            var headerRange = PopulateRanges(d, followRange, intGraph, true);
+            HashSet<Instruction> headerRange = PopulateRanges(d, followRange, intGraph, true);
 
             // interfere the loop body with the new loop header live range
-            var bodyRange = (GenerateRanges(d.Children[1], headerRange, intGraph));
+            HashSet<Instruction> bodyRange = GenerateRanges(d.Children[1], headerRange, intGraph);
 
             // update the header range -- probably can erase this
             headerRange = PopulateRanges(d, bodyRange, intGraph, true);
@@ -213,7 +201,7 @@ namespace compiler.middleend.optimization
         }
 
         /// <summary>
-        /// Generates live ranges from a dominator tree
+        ///     Generates live ranges from a dominator tree
         /// </summary>
         /// <param name="tree"></param>
         public static void GenerateRanges(DomTree tree)

@@ -29,7 +29,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using compiler.frontend;
 using QuickGraph;
 
 #endregion
@@ -44,15 +43,15 @@ namespace compiler.middleend.ir
         // # of available registers
         private const uint RegisterCount = 26;
 
-        public BasicBlock Bb { get; set; }
-
         private Stack<Instruction> _coloringStack = new Stack<Instruction>();
-
-        public bool UseSupeNodes;
 
         // Colored and spilled instructions
         public Dictionary<Instruction, uint> GraphColors = new Dictionary<Instruction, uint>();
         public uint SpillCount = 32; // Virtual register to track spilled instructions, starts at reg 32
+
+        public bool UseSupeNodes;
+
+        public BasicBlock Bb { get; set; }
 
         public InterferenceGraph() : base(false)
         {
@@ -76,7 +75,7 @@ namespace compiler.middleend.ir
 
         public InterferenceGraph(InterferenceGraph other) : base(false)
         {
-            foreach (var vertexAdd in other.Vertices)
+            foreach (Instruction vertexAdd in other.Vertices)
             {
                 if (!Vertices.Contains(vertexAdd))
                 {
@@ -84,7 +83,7 @@ namespace compiler.middleend.ir
                 }
             }
 
-            foreach (var edgeAdd in other.Edges)
+            foreach (UndirectedEdge<Instruction> edgeAdd in other.Edges)
             {
                 if (!Edges.Contains(edgeAdd))
                 {
@@ -95,7 +94,7 @@ namespace compiler.middleend.ir
 
         public void AddInterferenceEdges(BasicBlock block)
         {
-            foreach (var instruction in block.Instructions)
+            foreach (Instruction instruction in block.Instructions)
             {
                 switch (instruction.Op)
                 {
@@ -116,7 +115,7 @@ namespace compiler.middleend.ir
 
                 AddVertex(instruction);
 
-                foreach (var item in instruction.LiveRange)
+                foreach (Instruction item in instruction.LiveRange)
                 {
                     if (item != null)
                     {
@@ -154,13 +153,13 @@ namespace compiler.middleend.ir
 
             while (q.Count != 0)
             {
-                var curNode = q.Dequeue();
+                Instruction curNode = q.Dequeue();
                 visited.Add(curNode);
-                bool isPhi = (curNode.Op == IrOps.Phi);
+                bool isPhi = curNode.Op == IrOps.Phi;
                 var children = new List<Instruction>();
-                bool phiRemoved = false;
+                var phiRemoved = false;
 
-                foreach (var e in AdjacentEdges(curNode))
+                foreach (UndirectedEdge<Instruction> e in AdjacentEdges(curNode))
                 {
                     children.Add(e.GetOtherVertex(curNode));
                 }
@@ -170,7 +169,7 @@ namespace compiler.middleend.ir
                 do
                 {
                     var newChildren = new List<Instruction>();
-                    foreach (var orphanChild in children)
+                    foreach (Instruction orphanChild in children)
                     {
                         phiRemoved = false;
                         if (!visited.Contains(orphanChild))
@@ -179,7 +178,7 @@ namespace compiler.middleend.ir
                             {
                                 visited.Add(orphanChild);
                                 phiRemoved = true;
-                                foreach (var e in AdjacentEdges(orphanChild))
+                                foreach (UndirectedEdge<Instruction> e in AdjacentEdges(orphanChild))
                                 {
                                     newChildren.Add(e.GetOtherVertex(orphanChild));
                                 }
@@ -196,7 +195,7 @@ namespace compiler.middleend.ir
                 //*/
 
                 // Actual BFS
-                foreach (var adoptedChild in children)
+                foreach (Instruction adoptedChild in children)
                 {
                     if (!visited.Contains(adoptedChild))
                     {
@@ -332,9 +331,9 @@ namespace compiler.middleend.ir
         {
             var neighbors = new List<Instruction>();
 
-            foreach (var e in AdjacentEdges(curNode))
+            foreach (UndirectedEdge<Instruction> e in AdjacentEdges(curNode))
             {
-                var neighbor = e.GetOtherVertex(curNode);
+                Instruction neighbor = e.GetOtherVertex(curNode);
                 if (neighbor != curNode)
                 {
                     neighbors.Add(neighbor);
@@ -347,7 +346,7 @@ namespace compiler.middleend.ir
         private void ColorRecursive(InterferenceGraph curGraph)
         {
             // We have to spill if we don't find a vertex with low enough edges.
-            bool spill = true;
+            var spill = true;
 
             // Base case (empty graph)
             if (curGraph.VertexCount == 0)
@@ -356,7 +355,7 @@ namespace compiler.middleend.ir
             }
 
             // Step through vertices by descending edge count
-            foreach (var vertex in curGraph.Vertices.OrderByDescending(item => AdjacentDegree(item)))
+            foreach (Instruction vertex in curGraph.Vertices.OrderByDescending(item => AdjacentDegree(item)))
             {
                 // Pick a node with fewer neighbors than the max
                 if (AdjacentDegree(vertex) < RegisterCount)
@@ -373,7 +372,7 @@ namespace compiler.middleend.ir
             {
                 // By default, spills the instruction with the least dependencies
                 // TODO: Maybe come up with a better spilling heuristic
-                var spillVertex = curGraph.Vertices.OrderByDescending(item => AdjacentDegree(item)).Last();
+                Instruction spillVertex = curGraph.Vertices.OrderByDescending(item => AdjacentDegree(item)).Last();
                 GraphColors.Add(spillVertex, SpillCount++);
                 curGraph.RemoveVertex(spillVertex);
             }
@@ -391,7 +390,7 @@ namespace compiler.middleend.ir
             // Call recursive coloring fxn with the mutable copy
             ColorRecursive(copy);
 
-            int x = 5;
+            var x = 5;
 
             // Until there are no more instructions to be colored...
             while (_coloringStack.Count != 0)
@@ -400,7 +399,7 @@ namespace compiler.middleend.ir
                 Instruction curInstr = _coloringStack.Pop();
 
                 // ... get a list of its neighbors' already assigned registers...
-                List<uint> neighborRegs = new List<uint>();
+                var neighborRegs = new List<uint>();
                 foreach (Instruction neighbor in GetNeighbors(curInstr))
                 {
                     if (GraphColors.ContainsKey(neighbor))
