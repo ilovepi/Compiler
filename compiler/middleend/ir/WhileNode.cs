@@ -114,7 +114,6 @@ namespace compiler.middleend.ir
             }
 
             return Bb.Instructions.Last();
-            
         }
 
 

@@ -31,7 +31,6 @@ using compiler.frontend;
 using QuickGraph;
 using QuickGraph.Graphviz;
 using QuickGraph.Graphviz.Dot;
-using QuickGraph.Serialization.DirectedGraphML;
 
 #endregion
 
@@ -67,16 +66,15 @@ namespace compiler.middleend.ir
 
         public string PrintInterference(bool printGraph)
         {
-
-           var temp = new BidirectionalGraph<Instruction, UndirectedEdge<Instruction>>();
+            var temp = new BidirectionalGraph<Instruction, UndirectedEdge<Instruction>>();
             temp.AddVertexRange(IntGraph.Vertices);
             temp.AddEdgeRange(IntGraph.Edges);
-            var graphViz = new GraphvizAlgorithm<Instruction, UndirectedEdge<Instruction>>(temp, @".", GraphvizImageType.Gif);
+            var graphViz = new GraphvizAlgorithm<Instruction, UndirectedEdge<Instruction>>(temp, @".",
+                GraphvizImageType.Gif);
 
             graphViz.FormatVertex += FormatVertex;
             graphViz.FormatEdge += FormatEdge;
             return printGraph ? graphViz.Generate(new FileDotEngine(), Name + "-InterferenceGraph.dot") : string.Empty;
-            
         }
 
 
@@ -95,7 +93,6 @@ namespace compiler.middleend.ir
             // e.EdgeFormatter.Font = new GraphvizFont("Calibri", 8);
             e.EdgeFormatter.FontGraphvizColor = GraphvizColor.Black;
             e.EdgeFormatter.StrokeGraphvizColor = GraphvizColor.Black;
-
         }
 
 

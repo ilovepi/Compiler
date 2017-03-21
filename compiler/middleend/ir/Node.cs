@@ -170,7 +170,7 @@ namespace compiler.middleend.ir
 
         public virtual void Consolidate()
         {
-            HashSet<Node> visited = new HashSet<Node>();
+            var visited = new HashSet<Node>();
             Consolidate(visited);
         }
 
@@ -235,7 +235,8 @@ namespace compiler.middleend.ir
         {
             if (Bb.Instructions.Count != 0)
             {
-				var res = Bb.Instructions.FirstOrDefault((curr) => (curr.Op != IrOps.Phi) && (curr.Op != IrOps.Adda));
+                Instruction res =
+                    Bb.Instructions.FirstOrDefault(curr => (curr.Op != IrOps.Phi) && (curr.Op != IrOps.Adda));
                 return res ?? Child?.GetNextNonPhi();
             }
             return Child?.GetNextNonPhi();

@@ -43,6 +43,8 @@ namespace compiler.middleend.ir
         /// </summary>
         private static int _instructionCounter;
 
+        private int _reg;
+
         public string Colorname;
 
         public int Offset { get; set; }
@@ -102,14 +104,12 @@ namespace compiler.middleend.ir
         /// </summary>
         public HashSet<Instruction> LiveRange { get; set; }
 
-        private int _reg;
-
         public int Reg
         {
             get { return _reg; }
             set
             {
-                _reg = value; 
+                _reg = value;
                 PropagateRegister();
             }
         }
@@ -241,20 +241,20 @@ namespace compiler.middleend.ir
 
         public string Display(SymbolTable smb)
         {
-
             string a1 = DisplayArg(smb, Arg1);
             // unconditionalbranches don't have a second arg, so they shouldn't print
-            string a2 = (Op != IrOps.Bra) && ((Op != IrOps.End) && (Op != IrOps.Load))
+            string a2 = (Op != IrOps.Bra) && (Op != IrOps.End) && (Op != IrOps.Load)
                 ? DisplayArg(smb, Arg2)
                 : string.Empty;
-            string lr = LiveRange.Aggregate(String.Empty, (current, instruction) => current + ("" + instruction.Num + ","));
+            string lr = LiveRange.Aggregate(string.Empty,
+                (current, instruction) => current + ("" + instruction.Num) + ",");
             return $"{Num}: {Op} {a1} {a2} -- Uses {Uses.Count}: {PrintUses(smb)} -- Register: {Reg} -- LiveRange: {lr}";
         }
 
 
         private string PrintUses(SymbolTable smb)
         {
-            var s = string.Empty;
+            string s = string.Empty;
             foreach (Instruction usesLocation in UsesLocations)
             {
                 s += "(" + usesLocation.Num + "),";
@@ -269,10 +269,11 @@ namespace compiler.middleend.ir
 
         public override string ToString()
         {
+            string lr = LiveRange.Aggregate(string.Empty,
+                (current, instruction) => current + ("" + instruction.Num) + ",");
 
-            string lr = LiveRange.Aggregate(String.Empty, (current, instruction) => current + ("" + instruction.Num + ","));
-
-            return "" + Num + ": " + Op + " " + Arg1 + " " + Arg2 + " : " + Uses.Count +  " -- " + "Register: " + Reg + " -- liveRange: {"+ lr +"}" ;
+            return "" + Num + ": " + Op + " " + Arg1 + " " + Arg2 + " : " + Uses.Count + " -- " + "Register: " + Reg +
+                   " -- liveRange: {" + lr + "}";
         }
 
 
@@ -289,8 +290,6 @@ namespace compiler.middleend.ir
             //RemoveRefs();
         }
 
-      
-
 
         public bool PropagateUses(Operand targetArg, int assignedValue)
         {
@@ -304,7 +303,6 @@ namespace compiler.middleend.ir
             return false;
         }
 
-        
 
         public void PropagateRegister()
         {

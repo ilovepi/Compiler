@@ -258,8 +258,5 @@ namespace compiler.middleend.ir
             //operand.Inst = null;
             //operand.Variable = null;
         }
-
-
-
     }
 }

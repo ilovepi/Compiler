@@ -96,7 +96,7 @@ namespace compiler.backend
                 case IrOps.Load:
                     if ((inst.Arg1.Kind == Operand.OpType.Instruction) && (inst.Arg1.Inst.Op == IrOps.Adda))
                     {
-                        var addaInst = inst.Arg1.Inst;
+                        Instruction addaInst = inst.Arg1.Inst;
 
                         //A = inst.Arg1.Register;
                         B = addaInst.Arg1.Register;
@@ -119,7 +119,7 @@ namespace compiler.backend
                     {
                         Op = OpCodes.LDW;
                         //A = (int) inst.Reg;
-                        var curVariable = inst.VArId;
+                        VariableType curVariable = inst.VArId;
                         B = curVariable.IsGlobal ? Globals : Fp;
                         //B = inst.Arg1.Register;
                         C = curVariable.Offset;
@@ -151,7 +151,7 @@ namespace compiler.backend
                     {
                         // Else this is a normal store to a stack variable
                         Op = OpCodes.STW;
-                        A = (int) inst.Reg;
+                        A = inst.Reg;
                         B = inst.Arg1.Val;
                         C = 0;
                         PutF1();
@@ -259,7 +259,6 @@ namespace compiler.backend
 
         public void ImmediateOperands(OpCodes opCode, Operand arg1, Operand arg2)
         {
-            
             if (arg1.Kind == Operand.OpType.Constant)
             {
                 // thse cannot have their argument ordering switched
@@ -310,7 +309,7 @@ namespace compiler.backend
 
         public override string ToString()
         {
-            return Op + " - A: " + A + " - B: " + B + " - C: " + C +" - Code: " + Convert.ToString(MachineCode, 2);
+            return Op + " - A: " + A + " - B: " + B + " - C: " + C + " - Code: " + Convert.ToString(MachineCode, 2);
         }
     }
 }

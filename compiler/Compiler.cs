@@ -64,7 +64,7 @@ namespace compiler
                     func.Sym = p.Scanner.SymbolTble;
                     // create dominator Tree
                     DomTree dom = DominatorNode.ConvertCfg(func);
-                   
+
 
                     // add CFG and DomTree to the functin list
                     FuncList.Add(new ParseTree(func, dom));
@@ -118,7 +118,7 @@ namespace compiler
             string ret = string.Empty;
             var i = 0;
             return DlxFunctions.Aggregate(ret,
-                (current, functionBuilder) => current + (functionBuilder.PrintFunction(i++) + "\n"));
+                (current, functionBuilder) => current + functionBuilder.PrintFunction(i++) + "\n");
         }
 
         private string GenInstructionListGraphString()
@@ -126,18 +126,18 @@ namespace compiler
             List<ParseTree> straightFuncs = GenStraightLineFunctions();
             var i = 0;
             return straightFuncs.Aggregate(string.Empty,
-                (current, func) => current + (func.DominatorTree.PrintTreeGraph(i++, func.ControlFlowGraph.Sym) + "\n"));
+                (current, func) => current + func.DominatorTree.PrintTreeGraph(i++, func.ControlFlowGraph.Sym) + "\n");
         }
 
         private List<ParseTree> GenStraightLineFunctions()
         {
             var straightFuncList = new List<ParseTree>();
             PopulateDlxFunc();
-            foreach (var dlxFunc in DlxFunctions)
+            foreach (FunctionBuilder dlxFunc in DlxFunctions)
             {
-                DomTree dom = new DomTree
+                var dom = new DomTree
                 {
-                    Root = new DominatorNode(new BasicBlock("StatSequence",1)) {Bb = {Instructions = dlxFunc.FuncBody}}
+                    Root = new DominatorNode(new BasicBlock("StatSequence", 1)) {Bb = {Instructions = dlxFunc.FuncBody}}
                 };
                 straightFuncList.Add(new ParseTree(dlxFunc.Tree.ControlFlowGraph, dom));
                 dom.Name = dlxFunc.Tree.ControlFlowGraph.Name;
@@ -151,11 +151,11 @@ namespace compiler
             DlxFunctions = new List<FunctionBuilder>();
             foreach (ParseTree parseTree in FuncList)
             {
-                FunctionBuilder newFunction = new FunctionBuilder(parseTree);
+                var newFunction = new FunctionBuilder(parseTree);
                 DlxFunctions.Add(newFunction);
             }
 
-            foreach (var func in DlxFunctions)
+            foreach (FunctionBuilder func in DlxFunctions)
             {
                 func.TransformDlx(DlxFunctions);
             }
@@ -167,20 +167,20 @@ namespace compiler
         {
             var i = 0;
             return FuncList.Aggregate(string.Empty,
-                (current, func) => current + (func.DominatorTree.PrintTreeGraph(i++, func.ControlFlowGraph.Sym) + "\n"));
+                (current, func) => current + func.DominatorTree.PrintTreeGraph(i++, func.ControlFlowGraph.Sym) + "\n");
         }
 
         private string GenInterferenceGraphString(bool generateFile)
         {
             return FuncList.Aggregate(string.Empty,
-                (current, parseTree) => current + (parseTree.DominatorTree.PrintInterference(generateFile) + "\n"));
+                (current, parseTree) => current + parseTree.DominatorTree.PrintInterference(generateFile) + "\n");
         }
 
         private string GenControlGraphString()
         {
             var i = 0;
-            var s = string.Empty;
-            foreach (var func in FuncList)
+            string s = string.Empty;
+            foreach (ParseTree func in FuncList)
             {
                 func.ControlFlowGraph.GenerateDotOutput(i++);
                 s += func.ControlFlowGraph.DotOutput + "\n";
@@ -210,7 +210,7 @@ namespace compiler
 
         private bool TransformIr(ParseTree func, bool cleanSsa)
         {
-            bool restart = false;
+            var restart = false;
             // Copy propagation
             if (Opts.CopyProp)
             {
@@ -255,11 +255,11 @@ namespace compiler
 
             foreach (ParseTree parseTree in FuncList)
             {
-                var intGraph = parseTree.DominatorTree.IntGraph;
+                InterferenceGraph intGraph = parseTree.DominatorTree.IntGraph;
                 var newIntGraph = new InterferenceGraph();
-                HashSet<Instruction> visited = new HashSet<Instruction>();
+                var visited = new HashSet<Instruction>();
 
-                foreach (var vertex in intGraph.Vertices)
+                foreach (Instruction vertex in intGraph.Vertices)
                 {
                     //newIntGraph.AddVerticesAndEdgeRange( (new InterferenceGraph(intGraph.PhiGlobber(vertex, visited))).Edges );
                     //intGraph.Color();
@@ -270,10 +270,10 @@ namespace compiler
 
                 foreach (KeyValuePair<Instruction, uint> pair in intGraph.GraphColors)
                 {
-                    var inst = pair.Key;
-                    var reg = pair.Value;
+                    Instruction inst = pair.Key;
+                    uint reg = pair.Value;
 
-                    inst.Reg = (int)reg;
+                    inst.Reg = (int) reg;
                 }
             }
         }
@@ -309,8 +309,6 @@ namespace compiler
             {
                 GenerateCodeOutput();
             }
-
-
         }
 
         public void GenerateCodeOutput()
@@ -324,38 +322,32 @@ namespace compiler
                         file.Write(instruction.MachineCode);
                     }
                 }
-
             }
         }
 
 
-
         public void AssignAddresses()
         {
-            var globals = FuncList.First().ControlFlowGraph.Globals;
-            int i = 0;
+            List<VariableType> globals = FuncList.First().ControlFlowGraph.Globals;
+            var i = 0;
             foreach (VariableType globalVar in globals)
             {
                 globalVar.Offset = i;
                 i += globalVar.Size * 4;
             }
 
-            int baseAddr = 0;
+            var baseAddr = 0;
             foreach (FunctionBuilder functionBuilder in DlxFunctions)
             {
                 functionBuilder.AssignAddresses(baseAddr);
                 baseAddr += functionBuilder.CodeSize;
             }
 
-           
-
-            
 
             foreach (FunctionBuilder functionBuilder in DlxFunctions)
             {
                 functionBuilder.FixInstructions();
             }
-
         }
 
 
@@ -366,7 +358,7 @@ namespace compiler
                 return;
             }
 
-           
+
             CodeGeneration(true);
             GenerateGraphOutput();
         }
@@ -378,7 +370,7 @@ namespace compiler
                 return;
             }
 
-            
+
             CodeGeneration(false);
             GenerateTestGraphOutput();
         }
@@ -435,7 +427,6 @@ namespace compiler
             c.Parse();
             c.Optimize();
             c.GenerateTestOutput();
-            
         }
     }
 }

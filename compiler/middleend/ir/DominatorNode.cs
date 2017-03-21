@@ -173,7 +173,7 @@ namespace compiler.middleend.ir
             {
                 return;
             }
-           
+
             _visited.Add(n);
             InsertChild(n.ConvertNode());
         }
@@ -184,7 +184,7 @@ namespace compiler.middleend.ir
             string local = string.Empty;
 
             local += DotId() + "[label=\"{" + DotLabel(sym) + "\\l}\",fillcolor=" + Colorname + "]\n";
-            local = Children.Aggregate(local, (current, child) => current + (DotId() + "->" + child.DotId() + "\n"));
+            local = Children.Aggregate(local, (current, child) => current + DotId() + "->" + child.DotId() + "\n");
 
 
             return Children.Aggregate(local, (current, child) => current + child.PrintGraphNode(sym));
@@ -193,7 +193,7 @@ namespace compiler.middleend.ir
 
         public bool SearchDominated(Instruction target)
         {
-            return Children.First()?.SearchAll(target) ??  false;
+            return Children.First()?.SearchAll(target) ?? false;
         }
 
         public bool SearchAll(Instruction target)

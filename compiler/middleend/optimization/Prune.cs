@@ -56,17 +56,17 @@ namespace compiler.middleend.optimization
 
             if (root.GetType() == typeof(CompareNode))
             {
-                var instList = root.Bb.Instructions;
-                Instruction cmp = instList.Find((current) => current.Op == IrOps.Cmp);
+                List<Instruction> instList = root.Bb.Instructions;
+                Instruction cmp = instList.Find(current => current.Op == IrOps.Cmp);
 
                 if ((cmp?.Arg1.OpenOperand().Kind == Operand.OpType.Constant) &&
                     (cmp.Arg2.OpenOperand().Kind == Operand.OpType.Constant))
                 {
-                    var branch = instList.Last();
+                    Instruction branch = instList.Last();
                     bool takeBranch;
 
-                    var arg1 = cmp.Arg1.OpenOperand().Val;
-                    var arg2 = cmp.Arg2.OpenOperand().Val;
+                    int arg1 = cmp.Arg1.OpenOperand().Val;
+                    int arg2 = cmp.Arg2.OpenOperand().Val;
 
                     switch (branch.Op)
                     {
@@ -92,7 +92,7 @@ namespace compiler.middleend.optimization
                             throw new Exception("Comparison cannot be evaluated!");
                     }
 
-                    CompareNode compareNode = (CompareNode) root;
+                    var compareNode = (CompareNode) root;
                     Node begin = compareNode.Parent;
                     JoinNode join = compareNode.Join;
                     Node joinParent = takeBranch ? join.FalseParent : join.Parent;
@@ -139,7 +139,7 @@ namespace compiler.middleend.optimization
 
             List<Node> children = root.GetAllChildren();
 
-            return children.Aggregate(false, (current, child) => (current || PruneBranches(child)));
+            return children.Aggregate(false, (current, child) => current || PruneBranches(child));
         }
     }
 }

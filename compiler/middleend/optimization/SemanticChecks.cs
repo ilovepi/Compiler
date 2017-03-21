@@ -7,7 +7,6 @@ namespace compiler.middleend.optimization
 {
     internal static class SemanticChecks
     {
-
         private static HashSet<DominatorNode> _visited;
 
         public static void RunChecks(DominatorNode root)
@@ -27,23 +26,19 @@ namespace compiler.middleend.optimization
             //foreach (Instruction instruction in root.Bb.Instructions)
             {
                 //DefUse(instruction, root);
-                
-
             }
 
             CheckPhi(root);
 
 
-
-            foreach (var child in root.Children)
+            foreach (DominatorNode child in root.Children)
             {
                 Validate(child);
             }
-
         }
 
 
-        public static void CheckPhi( DominatorNode root)
+        public static void CheckPhi(DominatorNode root)
         {
             if ((root.Bb.NodeType == Node.NodeTypes.BB) || (root.Bb.NodeType == Node.NodeTypes.CompareB))
             {
@@ -57,8 +52,7 @@ namespace compiler.middleend.optimization
                 {
                     if ((target.Arg1.Inst == null) || (target.Arg2.Inst == null))
                     {
-
-                        for (int j = index+1; j < root.Bb.Instructions.Count; j++)
+                        for (int j = index + 1; j < root.Bb.Instructions.Count; j++)
                         {
                             foreach (Instruction location in target.UsesLocations)
                             {
@@ -68,7 +62,6 @@ namespace compiler.middleend.optimization
                                 }
                             }
                         }
-
 
 
                         List<Instruction> badUses =

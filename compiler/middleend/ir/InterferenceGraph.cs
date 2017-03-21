@@ -54,10 +54,8 @@ namespace compiler.middleend.ir
         public Dictionary<Instruction, uint> GraphColors = new Dictionary<Instruction, uint>();
         public uint SpillCount = 32; // Virtual register to track spilled instructions, starts at reg 32
 
-        public InterferenceGraph():base(false)
+        public InterferenceGraph() : base(false)
         {
-           
-            
             UseSupeNodes = true;
         }
 
@@ -75,7 +73,7 @@ namespace compiler.middleend.ir
 
             AddInterferenceEdges(block);
         }
-        
+
         public InterferenceGraph(InterferenceGraph other) : base(false)
         {
             foreach (var vertexAdd in other.Vertices)
@@ -99,7 +97,6 @@ namespace compiler.middleend.ir
         {
             foreach (var instruction in block.Instructions)
             {
-
                 switch (instruction.Op)
                 {
                     case IrOps.Adda:
@@ -112,11 +109,13 @@ namespace compiler.middleend.ir
                     case IrOps.Bgt:
                     case IrOps.Write:
 
-                    //case IrOps.Ssa:
+                        //case IrOps.Ssa:
                         continue;
                 }
 
+
                 AddVertex(instruction);
+
                 foreach (var item in instruction.LiveRange)
                 {
                     if (item != null)
@@ -206,7 +205,7 @@ namespace compiler.middleend.ir
                             globbed.AddVertex(adoptedChild);
                         }
 
-                        if (!globbed.ContainsEdge(curNode, adoptedChild) &&!globbed.ContainsEdge(adoptedChild, curNode))
+                        if (!globbed.ContainsEdge(curNode, adoptedChild) && !globbed.ContainsEdge(adoptedChild, curNode))
                         {
                             var newEdge = new UndirectedEdge<Instruction>(curNode, adoptedChild);
                             globbed.AddEdge(newEdge);
@@ -239,7 +238,7 @@ namespace compiler.middleend.ir
             }
         }
         */
-        
+
         /*
         public void GlobPhis()
         {
@@ -299,7 +298,6 @@ namespace compiler.middleend.ir
             } while (modified);
         }
         */
-        
 
 
         // Probably all broken

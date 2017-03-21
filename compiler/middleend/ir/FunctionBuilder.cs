@@ -413,7 +413,6 @@ namespace compiler.middleend.ir
             {
                 MachineBody[j].Address = j;
             }
-
         }
 
         public void FixInstructions()

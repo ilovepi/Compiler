@@ -26,9 +26,7 @@
 
 #region
 
-using System;
 using System.Collections.Generic;
-using compiler.frontend;
 using compiler.middleend.ir;
 
 #endregion
@@ -54,10 +52,9 @@ namespace compiler.middleend.optimization
 
             _visited.Add(root);
 
-            List<Instruction> removalList = new List<Instruction>();
+            var removalList = new List<Instruction>();
             foreach (Instruction instruction in root.Bb.Instructions)
             {
-
                 switch (instruction.Op)
                 {
                     case IrOps.Store:

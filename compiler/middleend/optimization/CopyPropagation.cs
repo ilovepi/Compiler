@@ -26,10 +26,8 @@
 
 #region
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Configuration;
 using compiler.middleend.ir;
 
 #endregion
@@ -47,7 +45,6 @@ namespace compiler.middleend.optimization
         }
 
 
-
         private static void PropagateValues(Node root)
         {
             if ((root == null) || _visited.Contains(root))
@@ -57,8 +54,8 @@ namespace compiler.middleend.optimization
 
             _visited.Add(root);
 
-            var bb = root.Bb;
-            var instList = bb.Instructions;
+            BasicBlock bb = root.Bb;
+            List<Instruction> instList = bb.Instructions;
 
             foreach (Instruction instruction in instList)
             {
@@ -66,18 +63,21 @@ namespace compiler.middleend.optimization
                 {
                     if (instruction.Arg1.Kind == Operand.OpType.Constant)
                     {
-                        var assignedValue = instruction.Arg1.Val;
-                        var argUses = instruction.Uses;
-                        var instUses = instruction.UsesLocations;
-                        var replaceList = instUses.Where(target => (target.Op != IrOps.Write) && (target.Op != IrOps.Load) && (target.Op != IrOps.Adda) && (target.Op != IrOps.Phi)).ToList();
+                        int assignedValue = instruction.Arg1.Val;
+                        List<Operand> argUses = instruction.Uses;
+                        HashSet<Instruction> instUses = instruction.UsesLocations;
+                        List<Instruction> replaceList =
+                            instUses.Where(
+                                target =>
+                                    (target.Op != IrOps.Write) && (target.Op != IrOps.Load) && (target.Op != IrOps.Adda) &&
+                                    (target.Op != IrOps.Phi)).ToList();
 
-                        foreach (var replacedItem in replaceList)
+                        foreach (Instruction replacedItem in replaceList)
                         {
                             instruction.PropagateUses(replacedItem.Arg1, assignedValue);
                             instruction.PropagateUses(replacedItem.Arg2, assignedValue);
                             instruction.UsesLocations.Remove(replacedItem);
                         }
-                      
                     }
                 }
             }
@@ -148,9 +148,10 @@ namespace compiler.middleend.optimization
             visited.Add(root);
             var removalList = new List<Instruction>();
 
-            foreach (var bbInstruction in root.Bb.Instructions)
+            foreach (Instruction bbInstruction in root.Bb.Instructions)
             {
-                if ((bbInstruction.Op != IrOps.Phi) && (bbInstruction.Op != IrOps.Load) && (bbInstruction.Op != IrOps.Adda))
+                if ((bbInstruction.Op != IrOps.Phi) && (bbInstruction.Op != IrOps.Load) &&
+                    (bbInstruction.Op != IrOps.Adda))
                 {
                     if ((bbInstruction.Arg1.Kind == Operand.OpType.Constant) &&
                         (bbInstruction.Arg2?.Kind == Operand.OpType.Constant))
@@ -174,7 +175,6 @@ namespace compiler.middleend.optimization
             }
         }
 
-      
 
         private static void FoldValue(Instruction inst, List<Instruction> removalList)
         {

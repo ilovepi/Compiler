@@ -38,6 +38,7 @@ namespace compiler.frontend
 {
     public class Parser : IDisposable
     {
+        public static int nestingDepth = 1;
         private readonly bool _copyPropagationEnabled;
         private readonly string _filename;
 
@@ -54,8 +55,6 @@ namespace compiler.frontend
         public int CurrAddress { get; set; }
 
         public VarTbl VarTable { get; set; }
-
-        public static int nestingDepth = 1;
 
         /// <summary>
         ///     A stack of frame addresses -- esentially a list of frame pointers
@@ -147,13 +146,13 @@ namespace compiler.frontend
 
             if (variables.ContainsKey(id.IdKey))
             {
-                var cached = variables[id.IdKey];
+                SsaVariable cached = variables[id.IdKey];
                 id = new Operand(cached);
             }
 
 
-            List<Operand> indiciesList = new List<Operand>();
-            int arrayCount = 0;
+            var indiciesList = new List<Operand>();
+            var arrayCount = 0;
             ArrayType ary = null;
 
             while (Tok == Token.OPEN_BRACKET)
@@ -178,9 +177,9 @@ namespace compiler.frontend
                 instructions.AddRange(exp.Instructions);
 
                 // if we arn't the last index, generate a multiply
-                if (arrayCount < (ary.Dimensions.Count))
+                if (arrayCount < ary.Dimensions.Count)
                 {
-                    int offset = 1;
+                    var offset = 1;
                     for (int i = arrayCount + 1; i < ary.Dimensions.Count; i++)
                     {
                         offset *= ary.Dimensions[i];
@@ -382,7 +381,7 @@ namespace compiler.frontend
             ParseResult expValue = Expression(locals);
 
             // create new instruction
-            Instruction newInst = new Instruction(IrOps.Store, expValue.Operand, id.Operand);
+            var newInst = new Instruction(IrOps.Store, expValue.Operand, id.Operand);
 
             string name = Scanner.SymbolTble.Symbols[id.Operand.IdKey];
 
@@ -426,7 +425,7 @@ namespace compiler.frontend
 
                 if ((newInst.Arg2.Kind == Operand.OpType.Instruction) && (newInst.Arg2.Inst.Op == IrOps.Adda))
                 {
-                    var temp = newInst.Arg2.Inst;
+                    Instruction temp = newInst.Arg2.Inst;
                     id.Instructions.Remove(temp);
                     id.Instructions.Add(temp);
                 }
@@ -579,7 +578,7 @@ namespace compiler.frontend
 
         public List<VariableType> VarDecl(VarTbl varTble)
         {
-            var varType = TypeDecl();
+            VariableType varType = TypeDecl();
             var variableList = new List<VariableType>();
 
             CreateIdentifier(varTble, varType, variableList);
@@ -602,7 +601,7 @@ namespace compiler.frontend
             Operand id = Identifier();
             string name = Scanner.SymbolTble.Symbols[id.IdKey];
 
-            var temp = varType.Clone();
+            VariableType temp = varType.Clone();
             temp.Name = name;
             temp.Id = id.IdKey;
             temp.Offset = VariableType.CurrOffset;
@@ -624,7 +623,7 @@ namespace compiler.frontend
             else if (Tok == Token.ARRAY)
             {
                 Next();
-                List<int> dims = new List<int>();
+                var dims = new List<int>();
                 while (Tok == Token.OPEN_BRACKET)
                 {
                     Next();
@@ -657,7 +656,7 @@ namespace compiler.frontend
 
             FunctionsCfgs.Add(cfg);
 
-            bool isProcedure = false;
+            var isProcedure = false;
 
             if ((Tok != Token.FUNCTION) && (Tok != Token.PROCEDURE))
             {
@@ -665,7 +664,7 @@ namespace compiler.frontend
             }
             else
             {
-                isProcedure = (Tok == Token.PROCEDURE);
+                isProcedure = Tok == Token.PROCEDURE;
             }
 
             Next();
@@ -674,19 +673,16 @@ namespace compiler.frontend
             //CreateIdentifier();
             Operand id = Identifier();
 
-            List<Instruction> loads = new List<Instruction>();
-
-
+            var loads = new List<Instruction>();
 
 
             var prologue = new Node(new BasicBlock("Prologue", nestingDepth));
             cfg.Root = prologue;
 
 
-
             foreach (VariableType global in cfg.Globals)
             {
-                var temp = variables[global.Id];
+                SsaVariable temp = variables[global.Id];
                 Instruction prologInst;
 
                 if (global.IsArray)
@@ -714,25 +710,21 @@ namespace compiler.frontend
                 ssa.Value = new Operand(prologInst);
 
                 prologInst.Arg2 = ssa.Value;
-                
+
 
                 variables[global.Id] = ssa;
                 //arg = new Operand(ssa);
             }
 
 
-
-
-
             if (Tok == Token.OPEN_PAREN)
             {
-
                 cfg.Parameters = FormalParams(variables);
 
                 //*
                 foreach (VariableType parameter in cfg.Parameters)
                 {
-                    var temp = variables[parameter.Id];
+                    SsaVariable temp = variables[parameter.Id];
 
                     var loadInst = new Instruction(IrOps.Load, new Operand(Operand.OpType.Identifier, parameter.Id),
                         null);
@@ -771,16 +763,16 @@ namespace compiler.frontend
 
             GetExpected(Token.SEMI_COLON);
 
-            var ret = cfg.Root.Leaf().Bb.Instructions.Last();
+            Instruction ret = cfg.Root.Leaf().Bb.Instructions.Last();
             cfg.Root.Leaf().Bb.Instructions.Remove(ret);
             var epilogue = new Node(new BasicBlock("Epilogue", nestingDepth));
 
-            foreach (var globalLoad in loads)
+            foreach (Instruction globalLoad in loads)
             {
-                var temp = variables[globalLoad.Arg1.IdKey];
+                SsaVariable temp = variables[globalLoad.Arg1.IdKey];
                 if (temp.Location != globalLoad)
                 {
-                    Instruction newInst = new Instruction(IrOps.Store, temp.Value,
+                    var newInst = new Instruction(IrOps.Store, temp.Value,
                         new Operand(Operand.OpType.Constant, temp.UuId));
 
                     epilogue.Bb.AddInstruction(newInst);
@@ -798,7 +790,7 @@ namespace compiler.frontend
 
         private Cfg FuncBody(VarTbl ssaTable, bool isProcedure)
         {
-            Cfg cfg = new Cfg {Locals = new List<VariableType>()};
+            var cfg = new Cfg {Locals = new List<VariableType>()};
             while ((Tok == Token.VAR) || (Tok == Token.ARRAY))
             {
                 cfg.Locals.AddRange(VarDecl(ssaTable));
@@ -935,7 +927,7 @@ namespace compiler.frontend
                 GetExpected(Token.CLOSE_PAREN);
             }
 
-            foreach (var func in FunctionsCfgs)
+            foreach (Cfg func in FunctionsCfgs)
             {
                 if (func.Name == id.Name)
                 {
@@ -973,7 +965,7 @@ namespace compiler.frontend
 
             id = new Operand(call);
 
-            foreach (var result in paramList)
+            foreach (ParseResult result in paramList)
             {
                 call.Parameters.Add(result.Operand);
                 if (result.Operand.Kind == Operand.OpType.Instruction)
@@ -1290,9 +1282,9 @@ namespace compiler.frontend
 
         private void CreateParameter(List<VariableType> paramList, VarTbl varTble)
         {
-            var id = Identifier();
+            Operand id = Identifier();
             string name = Scanner.SymbolTble.Symbols[id.IdKey];
-            VariableType newVar = new VariableType(name, id.IdKey);
+            var newVar = new VariableType(name, id.IdKey);
             paramList.Add(newVar);
 
             var ssa = new SsaVariable(id.IdKey, null, null, name, newVar);
@@ -1324,13 +1316,13 @@ namespace compiler.frontend
         {
             foreach (Cfg function in FunctionsCfgs)
             {
-                HashSet<string> visitedhHashSet = new HashSet<string>();
+                var visitedhHashSet = new HashSet<string>();
                 function.UsedGlobals.UnionWith(CheckCalls(visitedhHashSet, function));
-                var epilogue = function.Root.Leaf();
+                Node epilogue = function.Root.Leaf();
                 foreach (VariableType global in function.UsedGlobals)
                 {
-                    var temp = variables[global.Id];
-                    Instruction newInst = new Instruction(IrOps.Store, temp.Value,
+                    SsaVariable temp = variables[global.Id];
+                    var newInst = new Instruction(IrOps.Store, temp.Value,
                         new Operand(Operand.OpType.Constant, global.Id));
                     epilogue.Bb.AddInstruction(newInst);
                 }
@@ -1345,7 +1337,7 @@ namespace compiler.frontend
                 visited.Add(func.Name);
                 foreach (string name in func.Callgraph)
                 {
-                    var found = FunctionsCfgs.Find((current) => current.Name == name);
+                    Cfg found = FunctionsCfgs.Find(current => current.Name == name);
                     newGlobals.UnionWith(CheckCalls(visited, found));
                 }
             }

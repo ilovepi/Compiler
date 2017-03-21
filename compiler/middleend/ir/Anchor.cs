@@ -78,7 +78,7 @@ namespace compiler.middleend.ir
 
         public void InsertKill(Operand target)
         {
-            var chain = FindOpChain(IrOps.Load);
+            List<Instruction> chain = FindOpChain(IrOps.Load);
             // if the op never existed, add it
             if (chain == null)
             {

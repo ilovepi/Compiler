@@ -63,7 +63,6 @@ namespace compiler.middleend.optimization
                 // add this instruction's operands to the live range
 
 
-
                 if (live.Contains(inst))
                 {
                     // remove this instruction from the live range
@@ -83,8 +82,6 @@ namespace compiler.middleend.optimization
 
                 switch (inst.Op)
                 {
-
-
                     case IrOps.Bne:
                     case IrOps.Beq:
                     case IrOps.Ble:
@@ -103,9 +100,6 @@ namespace compiler.middleend.optimization
                         AddArgToLiveRange(inst.Arg2, live);
                         break;
                 }
-
-
-
             }
 
             intGraph.AddInterferenceEdges(d.Bb);

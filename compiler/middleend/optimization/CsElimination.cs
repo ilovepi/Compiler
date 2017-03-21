@@ -84,7 +84,6 @@ namespace compiler.middleend.optimization
                     }
 
 
-
                     switch (bbInstruction.Op)
                     {
                         case IrOps.Store:
@@ -176,7 +175,6 @@ namespace compiler.middleend.optimization
             // TODO: fix loop cse
             foreach (Instruction instruction in delayed)
             {
-
                 switch (instruction.Op)
                 {
                     case IrOps.Store:
