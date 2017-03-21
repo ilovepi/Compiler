@@ -139,15 +139,15 @@ namespace compiler.middleend.ir
             }
         }
 
-        public Dictionary<Instruction, List<Instruction>> PhiGlobber()
+        public Dictionary<Instruction, HashSet<Instruction>> PhiGlobber()
         {
             // Key: Instruction in glob
             // Value: All instructions globbed with that one
-            var globDict = new Dictionary<Instruction, List<Instruction>>();
+            var globDict = new Dictionary<Instruction, HashSet<Instruction>>();
 
             foreach (var v in Vertices)
             {
-                var globList = new List<Instruction>();
+                var globList = new HashSet<Instruction>();
                 globList.Add(v);
                 globDict.Add(v, globList);
             }
@@ -156,10 +156,10 @@ namespace compiler.middleend.ir
             {
                 if (v.Op == IrOps.Phi)
                 {
-                    var globList = new List<Instruction>();
+                    var globList = new HashSet<Instruction>();
                     var arg1 = v.Arg1.Inst;
                     var arg2 = v.Arg2.Inst;
-                    var newGlob = new List<Instruction>();
+                    var newGlob = new HashSet<Instruction>();
 
                     globList.Add(v);
                     if (!GetNeighbors(v).Contains(arg1))
@@ -173,7 +173,7 @@ namespace compiler.middleend.ir
 
                     foreach (var instr in globList)
                     {
-                        newGlob = newGlob.Union(globDict[instr]).ToList();
+                        newGlob.UnionWith(globDict[instr]);
                     }
                     foreach (var instr in globList)
                     {
