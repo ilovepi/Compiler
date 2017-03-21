@@ -179,10 +179,7 @@ namespace compiler.middleend.ir
 							{
 								globList.Add(phiArg.Arg1.Inst);
 							}
-							else
-							{
-								globList.Add(phiArg);
-							}
+							globList.Add(phiArg);
 						}
 					}
 
@@ -295,7 +292,8 @@ namespace compiler.middleend.ir
 
                 // [PHIGLOB] get a list of its globmates that haven't been colored
                 var globMates = new List<Instruction>();
-                foreach (var potGlobMate in globDict[curInstr])
+				var potGlobMates = globDict[curInstr];
+				foreach (var potGlobMate in potGlobMates)
                 {
                     if (!GraphColors.ContainsKey(potGlobMate))
                     {
