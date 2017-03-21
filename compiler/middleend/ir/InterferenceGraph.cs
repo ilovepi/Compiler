@@ -119,6 +119,10 @@ namespace compiler.middleend.ir
                 {
                     if ((item != null) && (item != instruction))
                     {
+                        if (item.Op == IrOps.Phi && (instruction == item.Arg1.Inst || instruction == item.Arg2.Inst))
+                        {
+                            continue;
+                        }
                         if ((instruction.Op == IrOps.Ssa) && (item == instruction.Arg1.Inst))
                         {
                             continue;
@@ -128,8 +132,12 @@ namespace compiler.middleend.ir
 
                         if (!ContainsEdge(instruction, item) && !ContainsEdge(item, instruction))
                         {
-                            var newEdge = new UndirectedEdge<Instruction>(instruction, item);
-                            AddEdge(newEdge);
+
+
+
+                                var newEdge = new UndirectedEdge<Instruction>(instruction, item);
+                                AddEdge(newEdge);
+
                         }
                     }
                 }
