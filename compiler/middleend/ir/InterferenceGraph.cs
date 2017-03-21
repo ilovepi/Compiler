@@ -163,33 +163,28 @@ namespace compiler.middleend.ir
                 if (v.Op == IrOps.Phi)
                 {
                     var globList = new HashSet<Instruction>();
-                    var arg1 = v.Arg1.Inst;
-                    var arg2 = v.Arg2.Inst;
+					var phiArgs = new List<Instruction>();
                     var newGlob = new HashSet<Instruction>();
 
                     globList.Add(v);
 
-                    if (!GetNeighbors(v).Contains(arg1) && Vertices.Contains(arg1))
-                    {
-                        if (arg1.Op == IrOps.Ssa)
-                        {
-                            arg1 = arg1.Arg1.Inst;
-                        }
+					phiArgs.Add(v.Arg1.Inst);
+					phiArgs.Add(v.Arg2.Inst);
 
-                        globList.Add(arg1);
-                    }
-
-                    if (!GetNeighbors(v).Contains(arg2) && Vertices.Contains(arg2))
-                    {
-
-                        if (arg2.Op == IrOps.Ssa)
-                        {
-                            arg2 = arg2.Arg1.Inst;
-                        }
-
-
-                        globList.Add(arg2);
-                    }
+					foreach (var phiArg in phiArgs)
+					{
+						if ((phiArg!= null) && !GetNeighbors(v).Contains(phiArg) && Vertices.Contains(phiArg))
+						{
+							if (phiArg.Op == IrOps.Ssa)
+							{
+								globList.Add(phiArg.Arg1.Inst);
+							}
+							else
+							{
+								globList.Add(phiArg);
+							}
+						}
+					}
 
                     foreach (var instr in globList)
                     {
