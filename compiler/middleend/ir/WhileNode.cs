@@ -145,6 +145,19 @@ namespace compiler.middleend.ir
         }
 
 
+        public override void InsertMoveInst(Instruction phiInst)
+        {
+            var phiOperand = new Operand(phiInst);
+            LoopParent.InsertMove(phiInst.Arg1, phiOperand);
+            Parent.InsertMove(phiInst.Arg2, phiOperand);
+
+        }
+
+
+
+
+
+
         public override Instruction AnchorSearch(Instruction goal, bool alternate)
         {
             Instruction trueBranch = null;

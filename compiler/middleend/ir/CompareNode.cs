@@ -139,5 +139,12 @@ namespace compiler.middleend.ir
                 Child.InsertBranches(visited);
             }
         }
+
+
+        public override void InsertMove(Operand src, Operand dest)
+        {
+            var moveinst = new Instruction(IrOps.Move, src, dest);
+            Bb.Instructions.Insert(Bb.Instructions.Count - 2, moveinst);
+        }
     }
 }

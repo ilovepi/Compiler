@@ -129,5 +129,21 @@ namespace compiler.middleend.ir
             //TODO: this is wrong we need to figure out how to do this for a join block.
             return null;
         }
+
+
+        public override void InsertMoveInst(Instruction phiInst)
+        {
+            var phiOperand = new Operand(phiInst);
+            Parent.InsertMove(phiInst.Arg1, phiOperand);
+            FalseParent.InsertMove(phiInst.Arg2, phiOperand);
+        }
+
+        public override void InsertMove(Operand src, Operand dest)
+        {
+            var moveinst = new Instruction(IrOps.Move, src, dest);
+            Bb.Instructions.Add(moveinst);
+        }
+
+
     }
 }

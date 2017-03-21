@@ -325,5 +325,33 @@ namespace compiler.middleend.ir
                 }
             }
         }
+
+
+
+        public virtual void InsertMove(Operand src, Operand dest)
+        {
+            bool swap = false;
+            if (Bb.Instructions.Count > 0)
+            {
+                if (Bb.Instructions.Last().Op == IrOps.Bra)
+                   { swap = true;}
+            }
+
+            var moveinst = new Instruction(IrOps.Move, src, dest);
+            if (swap)
+            {
+                Bb.Instructions.Insert(Bb.Instructions.Count-1, moveinst);
+            }
+            else
+            {
+                Bb.Instructions.Add(moveinst);
+            }
+
+        }
+
+        public virtual void InsertMoveInst(Instruction phiInst)
+        {
+
+        }
     }
 }
