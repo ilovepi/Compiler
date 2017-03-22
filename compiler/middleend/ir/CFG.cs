@@ -56,6 +56,8 @@ namespace compiler.middleend.ir
 
         public Node Root { get; set; }
 
+        public bool isProcedure;
+
         // may not need these
         //public Node Curr { get; set; }
         //public Node Accsessor { get; set; }

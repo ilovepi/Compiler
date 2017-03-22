@@ -300,13 +300,15 @@ namespace compiler
 
             //lower representation to machine code
             GenStraightLineFunctions();
-            GenInstructionListGraphString();
-            GenDlxGraphString();
+
 
             if (createExecutable)
             {
                 GenerateCodeOutput();
             }
+
+            GenInstructionListGraphString();
+            GenDlxGraphString();
         }
 
         public void GenerateCodeOutput()

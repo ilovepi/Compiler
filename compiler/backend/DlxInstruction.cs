@@ -100,8 +100,13 @@ namespace compiler.backend
 
                         //A = inst.Arg1.Register;
                         B = addaInst.Arg1.Register;
-                        C = addaInst.Arg2.Val;
+                        C = addaInst.Arg2.Val*4;
                         addaInst.MachineInst = this;
+
+                        Op = OpCodes.LDW;
+                        PutF1();
+
+                        /*
                         if (addaInst.Arg2.Kind == Operand.OpType.Instruction)
                         {
                             // load stuff from array with register 
@@ -114,6 +119,7 @@ namespace compiler.backend
                             Op = OpCodes.LDX;
                             PutF2();
                         }
+*/
                     }
                     else
                     {
@@ -151,7 +157,7 @@ namespace compiler.backend
                     {
                         A = inst.Arg1.Register;
                         B = inst.Arg2.Inst.Arg1.Register;
-                        C = inst.Arg2.Inst.Arg2.Val;
+                        C = inst.Arg2.Inst.Arg2.Val*4;
 
                         //C = inst.Arg1.Val;
 

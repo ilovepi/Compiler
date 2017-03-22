@@ -665,7 +665,10 @@ namespace compiler.frontend
             else
             {
                 isProcedure = Tok == Token.PROCEDURE;
+
             }
+
+            cfg.isProcedure = isProcedure;
 
             Next();
 

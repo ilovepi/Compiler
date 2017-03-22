@@ -187,7 +187,9 @@ namespace compiler.middleend.ir
                             {
                                 var scratch = 27;
                                 // load the constant into memory using the scratch register
-                                MachineBody.Add(new DlxInstruction(OpCodes.ADDI, scratch, 0 ,instruction.Arg1.Val));
+                                var moveInst = new DlxInstruction(OpCodes.ADDI, scratch, 0, instruction.Arg1.Val);
+                                moveInst.PutF1();
+                                MachineBody.Add(moveInst);
                                 instruction.Arg1.Kind = Operand.OpType.Register;
                                 instruction.Arg1.Register = scratch;
 
@@ -261,8 +263,11 @@ namespace compiler.middleend.ir
             var prologue = new List<DlxInstruction>();
 
             // allocate memory for a return value
-            var retVal = new DlxInstruction(OpCodes.PSH, 0, DlxInstruction.Sp, 4);
-            prologue.Add(retVal);
+            if (!tree.ControlFlowGraph.isProcedure)
+            {
+                var retVal = new DlxInstruction(OpCodes.PSH, 0, DlxInstruction.Sp, 4);
+                prologue.Add(retVal);
+            }
 
             // push current ret address onto stack
             var retAddr = new DlxInstruction(OpCodes.PSH, DlxInstruction.RetAddr, DlxInstruction.Sp, 4);
@@ -354,13 +359,15 @@ namespace compiler.middleend.ir
             var eplilogue = new List<DlxInstruction>();
 
             // save return value back on stack, or in a register if that works
-            var retInst = new DlxInstruction(OpCodes.STX, retValReg, DlxInstruction.Sp,
-                -4 *
-                (3 + tree.DominatorTree.NumReg + calliInstruction.Parameters.Count +
-                 Tree.ControlFlowGraph.Parameters.Count));
-            retInst.PutF2();
-            eplilogue.Add(retInst);
-
+            if (!tree.ControlFlowGraph.isProcedure)
+            {
+                var retInst = new DlxInstruction(OpCodes.STX, retValReg, DlxInstruction.Sp,
+                    -4 *
+                    (3 + tree.DominatorTree.NumReg + calliInstruction.Parameters.Count +
+                     Tree.ControlFlowGraph.Parameters.Count));
+                retInst.PutF2();
+                eplilogue.Add(retInst);
+            }
 
             // save any global variable that might have be modified in function
             foreach (VariableType variableType in tree.ControlFlowGraph.UsedGlobals)
@@ -497,14 +504,16 @@ namespace compiler.middleend.ir
                 case OpCodes.MUL:
                 case OpCodes.DIV:
                 case OpCodes.CMP:
-                    inst.ImmediateOperands(inst.Op, inst.IrInst.Arg1, inst.IrInst.Arg2);
+                    if(inst.IrInst != null)
+                        inst.ImmediateOperands(inst.Op, inst.IrInst.Arg1, inst.IrInst.Arg2);
                     break;
                 case OpCodes.ADDI:
                 case OpCodes.SUBI:
                 case OpCodes.MULI:
                 case OpCodes.DIVI:
                 case OpCodes.CMPI:
-                    inst.ImmediateOperands(inst.Op - 16, inst.IrInst.Arg1, inst.IrInst.Arg2);
+                    if(inst.IrInst != null)
+                        inst.ImmediateOperands(inst.Op - 16, inst.IrInst.Arg1, inst.IrInst.Arg2);
                     break;
                 case OpCodes.LDW:
                 case OpCodes.LDX:
