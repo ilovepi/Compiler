@@ -72,6 +72,9 @@
     <Content Include="testdata\factorial.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="testdata\Final.txt" />
+    <Content Include="testdata\Final2.txt" />
+    <Content Include="testdata\Final3.txt" />
     <Content Include="testdata\test001.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

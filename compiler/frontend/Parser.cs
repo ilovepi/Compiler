@@ -199,16 +199,21 @@ namespace compiler.frontend
                         exp.Operand = addOp;
                         if (arrayCount == (ary.Dimensions.Count - 1))
                         {
-                            instructions.Add(new Instruction(IrOps.Adda, id, exp.Operand));
+                            var help = new Instruction(IrOps.Adda, id, exp.Operand);
+                            instructions.Add(help);
                             exp.Operand.Variable = id.Variable;
+                            help.VArId = id.Variable.Identity;
+
                         }
                     }
                     else
                     {
                         if (arrayCount == (ary.Dimensions.Count - 1))
                         {
-                            instructions.Add(new Instruction(IrOps.Adda, id, exp.Operand));
+                            var help = new Instruction(IrOps.Adda, id, exp.Operand);
+                            instructions.Add(help);
                             exp.Operand.Variable = id.Variable;
+                            help.VArId = id.Variable.Identity;
                         }
                         indiciesList.Add(exp.Operand);
                     }
@@ -1087,6 +1092,12 @@ namespace compiler.frontend
                     }
 
                     newInst.VArId = variables[trueVar.Value.UuId].Identity;
+
+                    if (newInst.VArId == null)
+                    {
+                        newInst.VArId = variables[falseVar.UuId].Identity;
+                    }
+
 
 
                     phiList.Add(newInst);

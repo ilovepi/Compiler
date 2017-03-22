@@ -56,7 +56,7 @@ namespace compiler.middleend.optimization
 
             foreach (Instruction bbInstruction in root.Bb.Instructions)
             {
-                if ((bbInstruction.Op != IrOps.Phi) && (bbInstruction.Op != IrOps.Adda))
+                if ((bbInstruction.Op != IrOps.Phi))// && (bbInstruction.Op != IrOps.Adda))
                 {
                     if (bbInstruction.Op == IrOps.Load)
                     {
@@ -64,7 +64,7 @@ namespace compiler.middleend.optimization
                         {
                             if (bbInstruction.Arg1.Inst.Op == IrOps.Adda)
                             {
-                                continue;
+                                //continue;
                             }
                         }
                         //TODO fix cse for loop headers
@@ -101,8 +101,8 @@ namespace compiler.middleend.optimization
                         case IrOps.Read:
                         case IrOps.Write:
                         case IrOps.WriteNl:
-                        case IrOps.Adda:
-                        case IrOps.Load:
+                        //case IrOps.Adda:
+                        //case IrOps.Load:
                         case IrOps.Call:
 
                             break;
@@ -143,8 +143,8 @@ namespace compiler.middleend.optimization
                     case IrOps.Read:
                     case IrOps.Write:
                     case IrOps.WriteNl:
-                    case IrOps.Adda:
-                    case IrOps.Load:
+                    //case IrOps.Adda:
+                    //case IrOps.Load:
                     case IrOps.Call:
 
                         break;
@@ -192,8 +192,8 @@ namespace compiler.middleend.optimization
                     case IrOps.Read:
                     case IrOps.Write:
                     case IrOps.WriteNl:
-                    case IrOps.Adda:
-                    case IrOps.Load:
+                    //case IrOps.Adda:
+                    //case IrOps.Load:
                     case IrOps.Call:
 
                         break;

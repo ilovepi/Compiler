@@ -205,8 +205,17 @@ namespace compiler.backend
                         // Else this is a normal store to a stack variable
                         Op = OpCodes.STW;
                         A = inst.Arg1.Register;
-                        B = inst.VArId.IsGlobal ? Globals : Fp;
-                        C = inst.VArId.Offset;
+                        if (inst.VArId != null)
+                        {
+
+                            B = inst.VArId.IsGlobal ? Globals : Fp;
+                            C = inst.VArId.Offset;
+                        }
+                        else
+                        {
+                            B =  inst.Arg1.Variable.Identity.IsGlobal ? Globals: Fp;
+                            C = inst.Arg1.Variable.Identity.Offset;
+                        }
 
                         PutF1();
                     }
@@ -257,7 +266,7 @@ namespace compiler.backend
                     Op = OpCodes.WRD;
                     A = 0;
                     B = inst.Arg1.Register;
-                    if (inst.Arg1.Kind == Operand.OpType.Variable && inst.Arg1.Inst?.Op != IrOps.Ssa)
+                    if (B==0 && inst.Arg1.Kind == Operand.OpType.Variable && inst.Arg1.Inst?.Op != IrOps.Ssa)
                     {
                        // B = inst.Arg1.Variable.Location.Arg1.Register;
                     }
