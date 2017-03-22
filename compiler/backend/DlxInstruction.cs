@@ -137,20 +137,27 @@ namespace compiler.backend
                     {
                         A = inst.Arg1.Register;
                         B = inst.Arg2.Inst.Arg2.Val;
-                        C = inst.Arg1.Inst.Arg1.Variable.Identity.Offset;
+                        C = inst.Arg1.Inst.Arg1.Variable?.Identity.Offset ?? inst.Arg1.Inst.VArId.Offset;
                         //C = inst.Arg1.Val;
 
-                        if (inst.Arg2.Inst.Arg2.Kind == Operand.OpType.Instruction)
+                        Op = OpCodes.STW;
+
+                         PutF1();
+
+                        if(false)
                         {
-                            // Store stuff in an array using instructions
-                            Op = OpCodes.STW;
-                            PutF1();
-                        }
-                        else
-                        {
-                            // else store stuff in an array using an adresss
-                            Op = OpCodes.STX;
-                            PutF2();
+                            if (inst.Arg2.Inst.Arg2.Kind == Operand.OpType.Instruction)
+                            {
+                                // Store stuff in an array using instructions
+                                Op = OpCodes.STW;
+                                PutF1();
+                            }
+                            else
+                            {
+                                // else store stuff in an array using an adresss
+                                Op = OpCodes.STX;
+                                PutF2();
+                            }
                         }
                     }
                     else if ((inst.Arg1.Kind == Operand.OpType.Register) && (inst.Arg2.Inst?.Op == IrOps.Adda))
@@ -161,17 +168,25 @@ namespace compiler.backend
 
                         //C = inst.Arg1.Val;
 
-                        if (inst.Arg2.Inst.Arg2.Kind == Operand.OpType.Instruction)
+
+                        Op = OpCodes.STW;
+
+                        PutF1();
+
+                        if (false)
                         {
-                            // Store stuff in an array using instructions
-                            Op = OpCodes.STW;
-                            PutF1();
-                        }
-                        else
-                        {
-                            // else store stuff in an array using an adresss
-                            Op = OpCodes.STX;
-                            PutF2();
+                            if (inst.Arg2.Inst.Arg2.Kind == Operand.OpType.Instruction)
+                            {
+                                // Store stuff in an array using instructions
+                                Op = OpCodes.STW;
+                                PutF1();
+                            }
+                            else
+                            {
+                                // else store stuff in an array using an adresss
+                                Op = OpCodes.STX;
+                                PutF2();
+                            }
                         }
                     }
                     else

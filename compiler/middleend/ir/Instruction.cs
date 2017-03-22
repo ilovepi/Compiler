@@ -315,17 +315,19 @@ namespace compiler.middleend.ir
 
         public void FoldConst(int val)
         {
-            foreach (Operand operand in Uses)
+            List<Instruction> replaceList =
+                UsesLocations.Where(
+                    target =>
+                        (target.Op != IrOps.Write) && (target.Op != IrOps.Load) && (target.Op != IrOps.Adda) &&
+                        (target.Op != IrOps.Phi)).ToList();
+
+            foreach (Instruction replacedItem in replaceList)
             {
-                operand.Inst = null;
-                operand.Val = val;
-                operand.Kind = Operand.OpType.Constant;
-                operand.Variable = null;
+                PropagateUses(replacedItem.Arg1, val);
+                PropagateUses(replacedItem.Arg2, val);
+                UsesLocations.Remove(replacedItem);
             }
 
-            // clear all references just incase we need to fix this in Dead Code Elimination
-            Uses.Clear();
-            UsesLocations.Clear();
         }
 
         public bool ExactMatch(Instruction other)

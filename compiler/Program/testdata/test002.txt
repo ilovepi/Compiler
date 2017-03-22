@@ -17,7 +17,8 @@ var i, d;
 		let y <- y + 2;
 		let z <- x + 2;
 		let d <- y + z;
-		let i <- i + 1
+		let i <- i + 1;
+		#call InputNum(i)
 	od;
 	return d
 };
@@ -38,11 +39,11 @@ var i, j, e;
 };
 
 {
-	let x <- 0;
-	let y <- 0;
-	let z <- 0;
+	let x <- 1;
+	let y <- 2;
+	let z <- 3;
 	
-	call bar( x, z );
+	#call bar( x, z );
 	let c <- call foo;
 	
 	call OutputNum(c)

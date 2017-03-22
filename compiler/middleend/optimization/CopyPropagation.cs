@@ -198,7 +198,8 @@ namespace compiler.middleend.optimization
             }
 
             inst.FoldConst(result);
-            removalList.Add(inst);
+            if(inst.Uses.Count == 0)
+                removalList.Add(inst);
         }
     }
 }

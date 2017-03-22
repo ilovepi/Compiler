@@ -200,6 +200,7 @@ namespace compiler.frontend
                         if (arrayCount == (ary.Dimensions.Count - 1))
                         {
                             instructions.Add(new Instruction(IrOps.Adda, id, exp.Operand));
+                            exp.Operand.Variable = id.Variable;
                         }
                     }
                     else
@@ -207,6 +208,7 @@ namespace compiler.frontend
                         if (arrayCount == (ary.Dimensions.Count - 1))
                         {
                             instructions.Add(new Instruction(IrOps.Adda, id, exp.Operand));
+                            exp.Operand.Variable = id.Variable;
                         }
                         indiciesList.Add(exp.Operand);
                     }
@@ -300,7 +302,7 @@ namespace compiler.frontend
                 instructions.AddRange(factor2.Instructions);
 
                 Operand id;
-                if ((factor2.Operand.Kind == Operand.OpType.Constant) &&
+                if (false && (factor2.Operand.Kind == Operand.OpType.Constant) &&
                     (factor1.Operand.Kind == Operand.OpType.Constant))
                 {
                     int arg2 = factor2.Operand.Val;
@@ -346,7 +348,7 @@ namespace compiler.frontend
                 ParseResult term2 = Term(locals);
                 instructions.AddRange(term2.Instructions);
 
-                if ((term2.Operand.Kind == Operand.OpType.Constant) && (term1.Operand.Kind == Operand.OpType.Constant))
+                if (false && (term2.Operand.Kind == Operand.OpType.Constant) && (term1.Operand.Kind == Operand.OpType.Constant))
                 {
                     int arg2 = term2.Operand.Val;
                     int arg1 = term1.Operand.Val;
@@ -1068,12 +1070,16 @@ namespace compiler.frontend
                     var newInst = new Instruction(IrOps.Phi, new Operand(trueVar.Value.Location),
                         new Operand(falseVar.Location));
 
+
+
+
                     if ((newInst.Arg1.Inst == null) || (newInst.Arg2.Inst == null))
                     {
                         // throw new ArgumentNullException();
                     }
 
-                    newInst.VArId = trueVar.Value.Identity;
+                    newInst.VArId = variables[trueVar.Value.UuId].Identity;
+
 
                     phiList.Add(newInst);
                     if (isLoop)

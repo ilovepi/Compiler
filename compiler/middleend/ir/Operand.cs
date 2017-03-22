@@ -70,6 +70,11 @@ namespace compiler.middleend.ir
             Inst = pInst;
             Val = 0;
             Register = pInst.Reg;
+            if (pInst.Op == IrOps.Ssa || pInst.Op == IrOps.Phi)
+            {
+                Variable = pInst.Arg1.Variable;
+            }
+
         }
 
 

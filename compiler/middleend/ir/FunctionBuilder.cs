@@ -407,14 +407,18 @@ namespace compiler.middleend.ir
             var oldSp = new DlxInstruction(OpCodes.POP, DlxInstruction.Fp, DlxInstruction.Sp, -4);
             eplilogue.Add(oldSp);
 
+
             // pop current ret address off of the stack
             var retAddr = new DlxInstruction(OpCodes.POP, DlxInstruction.RetAddr, DlxInstruction.Sp, -4);
             eplilogue.Add(retAddr);
 
-
             // deallocate memory for a return value
-            var newVal = new DlxInstruction(OpCodes.POP, calliInstruction.Reg, DlxInstruction.Sp, -4);
-            eplilogue.Add(newVal);
+            if (!tree.ControlFlowGraph.isProcedure)
+            {
+                // deallocate memory for a return value
+                var newVal = new DlxInstruction(OpCodes.POP, calliInstruction.Reg, DlxInstruction.Sp, -4);
+                eplilogue.Add(newVal);
+            }
 
             return eplilogue;
         }
