@@ -179,20 +179,29 @@ namespace compiler.middleend.optimization
 
         private static void AddArgToLiveRange(Operand arg, HashSet<Instruction> live)
         {
-            if ((arg?.Kind == Operand.OpType.Instruction) && (arg.Inst?.Op != IrOps.Ssa))
+            if (arg?.Kind == Operand.OpType.Instruction)
             {
-                if (arg.Inst != null)
+                if (arg.Inst?.Op != IrOps.Ssa)
                 {
-                    live.Add(arg.Inst);
+                    if (arg.Inst != null)
+                    {
+                        live.Add(arg.Inst);
+                    }
+                }
+                else if (arg?.Inst?.Op == IrOps.Ssa)
+                {
+                    if ((arg.Inst != null) && (arg.Inst.Arg1.Inst != null))
+                    {
+                        live.Add(arg.Inst.Arg1.Inst);
+                    }
                 }
             }
-            else if (arg?.Inst?.Op == IrOps.Ssa)
+            else if (arg?.Kind == Operand.OpType.Variable)
             {
-                if ((arg.Inst != null) && (arg.Inst.Arg1.Inst != null))
-                {
-                    live.Add(arg.Inst.Arg1.Inst);
-                }
+                live.Add(arg.Variable.Location);
+
             }
+
         }
 
 
