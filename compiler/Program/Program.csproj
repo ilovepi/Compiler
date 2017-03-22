@@ -55,6 +55,7 @@
     <None Include="App.config" />
     <None Include="packages.config" />
     <None Include="testdata\spillage.txt" />
+    <None Include="testdata\looper.txt" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
