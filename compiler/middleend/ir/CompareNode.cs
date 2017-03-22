@@ -90,7 +90,7 @@ namespace compiler.middleend.ir
             cfg.BfsCheckEnqueue(this, FalseNode);
         }
 
-        public override void Consolidate(HashSet<Node> visited)
+        public override void Consolidate(HashSet<Node> visited, bool isLoop)
         {
             if (visited.Contains(this))
             {
@@ -103,8 +103,8 @@ namespace compiler.middleend.ir
             CircularRef(FalseNode);
 
             // consolidate children who exist
-            Child?.Consolidate(visited);
-            FalseNode?.Consolidate(visited);
+            Child?.Consolidate(visited, isLoop);
+            FalseNode?.Consolidate(visited, isLoop);
         }
 
 

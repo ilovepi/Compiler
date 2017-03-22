@@ -176,7 +176,7 @@ namespace compiler.middleend.ir
                                 .Bb.Instructions.Find(
                                     current => (current.Op == IrOps.Ret) || (current.Op == IrOps.End));
 
-                        MachineBody.AddRange(Epilogue(retInst.Arg2?.Val ?? 0, instruction, func.Tree));
+                        MachineBody.AddRange(Epilogue(retInst.Arg2?.Register ?? 0, instruction, func.Tree));
                     }
                     else
                     {
@@ -361,11 +361,9 @@ namespace compiler.middleend.ir
             // save return value back on stack, or in a register if that works
             if (!tree.ControlFlowGraph.isProcedure)
             {
-                var retInst = new DlxInstruction(OpCodes.STX, retValReg, DlxInstruction.Sp,
-                    -4 *
-                    (3 + tree.DominatorTree.NumReg + calliInstruction.Parameters.Count +
-                     Tree.ControlFlowGraph.Parameters.Count));
-                retInst.PutF2();
+                var retInst = new DlxInstruction(OpCodes.STW, 26, DlxInstruction.Sp,
+                    (-4 *(3 + tree.DominatorTree.NumReg + calliInstruction.Parameters.Count + Tree.ControlFlowGraph.Parameters.Count)) );
+                retInst.PutF1();
                 eplilogue.Add(retInst);
             }
 

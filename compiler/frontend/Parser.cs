@@ -1150,7 +1150,7 @@ namespace compiler.frontend
             branchBlock.Bb.AddInstruction(new Instruction(IrOps.Bra, new Operand(loopHeaderBlock.GetNextNonPhi()),
                 null));
             branchBlock.Child = loopHeaderBlock;
-            loopBlock.Consolidate();
+            //loopBlock.Consolidate();
 
 
             try

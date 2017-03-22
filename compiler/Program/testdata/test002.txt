@@ -17,7 +17,7 @@ var i, d;
 		let y <- y + 2;
 		let z <- x + 2;
 		let d <- y + z;
-		let i <- i + 1;
+		let i <- i + 1
 		#call InputNum(i)
 	od;
 	return d

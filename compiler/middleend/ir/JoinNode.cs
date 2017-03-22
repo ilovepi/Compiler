@@ -49,7 +49,7 @@ namespace compiler.middleend.ir
         }
 
 
-        public override void Consolidate(HashSet<Node> visited)
+        public override void Consolidate(HashSet<Node> visited, bool isLoop)
         {
             if (visited.Contains(this))
             {
@@ -60,7 +60,7 @@ namespace compiler.middleend.ir
             CircularRef(Child);
 
             // consolidate children who exist
-            Child?.Consolidate(visited);
+            Child?.Consolidate(visited, isLoop);
         }
 
 

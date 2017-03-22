@@ -171,11 +171,11 @@ namespace compiler.middleend.ir
         public virtual void Consolidate()
         {
             var visited = new HashSet<Node>();
-            Consolidate(visited);
+            Consolidate(visited, false);
         }
 
 
-        public virtual void Consolidate(HashSet<Node> visited)
+        public virtual void Consolidate(HashSet<Node> visited, bool isLoop)
         {
             if (visited.Contains(this))
             {
@@ -198,17 +198,17 @@ namespace compiler.middleend.ir
                 Node temp = Child;
                 Child = temp.Child;
 
-                if (Child?.GetType() == typeof(WhileNode))
+                if (isLoop && Child?.GetType() == typeof(WhileNode))
                 {
                     ((WhileNode) Child).LoopParent = this;
                 }
 
                 // restart Consolidate from here to coalesc all blocks possible
-                Consolidate(visited);
+                Consolidate(visited, isLoop);
             }
             else
             {
-                Child.Consolidate(visited);
+                Child.Consolidate(visited, isLoop);
             }
         }
 
