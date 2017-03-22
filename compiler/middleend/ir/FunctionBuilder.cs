@@ -326,7 +326,7 @@ namespace compiler.middleend.ir
             {
                 // get instruction from liverange
                 IEnumerable<Instruction> good =
-                    calliInstruction.LiveRange.Where(current => current.Arg1.IdKey == variableType.Id);
+                    calliInstruction.LiveRange.Where(current => current?.Arg1.IdKey == variableType.Id);
                 Instruction[] instructions = good as Instruction[] ?? good.ToArray();
                 if (instructions.Length != 0)
                 {
@@ -381,7 +381,7 @@ namespace compiler.middleend.ir
                 // get instruction from liverange
                 IEnumerable<Instruction> good =
                     calliInstruction.LiveRange.Where(
-                        current => (current.VArId?.Id ?? current.Arg1.IdKey) == variableType.Id);
+                        current => (current?.VArId?.Id ?? current.Arg1.IdKey) == variableType.Id);
                 Instruction[] instructions = good as Instruction[] ?? good.ToArray();
                 if (instructions.Length != 0)
                 {

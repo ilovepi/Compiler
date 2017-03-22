@@ -199,7 +199,9 @@ namespace compiler.middleend.optimization
 
             inst.FoldConst(result);
             if(inst.Uses.Count == 0)
+            {
                 removalList.Add(inst);
+            }
         }
     }
 }

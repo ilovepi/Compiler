@@ -100,7 +100,7 @@ namespace compiler.backend
 
                         //A = inst.Arg1.Register;
                         B = addaInst.Arg1.Register;
-                        C = addaInst.Arg2.Val*4;
+                        C = addaInst.Arg2.Val;
                         addaInst.MachineInst = this;
 
                         Op = OpCodes.LDW;
@@ -136,8 +136,13 @@ namespace compiler.backend
                     if ((inst.Arg1.Kind == Operand.OpType.Instruction) && (inst.Arg2.Inst?.Op == IrOps.Adda))
                     {
                         A = inst.Arg1.Register;
-                        B = inst.Arg2.Inst.Arg2.Val;
-                        C = inst.Arg1.Inst.Arg1.Variable?.Identity.Offset ?? inst.Arg1.Inst.VArId.Offset;
+                        if (A == 0)
+                        {
+                            A = inst.Arg1.Inst.Reg;
+                        }
+
+                        B = inst.Arg2.Inst.Arg2.Register;
+                        C = inst.Arg2.Inst.Arg1.Variable?.Identity.Offset ?? inst.Arg2.Inst.VArId.Offset;
                         //C = inst.Arg1.Val;
 
                         Op = OpCodes.STW;
@@ -164,7 +169,7 @@ namespace compiler.backend
                     {
                         A = inst.Arg1.Register;
                         B = inst.Arg2.Inst.Arg1.Register;
-                        C = inst.Arg2.Inst.Arg2.Val*4;
+                        C = inst.Arg2.Inst.Arg2.Val;
 
                         //C = inst.Arg1.Val;
 

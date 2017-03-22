@@ -319,7 +319,7 @@ namespace compiler.middleend.ir
             List<Instruction> replaceList =
                 UsesLocations.Where(
                     target =>
-                        (target.Op != IrOps.Write) && (target.Op != IrOps.Load) && (target.Op != IrOps.Adda) &&
+                        (target.Op != IrOps.Write) && (target.Op != IrOps.Load) && 
                         (target.Op != IrOps.Phi)).ToList();
 
             foreach (Instruction replacedItem in replaceList)

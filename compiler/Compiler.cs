@@ -332,7 +332,7 @@ namespace compiler
             var i = 0;
             foreach (VariableType globalVar in globals)
             {
-                i -= globalVar.Size * 4;
+                i -= globalVar.Size;
                 globalVar.Offset = i;
 
             }

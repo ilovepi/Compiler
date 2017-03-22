@@ -204,8 +204,10 @@ namespace compiler.middleend.optimization
             }
             else if (arg?.Kind == Operand.OpType.Variable)
             {
-                //live.Add(arg.Variable.Location);
-
+                if (arg.Variable.Location != null)
+                {
+                    live.Add(arg.Variable.Location);
+                }
             }
 
         }

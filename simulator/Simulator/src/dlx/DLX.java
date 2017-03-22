@@ -20,7 +20,7 @@ public class DLX {
     static int timeSteps;
 
     // emulated memory
-    static final int MemSize = 10000; // bytes in memory (divisible by 4)
+    static final int MemSize = 1000; // bytes in memory (divisible by 4)
     static int M[] = new int [MemSize/4];
 
 
