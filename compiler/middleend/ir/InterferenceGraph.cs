@@ -177,9 +177,9 @@ namespace compiler.middleend.ir
 						{
 							if (phiArg.Op == IrOps.Ssa)
 							{
-								globList.Add(phiArg.Arg1.Inst);
+								globList.UnionWith(globDict[phiArg.Arg1.Inst]);
 							}
-							globList.Add(phiArg);
+							globList.UnionWith(globDict[phiArg]);
 						}
 					}
 
@@ -188,7 +188,7 @@ namespace compiler.middleend.ir
                         newGlob.UnionWith(globDict[instr]);
                     }
 
-                    foreach (var instr in globList)
+					foreach (var instr in newGlob)
                     {
                         globDict[instr] = newGlob;
                     }
