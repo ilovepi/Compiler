@@ -133,22 +133,25 @@ namespace compiler.middleend.ir
 
         public override void InsertMoveInst(Instruction phiInst)
         {
+            PhiOperand(phiInst, phiInst.Arg1, Parent);
+            PhiOperand(phiInst, phiInst.Arg2, FalseParent);
+        }
+
+        private void PhiOperand(Instruction phiInst, Operand arg, Node parentNode)
+        {
+            if ((arg == null) || (arg.Inst == null))
+            {
+                return;
+            }
+
             var phiOperand = new Operand(phiInst);
-            var target = phiInst.Arg1.Inst.Op == IrOps.Ssa ? phiInst.Arg1.Inst.Arg1 : phiInst.Arg1;
+            var target =arg.Inst.Op == IrOps.Ssa ? arg.Inst.Arg1 : arg;
 
             if (phiInst.Reg != target.Register)
             {
-
-                Parent.InsertMove(target, phiOperand);
+                parentNode.InsertMove(target, phiOperand);
             }
-
-            target = phiInst.Arg2.Inst.Op == IrOps.Ssa ? phiInst.Arg2.Inst.Arg1 : phiInst.Arg2;
-            if (phiInst.Reg != target.Register)
-            {
-
-
-                FalseParent.InsertMove(target, phiOperand);
-            }
+           
         }
 
         public override void InsertMove(Operand src, Operand dest)

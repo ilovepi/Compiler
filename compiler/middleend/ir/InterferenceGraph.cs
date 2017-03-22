@@ -122,7 +122,7 @@ namespace compiler.middleend.ir
                 {
                     if ((item != null) && (item != instruction))
                     {
-                        if (item.Op == IrOps.Phi && (instruction == item.Arg1.Inst || instruction == item.Arg2.Inst))
+                        if ((item.Op == IrOps.Phi) && ((instruction == item.Arg1.Inst) || (instruction == item.Arg2.Inst)))
                         {
                             continue;
                         }

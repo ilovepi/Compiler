@@ -59,7 +59,7 @@ namespace compiler.middleend.optimization
 					if ((instruction.VArId?.IsGlobal ?? false) || (instruction.Arg1.Variable?.Identity.IsGlobal ?? false))
                     {
                         instruction.Op = IrOps.Add;
-                        instruction.Arg1 = new Operand(Operand.OpType.Constant, instruction.VArId.Offset);
+                        instruction.Arg1 = new Operand(Operand.OpType.Constant, instruction.VArId?.Offset ?? instruction.Arg1.Variable.Identity.Offset);
                         instruction.Arg2 = new Operand(Operand.OpType.Register, 30);
                         instruction.Arg2.Register = 30;
                     }

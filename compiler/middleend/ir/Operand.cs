@@ -69,10 +69,14 @@ namespace compiler.middleend.ir
             Kind = OpType.Instruction;
             Inst = pInst;
             Val = 0;
-            Register = pInst.Reg;
-            if (pInst.Op == IrOps.Ssa || pInst.Op == IrOps.Phi)
+
+            if (pInst != null)
             {
-                Variable = pInst.Arg1.Variable;
+                Register = pInst.Reg;
+                if ((pInst.Op == IrOps.Ssa) || (pInst.Op == IrOps.Phi))
+                {
+                    Variable = pInst.Arg1.Variable;
+                }
             }
 
         }

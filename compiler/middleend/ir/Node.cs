@@ -198,7 +198,7 @@ namespace compiler.middleend.ir
                 Node temp = Child;
                 Child = temp.Child;
 
-                if (isLoop && Child?.GetType() == typeof(WhileNode))
+                if (isLoop && (Child?.GetType() == typeof(WhileNode)))
                 {
                     ((WhileNode) Child).LoopParent = this;
                 }
