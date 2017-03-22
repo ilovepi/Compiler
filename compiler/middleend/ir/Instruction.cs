@@ -247,7 +247,7 @@ namespace compiler.middleend.ir
                 ? DisplayArg(smb, Arg2)
                 : string.Empty;
             string lr = LiveRange.Aggregate(string.Empty,
-                (current, instruction) => current + ("" + instruction.Num) + ",");
+                (current, instruction) => current + ("" + instruction?.Num) + ",");
             return $"{Num}: {Op} {a1} {a2} -- Uses {Uses.Count}: {PrintUses(smb)} -- Register: {Reg} -- LiveRange: {lr}";
         }
 
@@ -270,7 +270,7 @@ namespace compiler.middleend.ir
         public override string ToString()
         {
             string lr = LiveRange.Aggregate(string.Empty,
-                (current, instruction) => current + ("" + instruction.Num) + ",");
+                (current, instruction) => current + ("" + instruction?.Num) + ",");
 
             return "" + Num + ": " + Op + " " + Arg1 + " " + Arg2 + " : " + Uses.Count + " -- " + "Register: " + Reg +
                    " -- liveRange: {" + lr + "}";

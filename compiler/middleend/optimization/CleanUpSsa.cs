@@ -56,12 +56,21 @@ namespace compiler.middleend.optimization
             {
                 if (instruction.Op == IrOps.Ssa)
                 {
-                    if (instruction.Arg1.Kind == Operand.OpType.Constant)
+                    if (instruction.VArId.IsGlobal)
+                    {
+                        instruction.Op = IrOps.Add;
+                        instruction.Arg1 = new Operand(Operand.OpType.Constant, instruction.VArId.Offset);
+                        instruction.Arg2 = new Operand(Operand.OpType.Register, 30);
+                        instruction.Arg2.Register = 30;
+                    }
+                    else if (instruction.Arg1.Kind == Operand.OpType.Constant)
                     {
                         instruction.Op = IrOps.Add;
                         instruction.Arg2 = new Operand(Operand.OpType.Constant, 0);
                     }
                 }
+
+                
             }
 
             List<Node> children = root.GetAllChildren();

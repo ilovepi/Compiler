@@ -324,15 +324,44 @@ namespace compiler
         }
 
 
-        public void AssignAddresses()
+        public void AssignOffsets()
         {
             List<VariableType> globals = FuncList.First().ControlFlowGraph.Globals;
             var i = 0;
             foreach (VariableType globalVar in globals)
             {
+                i -= globalVar.Size * 4;
                 globalVar.Offset = i;
-                i += globalVar.Size * 4;
+
             }
+
+            foreach (var parseTree in FuncList)
+            {
+                // all params are ints
+
+                i = 0;
+                foreach (VariableType parameter in parseTree.ControlFlowGraph.Parameters)
+                {
+
+                    parameter.Offset = i;
+                    i -= parameter.Size * 4;
+                }
+
+                // locals can be arrays or ints
+
+                i = 0;
+                foreach (VariableType local in parseTree.ControlFlowGraph.Locals)
+                {
+                    local.Offset = i;
+                    i += local.Size * 4;
+                }
+            }
+
+        }
+
+        public void AssignAddresses()
+        {
+
 
             var baseAddr = 0;
             foreach (FunctionBuilder functionBuilder in DlxFunctions)
@@ -409,6 +438,7 @@ namespace compiler
             CompilerOptions opts = DefaultOpts(pFilename);
             var c = new Compiler(opts);
             c.Parse();
+            c.AssignOffsets();
             c.Optimize();
             c.GenerateOutput();
         }

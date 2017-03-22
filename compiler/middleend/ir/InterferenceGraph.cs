@@ -43,7 +43,7 @@ namespace compiler.middleend.ir
     public class InterferenceGraph : UndirectedGraph<Instruction, UndirectedEdge<Instruction>>
     {
         // # of available registers
-        private const uint RegisterCount = 2;
+        private const uint RegisterCount = 26;
 
         public BasicBlock Bb { get; set; }
 
@@ -244,7 +244,7 @@ namespace compiler.middleend.ir
             foreach (var vertex in curGraph.Vertices.OrderByDescending(item => AdjacentDegree(item)))
             {
                 // Pick a node with fewer neighbors than the max
-                if (AdjacentDegree(vertex) < RegisterCount)
+                if (curGraph.AdjacentDegree(vertex) < RegisterCount)
                 {
                     // Put that node on the coloring stack and remove it from graph
                     _coloringStack.Push(vertex);

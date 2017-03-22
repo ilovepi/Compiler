@@ -180,6 +180,20 @@ namespace compiler.middleend.ir
                     }
                     else
                     {
+
+                        if (instruction.Op == IrOps.Store)
+                        {
+                            if (instruction.Arg1.Kind == Operand.OpType.Constant)
+                            {
+                                var scratch = 27;
+                                // load the constant into memory using the scratch register
+                                MachineBody.Add(new DlxInstruction(OpCodes.ADDI, scratch, 0 ,instruction.Arg1.Val));
+                                instruction.Arg1.Kind = Operand.OpType.Register;
+                                instruction.Arg1.Register = scratch;
+
+                            }
+                        }
+
                         var dlx = new DlxInstruction(instruction);
                         MachineBody.Add(dlx);
                     }

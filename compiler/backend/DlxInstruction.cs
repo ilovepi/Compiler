@@ -129,9 +129,30 @@ namespace compiler.backend
                 case IrOps.Store:
                     if ((inst.Arg1.Kind == Operand.OpType.Instruction) && (inst.Arg2.Inst?.Op == IrOps.Adda))
                     {
-                        A = inst.Arg1.Val;
+                        A = inst.Arg1.Register;
                         B = inst.Arg2.Inst.Arg2.Val;
-                        C = inst.Arg1.Inst.Arg1.Val;
+                        C = inst.Arg1.Inst.Arg1.Variable.Identity.Offset;
+                        //C = inst.Arg1.Val;
+
+                        if (inst.Arg2.Inst.Arg2.Kind == Operand.OpType.Instruction)
+                        {
+                            // Store stuff in an array using instructions
+                            Op = OpCodes.STW;
+                            PutF1();
+                        }
+                        else
+                        {
+                            // else store stuff in an array using an adresss
+                            Op = OpCodes.STX;
+                            PutF2();
+                        }
+                    }
+                    else if ((inst.Arg1.Kind == Operand.OpType.Register) && (inst.Arg2.Inst?.Op == IrOps.Adda))
+                    {
+                        A = inst.Arg1.Register;
+                        B = inst.Arg2.Inst.Arg1.Register;
+                        C = inst.Arg2.Inst.Arg2.Val;
+
                         //C = inst.Arg1.Val;
 
                         if (inst.Arg2.Inst.Arg2.Kind == Operand.OpType.Instruction)
@@ -152,8 +173,8 @@ namespace compiler.backend
                         // Else this is a normal store to a stack variable
                         Op = OpCodes.STW;
                         A = inst.Reg;
-                        B = inst.Arg1.Val;
-                        C = 0;
+                        B = inst.Arg1.Register;
+                        C = inst.Arg2.Register;
                         PutF1();
                     }
                     break;

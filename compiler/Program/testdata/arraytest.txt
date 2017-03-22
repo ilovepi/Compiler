@@ -1,0 +1,19 @@
+main
+
+array [ 4 ] a;
+procedure foo;
+{
+    let a[0] <- 1;
+    let a[1] <- 2;
+    let a[2] <- 3;
+    let a[3] <- 4;
+
+
+    call OutputNum(a[0]);
+    call OutputNum(a[1]);
+    call OutputNum(a[2]);
+    call OutputNum(a[3])
+};
+{
+    call foo()
+}.
