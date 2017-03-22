@@ -198,8 +198,13 @@ namespace compiler.middleend.ir
                 Node temp = Child;
                 Child = temp.Child;
 
+                if (Child?.GetType() == typeof(WhileNode))
+                {
+                    ((WhileNode) Child).LoopParent = this;
+                }
+
                 // restart Consolidate from here to coalesc all blocks possible
-                Consolidate();
+                Consolidate(visited);
             }
             else
             {

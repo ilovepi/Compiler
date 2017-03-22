@@ -148,15 +148,38 @@ namespace compiler.middleend.ir
         public override void InsertMoveInst(Instruction phiInst)
         {
             var phiOperand = new Operand(phiInst);
+            Operand target;
 
-            if (phiInst.Reg != phiInst.Arg1.Inst.Arg1.Register)
+            if (phiInst.Arg1.Inst.Op == IrOps.Phi)
             {
-                LoopParent.InsertMove(phiInst.Arg1, phiOperand);
+                target = phiInst.Arg1;
+            }
+            else
+            {
+                target = phiInst.Arg1.Inst.Arg1;
             }
 
-            if (phiInst.Reg != phiInst.Arg2.Inst.Arg1.Register)
+
+            if (phiInst.Reg != target.Register)
             {
-                Parent.InsertMove(phiInst.Arg2, phiOperand);
+
+                LoopParent.InsertMove(target, phiOperand);
+            }
+
+
+            if (phiInst.Arg2.Inst.Op == IrOps.Phi)
+            {
+                target = phiInst.Arg2;
+            }
+            else
+            {
+                target = phiInst.Arg2.Inst.Arg1;
+            }
+
+
+            if (phiInst.Reg !=target.Register)
+            {
+                Parent.InsertMove(target, phiOperand);
             }
 
         }

@@ -28,7 +28,7 @@ namespace compiler.middleend.optimization
                 if (instruction.Op == IrOps.Phi)
                 {
 
-                        root.InsertMoveInst(instruction);
+                    root.InsertMoveInst(instruction);
 
                 }
             }

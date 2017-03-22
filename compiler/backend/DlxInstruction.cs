@@ -323,6 +323,11 @@ namespace compiler.backend
             else
             {
                 B = arg1.Register;
+                if (B == 0)
+                {
+                    B = arg1.Inst.Reg;
+                }
+
                 // then arg might have the constant, and B is the register for sure
                 if (arg2.Kind == Operand.OpType.Constant)
                 {
