@@ -58,6 +58,7 @@ namespace compiler.middleend.ir
         public HashSet<Instruction> UsesLocations { get; set; }
 
         public List<Operand> Parameters { get; set; }
+        public List<VariableType> Locals { get; set; }
 
         /// <summary>
         ///     The Instruction number

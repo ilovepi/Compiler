@@ -8,15 +8,15 @@ function foo( );
 var i, d;
 {
 	let i <- 0;
-	let d <- 0;
+	let d <- 1;
 	#let x <- call InputNum();
 	#let y <- call InputNum();
 	#let z <- call InputNum();
 
 	while i < 10 do
-		let y <- y + 2;
-		let z <- x + 2;
-		let d <- y + z;
+		let y <- y + 3;
+		#let z <- x + 2;
+		#let d <- y + z;
 		let i <- i + 1
 		#call InputNum(i)
 	od;

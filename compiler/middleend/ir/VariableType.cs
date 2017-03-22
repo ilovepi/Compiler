@@ -86,7 +86,7 @@ namespace compiler.middleend.ir
             Id = pId;
             IsArray = false;
             Offset = CurrOffset;
-            Size = 1;
+            Size = VariableType.Dword;
             CurrOffset += Size;
             Address = 0;
         }

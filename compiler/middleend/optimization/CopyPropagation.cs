@@ -70,7 +70,7 @@ namespace compiler.middleend.optimization
                             instUses.Where(
                                 target =>
                                     (target.Op != IrOps.Write) && (target.Op != IrOps.Load) && (target.Op != IrOps.Adda) &&
-                                    (target.Op != IrOps.Phi)).ToList();
+                                    (target.Op != IrOps.Phi) && (target.Op != IrOps.Ret)).ToList();
 
                         foreach (Instruction replacedItem in replaceList)
                         {

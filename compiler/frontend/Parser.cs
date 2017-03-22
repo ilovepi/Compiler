@@ -621,6 +621,7 @@ namespace compiler.frontend
             {
                 Next();
                 newVar = new VariableType();
+                newVar.Size = VariableType.Dword;
             }
             else if (Tok == Token.ARRAY)
             {
@@ -908,6 +909,7 @@ namespace compiler.frontend
             var instructions = new List<Instruction>();
 
             var paramList = new List<ParseResult>();
+            var localsList = new List<VariableType>();
 
             if (Tok == Token.OPEN_PAREN)
             {
@@ -941,6 +943,8 @@ namespace compiler.frontend
                         FatalError("Function '" + func.Name + "' takes " + func.Parameters.Count + " parameters, but " +
                                    paramList.Count + " were provided.");
                     }
+
+                    localsList = func.Locals;
                 }
             }
 
@@ -985,6 +989,7 @@ namespace compiler.frontend
                 }
             }
 
+            call.Locals = localsList;
             instructions.Add(call);
             return new ParseResult(id, instructions, variables);
         }
@@ -1328,6 +1333,9 @@ namespace compiler.frontend
                 var visitedhHashSet = new HashSet<string>();
                 function.UsedGlobals.UnionWith(CheckCalls(visitedhHashSet, function));
                 Node epilogue = function.Root.Leaf();
+                var ret = epilogue.Bb.Instructions.Last();
+                epilogue.Bb.Instructions.Remove(ret);
+
                 foreach (VariableType global in function.UsedGlobals)
                 {
                     SsaVariable temp = variables[global.Id];
@@ -1335,6 +1343,8 @@ namespace compiler.frontend
                         new Operand(Operand.OpType.Constant, global.Id));
                     epilogue.Bb.AddInstruction(newInst);
                 }
+
+                epilogue.Bb.Instructions.Add(ret);
             }
         }
 

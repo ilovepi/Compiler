@@ -310,7 +310,7 @@ namespace compiler.middleend.ir
 
             var size = 0;
             // allocate memory for all local variables
-            foreach (VariableType variableType in Tree.ControlFlowGraph.Locals)
+            foreach (VariableType variableType in calliInstruction.Locals)
             {
                 size += variableType.Size;
             }
@@ -361,7 +361,7 @@ namespace compiler.middleend.ir
             // save return value back on stack, or in a register if that works
             if (!tree.ControlFlowGraph.isProcedure)
             {
-                var retInst = new DlxInstruction(OpCodes.STW, 26, DlxInstruction.Sp,
+                var retInst = new DlxInstruction(OpCodes.STW, retValReg, DlxInstruction.Sp,
                     (-4 *(3 + tree.DominatorTree.NumReg + calliInstruction.Parameters.Count + Tree.ControlFlowGraph.Parameters.Count)) );
                 retInst.PutF1();
                 eplilogue.Add(retInst);
@@ -378,7 +378,7 @@ namespace compiler.middleend.ir
                 if (instructions.Length != 0)
                 {
                     eplilogue.Add(new DlxInstruction(OpCodes.STW, instructions.First().Reg, DlxInstruction.Globals,
-                        variableType.Address));
+                        variableType.Offset));
                 }
             }
 
