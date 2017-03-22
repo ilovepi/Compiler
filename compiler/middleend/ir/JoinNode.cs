@@ -87,9 +87,9 @@ namespace compiler.middleend.ir
                 falseBranch = FalseParent.AnchorSearch(goal);
             }
 
-            if (falseBranch == trueBranch)
+            if (falseBranch != trueBranch)
             {
-                return trueBranch;
+                return null;
             }
 
 

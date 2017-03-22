@@ -60,9 +60,9 @@ namespace compiler.middleend.optimization
                 {
                     if (bbInstruction.Op == IrOps.Load)
                     {
-                        if (bbInstruction.Arg1.Kind == Operand.OpType.Instruction)
+                        //if (bbInstruction.Arg1.Kind == Operand.OpType.Instruction)
                         {
-                            if (bbInstruction.Arg1.Inst.Op == IrOps.Adda)
+                            //if (bbInstruction.Arg1.Inst.Op == IrOps.Adda)
                             {
                                 //continue;
                             }
@@ -144,7 +144,7 @@ namespace compiler.middleend.optimization
                     case IrOps.Write:
                     case IrOps.WriteNl:
                     //case IrOps.Adda:
-                    //case IrOps.Load:
+                   // case IrOps.Load:
                     case IrOps.Call:
 
                         break;
