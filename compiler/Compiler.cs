@@ -160,6 +160,8 @@ namespace compiler
                 func.TransformDlx(DlxFunctions);
             }
 
+            DlxFunctions.First().MachineBody.Insert(0, new DlxInstruction(OpCodes.ADDI, DlxInstruction.Sp, DlxInstruction.Sp, 100));
+            DlxFunctions.First().MachineBody.Insert(1, new DlxInstruction(OpCodes.ADDI, DlxInstruction.Fp, DlxInstruction.Sp, 0));
             AssignAddresses();
         }
 
@@ -375,6 +377,13 @@ namespace compiler
             {
                 functionBuilder.FixInstructions();
             }
+
+            var spSet = DlxFunctions.First().MachineBody.First();
+
+            spSet.C = baseAddr;
+            spSet.PutF1();
+
+
         }
 
 

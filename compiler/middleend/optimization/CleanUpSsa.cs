@@ -66,7 +66,8 @@ namespace compiler.middleend.optimization
                     else if (instruction.Arg1.Kind == Operand.OpType.Constant)
                     {
                         instruction.Op = IrOps.Add;
-                        instruction.Arg2 = new Operand(Operand.OpType.Constant, 0);
+                        instruction.Arg2  = new Operand(Operand.OpType.Constant, 0);
+
                     }
                 }
 

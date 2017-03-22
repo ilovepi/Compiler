@@ -56,6 +56,9 @@ namespace compiler.middleend.ir
 
         public Node Root { get; set; }
 
+        public SortedDictionary<VariableType, Instruction> UsedGlobalMap { get; set; }
+
+
         public bool isProcedure;
 
         // may not need these

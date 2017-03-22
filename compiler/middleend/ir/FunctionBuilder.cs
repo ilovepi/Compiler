@@ -351,12 +351,20 @@ namespace compiler.middleend.ir
             var localSize = 0;
 
             // calculate memory for all local variables
-            foreach (VariableType variableType in tree.ControlFlowGraph.Locals)
+            foreach (VariableType variableType in calliInstruction.Locals)
             {
                 localSize += variableType.Size;
             }
 
             var eplilogue = new List<DlxInstruction>();
+
+            // pop all the locals off the stack
+            // pop all the parameters off the stack
+            if ((tree.ControlFlowGraph.Parameters.Count + localSize) > 0)
+            {
+                eplilogue.Add(new DlxInstruction(OpCodes.SUBI, DlxInstruction.Sp, DlxInstruction.Sp,
+                    (4 * tree.ControlFlowGraph.Parameters.Count) + localSize));
+            }
 
             // save return value back on stack, or in a register if that works
             if (!tree.ControlFlowGraph.isProcedure)
@@ -377,18 +385,12 @@ namespace compiler.middleend.ir
                 Instruction[] instructions = good as Instruction[] ?? good.ToArray();
                 if (instructions.Length != 0)
                 {
-                    eplilogue.Add(new DlxInstruction(OpCodes.STW, instructions.First().Reg, DlxInstruction.Globals,
+                    eplilogue.Add(new DlxInstruction(OpCodes.LDW, instructions.First().Reg, DlxInstruction.Globals,
                         variableType.Offset));
                 }
             }
 
-            // pop all the locals off the stack
-            // pop all the parameters off the stack
-            if ((tree.ControlFlowGraph.Parameters.Count + localSize) > 0)
-            {
-                eplilogue.Add(new DlxInstruction(OpCodes.SUBI, DlxInstruction.Sp, DlxInstruction.Sp,
-                    (4 * tree.ControlFlowGraph.Parameters.Count) + localSize));
-            }
+
 
 
             // restore old registers

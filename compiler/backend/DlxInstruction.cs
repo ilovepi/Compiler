@@ -193,9 +193,10 @@ namespace compiler.backend
                     {
                         // Else this is a normal store to a stack variable
                         Op = OpCodes.STW;
-                        A = inst.Reg;
-                        B = inst.Arg1.Register;
-                        C = inst.Arg2.Register;
+                        A = inst.Arg1.Register;
+                        B = inst.VArId.IsGlobal ? Globals : Fp;
+                        C = inst.VArId.Offset;
+
                         PutF1();
                     }
                     break;

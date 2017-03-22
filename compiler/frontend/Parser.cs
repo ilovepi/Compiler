@@ -773,16 +773,19 @@ namespace compiler.frontend
             cfg.Root.Leaf().Bb.Instructions.Remove(ret);
             var epilogue = new Node(new BasicBlock("Epilogue", nestingDepth));
 
+            cfg.UsedGlobalMap = new SortedDictionary<VariableType, Instruction>();
             foreach (Instruction globalLoad in loads)
             {
                 SsaVariable temp = variables[globalLoad.Arg1.IdKey];
                 if (temp.Location != globalLoad)
                 {
-                    var newInst = new Instruction(IrOps.Store, temp.Value,
+                    var newInst = new Instruction(IrOps.Store, new Operand(temp.Location),
                         new Operand(Operand.OpType.Constant, temp.UuId));
+                    newInst.VArId = temp.Identity;
 
                     epilogue.Bb.AddInstruction(newInst);
                     cfg.UsedGlobals.Add(temp.Identity);
+                    //cfg.UsedGlobalMap[temp.Identity] = temp.Location;
                 }
             }
 
@@ -1340,8 +1343,8 @@ namespace compiler.frontend
                 {
                     SsaVariable temp = variables[global.Id];
                     var newInst = new Instruction(IrOps.Store, temp.Value,
-                        new Operand(Operand.OpType.Constant, global.Id));
-                    epilogue.Bb.AddInstruction(newInst);
+                        new Operand(temp));
+                    //epilogue.Bb.AddInstruction(newInst);
                 }
 
                 epilogue.Bb.Instructions.Add(ret);
