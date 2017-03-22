@@ -313,7 +313,7 @@ namespace compiler.middleend.ir
 
                 bool couldGlob = false;
                 // [PHIGLOB] first try to assign a common reg
-                for (uint reg = RegisterCount; reg >= 1; reg--)
+                for (uint reg = 1; reg <= RegisterCount; reg++)
                 {
                     if (!globNeighborRegs.Contains(reg))
                     {
@@ -330,7 +330,7 @@ namespace compiler.middleend.ir
                 // ... and give it a different one.
                 if (!couldGlob)
                 {
-                    for (uint reg = RegisterCount; reg >= 1; reg--)
+					for (uint reg = 1; reg <= RegisterCount; reg++)
                     {
                         if (!neighborRegs.Contains(reg))
                         {
