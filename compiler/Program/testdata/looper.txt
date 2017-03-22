@@ -1,0 +1,12 @@
+﻿main
+var x, i;
+{
+	let x <- 0;
+	let i <- 0;
+	while i < 10 do
+		let x <- x + 2;
+		let i <- i + 1
+	od;
+
+	call OutputNum(x)
+}.
