@@ -181,7 +181,7 @@ namespace compiler.middleend.ir
                     else
                     {
 
-                        if (instruction.Op == IrOps.Store)
+                        if (instruction.Op == IrOps.Store || instruction.Op == IrOps.Write)
                         {
                             if (instruction.Arg1.Kind == Operand.OpType.Constant)
                             {

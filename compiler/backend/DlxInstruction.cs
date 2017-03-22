@@ -141,7 +141,13 @@ namespace compiler.backend
                             A = inst.Arg1.Inst.Reg;
                         }
 
+
                         B = inst.Arg2.Inst.Arg2.Register;
+                        if (B == 0)
+                        {
+                            B = inst.Arg2.Inst.Arg1.Variable.Identity.IsGlobal ? Globals : Fp;
+                        }
+
                         C = inst.Arg2.Inst.Arg1.Variable?.Identity.Offset ?? inst.Arg2.Inst.VArId.Offset;
                         //C = inst.Arg1.Val;
 
@@ -251,6 +257,11 @@ namespace compiler.backend
                     Op = OpCodes.WRD;
                     A = 0;
                     B = inst.Arg1.Register;
+                    if (inst.Arg1.Kind == Operand.OpType.Variable && inst.Arg1.Inst?.Op != IrOps.Ssa)
+                    {
+                       // B = inst.Arg1.Variable.Location.Arg1.Register;
+                    }
+
                     PutF2();
                     break;
                 case IrOps.WriteNl:

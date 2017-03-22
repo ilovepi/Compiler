@@ -222,6 +222,7 @@ namespace compiler.middleend.ir
             unchecked
             {
                 var hashCode = (int) Op;
+                hashCode = (hashCode * 397) ^ (Num);
                 hashCode = (hashCode * 397) ^ (Arg1?.GetHashCode() ?? 0);
                 hashCode = (hashCode * 397) ^ (Arg2?.GetHashCode() ?? 0);
                 return hashCode;
