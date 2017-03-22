@@ -43,7 +43,7 @@ namespace compiler.middleend.ir
     public class InterferenceGraph : UndirectedGraph<Instruction, UndirectedEdge<Instruction>>
     {
         // # of available registers
-        private const uint RegisterCount = 3;
+        private const uint RegisterCount = 2;
 
         public BasicBlock Bb { get; set; }
 
