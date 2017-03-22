@@ -304,6 +304,44 @@ namespace compiler.backend
         {
             if (arg1.Kind == Operand.OpType.Constant)
             {
+
+
+                if (arg2.Kind == Operand.OpType.Constant)
+                {
+
+                    int res = 0;
+                    switch (opCode)
+                    {
+                        case OpCodes.ADD:
+                            res = arg1.Val + arg2.Val;
+                            break;
+                        case OpCodes.SUB:
+                            res = arg1.Val - arg2.Val;
+                            break;
+                        case OpCodes.MUL:
+                            res = arg1.Val * arg2.Val;
+                            break;
+                        case OpCodes.DIV:
+                            res = arg1.Val / arg2.Val;
+                            break;
+
+                    }
+
+
+
+                    // arg 2 has the register value
+                    Op = opCode + 16;
+                    B = 0;
+                    C = res;
+                    PutF1();
+                    return;
+
+                }
+
+
+
+
+
                 // thse cannot have their argument ordering switched
                 if ((opCode == OpCodes.SUB) || (opCode == OpCodes.DIV) || (opCode == OpCodes.CMP))
                 {

@@ -28,6 +28,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using compiler.frontend;
 using compiler.middleend.ir;
 
@@ -84,6 +85,10 @@ namespace compiler.middleend.optimization
                     case IrOps.Bge:
                     case IrOps.Bgt:
                     case IrOps.Write:
+                        break;
+                    case IrOps.Ret:
+                        if (inst.Arg2?.Kind == Operand.OpType.Variable)
+                            live.Add(inst.Arg2.Variable.Location);
                         break;
                     case IrOps.Load:
                         if ((inst.Arg1.Kind == Operand.OpType.Instruction) && (inst.Arg1.Inst.Op == IrOps.Adda))
@@ -152,7 +157,8 @@ namespace compiler.middleend.optimization
                     case IrOps.Bgt:
                     case IrOps.Write:
                         break;
-                        case IrOps.Phi:
+
+                    case IrOps.Phi:
                         if (!isFirstVisit)
                         {
                             AddArgToLiveRange(inst.Arg2, live);

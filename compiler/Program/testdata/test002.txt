@@ -14,9 +14,9 @@ var i, d;
 	#let z <- call InputNum();
 
 	while i < 10 do
-		let y <- y + 5;
-		#let z <- x + 2;
-		#let d <- y + z;
+		let y <- y + 1;
+		let z <- x + 2;
+		let d <- y + z;
 		let i <- i + 1
 		#call InputNum(i)
 	od;
@@ -43,7 +43,7 @@ var i, j, e;
 	let y <- 2;
 	let z <- 3;
 	
-	#call bar( x, z );
+	call bar( x, z );
 	let c <- call foo;
 	
 	call OutputNum(c)
