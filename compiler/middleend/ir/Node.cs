@@ -330,6 +330,11 @@ namespace compiler.middleend.ir
 
         public virtual void InsertMove(Operand src, Operand dest)
         {
+			if (src.Register == dest.Register)
+			{
+				return;
+			}
+
             bool swap = false;
             if (Bb.Instructions.Count > 0)
             {
