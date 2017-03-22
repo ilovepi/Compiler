@@ -257,11 +257,7 @@ namespace compiler
             {
                 InterferenceGraph intGraph = parseTree.DominatorTree.IntGraph;
 
-                foreach (Instruction vertex in intGraph.Vertices)
-                {
-                    //newIntGraph.AddVerticesAndEdgeRange( (new InterferenceGraph(intGraph.PhiGlobber(vertex, visited))).Edges );
-                    //intGraph.Color();
-                }
+
 
                 // parseTree.DominatorTree.IntGraph = newIntGraph;
                 intGraph.Color();
@@ -273,6 +269,8 @@ namespace compiler
 
                     inst.Reg = (int) reg;
                 }
+
+                PhiReplacement.InsertMoveInst(parseTree.ControlFlowGraph.Root);
             }
         }
 
