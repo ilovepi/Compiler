@@ -56,7 +56,7 @@ namespace compiler.middleend.optimization
             {
                 if (instruction.Op == IrOps.Ssa)
                 {
-                    if (instruction.VArId.IsGlobal)
+					if ((instruction.VArId?.IsGlobal ?? false) || (instruction.Arg1.Variable?.Identity.IsGlobal ?? false))
                     {
                         instruction.Op = IrOps.Add;
                         instruction.Arg1 = new Operand(Operand.OpType.Constant, instruction.VArId.Offset);
